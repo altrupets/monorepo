@@ -1,0 +1,59 @@
+lib/
+├── main.dart                # Punto de entrada principal.
+├── config/                  
+│   ├── theme.dart           # Tema global (colores, fuentes, estilos).
+│   └── routes.dart          # Configuración de rutas/navegación.
+├── models/                  
+│   ├── pet.dart             # Modelo para mascotas.
+│   ├── user.dart            # Modelo para usuarios.
+│   ├── invoice.dart         # Modelo para facturas veterinarias.
+│   ├── donation.dart        # Modelo para campañas de crowdfunding.
+│   └── product.dart         # Modelo para productos del marketplace.
+├── services/                
+│   ├── payment_service.dart # Integración con ONVO Pay y manejo de pagos.
+│   ├── donation_service.dart # Lógica específica para donativos y crowdfunding.
+│   ├── marketplace_service.dart # Gestión de compras en el marketplace.
+│   └── vet_service.dart     # Servicio para veterinarios y clínicas.
+├── screens/                 
+│   ├── home/                
+│   │   ├── home_screen.dart # Pantalla principal.
+│   │   └── widgets/         
+│   │       ├── carousel.dart # Carrusel de opciones principales.
+│   │       └── section_card.dart # Tarjetas para secciones.
+│   ├── adoption/            
+│   │   ├── adoption_list_screen.dart # Lista de mascotas en adopción.
+│   │   ├── pet_detail_screen.dart    # Detalles de una mascota.
+│   │   └── widgets/
+│   │       ├── pet_card.dart         # Tarjeta de mascota.
+│   │       └── filter_bar.dart       # Filtro de búsqueda.
+│   ├── report/              
+│   │   ├── report_screen.dart       # Formulario de reporte.
+│   │   ├── report_map_screen.dart   # Mapa para geolocalización.
+│   │   └── widgets/
+│   │       └── report_form.dart     # Widget de formulario.
+│   ├── marketplace/          
+│   │   ├── marketplace_screen.dart  # Listado de productos.
+│   │   ├── product_detail_screen.dart # Detalle de un producto.
+│   │   ├── vet_list_screen.dart     # Lista de veterinarios y clínicas.
+│   │   └── vet_detail_screen.dart   # Detalle de un veterinario o clínica.
+│   ├── invoices/             # Pantallas para facturas veterinarias.
+│   │   ├── invoice_list_screen.dart # Lista de facturas disponibles.
+│   │   └── invoice_detail_screen.dart # Detalle de una factura.
+│   ├── donation/            
+│   │   ├── donation_screen.dart     # Pantalla principal de donaciones.
+│   │   └── widgets/
+│   │       └── crowdfunding_card.dart # Tarjeta para campañas destacadas.
+│   ├── auth/                
+│   │   ├── login_screen.dart        # Pantalla de inicio de sesión.
+│   │   ├── register_screen.dart     # Pantalla de registro.
+│   │   └── widgets/
+│   │       ├── auth_form.dart       # Formulario reutilizable.
+│   │       └── social_login_buttons.dart # Botones para redes sociales.
+├── utils/                   
+│   ├── constants.dart       # Constantes globales.
+│   ├── helpers.dart         # Métodos auxiliares.
+│   └── validators.dart      # Validaciones comunes.
+└── widgets/                 
+    ├── custom_button.dart   # Botón personalizado.
+    ├── loading_spinner.dart # Indicador de carga.
+    └── responsive_layout.dart # Layout adaptable.
