@@ -3,14 +3,14 @@
 License text copyright © 2023 MariaDB plc, All Rights Reserved.
 "Business Source License" is a trademark of MariaDB plc.
 
-"Centinelas al Rescate" is licensed under the Business Source License agreement below.
+"AltruPets" is licensed under the Business Source License agreement below.
 
-"Centinelas al Rescate" occasionally includes source code that is derived from third-party code.
+"AltruPets" occasionally includes source code that is derived from third-party code.
 This situation is noted in the license header at the top of the affected files.
 Full authorship information can be derived from the version control history.
 ---
 
-"Centinelas al Rescate" BUSINESS SOURCE LICENSE AGREEMENT
+"AltruPets" BUSINESS SOURCE LICENSE AGREEMENT
 
 Parameters
 
@@ -21,7 +21,7 @@ Luis Andrés Peña Castillo, Costa Rican, National ID 1-1637-0246
 
 ## Licensed Work
 
-"Centinelas al Rescate" Version 0.0.1 or later.
+"AltruPets" Version 0.0.1 or later.
 The Licensed Work is (c) 2025 Andrés Peña
 
 ### Additional Use Grant
