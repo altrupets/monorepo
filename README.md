@@ -1,10 +1,10 @@
-# Centinelas al Rescate
+# AltruPets
 
-Aplicación móvil desarrollada en Flutter que facilita la protección animal mediante un sistema integral que conecta a ciudadanos, sentinelas y rescatistas. La aplicación permite interponer denuncias anónimas de maltrato animal, coordinar solicitudes de rescate, y gestionar casas cuna para animales rescatados.
+Aplicación móvil desarrollada en Flutter que conecta a amantes de los animales para combatir el maltrato animal y ayudar a animales abandonados en Costa Rica. La aplicación permite interponer denuncias, coordinar rescates y gestionar casas cuna para animales rescatados, sirviendo como una plataforma única para la colaboración entre ciudadanos, organizaciones, gobiernos locales y empresas.
 
 ## Objetivo
 
-Crear una red colaborativa que agilice los procesos de rescate animal y mejore la respuesta ante situaciones de maltrato, conectando a todos los actores del ecosistema de protección animal de manera eficiente y transparente.
+Crear una red colaborativa que agilice los procesos de rescate animal y mejore la respuesta ante situaciones de maltrato, conectando a todos los actores del ecosistema de protección animal de manera eficiente y transparente para combatir el maltrato animal y ayudar a animales abandonados en Costa Rica.
 
 ## Arquitectura del Sistema
 
@@ -23,7 +23,7 @@ El sistema está diseñado como una arquitectura distribuida con separación cla
 ### Backend (API/Servicios)
 - Lógica de negocio compleja
 - Autenticación y autorización (RBAC)
-- Procesamiento de pagos y cumplimiento PCI DSS
+- Procesamiento de pagos
 - Algoritmos de machine learning y detección de anomalías
 - Gestión de base de datos y persistencia
 - Integración con servicios externos

@@ -1,8 +1,8 @@
-# Documento de Requerimientos - Centinelas al Rescate
+# Documento de Requerimientos - AltruPets
 
 ## Introducción
 
-Centinelas al Rescate es una aplicación móvil desarrollada en Flutter que facilita la protección animal mediante un sistema integral que conecta a ciudadanos, sentinelas y rescatistas. La aplicación permite interponer denuncias anónimas de maltrato animal, coordinar solicitudes de rescate, y gestionar casas cuna para animales rescatados. El objetivo principal es crear una red colaborativa que agilice los procesos de rescate animal y mejore la respuesta ante situaciones de maltrato.
+AltruPets es una aplicación móvil desarrollada en Flutter que facilita la protección animal mediante un sistema integral que conecta a ciudadanos, sentinelas y rescatistas. La aplicación permite interponer denuncias anónimas de maltrato animal, coordinar solicitudes de rescate, y gestionar casas cuna para animales rescatados. El objetivo principal es crear una red colaborativa que agilice los procesos de rescate animal y mejore la respuesta ante situaciones de maltrato.
 
 ## Arquitectura del Sistema
 
