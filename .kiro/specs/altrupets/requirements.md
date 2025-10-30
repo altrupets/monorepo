@@ -360,6 +360,47 @@ CUANDO un auxiliar brinde auxilio inmediato a un animal ENTONCES el sistema DEBE
 
 CUANDO un auxiliar complete el auxilio ENTONCES el sistema DEBERÁ permitir documentar el estado del animal con fotografías y descripción para el rescatista
 
+**REQ-AUX-006: Solicitud de Crowdfunding para Gastos de Transporte**
+
+CUANDO un auxiliar acepte una alerta y no tenga transporte propio viable ENTONCES el sistema DEBERÁ permitir crear una "vaca" o "banca" (crowdfunding) para cubrir gastos de transporte con:
+- Descripción del caso específico y animal a rescatar
+- Desglose de costos estimados (viaje ida, viaje vuelta con Uber Pets/similar)
+- Meta de recaudación específica y plazo límite
+- Ubicaciones de origen y destino para validar costos
+- Fotografías del animal reportado por el centinela
+
+**REQ-AUX-006A: Validación automática de costos de transporte**
+
+CUANDO se cree una solicitud de crowdfunding para transporte ENTONCES el sistema DEBERÁ:
+- Calcular automáticamente costos estimados usando APIs de Uber/Didi/inDriver
+- Verificar que la meta de recaudación sea razonable (máximo 150% del costo estimado)
+- Validar que el auxiliar no tenga transporte propio registrado
+- Confirmar que la distancia justifique el gasto (mínimo 2km del domicilio del auxiliar)
+
+**REQ-AUX-006B: Gestión de fondos de crowdfunding**
+
+CUANDO se recauden fondos para transporte ENTONCES el sistema DEBERÁ:
+- Transferir automáticamente los fondos al auxiliar una vez alcanzada la meta
+- Devolver donaciones proporcionalmente si no se alcanza la meta en 24 horas
+- Requerir comprobantes de gasto (recibos de Uber/taxi) dentro de 48 horas
+- Permitir que donantes vean el uso transparente de sus contribuciones
+
+**REQ-AUX-006C: Límites y controles de crowdfunding**
+
+CUANDO un auxiliar solicite crowdfunding ENTONCES el sistema DEBERÁ aplicar:
+- Máximo 2 solicitudes de crowdfunding por auxiliar por mes
+- Límite máximo de $50 USD (o equivalente local) por solicitud
+- Verificación de que el auxiliar haya completado exitosamente rescates previos
+- Suspensión temporal si no presenta comprobantes de gasto en solicitudes anteriores
+
+**REQ-AUX-006D: Notificaciones de crowdfunding**
+
+CUANDO se cree una solicitud de crowdfunding ENTONCES el sistema DEBERÁ notificar a:
+- Donantes activos en la zona geográfica del rescate
+- Otros auxiliares y rescatistas cercanos que puedan contribuir
+- Centinela que reportó el caso para que pueda apoyar económicamente
+- Comunidad general con filtros de interés en casos de transporte
+
 #### 3.2.3. Funciones para Rescatistas
 
 **REQ-RES-001: Registro de Rescatistas con Contactos de Emergencia Obligatorios**
@@ -431,6 +472,31 @@ CUANDO un rescatista solicite apoyo gubernamental ENTONCES el sistema DEBERÁ:
 - Permitir que el gobierno subsidie parcialmente las primeras consultas veterinarias
 - Coordinar con veterinarios que participen en programas gubernamentales de rescate
 
+#### 3.2.3.1. Excepción al Principio de Responsabilidad Única para Rescatistas
+
+**Justificación de múltiples responsabilidades:**
+
+Los rescatistas son la **única excepción** al principio de responsabilidad única porque tienen **autonomía profesional** y **responsabilidad moral completa** sobre el bienestar animal. Esta excepción está **cuidadosamente justificada** porque:
+
+1. **Conocimiento directo del animal**: Son los únicos que conviven día a día con el animal y conocen su estado real
+2. **Capacidad de evaluación médica básica**: Tienen experiencia para determinar si pueden manejar cuidados básicos o si requieren veterinario
+3. **Responsabilidad legal y moral**: Deben garantizar el bienestar desde el rescate hasta la adopción
+4. **Autoridad para tomar decisiones críticas**: Son los únicos que pueden evaluar cuándo un animal está listo para adopción
+5. **Conocimiento de situaciones de maltrato**: Por su experiencia, pueden identificar casos que requieren intervención legal
+
+**Tipos de solicitudes que pueden crear los rescatistas:**
+
+1. **"Solicitudes para atención veterinaria"** - Cuando evalúen que el caso requiere atención profesional que excede sus conocimientos/insumos disponibles
+2. **"Solicitudes de adopción"** - Cuando evalúen que el animal cumple todos los criterios de adoptabilidad  
+3. **"Solicitudes de intervención policial"** - Cuando identifiquen situaciones de maltrato animal o resistencia que requiera autoridad legal
+
+**¿Por qué esta violación es necesaria y justificada?**
+
+- **Eficiencia**: Evita burocracia innecesaria que podría resultar en más sufrimiento animal
+- **Expertise**: Los rescatistas tienen el conocimiento y experiencia necesarios para estas evaluaciones
+- **Responsabilidad**: Si algo sale mal, la responsabilidad recae claramente en el rescatista
+- **Urgencia**: Situaciones de maltrato o emergencias médicas no pueden esperar múltiples aprobaciones
+
 **REQ-RES-002: Gestión de Casa Cuna**
 
 CUANDO un rescatista reciba un animal ENTONCES el sistema DEBERÁ permitir registrar datos médicos, comportamiento, necesidades especiales y fotografías del animal
@@ -450,6 +516,48 @@ CUANDO un animal esté listo para adopción ENTONCES el sistema DEBERÁ permitir
 **REQ-RES-006: Recepción de Donaciones**
 
 CUANDO un rescatista reciba donaciones ENTONCES el sistema DEBERÁ registrar automáticamente en el sistema financiero y enviar agradecimiento al donante
+
+**REQ-RES-007: Solicitud de Intervención Policial**
+
+CUANDO un rescatista identifique una situación que requiera intervención policial ENTONCES el sistema DEBERÁ permitir crear una "solicitud de intervención policial" con:
+- Descripción detallada de la situación (maltrato, animal amarrado/encerrado, resistencia del propietario)
+- Ubicación GPS precisa del incidente
+- Evidencia fotográfica o de video
+- Referencia legal aplicable (Ley de Maltrato Animal del país)
+- Nivel de urgencia (bajo, medio, alto, crítico)
+- Solicitud de escolta policial para auxiliares o rescatistas
+
+**REQ-RES-007A: Notificación automática a autoridades policiales**
+
+CUANDO se cree una solicitud de intervención policial ENTONCES el sistema DEBERÁ:
+- Notificar automáticamente a la estación de policía de la jurisdicción correspondiente
+- Incluir todos los detalles del caso y evidencia adjunta
+- Proporcionar información de contacto del rescatista como referencia principal
+- Generar código de seguimiento único para el caso
+
+**REQ-RES-007B: Escalamiento por falta de respuesta policial**
+
+CUANDO no haya respuesta policial en los tiempos establecidos ENTONCES el sistema DEBERÁ:
+- Escalar automáticamente a supervisores policiales después de 2 horas para casos críticos
+- Escalar a supervisores después de 24 horas para casos no críticos
+- Notificar al rescatista sobre el estado del escalamiento
+- Registrar la falta de respuesta para reportes de transparencia
+
+**REQ-RES-007C: Contacto de referencia para quejas policiales**
+
+CUANDO un oficial de policía se niegue a cumplir con la legislación de maltrato animal ENTONCES:
+- El rescatista DEBERÁ ser el contacto de referencia principal para cualquier denuncia
+- El sistema DEBERÁ proporcionar al rescatista información legal de respaldo
+- Se DEBERÁ registrar la negativa del oficial para reportes a supervisores
+- El rescatista podrá reportar la situación a través del sistema para escalamiento administrativo
+
+**REQ-RES-007D: Seguimiento de casos policiales**
+
+CUANDO se active una solicitud de intervención policial ENTONCES el sistema DEBERÁ:
+- Permitir al rescatista actualizar el estado del caso
+- Registrar la respuesta y acciones tomadas por las autoridades
+- Mantener historial completo para auditoría y mejora de procesos
+- Generar métricas de efectividad de respuesta policial por jurisdicción
 
 #### 3.2.4. Funciones para Adoptantes
 
@@ -2520,3 +2628,260 @@ function validateAnimalIntegrity(animal: Animal): ValidationResult {
 ---
 
 *Este documento cumple con el estándar IEEE 830-1998 para especificaciones de requisitos software y ha sido estructurado para facilitar el desarrollo de la plataforma AltruPets siguiendo principios de arquitectura de microservicios cloud-native.*
+
+#### Estados de Solicitudes de Intervención Policial
+
+**REQ-WF-060:** CUANDO se cree una Solicitud de Intervención Policial ENTONCES el estado inicial DEBERÁ ser `CREADA`.
+
+**REQ-WF-061:** CUANDO una solicitud de intervención policial sea recibida por las autoridades ENTONCES el estado DEBERÁ cambiar a `EN_REVISION`.
+
+**REQ-WF-062:** CUANDO las autoridades policiales asignen el caso a un oficial ENTONCES el estado DEBERÁ cambiar a `ASIGNADA`.
+
+**REQ-WF-063:** CUANDO el oficial de policía esté en camino o en el lugar ENTONCES el estado DEBERÁ cambiar a `EN_PROGRESO`.
+
+**REQ-WF-064:** CUANDO se complete la intervención policial exitosamente ENTONCES el estado DEBERÁ cambiar a `COMPLETADA`.
+
+**REQ-WF-065:** CUANDO las autoridades rechacen la solicitud o se nieguen a actuar ENTONCES el estado DEBERÁ cambiar a `RECHAZADA` con justificación obligatoria.
+
+**REQ-WF-066:** CUANDO no haya respuesta policial en los tiempos establecidos ENTONCES el estado DEBERÁ cambiar automáticamente a `ESCALADA` y notificar a supervisores.
+
+**REQ-WF-067:** CUANDO la situación se resuelva sin intervención policial ENTONCES el estado DEBERÁ cambiar a `RESUELTA_SIN_INTERVENCION`.
+
+#### Notificaciones para Intervención Policial
+
+**REQ-NOT-007: Notificar autoridades policiales al crear solicitud**
+
+CUANDO se cree una solicitud de intervención policial ENTONCES el sistema DEBERÁ notificar automáticamente a la estación de policía de la jurisdicción correspondiente con todos los detalles del caso.
+
+**REQ-NOT-008: Escalamiento automático por falta de respuesta**
+
+CUANDO no haya respuesta policial ENTONCES el sistema DEBERÁ escalar automáticamente:
+- A supervisores policiales después de 2 horas para casos críticos
+- A supervisores después de 24 horas para casos no críticos
+- Notificar al rescatista sobre el estado del escalamiento
+
+#### Modelo de Datos para Intervención Policial
+
+```typescript
+// Estados de Solicitudes de Intervención Policial
+enum SolicitudIntervencionPolicialState {
+  CREADA = 'CREADA',
+  EN_REVISION = 'EN_REVISION', 
+  ASIGNADA = 'ASIGNADA',
+  EN_PROGRESO = 'EN_PROGRESO',
+  COMPLETADA = 'COMPLETADA',
+  RECHAZADA = 'RECHAZADA',
+  ESCALADA = 'ESCALADA',
+  RESUELTA_SIN_INTERVENCION = 'RESUELTA_SIN_INTERVENCION'
+}
+
+// Modelo de Solicitud de Intervención Policial
+interface SolicitudIntervencionPolicial {
+  id: string;
+  rescatistaId: string;
+  casoRelacionadoId?: string; // Puede estar relacionada con un rescate específico
+  descripcionSituacion: string;
+  tipoIntervencion: 'MALTRATO' | 'ANIMAL_AMARRADO' | 'ANIMAL_ENCERRADO' | 'RESISTENCIA_PROPIETARIO' | 'ESCOLTA_RESCATE' | 'OTRO';
+  ubicacion: Coordenadas;
+  direccionCompleta: string;
+  evidenciaFotografica: string[]; // URLs de fotos/videos
+  referenciaLegal: string; // Artículo específico de la Ley de Maltrato Animal
+  nivelUrgencia: 'BAJO' | 'MEDIO' | 'ALTO' | 'CRITICO';
+  requiereEscolta: boolean;
+  detallesEscolta?: string;
+  estado: SolicitudIntervencionPolicialState;
+  estacionPolicialId: string;
+  oficialAsignadoId?: string;
+  fechaCreacion: Date;
+  fechaVencimiento: Date;
+  fechaResolucion?: Date;
+  accionesTomadas?: string;
+  resultadoIntervencion?: string;
+  justificacionRechazo?: string;
+  numeroEscalamientos: number;
+  contactoReferencia: {
+    nombre: string;
+    telefono: string;
+    email: string;
+    rol: 'RESCATISTA'; // Siempre el rescatista es la referencia
+  };
+}
+
+// Validación de autorización para crear solicitud policial
+function validatePolicialRequest(rescatista: Rescatista, solicitud: SolicitudIntervencionPolicial): boolean {
+  // Solo rescatistas pueden crear solicitudes de intervención policial
+  const esRescatista = rescatista.rol === 'RESCATISTA';
+  
+  // Debe tener experiencia mínima para casos críticos
+  const tieneExperiencia = rescatista.rescatesCompletados >= 5 || solicitud.nivelUrgencia !== 'CRITICO';
+  
+  // Ubicación debe estar dentro de área de operación del rescatista
+  const enAreaOperacion = isWithinOperationArea(solicitud.ubicacion, rescatista.areaOperacion);
+  
+  return esRescatista && tieneExperiencia && enAreaOperacion;
+}
+```
+
+#### Integración con Autoridades Policiales
+
+**REQ-POL-001: Registro de estaciones policiales**
+
+CUANDO se configure el sistema ENTONCES DEBERÁ incluir registro de estaciones policiales por jurisdicción con:
+- Información de contacto oficial
+- Horarios de atención
+- Oficiales especializados en maltrato animal
+- Protocolos específicos de respuesta
+
+**REQ-POL-002: Capacitación sobre legislación animal**
+
+CUANDO se integre con autoridades policiales ENTONCES el sistema DEBERÁ proporcionar:
+- Resumen de la legislación de maltrato animal aplicable
+- Protocolos de actuación recomendados
+- Formularios estándar para reportes
+- Contactos de organizaciones de apoyo legal
+
+**REQ-POL-003: Métricas de efectividad policial**
+
+CUANDO se opere el sistema ENTONCES DEBERÁ generar métricas de:
+- Tiempo promedio de respuesta por estación policial
+- Tasa de resolución exitosa de casos
+- Número de escalamientos por falta de respuesta
+- Efectividad de intervenciones por tipo de caso
+
+**REQ-POL-004: Reportes de transparencia policial**
+
+CUANDO se requieran reportes ENTONCES el sistema DEBERÁ generar:
+- Estadísticas de respuesta policial por jurisdicción
+- Casos rechazados con justificaciones
+- Tiempo promedio de resolución
+- Impacto de las intervenciones en bienestar animal
+#
+### Estados de Crowdfunding para Transporte de Auxiliares
+
+**REQ-WF-070:** CUANDO se cree una solicitud de crowdfunding para transporte ENTONCES el estado inicial DEBERÁ ser `CREADA`.
+
+**REQ-WF-071:** CUANDO se valide y publique la solicitud de crowdfunding ENTONCES el estado DEBERÁ cambiar a `ACTIVA`.
+
+**REQ-WF-072:** CUANDO se alcance la meta de recaudación ENTONCES el estado DEBERÁ cambiar a `META_ALCANZADA`.
+
+**REQ-WF-073:** CUANDO se transfieran los fondos al auxiliar ENTONCES el estado DEBERÁ cambiar a `FONDOS_TRANSFERIDOS`.
+
+**REQ-WF-074:** CUANDO el auxiliar presente comprobantes válidos de gasto ENTONCES el estado DEBERÁ cambiar a `COMPROBANTES_VALIDADOS`.
+
+**REQ-WF-075:** CUANDO no se alcance la meta en 24 horas ENTONCES el estado DEBERÁ cambiar a `EXPIRADA` y devolver fondos proporcionalmente.
+
+**REQ-WF-076:** CUANDO no se presenten comprobantes en 48 horas ENTONCES el estado DEBERÁ cambiar a `INCUMPLIDA` y suspender temporalmente al auxiliar.
+
+#### Modelo de Datos para Crowdfunding de Transporte
+
+```typescript
+// Estados de Crowdfunding para Transporte
+enum CrowdfundingTransporteState {
+  CREADA = 'CREADA',
+  ACTIVA = 'ACTIVA',
+  META_ALCANZADA = 'META_ALCANZADA',
+  FONDOS_TRANSFERIDOS = 'FONDOS_TRANSFERIDOS',
+  COMPROBANTES_VALIDADOS = 'COMPROBANTES_VALIDADOS',
+  EXPIRADA = 'EXPIRADA',
+  INCUMPLIDA = 'INCUMPLIDA'
+}
+
+// Modelo de Crowdfunding para Transporte
+interface CrowdfundingTransporte {
+  id: string;
+  auxiliarId: string;
+  solicitudAuxilioId: string;
+  descripcionCaso: string;
+  ubicacionOrigen: Coordenadas;
+  ubicacionDestino: Coordenadas;
+  costosEstimados: {
+    viajeIda: number;
+    viajeVuelta: number;
+    total: number;
+  };
+  metaRecaudacion: number;
+  montoRecaudado: number;
+  plazoLimite: Date;
+  estado: CrowdfundingTransporteState;
+  donaciones: {
+    donante: string;
+    monto: number;
+    fecha: Date;
+    metodoPago: string;
+  }[];
+  comprobantesGasto: {
+    tipo: 'VIAJE_IDA' | 'VIAJE_VUELTA';
+    proveedor: 'UBER' | 'DIDI' | 'INDRIVER' | 'TAXI' | 'OTRO';
+    monto: number;
+    comprobante: string; // URL del recibo
+    fecha: Date;
+  }[];
+  fechaCreacion: Date;
+  fechaCompletado?: Date;
+  motivoIncumplimiento?: string;
+}
+
+// Validación de elegibilidad para crowdfunding
+function validateCrowdfundingEligibility(auxiliar: Auxiliar): ValidationResult {
+  const errors: string[] = [];
+  
+  // Máximo 2 solicitudes por mes
+  const solicitudesEsteMes = auxiliar.crowdfundingHistorial.filter(
+    cf => isCurrentMonth(cf.fechaCreacion)
+  ).length;
+  
+  if (solicitudesEsteMes >= 2) {
+    errors.push('Máximo 2 solicitudes de crowdfunding por mes');
+  }
+  
+  // Verificar que no tenga transporte propio
+  if (auxiliar.tieneTransportePropio) {
+    errors.push('Auxiliar tiene transporte propio registrado');
+  }
+  
+  // Verificar historial de rescates exitosos
+  if (auxiliar.rescatesCompletados < 1) {
+    errors.push('Requiere al menos 1 rescate completado exitosamente');
+  }
+  
+  // Verificar que no tenga crowdfundings incumplidos
+  const tieneIncumplimientos = auxiliar.crowdfundingHistorial.some(
+    cf => cf.estado === 'INCUMPLIDA'
+  );
+  
+  if (tieneIncumplimientos) {
+    errors.push('Auxiliar tiene crowdfundings incumplidos pendientes');
+  }
+  
+  return {
+    valid: errors.length === 0,
+    errors
+  };
+}
+```
+
+#### Integración con APIs de Transporte
+
+**REQ-TRANS-001: Integración con APIs de cálculo de costos**
+
+CUANDO se calcule el costo estimado de transporte ENTONCES el sistema DEBERÁ integrar con:
+- API de Uber para cálculo de tarifas normales y Uber Pets
+- API de Didi para tarifas locales donde esté disponible
+- API de inDriver para comparación de precios
+- Tarifas de taxi locales como referencia
+
+**REQ-TRANS-002: Validación de comprobantes**
+
+CUANDO un auxiliar presente comprobantes de gasto ENTONCES el sistema DEBERÁ:
+- Validar que el monto coincida con lo recaudado (±10% de tolerancia)
+- Verificar que las ubicaciones coincidan con la solicitud original
+- Confirmar que la fecha del viaje sea posterior a la transferencia de fondos
+- Aceptar recibos digitales de Uber, Didi, inDriver o fotografías de recibos de taxi
+
+**REQ-TRANS-003: Métricas de efectividad del crowdfunding**
+
+CUANDO se opere el sistema de crowdfunding ENTONCES DEBERÁ generar métricas de:
+- Tasa de éxito en alcanzar metas de recaudación
+- Tiempo promedio para completar crowdfunding
+- Porcentaje de auxiliares que presentan comprobantes a tiempo
+- Impacto en la participación de auxiliares sin transporte propio

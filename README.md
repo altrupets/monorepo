@@ -110,10 +110,11 @@ En nuestra plataforma, cada tipo de usuario tiene **una responsabilidad principa
 
 ### 🚨 La Excepción Necesaria: Los Rescatistas
 
-Los **rescatistas son la única excepción** a esta regla porque pueden crear **dos tipos de solicitudes**:
+Los **rescatistas son la única excepción** a esta regla porque pueden crear **tres tipos de solicitudes**:
 
-1. **"Solicitudes para atención veterinaria"** - Cuando evalúan que necesitan ayuda profesional
-2. **"Solicitudes de adopción"** - Cuando el animal está listo para adoptar
+1. **"Solicitudes de adopción"** - Cuando el animal está listo para adoptar
+2. **"Solicitudes para atención veterinaria"** - Cuando evalúan que necesitan ayuda profesional
+3. **"Solicitudes de intervención policial"** - Cuando identifican maltrato animal o necesitan escolta
 
 ### ¿Por qué violamos el principio con los rescatistas?
 
@@ -123,6 +124,7 @@ Esta violación es **necesaria y justificada** porque los rescatistas:
 - 🏠 **Son cuidadores a largo plazo**: Viven con el animal día a día y conocen su estado real
 - 🎯 **Tienen responsabilidad moral completa**: Deben garantizar el bienestar desde el rescate hasta la adopción
 - 🧠 **Toman decisiones críticas**: Son los únicos que pueden evaluar cuándo un animal está listo para adopción
+- 👮 **Identifican maltrato animal**: Por su experiencia, pueden reconocer casos de maltrato animal que requieran intervención legal y escolta policial
 
 ### Ejemplo práctico
 
@@ -134,8 +136,14 @@ Imagina que un rescatista recibe un gato herido:
    - Si NO → Crea una **"solicitud para atención veterinaria"**
 
 2. **Después de semanas de cuidado**: "¿El gato está listo para adopción?"
+
    - Verifica: ¿Usa arenero? ¿Come solo? ¿No está enfermo?
    - Si cumple todo → Crea una **"solicitud de adopción"**
+
+3. **Si encuentra maltrato animal**: "¿Esta situación requiere intervención legal?"
+   - Si ve animal amarrado sin agua/comida → Crea una **"solicitud de intervención policial"**
+   - Si el propietario se resiste al rescate → Solicita **escolta policial**
+   - Si hay evidencia de maltrato → Reporta con **respaldo legal**
 
 ### ¿Qué pasa si no violáramos el principio?
 
@@ -152,6 +160,71 @@ Violamos intencionalmente el principio de responsabilidad única **solo con los 
 
 ## 🚨 Funcionalidades Principales Basadas en Requisitos
 
+### Diagrama de Solicitudes por Rol de Usuario
+
+```mermaid
+graph TD
+    %% Definición de roles
+    CEN[🔍 Centinelas<br/>Ciudadanos Reportantes]
+    AUX[🚑 Auxiliares<br/>Respuesta Inmediata]
+    RES[🏠 Rescatistas<br/>Cuidado a Largo Plazo]
+    ADO[👨‍👩‍👧‍👦 Adoptantes<br/>Hogares Permanentes]
+    DON[💝 Donantes<br/>Apoyo Financiero]
+    VET[🩺 Veterinarios<br/>Atención Médica]
+
+    %% Solicitudes que puede hacer cada rol
+    CEN --> SOL_AUX[📢 Solicitudes de Auxilio<br/>REQ-CEN-002]
+
+    AUX --> SOL_RES[🚑 Solicitudes de Rescate<br/>REQ-AUX-003]
+    AUX --> CROWD[💰 Crowdfunding Transporte<br/>REQ-AUX-006]
+
+    %% Rescatistas - Excepción al Principio de Responsabilidad Única
+    RES --> SOL_VET[🩺 Solicitudes Veterinarias<br/>REQ-RES-004]
+    RES --> PUB_ADO[📢 Publicar Animal para Adopción<br/>REQ-RES-005]
+    RES --> SOL_POL[👮 Solicitudes Intervención Policial<br/>REQ-RES-007]
+
+    ADO --> SOL_ADOPTAR[❤️ Solicitar Adoptar Animal<br/>REQ-ADO-003]
+
+    DON --> DONACION[💝 Donaciones Monetarias/Insumos<br/>REQ-DON-002/003]
+    DON --> SUSCRIPCION[🔄 Suscripciones Recurrentes<br/>REQ-DON-004]
+
+    VET --> ATENCION[🩺 Servicios Veterinarios<br/>REQ-VET-004]
+
+    %% Flujo de proceso
+    SOL_AUX --> AUX
+    SOL_RES --> RES
+    PUB_ADO --> ADO
+    SOL_ADOPTAR --> RES
+
+    %% Estilos con mejor contraste para modo oscuro
+    classDef centinela fill:#1e88e5,stroke:#ffffff,stroke-width:2px,color:#ffffff
+    classDef auxiliar fill:#8e24aa,stroke:#ffffff,stroke-width:2px,color:#ffffff
+    classDef rescatista fill:#43a047,stroke:#ffffff,stroke-width:2px,color:#ffffff
+    classDef adoptante fill:#ff9800,stroke:#ffffff,stroke-width:2px,color:#ffffff
+    classDef donante fill:#e91e63,stroke:#ffffff,stroke-width:2px,color:#ffffff
+    classDef veterinario fill:#00acc1,stroke:#ffffff,stroke-width:2px,color:#ffffff
+    classDef solicitud fill:#757575,stroke:#ffffff,stroke-width:1px,color:#ffffff
+    classDef excepcion fill:#d32f2f,stroke:#ffff00,stroke-width:3px,color:#ffffff
+
+    class CEN centinela
+    class AUX auxiliar
+    class RES rescatista
+    class ADO adoptante
+    class DON donante
+    class VET veterinario
+    class SOL_AUX,SOL_RES,SOL_ADOPTAR,DONACION,SUSCRIPCION,ATENCION,CROWD solicitud
+    class SOL_VET,PUB_ADO,SOL_POL excepcion
+```
+
+**🚨 Nota Importante:** Los **rescatistas** son la única excepción al principio de responsabilidad única porque pueden crear **tres tipos de solicitudes diferentes**. Esta violación está justificada por su autonomía profesional y responsabilidad moral completa sobre el bienestar animal.
+
+### 🔄 **Diferencia Clave en Adopciones:**
+
+- **📢 Publicar Animal para Adopción (REQ-RES-005)**: Los **rescatistas** publican animales que tienen bajo su cuidado para que puedan ser adoptados
+- **❤️ Solicitar Adoptar Animal (REQ-ADO-003)**: Los **adoptantes** solicitan adoptar un animal específico que vieron publicado
+
+**Flujo completo:** Rescatista publica → Adoptante solicita → Rescatista evalúa → Adopción aprobada
+
 ### PRIORIDAD 1: Coordinación de Redes de Rescate Animal (REQ-COORD-001 a REQ-COORD-004)
 
 #### Flujo Básico de Rescate (REQ-COORD-001)
@@ -159,7 +232,7 @@ Violamos intencionalmente el principio de responsabilidad única **solo con los 
 **CUANDO un centinela identifique un animal vulnerable ENTONCES el sistema DEBERÁ:**
 
 - ✅ Permitir crear alerta con ubicación GPS, descripción, fotografías y nivel de urgencia
-- ✅ Notificar automáticamente a auxiliares en radio de 5km (expandible según GEO-001 a GEO-004)
+- ✅ Notificar automáticamente a **auxiliares** en radio de **10km** desde el punto de auxilio (expandible según GEO-001 a GEO-004)
 - ✅ Establecer comunicación directa entre centinela y auxiliar mediante chat interno
 
 #### Respuesta de Auxiliares (REQ-COORD-002)
@@ -174,7 +247,7 @@ Violamos intencionalmente el principio de responsabilidad única **solo con los 
 
 **CUANDO un auxiliar brinde auxilio inmediato a un animal ENTONCES el sistema DEBERÁ:**
 
-- ✅ Mostrar rescatistas disponibles con casa cuna en radio de 15km inicialmente
+- ✅ Mostrar **rescatistas** disponibles con casa cuna en radio de **15km** desde el punto donde se brindó auxilio
 - ✅ Permitir documentar estado del animal con fotografías
 - ✅ Facilitar coordinación para transferencia del animal al rescatista
 
@@ -197,7 +270,7 @@ Violamos intencionalmente el principio de responsabilidad única **solo con los 
 - **Seguimiento (REQ-CEN-003)**: Código único para consultar estado de alertas
 - **Comunicación (REQ-CEN-004)**: Chat directo con auxiliares que respondan
 
-#### 🚑 Auxiliares (REQ-AUX-001 a REQ-AUX-005)
+#### 🚑 Auxiliares (REQ-AUX-001 a REQ-AUX-006)
 
 **Responsabilidad Única: SOLO pueden enviar "solicitudes de rescate" (BR-020)**
 
@@ -206,10 +279,11 @@ Violamos intencionalmente el principio de responsabilidad única **solo con los 
 - **Aceptación de Rescates (REQ-AUX-003)**: Información de contacto y navegación GPS
 - **Coordinación con Rescatistas (REQ-AUX-004)**: Mostrar rescatistas cercanos disponibles
 - **Documentación (REQ-AUX-005)**: Fotografías y descripción del estado del animal
+- **💰 Crowdfunding para Transporte (REQ-AUX-006)**: "Vaca" o "banca" para cubrir gastos de Uber/taxi cuando no tienen transporte propio (ida normal + vuelta con Uber Pets)
 
-#### 🏠 Rescatistas (REQ-RES-001 a REQ-RES-006)
+#### 🏠 Rescatistas (REQ-RES-001 a REQ-RES-007)
 
-**Responsabilidades Múltiples: Pueden enviar "solicitudes para atención veterinaria" Y "solicitudes de adopción"**
+**Responsabilidades Múltiples: Pueden enviar "solicitudes para atención veterinaria", "solicitudes de adopción" Y "solicitudes de intervención policial"**
 
 > **Nota:** Los rescatistas son la única excepción al principio de responsabilidad única. Ver explicación completa en la sección dedicada arriba.
 
@@ -219,6 +293,7 @@ Violamos intencionalmente el principio de responsabilidad única **solo con los 
 - **Coordinación Veterinaria (REQ-RES-004)**: Veterinarios cercanos y solicitudes de atención
 - **Proceso de Adopción (REQ-RES-005)**: Publicar perfil del animal y gestionar solicitudes
 - **Recepción de Donaciones (REQ-RES-006)**: Registro automático y agradecimientos
+- **🚨 Intervención Policial (REQ-RES-007)**: Solicitar intervención policial para casos de maltrato animal, animales amarrados/encerrados, resistencia del propietario o escolta para rescates complejos
 
 #### 👨‍👩‍👧‍👦 Adoptantes (REQ-ADO-001 a REQ-ADO-005)
 
@@ -244,15 +319,686 @@ Violamos intencionalmente el principio de responsabilidad única **solo con los 
 - **Registro Médico (REQ-VET-004)**: Diagnóstico, tratamiento, medicamentos, seguimiento
 - **Facturación (REQ-VET-005)**: Registro de costos en sistema financiero del rescatista
 
-### Reglas de Negocio Fundamentales Implementadas
+## ❓ Preguntas Frecuentes (FAQ)
 
-#### Asociaciones Rescatista-Casa Cuna (BR-001 a BR-003)
+### Para Todos los Usuarios
+
+#### ¿Qué pasa si un usuario no puede seguir con su rol (enfermedad, muerte, mudanza, etc.)?
+
+AltruPets tiene **protocolos de continuidad** para garantizar que los animales nunca queden abandonados:
+
+##### 🚨 **Situaciones de Emergencia Cubiertas:**
+
+- **Enfermedad temporal o permanente**
+- **Fallecimiento del usuario**
+- **Mudanza fuera del área de cobertura**
+- **Cambios económicos que impiden continuar**
+- **Emergencias familiares**
+- **Pérdida de capacidad física**
+
+##### 🔄 **Sistema de Reemplazo por Rol:**
+
+**🔍 Centinelas:**
+
+- **Impacto**: Bajo (solo reportan casos)
+- **Reemplazo**: Automático - otros centinelas en la zona toman el relevo
+- **Acción requerida**: Ninguna, el sistema redistribuye alertas
+
+**🚑 Auxiliares:**
+
+- **Impacto**: Medio (respuesta inmediata)
+- **Reemplazo**: Sistema busca automáticamente otros auxiliares en radio expandido
+- **Escalamiento**: Si no hay auxiliares, se notifica a supervisores regionales
+- **Backup**: Red de auxiliares voluntarios de emergencia
+
+**🏠 Rescatistas (CRÍTICO):**
+
+- **Impacto**: Alto (animales bajo su cuidado)
+- **Protocolo de emergencia**:
+  1. **Notificación inmediata** a red de rescatistas cercanos
+  2. **Transferencia de animales** a casas cuna disponibles
+  3. **Traspaso de historial médico** y documentación
+  4. **Continuidad de donaciones** hacia nuevos cuidadores
+- **Red de apoyo**: Rescatistas "padrinos" que pueden asumir casos de emergencia
+
+**🩺 Veterinarios:**
+
+- **Impacto**: Medio (atención médica)
+- **Reemplazo**: Red de veterinarios colaboradores en la zona
+- **Continuidad**: Historial médico transferible entre profesionales
+
+##### 📋 **Proceso de Reporte y Transferencia:**
+
+**1. Detección Automática:**
+
+- Sistema detecta inactividad prolongada (>7 días sin respuesta)
+- Alertas automáticas a contactos de emergencia
+- Notificación a supervisores regionales
+
+**2. Reporte Manual:**
+
+- **Familiares/amigos** pueden reportar la situación
+- **Otros usuarios** pueden alertar sobre casos abandonados
+- **Contacto de emergencia** predefinido por cada usuario
+
+**3. Proceso de Transferencia:**
+
+```
+Reporte → Verificación → Búsqueda de reemplazo → Transferencia → Seguimiento
+```
+
+##### 🆘 **Contactos de Emergencia Obligatorios:**
+
+**Para Rescatistas (obligatorio):**
+
+- **Contacto familiar** que pueda acceder a la casa cuna
+- **Rescatista "padrino"** que pueda asumir los animales
+- **Veterinario de confianza** con historial de los animales
+- **Información de acceso** a instalaciones y suministros
+
+**Para otros roles (recomendado):**
+
+- **Contacto familiar** para notificación
+- **Usuario backup** del mismo rol en la zona
+
+##### 📞 **¿Cómo reportar una situación de emergencia?**
+
+**Opciones de reporte:**
+
+1. **Dentro de la app**: Botón "Reportar emergencia de usuario"
+2. **Línea de emergencia**: Número telefónico 24/7 para casos críticos
+3. **Email de emergencia**: continuidad@altrupets.org
+4. **Chat de soporte**: Disponible en la aplicación
+
+**Información requerida:**
+
+- Nombre del usuario afectado
+- Tipo de situación (enfermedad, fallecimiento, mudanza, etc.)
+- Ubicación de animales (si aplica)
+- Contacto del reportante
+- Urgencia del caso
+
+##### ⚰️ **Proceso Especial para Casos de Fallecimiento**
+
+**¿Quién puede reportar un fallecimiento?**
+
+- Cónyuge o pareja registrada civilmente
+- Hijos mayores de edad
+- Padres del usuario fallecido
+- Hermanos mayores de edad
+- Representante legal con poder notarial
+- Albacea testamentario
+
+**Documentación requerida:**
+
+- **Acta de defunción oficial** (PDF, JPG o PNG)
+- **Documento de identidad del reportante**
+- **Comprobante de relación familiar** (acta de matrimonio, nacimiento, etc.)
+- **Información de contacto** para verificación
+
+**Proceso de verificación (similar a Facebook):**
+
+1. **Reporte inicial**: Familiar presenta documentación
+2. **Verificación temporal**: Cuenta suspendida por 72 horas máximo
+3. **Validación cruzada**: Contacto con referencias de emergencia
+4. **Confirmación oficial**: Validación de documentos con autoridades
+5. **Activación de protocolo**: Transferencia inmediata de responsabilidades
+
+**¿Qué pasa con la cuenta del usuario fallecido?**
+
+- Se convierte en **cuenta memorial** (no se elimina)
+- Se preserva el **legado de rescates** y contribuciones
+- **Familiares autorizados** pueden acceder a información de animales
+- Se mantiene **transparencia** para donantes y comunidad
+
+**Acceso de emergencia para familiares:**
+
+- Ubicación exacta de animales bajo cuidado
+- Contactos de veterinarios tratantes
+- Inventario de suministros y medicamentos
+- Información de rescatistas padrinos asignados
+- Códigos de acceso a instalaciones (si aplica)
+
+##### 🔄 **Red de Continuidad Regional:**
+
+**Supervisores Regionales:**
+
+- Coordinan emergencias en su área geográfica
+- Mantienen lista de usuarios backup disponibles
+- Gestionan transferencias de casos críticos
+
+**Rescatistas "Padrinos":**
+
+- Rescatistas experimentados que pueden asumir casos de emergencia
+- Capacidad adicional reservada para contingencias
+- Entrenamiento especial en transferencias de animales
+
+**Veterinarios de Emergencia:**
+
+- Red de veterinarios disponibles para casos urgentes
+- Acceso a historiales médicos de animales transferidos
+- Tarifas preferenciales para casos de continuidad
+
+##### 💰 **Continuidad Financiera:**
+
+**Donaciones en curso:**
+
+- Se transfieren automáticamente al nuevo cuidador
+- Donantes son notificados del cambio
+- Transparencia completa del proceso
+
+**Gastos pendientes:**
+
+- Se honran compromisos financieros existentes
+- Fondo de emergencia para casos críticos
+- Apoyo financiero temporal durante transiciones
+
+##### 📊 **Métricas de Continuidad:**
+
+- **Tiempo promedio de transferencia**: <24 horas para casos críticos
+- **Tasa de éxito en reubicación**: >95% de animales reubicados exitosamente
+- **Red de backup**: Mínimo 3 usuarios backup por cada rescatista activo
+- **Cobertura geográfica**: 100% del territorio con supervisores regionales
+
+Esta red de continuidad garantiza que **ningún animal quede abandonado** sin importar qué le pase a su cuidador actual.
+
+### Para Rescatistas
+
+#### ¿Cuál es la diferencia entre subsidio y subvención para atención veterinaria?
+
+**Subsidio**: Es un apoyo económico directo que el gobierno otorga al rescatista para cubrir parte de los gastos veterinarios. El rescatista paga el costo total al veterinario y luego recibe el reembolso del gobierno.
+
+**Subvención**: Es un pago directo que el gobierno hace al veterinario por los servicios prestados a animales rescatados. El rescatista no paga nada o paga solo una parte reducida del costo total.
+
+En AltruPets, implementamos el sistema de **subvención** para simplificar el proceso:
+
+- El gobierno autoriza la atención veterinaria
+- El veterinario atiende al animal rescatado
+- El gobierno paga directamente al veterinario según tarifas preferenciales
+- El rescatista solo cubre costos adicionales si los hay
+
+#### ¿Qué documentos necesito para solicitar subvención veterinaria?
+
+Para que el sistema genere automáticamente la solicitud de subvención, el animal debe cumplir con:
+
+- **Condición "Callejero"**: Marcada como VERDADERO
+- **Ubicación dentro de jurisdicción**: El lugar del rescate debe estar dentro del territorio del gobierno local
+- **Documentación del rescate**: Fotos y descripción del estado del animal
+
+El sistema automáticamente envía la solicitud al encargado de bienestar animal correspondiente.
+
+#### ¿Cuánto tiempo toma la autorización de subvención veterinaria?
+
+Según nuestras reglas de negocio:
+
+- **Casos urgentes** (animal herido/enfermo): Respuesta en máximo 24 horas
+- **Casos rutinarios**: Respuesta en máximo 72 horas
+- **Alertas automáticas**: Si no hay respuesta en 24 horas para casos urgentes
+
+#### ¿Por qué es obligatorio tener contactos de emergencia para registrarse como rescatista?
+
+**Es OBLIGATORIO porque los rescatistas tienen animales bajo su cuidado directo.** Sin contactos de emergencia verificados, los animales podrían quedar abandonados si algo le pasa al rescatista.
+
+**Contactos obligatorios que NO puedes omitir:**
+
+1. **Familiar directo**: Con acceso físico a tus instalaciones
+2. **Rescatista "padrino"**: Otro rescatista que pueda asumir TODOS tus animales
+3. **Contacto de acceso**: Con llaves, códigos y ubicación de suministros
+
+**Contacto opcional (pero recomendado):**
+
+4. **Veterinario de confianza**: Puedes agregarlo después con ayuda del sistema
+
+**¿Qué pasa si no tengo estos contactos?**
+
+- **No podrás completar tu registro** como rescatista
+- El sistema **no activará tu cuenta** hasta que todos estén verificados
+- **No podrás recibir animales** hasta cumplir este requisito
+
+**¿Cómo se verifican estos contactos?**
+
+- **Rescatista padrino**: Debe tener 2+ años de experiencia, 4.0+ estrellas, capacidad disponible
+- **Familiar**: Debe confirmar que tiene acceso a tus instalaciones
+- **Todos**: Reciben notificación y deben confirmar su disponibilidad
+
+**¿Cómo encuentro un veterinario si no conozco ninguno?**
+
+El sistema te ayuda de múltiples formas:
+
+- **Recomendaciones automáticas**: Veterinarios registrados en tu zona con tarifas preferenciales
+- **Comunidad de rescatistas**: Otros rescatistas cercanos comparten sus veterinarios de confianza
+- **Apoyo gubernamental**: Tu oficina local de Bienestar Animal te proporciona lista oficial
+- **Tiempo de gracia**: Tienes 90 días para encontrar uno, o hasta tu tercer animal rescatado
+- **Recordatorios amigables**: El sistema te ayuda semanalmente a encontrar opciones
+
+**¿Por qué es tan estricto?**
+
+Porque **la vida de los animales depende de esto**. Si te enfermas, tienes un accidente o falleces, necesitamos garantizar que alguien pueda cuidar inmediatamente a los animales bajo tu responsabilidad.
+
+#### ¿Qué pasa si no conozco ningún veterinario cuando me registro?
+
+**¡No te preocupes!** Es completamente normal no conocer veterinarios antes de empezar como rescatista. El sistema te apoya de múltiples formas:
+
+**🏛️ Apoyo Gubernamental:**
+
+- Tu oficina local de **Bienestar Animal** te proporciona lista oficial de veterinarios colaboradores
+- El gobierno puede **subsidiar parcialmente** tus primeras consultas veterinarias
+- Acceso a veterinarios que participan en **programas gubernamentales** de rescate
+
+**👥 Apoyo de la Comunidad:**
+
+- **Otros rescatistas cercanos** comparten sus veterinarios de confianza
+- **Calificaciones y comentarios** reales de la comunidad
+- **Recomendaciones personalizadas** según tu ubicación y tipo de animales
+
+**🔍 Búsqueda Inteligente del Sistema:**
+
+- Lista automática de **veterinarios registrados** en radio de 25km
+- Filtros por **especialidad** (felinos, caninos, exóticos)
+- **Tarifas preferenciales** disponibles para rescatistas
+- **Disponibilidad para emergencias** y horarios
+
+**⏰ Tiempo Flexible:**
+
+- Puedes operar **sin veterinario asignado** por máximo 90 días
+- O hasta recibir tu **tercer animal rescatado**
+- **Recordatorios semanales amigables** para ayudarte a encontrar opciones
+- **Sin penalizaciones** mientras buscas el veterinario adecuado
+
+**El objetivo es ayudarte, no ponerte obstáculos innecesarios.**
+
+#### ¿Cuándo debo solicitar intervención policial?
+
+Como rescatista, puedes solicitar intervención policial en estas situaciones:
+
+**🚨 Casos de Maltrato Animal:**
+
+- Animal amarrado sin acceso a agua o comida
+- Animal encerrado en condiciones insalubres
+- Evidencia visible de golpes, heridas o negligencia
+- Animal en condiciones que violan la Ley de Maltrato Animal
+
+**🛡️ Resistencia del Propietario:**
+
+- Propietario se niega a entregar animal en situación crítica
+- Amenazas o agresión hacia rescatistas o auxiliares
+- Necesidad de escolta policial para acceder a la propiedad
+
+**📋 Información Requerida:**
+
+- Descripción detallada de la situación
+- Ubicación GPS precisa del incidente
+- Evidencia fotográfica o de video
+- Referencia legal específica (artículo de la ley aplicable)
+- Nivel de urgencia del caso
+
+#### ¿Qué pasa si la policía se niega a actuar?
+
+**Tu papel como referencia principal:**
+
+- **Eres el contacto oficial** para cualquier queja sobre la falta de acción policial
+- El sistema te proporciona **información legal de respaldo** sobre la Ley de Maltrato Animal
+- Puedes **reportar la negativa** a través del sistema para escalamiento automático
+- Se registra la falta de respuesta para **reportes de transparencia** gubernamental
+
+**Escalamiento automático:**
+
+- **Casos críticos**: Escalamiento a supervisores policiales después de 2 horas
+- **Casos no críticos**: Escalamiento después de 24 horas
+- **Notificación continua** sobre el estado del escalamiento
+- **Métricas de efectividad** por estación policial para mejora del servicio
+
+#### ¿Cómo funciona el seguimiento de casos policiales?
+
+**Seguimiento en tiempo real:**
+
+- Código único de seguimiento para cada solicitud
+- Actualizaciones de estado automáticas (recibida, asignada, en progreso, completada)
+- Registro de acciones tomadas por las autoridades
+- Historial completo para auditoría y mejora de procesos
+
+**Métricas de efectividad:**
+
+- Tiempo promedio de respuesta por jurisdicción
+- Tasa de resolución exitosa de casos
+- Identificación de estaciones policiales más colaborativas
+- Reportes de transparencia para autoridades superiores
+
+### Para Auxiliares
+
+#### ¿Qué pasa si no puedo llegar al lugar del rescate?
+
+El sistema tiene búsqueda escalonada automática:
+
+- **0-30 minutos**: Búsqueda en radio de 10km
+- **30-60 minutos**: Expansión automática a 25km
+- **60+ minutos**: Expansión a 50km y alerta a supervisores
+- **Máximo**: Radio de 100km (nivel nacional)
+
+Siempre puedes declinar una solicitud con justificación, y el sistema buscará otros auxiliares disponibles.
+
+#### ¿Puedo responder a casos fuera de mi país?
+
+Sí, en casos extremos los auxiliares pueden responder a casos transfronterizos. Sin embargo:
+
+- Las donaciones solo funcionan dentro del mismo país
+- La subvención veterinaria solo aplica dentro de la jurisdicción local
+- Debes considerar los costos de transporte y documentación fronteriza
+
+#### ¿Qué pasa si no tengo transporte propio para el rescate?
+
+**¡No te preocupes!** AltruPets entiende que muchos auxiliares no tienen vehículo propio y enfrentan costos adicionales de transporte, especialmente para el viaje de regreso con el animal.
+
+**Problema real identificado:**
+
+- **Viaje de ida**: Uber/Didi/inDriver normal (más económico)
+- **Viaje de regreso**: Uber Pets o taxi que acepte animales (más costoso)
+- **Transporte público**: Muchas veces no permiten animales
+- **Costo adicional**: Puede ser prohibitivo para auxiliares con recursos limitados
+
+**Solución: Crowdfunding para Transporte (REQ-AUX-006)**
+
+Puedes crear una **"vaca" o "banca"** (crowdfunding) para cubrir gastos de transporte:
+
+**📋 Información requerida:**
+
+- Descripción del caso específico y animal a rescatar
+- Desglose de costos estimados (ida + vuelta con Uber Pets)
+- Ubicaciones de origen y destino
+- Fotografías del animal reportado
+
+**💰 Validación automática:**
+
+- Sistema calcula costos reales usando APIs de Uber/Didi
+- Meta máxima: 150% del costo estimado
+- Verificación de que no tienes transporte propio viable
+- Distancia mínima: 2km de tu domicilio
+
+**🎯 Gestión de fondos:**
+
+- Transferencia automática al alcanzar la meta
+- Devolución proporcional si no se alcanza en 24 horas
+- Comprobantes de gasto requeridos en 48 horas
+- Transparencia completa para donantes
+
+**🚫 Límites de control:**
+
+- Máximo 2 solicitudes por mes
+- Límite máximo $50 USD por solicitud
+- Historial de rescates exitosos requerido
+- Suspensión si no presentas comprobantes
+
+**👥 ¿Quién puede donar?**
+
+- Donantes activos en tu zona geográfica
+- Otros auxiliares y rescatistas cercanos
+- El centinela que reportó el caso
+- Comunidad general interesada en casos de transporte
+
+**Ejemplo práctico:**
+
+```
+Caso: Gato herido en Zona Norte, auxiliar vive en Centro
+- Uber ida: $8 USD
+- Uber Pets vuelta: $15 USD
+- Meta crowdfunding: $25 USD (incluye margen)
+- Tiempo límite: 24 horas
+- Donantes notificados automáticamente
+```
+
+### Para Centinelas
+
+#### ¿Qué información debo incluir en una alerta de auxilio?
+
+**Información obligatoria**:
+
+- Ubicación GPS precisa (mínimo 10 metros de precisión)
+- Descripción del estado del animal
+- Nivel de urgencia (bajo, medio, alto, crítico)
+
+**Información opcional pero recomendada**:
+
+- Fotografías del animal
+- Descripción del entorno
+- Información de contacto adicional
+- Observaciones sobre comportamiento del animal
+
+#### ¿Puedo hacer seguimiento de mi reporte?
+
+Sí, cada solicitud de auxilio genera un código único que te permite:
+
+- Consultar el estado actual del caso
+- Ver qué auxiliar respondió
+- Conocer si el animal fue rescatado exitosamente
+- Recibir actualizaciones sobre el proceso de adopción
+
+### Para Adoptantes
+
+#### ¿Qué significa que un animal sea "adoptable"?
+
+Un animal es adoptable cuando cumple **TODOS** los requisitos:
+
+- **Usa arenero**: Está entrenado para usar arenero
+- **Come por sí mismo**: Puede alimentarse independientemente
+
+Y **NO tiene NINGUNA** de estas restricciones:
+
+- Arizco con humanos o animales
+- Lactante o nodriza
+- Enfermo o herido
+- Recién parida o recién nacido
+
+#### ¿Puedo adoptar un animal de otro país?
+
+Actualmente no. El sistema está diseñado para adopciones locales dentro del mismo país debido a:
+
+- Complejidad de documentación internacional
+- Costos de transporte
+- Regulaciones veterinarias diferentes
+- Seguimiento post-adopción
+
+### Para Donantes
+
+#### ¿Cómo sé que mi donación se usa correctamente?
+
+AltruPets implementa **transparencia financiera completa**:
+
+- Trazabilidad de cada donación desde origen hasta uso final
+- Reportes automáticos de gastos por categoría
+- Fotografías y documentación de compras realizadas
+- Auditorías regulares de casas cuna
+
+#### ¿Puedo donar a rescatistas de otros países?
+
+No, las donaciones están limitadas al mismo país por:
+
+- Regulaciones financieras locales (KYC/AML)
+- Complejidad de transferencias internacionales
+- Diferentes monedas y sistemas de pago
+- Cumplimiento con reguladores financieros locales
+
+#### ¿Qué es ONVOPay y por qué lo usa AltruPets?
+
+**ONVOPay** es la pasarela de pagos que utiliza AltruPets para procesar todas las donaciones con tarjetas de crédito y débito de forma segura.
+
+**¿Por qué ONVOPay?**
+
+- **Cumplimiento PCI DSS**: Maneja de forma segura la información de tarjetas
+- **Cobertura regional**: Funciona en múltiples países de Latinoamérica
+- **Tokenización**: No almacenamos datos sensibles de tarjetas
+- **Transparencia**: Permite trazabilidad completa de donaciones
+
+**Video explicativo de ONVOPay:**
+
+[![¿Qué es ONVOPay?](https://img.youtube.com/vi/TlebJuUcRJg/0.jpg)](https://www.youtube.com/watch?v=TlebJuUcRJg)
+
+_Haz clic en la imagen para ver el video explicativo completo_
+
+**Beneficios para donantes:**
+
+- Donaciones seguras con cualquier tarjeta
+- Recibos automáticos por email
+- Seguimiento del uso de tu donación
+- Suscripciones recurrentes fáciles de gestionar
+
+#### ¿Por qué es importante el cumplimiento PCI DSS?
+
+**PCI DSS (Payment Card Industry Data Security Standard)** es un conjunto de estándares de seguridad obligatorios para cualquier organización que procese, almacene o transmita información de tarjetas de crédito.
+
+**¿Por qué AltruPets cumple con PCI DSS?**
+
+- **Protección de datos**: Garantiza que la información de tu tarjeta esté completamente protegida
+- **Cumplimiento legal**: Es obligatorio por ley para procesar pagos con tarjetas
+- **Confianza**: Demuestra que tomamos en serio la seguridad de tus datos financieros
+- **Prevención de fraude**: Reduce significativamente el riesgo de robo de información
+
+**¿Cómo lo implementamos?**
+
+- **Scope reducido**: Solo nuestro servicio financiero maneja datos de tarjetas (60% menos costo de compliance)
+- **Tokenización completa**: Nunca almacenamos números de tarjeta reales
+- **Encriptación**: Todos los datos se transmiten encriptados
+- **Auditorías regulares**: Verificaciones constantes de seguridad
+- **Segregación de red**: Los datos financieros están completamente aislados
+
+**Resultado:** Tus donaciones están tan seguras como en cualquier banco o tienda online reconocida.
+
+## 📚 Glosario para Usuarios No-Expertos
+
+### Términos de Rescate Animal
+
+**Auxiliar**
+: Persona voluntaria que responde a alertas de animales en situación vulnerable. Su función es brindar auxilio inmediato y coordinar con rescatistas para el cuidado a largo plazo.
+
+**Casa Cuna**
+: Hogar temporal donde los rescatistas cuidan animales rescatados hasta que encuentren un hogar permanente. Puede ser la casa del rescatista o un espacio dedicado.
+
+**Centinela**
+: Ciudadano que reporta animales en situación vulnerable. Actúa como "ojos y oídos" de la comunidad para identificar casos que requieren auxilio.
+
+**Rescatista**
+: Persona o organización que se hace cargo del cuidado a largo plazo de animales rescatados, incluyendo atención médica, alimentación y búsqueda de adoptantes.
+
+**Animal Callejero**
+: Animal sin hogar identificado que vive en las calles. Esta condición es clave para acceder a subvención veterinaria gubernamental.
+
+**Animal Arizco**
+: Animal que muestra comportamiento temeroso, agresivo o antisocial hacia humanos u otros animales, generalmente debido a trauma o falta de socialización.
+
+**Nodriza**
+: Hembra que está amamantando crías. No puede ser adoptada hasta que las crías sean destetadas (aproximadamente 8 semanas).
+
+### Términos Financieros
+
+**Subsidio**
+: Apoyo económico que el gobierno otorga al beneficiario después de que este haya pagado el gasto. Requiere reembolso posterior.
+
+**Subvención**
+: Pago directo que el gobierno hace al proveedor del servicio (ej: veterinario) sin que el beneficiario (rescatista) tenga que pagar primero.
+
+**KYC (Know Your Customer)**
+: Proceso de verificación de identidad requerido para donaciones grandes. Incluye validación de documentos de identidad y fuentes de ingresos.
+
+**PCI DSS (Payment Card Industry Data Security Standard)**
+: Conjunto de estándares de seguridad obligatorios para organizaciones que procesan, almacenan o transmiten información de tarjetas de crédito. Incluye 12 requisitos principales como encriptación de datos, control de acceso, monitoreo de redes y auditorías regulares. Su cumplimiento es legalmente obligatorio y garantiza que los datos financieros de los donantes estén protegidos al mismo nivel que bancos y grandes comercios.
+
+**Tokenización**
+: Proceso de reemplazar datos sensibles (como números de tarjeta) con tokens únicos que no tienen valor por sí mismos, mejorando la seguridad.
+
+**ONVOPay**
+: Pasarela de pagos regional especializada en Latinoamérica que procesa de forma segura las donaciones con tarjetas de crédito y débito. Cumple con estándares PCI DSS y permite tokenización para proteger datos sensibles de los donantes.
+
+**Scope Reducido PCI DSS**
+: Estrategia de arquitectura donde solo una pequeña parte del sistema (el servicio financiero) maneja datos de tarjetas, mientras el resto de la aplicación permanece fuera del alcance de PCI DSS. Esto reduce costos de compliance en un 60% y mejora la seguridad al minimizar la superficie de ataque.
+
+### Términos Técnicos Simplificados
+
+**API Gateway**
+: Punto de entrada único que gestiona todas las comunicaciones entre la aplicación móvil y los servicios del sistema.
+
+**Microservicio**
+: Componente independiente del sistema que maneja una función específica (ej: notificaciones, pagos, geolocalización).
+
+**Geolocalización**
+: Tecnología que determina la ubicación geográfica exacta usando GPS del dispositivo móvil.
+
+**Push Notification**
+: Mensaje que aparece en tu dispositivo móvil para alertarte sobre eventos importantes, incluso cuando la app no está abierta.
+
+**Offline-First**
+: Diseño que permite usar la aplicación sin conexión a internet, sincronizando datos cuando la conexión se restablece.
+
+**Circuit Breaker**
+: Mecanismo de seguridad que detiene automáticamente las operaciones cuando un servicio falla, evitando errores en cascada.
+
+**SaaS (Software como Servicio)**
+: Modelo de distribución de software donde las aplicaciones se alojan en la nube y los usuarios acceden a ellas a través de internet, sin necesidad de instalar nada en sus dispositivos. Los usuarios pagan una suscripción mensual o anual por usar el servicio.
+
+### Términos Gubernamentales
+
+**Jurisdicción Territorial**
+: Área geográfica específica donde un gobierno local tiene autoridad para tomar decisiones y otorgar autorizaciones.
+
+**Encargado de Bienestar Animal**
+: Funcionario gubernamental responsable de autorizar subvenciones veterinarias y supervisar el cumplimiento de leyes de protección animal.
+
+**Entidad Ambiental Nacional**
+: Organización gubernamental que regula zonas protegidas (ej: SINAC en Costa Rica, SEMARNAT en México).
+
+**Regulador Financiero**
+: Entidad que supervisa las operaciones financieras (ej: SUGEF en Costa Rica, CNBV en México).
+
+### Términos de Adopción
+
+**Adoptabilidad**
+: Condición que indica si un animal está listo para ser adoptado, basada en criterios de salud, comportamiento y autonomía.
+
+**Seguimiento Post-Adopción**
+: Proceso opcional de verificar el bienestar del animal después de la adopción para asegurar una transición exitosa.
+
+**Perfil de Adoptante**
+: Información sobre preferencias, experiencia y capacidad de cuidado que ayuda a encontrar la mejor coincidencia animal-adoptante.
+
+### Términos de Proceso
+
+**Workflow (Flujo de Trabajo)**
+: Secuencia automatizada de pasos que sigue cada caso desde el reporte inicial hasta la adopción final.
+
+**Estado de Solicitud**
+: Etapa actual en la que se encuentra una solicitud (ej: creada, en revisión, asignada, completada).
+
+**Transición Automática**
+: Cambio automático de estado que el sistema realiza cuando se cumplen ciertas condiciones predefinidas.
+
+**Escalamiento**
+: Proceso de expandir automáticamente la búsqueda de auxiliares o rescatistas cuando no hay respuesta inicial.
+
+**Excepción al Principio de Responsabilidad Única**
+: Violación intencional aplicada únicamente a los rescatistas, quienes pueden crear tanto solicitudes veterinarias como de adopción. Ver sección completa sobre este principio al inicio del documento.
+
+**Rescatista "Padrino"**
+: Rescatista experimentado con capacidad adicional reservada para asumir casos de emergencia cuando otro rescatista no puede continuar con su rol por enfermedad, fallecimiento, mudanza u otras circunstancias.
+
+**Supervisor Regional**
+: Coordinador que gestiona emergencias y continuidad operativa en un área geográfica específica. Mantiene redes de usuarios backup y coordina transferencias de casos críticos.
+
+**Red de Continuidad**
+: Sistema de usuarios backup, supervisores regionales y protocolos de emergencia que garantiza que ningún animal quede abandonado si un cuidador no puede continuar con su rol.
+
+**Cuenta Memorial**
+: Estado especial de una cuenta de usuario fallecido que preserva su legado de rescates y contribuciones, permite acceso familiar a información crítica de animales, pero no puede ser utilizada para nuevas actividades.
+
+**Albacea Testamentario**
+: Persona designada legalmente para administrar los bienes y asuntos de una persona fallecida. En AltruPets, puede reportar fallecimientos y gestionar la transferencia de responsabilidades sobre animales bajo cuidado.
+
+## Reglas de Negocio Fundamentales Implementadas
+
+### Asociaciones Rescatista-Casa Cuna (BR-001 a BR-003)
 
 - **BR-001**: Un rescatista PUEDE tener múltiples casas cuna asociadas
 - **BR-002**: Una casa cuna PUEDE estar asociada a múltiples rescatistas
 - **BR-003**: Asociación requiere autorización explícita de ambas partes
 
-#### Subvención Veterinaria Automática (BR-040 a BR-070)
+### Subvención Veterinaria Automática (BR-040 a BR-070)
 
 - **BR-060**: Sistema genera automáticamente solicitud de subvención veterinaria SI:
   - Animal Callejero = VERDADERO O
@@ -262,12 +1008,13 @@ Violamos intencionalmente el principio de responsabilidad única **solo con los 
   - Ubicación dentro de su jurisdicción territorial Y
   - Animal tiene condición "callejero" = VERDADERO
 
-#### Excepción al Principio de Responsabilidad Única (BR-025 a BR-027)
+#### Excepción al Principio de Responsabilidad Única (BR-025 a BR-028)
 
 - **BR-025**: Los rescatistas tienen permitido violentar el principio de responsabilidad única porque tienen autonomía profesional para evaluar el cuidado animal
 - **BR-026**: Los rescatistas pueden crear "solicitudes para atención veterinaria" cuando evalúen que el caso requiere atención profesional que excede sus conocimientos/insumos disponibles
 - **BR-027**: Los rescatistas pueden crear "solicitudes de adopción" cuando evalúen que el animal cumple todos los criterios de adoptabilidad
-- **Justificación**: Esta violación es necesaria porque los rescatistas son los únicos con conocimiento directo del estado del animal y capacidad de evaluación médica básica
+- **BR-028**: Los rescatistas pueden crear "solicitudes de intervención policial" cuando identifiquen maltrato animal, animales amarrados/encerrados, resistencia del propietario o necesidad de escolta legal
+- **Justificación**: Esta violación es necesaria porque los rescatistas son los únicos con conocimiento directo del estado del animal, capacidad de evaluación médica básica, y experiencia para identificar situaciones que requieren intervención legal
 
 #### Validación de Adoptabilidad (BR-050 a BR-051)
 
@@ -281,22 +1028,22 @@ Violamos intencionalmente el principio de responsabilidad única **solo con los 
 
 #### Búsqueda Escalonada de Auxiliares
 
-- **GEO-001**: Radio inicial 10km desde punto de auxilio
-- **GEO-002**: Expansión automática a 25km si no hay respuesta en 30 minutos
-- **GEO-003**: Expansión a 50km en 60 minutos + alerta supervisores
-- **GEO-004**: Radio máximo 100km (nivel nacional)
+- **GEO-001**: Radio inicial 10km para buscar **auxiliares** desde el punto donde el **centinela** solicitó el auxilio
+- **GEO-002**: Expansión automática a 25km si no hay respuesta de auxiliares en 30 minutos
+- **GEO-003**: Expansión a 50km en 60 minutos + alerta a supervisores regionales
+- **GEO-004**: Radio máximo 100km (nivel nacional) para búsqueda de auxiliares
 
 #### Búsqueda de Rescatistas
 
-- **GEO-010**: Radio inicial 15km desde punto de rescate
-- **GEO-011**: Priorizar rescatistas con casas cuna disponibles en 25km
-- **GEO-012**: Considerar capacidad de transporte para distancias >30km
+- **GEO-010**: Radio inicial 15km para buscar **rescatistas** desde el punto donde el **auxiliar** brindó auxilio
+- **GEO-011**: Priorizar rescatistas con casas cuna disponibles dentro de 25km del punto de rescate
+- **GEO-012**: Considerar capacidad de transporte del rescatista para distancias >30km desde su ubicación
 
 #### Búsqueda de Veterinarios
 
-- **GEO-020**: Radio 20km para emergencias
-- **GEO-021**: Radio 50km para consultas rutinarias
-- **GEO-022**: Priorizar veterinarios con tarifas preferenciales
+- **GEO-020**: Radio 20km para buscar **veterinarios** en casos de emergencia médica
+- **GEO-021**: Radio 50km para consultas veterinarias rutinarias o no urgentes
+- **GEO-022**: Priorizar veterinarios con tarifas preferenciales para rescatistas dentro del radio de búsqueda
 
 ### Estados de Workflow Automatizados (WF-001 a WF-042)
 
@@ -312,6 +1059,8 @@ Violamos intencionalmente el principio de responsabilidad única **solo con los 
 Solicitud Auxilio: CREADA → EN_REVISION → ASIGNADA → EN_PROGRESO → COMPLETADA
 Solicitud Rescate: CREADA → PENDIENTE_AUTORIZACION → AUTORIZADA → RESCATADO → COMPLETADA
 Solicitud Adopción: CREADA → VALIDADA → PUBLICADA → EN_PROCESO → ADOPTADO
+Solicitud Intervención Policial: CREADA → EN_REVISION → ASIGNADA → EN_PROGRESO → COMPLETADA
+Crowdfunding Transporte: CREADA → ACTIVA → META_ALCANZADA → FONDOS_TRANSFERIDOS → COMPROBANTES_VALIDADOS
 Animal: REPORTADO → EVALUADO → EN_RESCATE → EN_CUIDADO → ADOPTABLE → ADOPTADO
 ```
 
@@ -343,11 +1092,11 @@ Animal: REPORTADO → EVALUADO → EN_RESCATE → EN_CUIDADO → ADOPTABLE → A
 
 #### Notificaciones por Estados de Workflow
 
-- **REQ-NOT-001**: Notificar auxiliares en radio 10km al crear solicitud de auxilio
-- **REQ-NOT-002**: Expandir notificaciones a 25km si no hay respuesta en 30 minutos
-- **REQ-NOT-003**: Notificar rescatistas disponibles al crear solicitud de rescate
-- **REQ-NOT-004**: Notificar encargado de bienestar animal para subvención veterinaria
-- **REQ-NOT-005**: Notificar adoptantes con preferencias coincidentes cuando animal disponible
+- **REQ-NOT-001**: Notificar **auxiliares** en radio 10km desde el punto de auxilio al crear solicitud de auxilio
+- **REQ-NOT-002**: Expandir notificaciones a **auxiliares** en radio 25km si no hay respuesta en 30 minutos
+- **REQ-NOT-003**: Notificar **rescatistas** disponibles en radio 15km al crear solicitud de rescate
+- **REQ-NOT-004**: Notificar **encargado de bienestar animal** jurisdiccional para autorizar subvención veterinaria
+- **REQ-NOT-005**: Notificar **adoptantes** con preferencias coincidentes cuando animal esté disponible para adopción
 
 ### Requisitos de Interfaces Externas (REQ-UI-001 a REQ-COM-003)
 
@@ -917,555 +1666,6 @@ Ver [CONTRIBUTING.md](https://github.com/altrupets/monorepo/blob/main/CONTRIBUTI
 - **Issues**: [GitHub Issues](https://github.com/altrupets/monorepo/issues)
 - **Discusiones**: [GitHub Discussions](https://github.com/altrupets/monorepo/discussions)
 - **Wiki**: [GitHub Wiki](https://github.com/altrupets/monorepo/wiki)
-
-## ❓ Preguntas Frecuentes (FAQ)
-
-### Para Rescatistas
-
-#### ¿Cuál es la diferencia entre subsidio y subvención para atención veterinaria?
-
-**Subsidio**: Es un apoyo económico directo que el gobierno otorga al rescatista para cubrir parte de los gastos veterinarios. El rescatista paga el costo total al veterinario y luego recibe el reembolso del gobierno.
-
-**Subvención**: Es un pago directo que el gobierno hace al veterinario por los servicios prestados a animales rescatados. El rescatista no paga nada o paga solo una parte reducida del costo total.
-
-En AltruPets, implementamos el sistema de **subvención** para simplificar el proceso:
-
-- El gobierno autoriza la atención veterinaria
-- El veterinario atiende al animal rescatado
-- El gobierno paga directamente al veterinario según tarifas preferenciales
-- El rescatista solo cubre costos adicionales si los hay
-
-#### ¿Qué documentos necesito para solicitar subvención veterinaria?
-
-Para que el sistema genere automáticamente la solicitud de subvención, el animal debe cumplir con:
-
-- **Condición "Callejero"**: Marcada como VERDADERO
-- **Ubicación dentro de jurisdicción**: El lugar del rescate debe estar dentro del territorio del gobierno local
-- **Documentación del rescate**: Fotos y descripción del estado del animal
-
-El sistema automáticamente envía la solicitud al encargado de bienestar animal correspondiente.
-
-#### ¿Cuánto tiempo toma la autorización de subvención veterinaria?
-
-Según nuestras reglas de negocio:
-
-- **Casos urgentes** (animal herido/enfermo): Respuesta en máximo 24 horas
-- **Casos rutinarios**: Respuesta en máximo 72 horas
-- **Alertas automáticas**: Si no hay respuesta en 24 horas para casos urgentes
-
-#### ¿Por qué es obligatorio tener contactos de emergencia para registrarse como rescatista?
-
-**Es OBLIGATORIO porque los rescatistas tienen animales bajo su cuidado directo.** Sin contactos de emergencia verificados, los animales podrían quedar abandonados si algo le pasa al rescatista.
-
-**Contactos obligatorios que NO puedes omitir:**
-
-1. **Familiar directo**: Con acceso físico a tus instalaciones
-2. **Rescatista "padrino"**: Otro rescatista que pueda asumir TODOS tus animales
-3. **Contacto de acceso**: Con llaves, códigos y ubicación de suministros
-
-**Contacto opcional (pero recomendado):**
-
-4. **Veterinario de confianza**: Puedes agregarlo después con ayuda del sistema
-
-**¿Qué pasa si no tengo estos contactos?**
-
-- **No podrás completar tu registro** como rescatista
-- El sistema **no activará tu cuenta** hasta que todos estén verificados
-- **No podrás recibir animales** hasta cumplir este requisito
-
-**¿Cómo se verifican estos contactos?**
-
-- **Rescatista padrino**: Debe tener 2+ años de experiencia, 4.0+ estrellas, capacidad disponible
-- **Familiar**: Debe confirmar que tiene acceso a tus instalaciones
-- **Todos**: Reciben notificación y deben confirmar su disponibilidad
-
-**¿Cómo encuentro un veterinario si no conozco ninguno?**
-
-El sistema te ayuda de múltiples formas:
-
-- **Recomendaciones automáticas**: Veterinarios registrados en tu zona con tarifas preferenciales
-- **Comunidad de rescatistas**: Otros rescatistas cercanos comparten sus veterinarios de confianza
-- **Apoyo gubernamental**: Tu oficina local de Bienestar Animal te proporciona lista oficial
-- **Tiempo de gracia**: Tienes 90 días para encontrar uno, o hasta tu tercer animal rescatado
-- **Recordatorios amigables**: El sistema te ayuda semanalmente a encontrar opciones
-
-**¿Por qué es tan estricto?**
-
-Porque **la vida de los animales depende de esto**. Si te enfermas, tienes un accidente o falleces, necesitamos garantizar que alguien pueda cuidar inmediatamente a los animales bajo tu responsabilidad.
-
-#### ¿Qué pasa si no conozco ningún veterinario cuando me registro?
-
-**¡No te preocupes!** Es completamente normal no conocer veterinarios antes de empezar como rescatista. El sistema te apoya de múltiples formas:
-
-**🏛️ Apoyo Gubernamental:**
-- Tu oficina local de **Bienestar Animal** te proporciona lista oficial de veterinarios colaboradores
-- El gobierno puede **subsidiar parcialmente** tus primeras consultas veterinarias
-- Acceso a veterinarios que participan en **programas gubernamentales** de rescate
-
-**👥 Apoyo de la Comunidad:**
-- **Otros rescatistas cercanos** comparten sus veterinarios de confianza
-- **Calificaciones y comentarios** reales de la comunidad
-- **Recomendaciones personalizadas** según tu ubicación y tipo de animales
-
-**🔍 Búsqueda Inteligente del Sistema:**
-- Lista automática de **veterinarios registrados** en radio de 25km
-- Filtros por **especialidad** (felinos, caninos, exóticos)
-- **Tarifas preferenciales** disponibles para rescatistas
-- **Disponibilidad para emergencias** y horarios
-
-**⏰ Tiempo Flexible:**
-- Puedes operar **sin veterinario asignado** por máximo 90 días
-- O hasta recibir tu **tercer animal rescatado**
-- **Recordatorios semanales amigables** para ayudarte a encontrar opciones
-- **Sin penalizaciones** mientras buscas el veterinario adecuado
-
-**El objetivo es ayudarte, no ponerte obstáculos innecesarios.**
-
-### Para Auxiliares
-
-#### ¿Qué pasa si no puedo llegar al lugar del rescate?
-
-El sistema tiene búsqueda escalonada automática:
-
-- **0-30 minutos**: Búsqueda en radio de 10km
-- **30-60 minutos**: Expansión automática a 25km
-- **60+ minutos**: Expansión a 50km y alerta a supervisores
-- **Máximo**: Radio de 100km (nivel nacional)
-
-Siempre puedes declinar una solicitud con justificación, y el sistema buscará otros auxiliares disponibles.
-
-#### ¿Puedo responder a casos fuera de mi país?
-
-Sí, en casos extremos los auxiliares pueden responder a casos transfronterizos. Sin embargo:
-
-- Las donaciones solo funcionan dentro del mismo país
-- La subvención veterinaria solo aplica dentro de la jurisdicción local
-- Debes considerar los costos de transporte y documentación fronteriza
-
-### Para Centinelas
-
-#### ¿Qué información debo incluir en una alerta de auxilio?
-
-**Información obligatoria**:
-
-- Ubicación GPS precisa (mínimo 10 metros de precisión)
-- Descripción del estado del animal
-- Nivel de urgencia (bajo, medio, alto, crítico)
-
-**Información opcional pero recomendada**:
-
-- Fotografías del animal
-- Descripción del entorno
-- Información de contacto adicional
-- Observaciones sobre comportamiento del animal
-
-#### ¿Puedo hacer seguimiento de mi reporte?
-
-Sí, cada solicitud de auxilio genera un código único que te permite:
-
-- Consultar el estado actual del caso
-- Ver qué auxiliar respondió
-- Conocer si el animal fue rescatado exitosamente
-- Recibir actualizaciones sobre el proceso de adopción
-
-### Para Adoptantes
-
-#### ¿Qué significa que un animal sea "adoptable"?
-
-Un animal es adoptable cuando cumple **TODOS** los requisitos:
-
-- **Usa arenero**: Está entrenado para usar arenero
-- **Come por sí mismo**: Puede alimentarse independientemente
-
-Y **NO tiene NINGUNA** de estas restricciones:
-
-- Arizco con humanos o animales
-- Lactante o nodriza
-- Enfermo o herido
-- Recién parida o recién nacido
-
-#### ¿Puedo adoptar un animal de otro país?
-
-Actualmente no. El sistema está diseñado para adopciones locales dentro del mismo país debido a:
-
-- Complejidad de documentación internacional
-- Costos de transporte
-- Regulaciones veterinarias diferentes
-- Seguimiento post-adopción
-
-### Para Donantes
-
-#### ¿Cómo sé que mi donación se usa correctamente?
-
-AltruPets implementa **transparencia financiera completa**:
-
-- Trazabilidad de cada donación desde origen hasta uso final
-- Reportes automáticos de gastos por categoría
-- Fotografías y documentación de compras realizadas
-- Auditorías regulares de casas cuna
-
-#### ¿Puedo donar a rescatistas de otros países?
-
-No, las donaciones están limitadas al mismo país por:
-
-- Regulaciones financieras locales (KYC/AML)
-- Complejidad de transferencias internacionales
-- Diferentes monedas y sistemas de pago
-- Cumplimiento con reguladores financieros locales
-
-#### ¿Qué es ONVOPay y por qué lo usa AltruPets?
-
-**ONVOPay** es la pasarela de pagos que utiliza AltruPets para procesar todas las donaciones con tarjetas de crédito y débito de forma segura.
-
-**¿Por qué ONVOPay?**
-
-- **Cumplimiento PCI DSS**: Maneja de forma segura la información de tarjetas
-- **Cobertura regional**: Funciona en múltiples países de Latinoamérica
-- **Tokenización**: No almacenamos datos sensibles de tarjetas
-- **Transparencia**: Permite trazabilidad completa de donaciones
-
-**Video explicativo de ONVOPay:**
-
-[![¿Qué es ONVOPay?](https://img.youtube.com/vi/TlebJuUcRJg/0.jpg)](https://www.youtube.com/watch?v=TlebJuUcRJg)
-
-_Haz clic en la imagen para ver el video explicativo completo_
-
-**Beneficios para donantes:**
-
-- Donaciones seguras con cualquier tarjeta
-- Recibos automáticos por email
-- Seguimiento del uso de tu donación
-- Suscripciones recurrentes fáciles de gestionar
-
-#### ¿Por qué es importante el cumplimiento PCI DSS?
-
-**PCI DSS (Payment Card Industry Data Security Standard)** es un conjunto de estándares de seguridad obligatorios para cualquier organización que procese, almacene o transmita información de tarjetas de crédito.
-
-**¿Por qué AltruPets cumple con PCI DSS?**
-
-- **Protección de datos**: Garantiza que la información de tu tarjeta esté completamente protegida
-- **Cumplimiento legal**: Es obligatorio por ley para procesar pagos con tarjetas
-- **Confianza**: Demuestra que tomamos en serio la seguridad de tus datos financieros
-- **Prevención de fraude**: Reduce significativamente el riesgo de robo de información
-
-**¿Cómo lo implementamos?**
-
-- **Scope reducido**: Solo nuestro servicio financiero maneja datos de tarjetas (60% menos costo de compliance)
-- **Tokenización completa**: Nunca almacenamos números de tarjeta reales
-- **Encriptación**: Todos los datos se transmiten encriptados
-- **Auditorías regulares**: Verificaciones constantes de seguridad
-- **Segregación de red**: Los datos financieros están completamente aislados
-
-**Resultado:** Tus donaciones están tan seguras como en cualquier banco o tienda online reconocida.
-
-### Para Todos los Usuarios
-
-#### ¿Qué pasa si un usuario no puede seguir con su rol (enfermedad, muerte, mudanza, etc.)?
-
-AltruPets tiene **protocolos de continuidad** para garantizar que los animales nunca queden abandonados:
-
-##### 🚨 **Situaciones de Emergencia Cubiertas:**
-
-- **Enfermedad temporal o permanente**
-- **Fallecimiento del usuario**
-- **Mudanza fuera del área de cobertura**
-- **Cambios económicos que impiden continuar**
-- **Emergencias familiares**
-- **Pérdida de capacidad física**
-
-##### 🔄 **Sistema de Reemplazo por Rol:**
-
-**🔍 Centinelas:**
-
-- **Impacto**: Bajo (solo reportan casos)
-- **Reemplazo**: Automático - otros centinelas en la zona toman el relevo
-- **Acción requerida**: Ninguna, el sistema redistribuye alertas
-
-**🚑 Auxiliares:**
-
-- **Impacto**: Medio (respuesta inmediata)
-- **Reemplazo**: Sistema busca automáticamente otros auxiliares en radio expandido
-- **Escalamiento**: Si no hay auxiliares, se notifica a supervisores regionales
-- **Backup**: Red de auxiliares voluntarios de emergencia
-
-**🏠 Rescatistas (CRÍTICO):**
-
-- **Impacto**: Alto (animales bajo su cuidado)
-- **Protocolo de emergencia**:
-  1. **Notificación inmediata** a red de rescatistas cercanos
-  2. **Transferencia de animales** a casas cuna disponibles
-  3. **Traspaso de historial médico** y documentación
-  4. **Continuidad de donaciones** hacia nuevos cuidadores
-- **Red de apoyo**: Rescatistas "padrinos" que pueden asumir casos de emergencia
-
-**🩺 Veterinarios:**
-
-- **Impacto**: Medio (atención médica)
-- **Reemplazo**: Red de veterinarios colaboradores en la zona
-- **Continuidad**: Historial médico transferible entre profesionales
-
-##### 📋 **Proceso de Reporte y Transferencia:**
-
-**1. Detección Automática:**
-
-- Sistema detecta inactividad prolongada (>7 días sin respuesta)
-- Alertas automáticas a contactos de emergencia
-- Notificación a supervisores regionales
-
-**2. Reporte Manual:**
-
-- **Familiares/amigos** pueden reportar la situación
-- **Otros usuarios** pueden alertar sobre casos abandonados
-- **Contacto de emergencia** predefinido por cada usuario
-
-**3. Proceso de Transferencia:**
-
-```
-Reporte → Verificación → Búsqueda de reemplazo → Transferencia → Seguimiento
-```
-
-##### 🆘 **Contactos de Emergencia Obligatorios:**
-
-**Para Rescatistas (obligatorio):**
-
-- **Contacto familiar** que pueda acceder a la casa cuna
-- **Rescatista "padrino"** que pueda asumir los animales
-- **Veterinario de confianza** con historial de los animales
-- **Información de acceso** a instalaciones y suministros
-
-**Para otros roles (recomendado):**
-
-- **Contacto familiar** para notificación
-- **Usuario backup** del mismo rol en la zona
-
-##### 📞 **¿Cómo reportar una situación de emergencia?**
-
-**Opciones de reporte:**
-
-1. **Dentro de la app**: Botón "Reportar emergencia de usuario"
-2. **Línea de emergencia**: Número telefónico 24/7 para casos críticos
-3. **Email de emergencia**: continuidad@altrupets.org
-4. **Chat de soporte**: Disponible en la aplicación
-
-**Información requerida:**
-
-- Nombre del usuario afectado
-- Tipo de situación (enfermedad, fallecimiento, mudanza, etc.)
-- Ubicación de animales (si aplica)
-- Contacto del reportante
-- Urgencia del caso
-
-##### ⚰️ **Proceso Especial para Casos de Fallecimiento**
-
-**¿Quién puede reportar un fallecimiento?**
-
-- Cónyuge o pareja registrada civilmente
-- Hijos mayores de edad
-- Padres del usuario fallecido
-- Hermanos mayores de edad
-- Representante legal con poder notarial
-- Albacea testamentario
-
-**Documentación requerida:**
-
-- **Acta de defunción oficial** (PDF, JPG o PNG)
-- **Documento de identidad del reportante**
-- **Comprobante de relación familiar** (acta de matrimonio, nacimiento, etc.)
-- **Información de contacto** para verificación
-
-**Proceso de verificación (similar a Facebook):**
-
-1. **Reporte inicial**: Familiar presenta documentación
-2. **Verificación temporal**: Cuenta suspendida por 72 horas máximo
-3. **Validación cruzada**: Contacto con referencias de emergencia
-4. **Confirmación oficial**: Validación de documentos con autoridades
-5. **Activación de protocolo**: Transferencia inmediata de responsabilidades
-
-**¿Qué pasa con la cuenta del usuario fallecido?**
-
-- Se convierte en **cuenta memorial** (no se elimina)
-- Se preserva el **legado de rescates** y contribuciones
-- **Familiares autorizados** pueden acceder a información de animales
-- Se mantiene **transparencia** para donantes y comunidad
-
-**Acceso de emergencia para familiares:**
-
-- Ubicación exacta de animales bajo cuidado
-- Contactos de veterinarios tratantes
-- Inventario de suministros y medicamentos
-- Información de rescatistas padrinos asignados
-- Códigos de acceso a instalaciones (si aplica)
-
-##### 🔄 **Red de Continuidad Regional:**
-
-**Supervisores Regionales:**
-
-- Coordinan emergencias en su área geográfica
-- Mantienen lista de usuarios backup disponibles
-- Gestionan transferencias de casos críticos
-
-**Rescatistas "Padrinos":**
-
-- Rescatistas experimentados que pueden asumir casos de emergencia
-- Capacidad adicional reservada para contingencias
-- Entrenamiento especial en transferencias de animales
-
-**Veterinarios de Emergencia:**
-
-- Red de veterinarios disponibles para casos urgentes
-- Acceso a historiales médicos de animales transferidos
-- Tarifas preferenciales para casos de continuidad
-
-##### 💰 **Continuidad Financiera:**
-
-**Donaciones en curso:**
-
-- Se transfieren automáticamente al nuevo cuidador
-- Donantes son notificados del cambio
-- Transparencia completa del proceso
-
-**Gastos pendientes:**
-
-- Se honran compromisos financieros existentes
-- Fondo de emergencia para casos críticos
-- Apoyo financiero temporal durante transiciones
-
-##### 📊 **Métricas de Continuidad:**
-
-- **Tiempo promedio de transferencia**: <24 horas para casos críticos
-- **Tasa de éxito en reubicación**: >95% de animales reubicados exitosamente
-- **Red de backup**: Mínimo 3 usuarios backup por cada rescatista activo
-- **Cobertura geográfica**: 100% del territorio con supervisores regionales
-
-Esta red de continuidad garantiza que **ningún animal quede abandonado** sin importar qué le pase a su cuidador actual.
-
-## 📚 Glosario para Usuarios No-Expertos
-
-### Términos de Rescate Animal
-
-**Auxiliar**
-: Persona voluntaria que responde a alertas de animales en situación vulnerable. Su función es brindar auxilio inmediato y coordinar con rescatistas para el cuidado a largo plazo.
-
-**Casa Cuna**
-: Hogar temporal donde los rescatistas cuidan animales rescatados hasta que encuentren un hogar permanente. Puede ser la casa del rescatista o un espacio dedicado.
-
-**Centinela**
-: Ciudadano que reporta animales en situación vulnerable. Actúa como "ojos y oídos" de la comunidad para identificar casos que requieren auxilio.
-
-**Rescatista**
-: Persona o organización que se hace cargo del cuidado a largo plazo de animales rescatados, incluyendo atención médica, alimentación y búsqueda de adoptantes.
-
-**Animal Callejero**
-: Animal sin hogar identificado que vive en las calles. Esta condición es clave para acceder a subvención veterinaria gubernamental.
-
-**Animal Arizco**
-: Animal que muestra comportamiento temeroso, agresivo o antisocial hacia humanos u otros animales, generalmente debido a trauma o falta de socialización.
-
-**Nodriza**
-: Hembra que está amamantando crías. No puede ser adoptada hasta que las crías sean destetadas (aproximadamente 8 semanas).
-
-### Términos Financieros
-
-**Subsidio**
-: Apoyo económico que el gobierno otorga al beneficiario después de que este haya pagado el gasto. Requiere reembolso posterior.
-
-**Subvención**
-: Pago directo que el gobierno hace al proveedor del servicio (ej: veterinario) sin que el beneficiario (rescatista) tenga que pagar primero.
-
-**KYC (Know Your Customer)**
-: Proceso de verificación de identidad requerido para donaciones grandes. Incluye validación de documentos de identidad y fuentes de ingresos.
-
-**PCI DSS (Payment Card Industry Data Security Standard)**
-: Conjunto de estándares de seguridad obligatorios para organizaciones que procesan, almacenan o transmiten información de tarjetas de crédito. Incluye 12 requisitos principales como encriptación de datos, control de acceso, monitoreo de redes y auditorías regulares. Su cumplimiento es legalmente obligatorio y garantiza que los datos financieros de los donantes estén protegidos al mismo nivel que bancos y grandes comercios.
-
-**Tokenización**
-: Proceso de reemplazar datos sensibles (como números de tarjeta) con tokens únicos que no tienen valor por sí mismos, mejorando la seguridad.
-
-**ONVOPay**
-: Pasarela de pagos regional especializada en Latinoamérica que procesa de forma segura las donaciones con tarjetas de crédito y débito. Cumple con estándares PCI DSS y permite tokenización para proteger datos sensibles de los donantes.
-
-**Scope Reducido PCI DSS**
-: Estrategia de arquitectura donde solo una pequeña parte del sistema (el servicio financiero) maneja datos de tarjetas, mientras el resto de la aplicación permanece fuera del alcance de PCI DSS. Esto reduce costos de compliance en un 60% y mejora la seguridad al minimizar la superficie de ataque.
-
-### Términos Técnicos Simplificados
-
-**API Gateway**
-: Punto de entrada único que gestiona todas las comunicaciones entre la aplicación móvil y los servicios del sistema.
-
-**Microservicio**
-: Componente independiente del sistema que maneja una función específica (ej: notificaciones, pagos, geolocalización).
-
-**Geolocalización**
-: Tecnología que determina la ubicación geográfica exacta usando GPS del dispositivo móvil.
-
-**Push Notification**
-: Mensaje que aparece en tu dispositivo móvil para alertarte sobre eventos importantes, incluso cuando la app no está abierta.
-
-**Offline-First**
-: Diseño que permite usar la aplicación sin conexión a internet, sincronizando datos cuando la conexión se restablece.
-
-**Circuit Breaker**
-: Mecanismo de seguridad que detiene automáticamente las operaciones cuando un servicio falla, evitando errores en cascada.
-
-**SaaS (Software como Servicio)**
-: Modelo de distribución de software donde las aplicaciones se alojan en la nube y los usuarios acceden a ellas a través de internet, sin necesidad de instalar nada en sus dispositivos. Los usuarios pagan una suscripción mensual o anual por usar el servicio.
-
-### Términos Gubernamentales
-
-**Jurisdicción Territorial**
-: Área geográfica específica donde un gobierno local tiene autoridad para tomar decisiones y otorgar autorizaciones.
-
-**Encargado de Bienestar Animal**
-: Funcionario gubernamental responsable de autorizar subvenciones veterinarias y supervisar el cumplimiento de leyes de protección animal.
-
-**Entidad Ambiental Nacional**
-: Organización gubernamental que regula zonas protegidas (ej: SINAC en Costa Rica, SEMARNAT en México).
-
-**Regulador Financiero**
-: Entidad que supervisa las operaciones financieras (ej: SUGEF en Costa Rica, CNBV en México).
-
-### Términos de Adopción
-
-**Adoptabilidad**
-: Condición que indica si un animal está listo para ser adoptado, basada en criterios de salud, comportamiento y autonomía.
-
-**Seguimiento Post-Adopción**
-: Proceso opcional de verificar el bienestar del animal después de la adopción para asegurar una transición exitosa.
-
-**Perfil de Adoptante**
-: Información sobre preferencias, experiencia y capacidad de cuidado que ayuda a encontrar la mejor coincidencia animal-adoptante.
-
-### Términos de Proceso
-
-**Workflow (Flujo de Trabajo)**
-: Secuencia automatizada de pasos que sigue cada caso desde el reporte inicial hasta la adopción final.
-
-**Estado de Solicitud**
-: Etapa actual en la que se encuentra una solicitud (ej: creada, en revisión, asignada, completada).
-
-**Transición Automática**
-: Cambio automático de estado que el sistema realiza cuando se cumplen ciertas condiciones predefinidas.
-
-**Escalamiento**
-: Proceso de expandir automáticamente la búsqueda de auxiliares o rescatistas cuando no hay respuesta inicial.
-
-**Excepción al Principio de Responsabilidad Única**
-: Violación intencional aplicada únicamente a los rescatistas, quienes pueden crear tanto solicitudes veterinarias como de adopción. Ver sección completa sobre este principio al inicio del documento.
-
-**Rescatista "Padrino"**
-: Rescatista experimentado con capacidad adicional reservada para asumir casos de emergencia cuando otro rescatista no puede continuar con su rol por enfermedad, fallecimiento, mudanza u otras circunstancias.
-
-**Supervisor Regional**
-: Coordinador que gestiona emergencias y continuidad operativa en un área geográfica específica. Mantiene redes de usuarios backup y coordina transferencias de casos críticos.
-
-**Red de Continuidad**
-: Sistema de usuarios backup, supervisores regionales y protocolos de emergencia que garantiza que ningún animal quede abandonado si un cuidador no puede continuar con su rol.
-
-**Cuenta Memorial**
-: Estado especial de una cuenta de usuario fallecido que preserva su legado de rescates y contribuciones, permite acceso familiar a información crítica de animales, pero no puede ser utilizada para nuevas actividades.
-
-**Albacea Testamentario**
-: Persona designada legalmente para administrar los bienes y asuntos de una persona fallecida. En AltruPets, puede reportar fallecimientos y gestionar la transferencia de responsabilidades sobre animales bajo cuidado.
 
 ---
 
