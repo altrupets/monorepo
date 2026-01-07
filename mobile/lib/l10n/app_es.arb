@@ -1,0 +1,11 @@
+{
+  "@@locale": "es",
+  "appTitle": "Altrupets",
+  "appDescription": "Flutter Agent Skills",
+  "welcome": "Bienvenido",
+  "loading": "Cargando...",
+  "error": "Error",
+  "retry": "Reintentar",
+  "skills": "Skills",
+  "skillDetail": "Detalle del Skill"
+}
