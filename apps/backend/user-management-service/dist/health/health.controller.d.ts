@@ -1,0 +1,6 @@
+import { HealthCheckService, HealthCheckResult } from '@nestjs/terminus';
+export declare class HealthController {
+    private health;
+    constructor(health: HealthCheckService);
+    check(): Promise<HealthCheckResult>;
+}
