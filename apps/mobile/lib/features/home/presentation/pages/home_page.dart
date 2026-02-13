@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:altrupets/features/home/presentation/widgets/service_card.dart';
 import 'package:altrupets/features/home/presentation/widgets/main_navigation_bar.dart';
+import 'package:altrupets/features/rescues/presentation/pages/rescues_page.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -77,7 +78,14 @@ class _HomePageState extends State<HomePage> {
                       Color(0xFF2563EB),
                       Color(0xFF3B82F6),
                     ],
-                    onTap: () {},
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const RescuesPage(),
+                        ),
+                      );
+                    },
                   ),
                   ServiceCard(
                     title: 'Adopciones',
