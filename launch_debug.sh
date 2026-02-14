@@ -25,6 +25,15 @@ echo "🧹 Limpiando caché de construcción..."
 flutter clean
 flutter pub get
 
+# Nombre del paquete (applicationId en build.gradle)
+APP_ID="com.example.altrupets" # Se asume este por defecto, se puede verificar en build.gradle
+
+echo "🛑 Cerrando aplicación existente..."
+if [ -n "$DEVICE_ID" ]; then
+    # Intentar cerrar la app si adb tiene permisos
+    adb -s "$DEVICE_ID" shell am force-stop "$APP_ID" || echo "⚠️ No se pudo cerrar la app vía adb."
+fi
+
 echo "🏗️  Iniciando compilación debug..."
 flutter build apk --debug
 

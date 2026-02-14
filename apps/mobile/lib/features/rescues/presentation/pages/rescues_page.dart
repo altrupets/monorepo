@@ -6,65 +6,136 @@ class RescuesPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
 
     return Scaffold(
-      backgroundColor: theme.colorScheme.surface,
-      appBar: AppBar(
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Colors.black),
-          onPressed: () => Navigator.of(context).pop(),
-        ),
-        title: const Text(
-          'Rescates',
-          style: TextStyle(
-            color: Colors.black,
-            fontSize: 20,
-            fontWeight: FontWeight.bold,
+      backgroundColor: isDark ? const Color(0xFF0F172A) : const Color(0xFFF3F4F6),
+      body: Stack(
+        children: [
+          SafeArea(
+            child: CustomScrollView(
+              slivers: [
+                SliverPadding(
+                  padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 16.0),
+                  sliver: SliverToBoxAdapter(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const SizedBox(height: 24),
+                        Text(
+                          'Rescates',
+                          style: theme.textTheme.headlineMedium?.copyWith(
+                            fontWeight: FontWeight.bold,
+                            color: isDark ? Colors.white : Colors.black,
+                          ),
+                        ),
+                        const SizedBox(height: 4),
+                        Text(
+                          'Gestiona tus actividades de rescate',
+                          style: theme.textTheme.bodyMedium?.copyWith(
+                            color: isDark ? Colors.white70 : Colors.black54,
+                          ),
+                        ),
+                        const SizedBox(height: 32),
+                        _buildActionCard(
+                          context,
+                          title: 'Informar de un\nanimal vulnerable',
+                          icon: Icons.campaign_rounded,
+                          color: const Color(0xFF9333EA), // Purple-600
+                          onTap: () {},
+                        ),
+                        const SizedBox(height: 16),
+                        _buildActionCard(
+                          context,
+                          title: 'Captar a un\nanimal vulnerable',
+                          icon: Icons.directions_car_rounded,
+                          color: const Color(0xFFDC2626), // Red-600
+                          onTap: () {},
+                        ),
+                        const SizedBox(height: 16),
+                        _buildActionCard(
+                          context,
+                          title: 'Aceptar nuevo animal\nen mi casa cuna',
+                          icon: Icons.night_shelter_rounded,
+                          color: const Color(0xFF3B82F6), // Blue-500
+                          onTap: () {},
+                        ),
+                        const SizedBox(height: 16),
+                        _buildActionCard(
+                          context,
+                          title: 'Dar seguimiento a\nrescates activos',
+                          icon: Icons.manage_search_rounded,
+                          color: const Color(0xFF0D9488), // Teal-600
+                          onTap: () {},
+                        ),
+                        const SizedBox(height: 16),
+                        _buildActionCard(
+                          context,
+                          title: 'Entregar en\nadopción',
+                          icon: Icons.volunteer_activism_rounded,
+                          color: const Color(0xFF65A30D), // Lime-600
+                          onTap: () {},
+                        ),
+                        const SizedBox(height: 16),
+                        _buildRescatistaCard(context),
+                        const SizedBox(height: 120), // Bottom padding for nav
+                      ],
+                    ),
+                  ),
+                ),
+              ],
+            ),
           ),
-        ),
-        centerTitle: true,
+          Positioned(
+            bottom: 0,
+            left: 0,
+            right: 0,
+            child: _buildBottomNav(context),
+          ),
+        ],
       ),
-      body: SafeArea(
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.all(24.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+    );
+  }
+
+  Widget _buildActionCard(
+    BuildContext context, {
+    required String title,
+    required IconData icon,
+    required Color color,
+    required VoidCallback onTap,
+  }) {
+    return Material(
+      color: color,
+      borderRadius: BorderRadius.circular(24),
+      elevation: 4,
+      shadowColor: color.withValues(alpha: 0.2),
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(24),
+        child: Container(
+          padding: const EdgeInsets.all(24),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(
-                'Servicios de Rescate',
-                style: theme.textTheme.headlineSmall?.copyWith(
-                  fontWeight: FontWeight.bold,
-                  color: Colors.black87,
+              Expanded(
+                child: Text(
+                  title,
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                    height: 1.2,
+                  ),
                 ),
               ),
-              const SizedBox(height: 16),
-              _buildRescueOption(
-                context,
-                title: 'Reportar Caso',
-                subtitle: 'Notifica un animal en situación de calle o peligro',
-                icon: Icons.report_problem,
-                color: const Color(0xFFEF4444),
-                onTap: () {},
-              ),
-              const SizedBox(height: 16),
-              _buildRescueOption(
-                context,
-                title: 'Mis Casos',
-                subtitle: 'Seguimiento de tus reportes',
-                icon: Icons.list_alt,
-                color: const Color(0xFF3B82F6),
-                onTap: () {},
-              ),
-              const SizedBox(height: 16),
-              _buildRescueOption(
-                context,
-                title: 'Mapa de Rescates',
-                subtitle: 'Ver casos cercanos a tu ubicación',
-                icon: Icons.map,
-                color: const Color(0xFF10B981),
-                onTap: () {},
+              Container(
+                width: 56,
+                height: 56,
+                decoration: BoxDecoration(
+                  color: Colors.white.withValues(alpha: 0.2),
+                  borderRadius: BorderRadius.circular(16),
+                ),
+                child: Icon(icon, color: Colors.white, size: 32),
               ),
             ],
           ),
@@ -73,62 +144,107 @@ class RescuesPage extends StatelessWidget {
     );
   }
 
-  Widget _buildRescueOption(
-    BuildContext context, {
-    required String title,
-    required String subtitle,
-    required IconData icon,
-    required Color color,
-    required VoidCallback onTap,
-  }) {
+  Widget _buildRescatistaCard(BuildContext context) {
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
+
     return Material(
-      color: Colors.white,
-      borderRadius: BorderRadius.circular(16),
-      elevation: 2,
+      color: isDark ? const Color(0xFF1E293B) : Colors.white,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(24),
+        side: BorderSide(
+          color: isDark ? Colors.white10 : Colors.black12,
+          width: 2,
+        ),
+      ),
       child: InkWell(
-        onTap: onTap,
-        borderRadius: BorderRadius.circular(16),
-        child: Padding(
-          padding: const EdgeInsets.all(20.0),
+        onTap: () {},
+        borderRadius: BorderRadius.circular(24),
+        child: Container(
+          padding: const EdgeInsets.all(24),
           child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Container(
-                padding: const EdgeInsets.all(12),
-                decoration: BoxDecoration(
-                  color: color.withValues(alpha: 0.1),
-                  shape: BoxShape.circle,
-                ),
-                child: Icon(icon, color: color, size: 28),
-              ),
-              const SizedBox(width: 16),
               Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      title,
-                      style: const TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.black87,
-                      ),
-                    ),
-                    const SizedBox(height: 4),
-                    Text(
-                      subtitle,
-                      style: TextStyle(
-                        fontSize: 14,
-                        color: Colors.black.withValues(alpha: 0.6),
-                      ),
-                    ),
-                  ],
+                child: Text(
+                  'Registrarme como\nrescatista',
+                  style: TextStyle(
+                    color: isDark ? Colors.white : Colors.black87,
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                    height: 1.2,
+                  ),
                 ),
               ),
-              const Icon(Icons.arrow_forward_ios, size: 16, color: Colors.grey),
+              Container(
+                width: 56,
+                height: 56,
+                decoration: BoxDecoration(
+                  color: isDark ? Colors.white12 : const Color(0xFFF3F4F6),
+                  borderRadius: BorderRadius.circular(16),
+                ),
+                child: const Icon(Icons.edit_note_rounded, color: Color(0xFFF97316), size: 32),
+              ),
             ],
           ),
         ),
       ),
+    );
+  }
+
+  Widget _buildBottomNav(BuildContext context) {
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
+
+    return Container(
+      padding: const EdgeInsets.fromLTRB(24, 12, 24, 32),
+      decoration: BoxDecoration(
+        color: isDark ? const Color(0xFF1E293B).withValues(alpha: 0.95) : Colors.white.withValues(alpha: 0.95),
+        border: Border(top: BorderSide(color: isDark ? Colors.white10 : Colors.black12)),
+      ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          _buildNavItem(Icons.groups_rounded, 'Comunidad'),
+          _buildNavItem(Icons.chat_bubble_rounded, 'Mensajes'),
+          InkWell(
+            onTap: () => Navigator.of(context).pop(),
+            borderRadius: BorderRadius.circular(28),
+            child: Container(
+              width: 56,
+              height: 56,
+              decoration: const BoxDecoration(
+                color: Color(0xFFF97316),
+                shape: BoxShape.circle,
+                boxShadow: [
+                  BoxShadow(
+                    color: Color(0x66F97316),
+                    blurRadius: 12,
+                    offset: Offset(0, 4),
+                  ),
+                ],
+              ),
+              child: const Icon(Icons.home_rounded, color: Colors.white, size: 32),
+            ),
+          ),
+          _buildNavItem(Icons.person_rounded, 'Perfil'),
+          _buildNavItem(Icons.settings_rounded, 'Ajustes'),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildNavItem(IconData icon, String label) {
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Icon(icon, color: Colors.grey, size: 28),
+        const SizedBox(height: 4),
+        Text(
+          label,
+          style: const TextStyle(color: Colors.grey, fontSize: 10, fontWeight: FontWeight.w500),
+        ),
+      ],
     );
   }
 }
