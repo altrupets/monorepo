@@ -8,7 +8,7 @@ function log(msg) {
 log('Starting script...');
 
 const project = '9064173060952920822';
-const screen = '0de1011c822545578e13a2c276b64e8c';
+const screen = process.argv[2] || '0de1011c822545578e13a2c276b64e8c';
 const env = { ...process.env };
 env.GOOGLE_CLOUD_PROJECT = 'numeric-replica-487322-d7';
 log('Testing with numeric-replica-487322-d7...');
