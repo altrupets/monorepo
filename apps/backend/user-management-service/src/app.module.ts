@@ -12,6 +12,8 @@ import { AuthModule } from './auth/auth.module';
 import { HealthModule } from './health/health.module';
 import { UsersModule } from './users/users.module';
 import { User } from './users/entities/user.entity';
+import { CapturesModule } from './captures/captures.module';
+import { CaptureRequest } from './captures/entities/capture-request.entity';
 
 @Module({
   imports: [
@@ -30,7 +32,7 @@ import { User } from './users/entities/user.entity';
           'DB_NAME',
           'altrupets_user_management',
         ),
-        entities: [User],
+        entities: [User, CaptureRequest],
         synchronize: true, // Only for development
       }),
       inject: [ConfigService],
@@ -54,8 +56,9 @@ import { User } from './users/entities/user.entity';
     AuthModule,
     HealthModule,
     UsersModule,
+    CapturesModule,
   ],
   controllers: [AppController],
   providers: [AppService],
 })
-export class AppModule {}
+export class AppModule { }
