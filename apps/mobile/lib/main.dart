@@ -6,6 +6,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:altrupets/core/theme/app_theme.dart';
 import 'package:altrupets/core/theme/theme_provider.dart';
 import 'package:altrupets/features/home/presentation/pages/home_page.dart';
+import 'package:altrupets/core/providers/navigation_provider.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -55,6 +56,7 @@ class AltruPetsApp extends ConsumerWidget {
     );
 
     return MaterialApp(
+      navigatorKey: ref.read(navigationProvider).navigatorKey,
       title: 'AltruPets',
       debugShowCheckedModeBanner: false,
       theme: AppTheme.lightTheme(),
