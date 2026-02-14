@@ -59,11 +59,29 @@ Material(
 ### Dynamic Theme Usage
 Always prioritize using `Theme.of(context)` to support Dark Mode automatically, as the Stitch designs often include `dark:` classes.
 
+## Atomic Design Mapping
+
+When translating designs, follow the **Atomic Design** methodology to ensure components are reusable and well-structured:
+
+| Level | Definition | Stitch/HTML Example | Flutter Equivalent |
+| :--- | :--- | :--- | :--- |
+| **Atoms** | Basic building blocks. | `<button>`, `<input>`, `<span>`, `<img>` | `AppButton`, `AppTextInput`, `AppBadge`, `Icon` |
+| **Molecules** | Simple groups functioning together. | Labeled input, Icon + Text pair. | `LabeledInput`, `StatItem`, `StatusIndicator` |
+| **Organisms** | Complex UI sections. | Personal Data Grid, Header with Avatar & Name. | `ProfileHeader`, `FormSection`, `ActionGrid` |
+| **Templates** | Page structure without content. | Page with Header and Sticky Footer. | `ProfilePageLayout` |
+| **Pages** | Completed page. | Entire screen. | `ProfilePage` |
+
+### Rules for Components:
+1.  **Atoms** should be generic and stateless. They only import from theme/quarks.
+2.  **Molecules** combine atoms and provide specific layout/logic for those atoms.
+3.  **Organisms** handle layout of multiple molecules and may connect to state/data.
+4.  **Composition over duplication**: If a pattern repeats in Stitch (e.g., an input card), extract it as a Molecule.
+
 ## Workflow
 1.  Read the `.html` file from Stitch.
 2.  Examine the `.png` screenshot to understand visual hierarchy and spacing.
-3.  Identify repeated components and create private helper methods (e.g., `_buildActionCard`).
-4.  Generate the Dart code following Clean Architecture (if creating a new feature) or updating existing presentation files.
+3.  **Deconstruct into Atoms/Molecules**: Identify repeated UI patterns (e.g., the input cards with labels).
+4.  Generate the Dart code following the Atomic Design structure.
 5.  **Verify on Device**: Execute the debug launch script to see the new screen in action:
     ```bash
     ./launch_debug.sh

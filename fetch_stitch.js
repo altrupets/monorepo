@@ -8,7 +8,13 @@ function log(msg) {
 log('Starting script...');
 
 const project = '9064173060952920822';
-const screen = process.argv[2] || '0de1011c822545578e13a2c276b64e8c';
+const screen = process.argv[2] || 'b5171f91aefa449bb21ae073aab05daa';
+const ASSETS_DIR = 'stitch_assets';
+
+// Ensure assets directory exists
+if (!fs.existsSync(ASSETS_DIR)) {
+    fs.mkdirSync(ASSETS_DIR);
+}
 const env = { ...process.env };
 env.GOOGLE_CLOUD_PROJECT = 'numeric-replica-487322-d7';
 log('Testing with numeric-replica-487322-d7...');
@@ -88,10 +94,10 @@ function handleMessage(msg) {
 
         if (msg.result && msg.result.content && msg.result.content.length > 0) {
             const content = msg.result.content[0].text;
-            fs.writeFileSync('projects_list.txt', content);
-            log('Saved projects list to projects_list.txt');
+            fs.writeFileSync(`${ASSETS_DIR}/projects_list.txt`, content);
+            log(`Saved projects list to ${ASSETS_DIR}/projects_list.txt`);
         } else {
-            fs.writeFileSync('projects_list.json', JSON.stringify(msg.result, null, 2));
+            fs.writeFileSync(`${ASSETS_DIR}/projects_list.json`, JSON.stringify(msg.result, null, 2));
         }
 
         // Call fetch_screen_code
@@ -112,8 +118,8 @@ function handleMessage(msg) {
     } else if (msg.id === 2 && step === 2) {
         // Response for fetch_screen_code
         log(`fetch_screen_code Response: ${JSON.stringify(msg.result, null, 2)}`);
-        fs.writeFileSync('screen_code_output.txt', JSON.stringify(msg.result, null, 2));
-        log('Saved screen code to screen_code_output.txt');
+        fs.writeFileSync(`${ASSETS_DIR}/screen_code_${screen}.txt`, JSON.stringify(msg.result, null, 2));
+        log(`Saved screen code to ${ASSETS_DIR}/screen_code_${screen}.txt`);
 
         // Call fetch_screen_image
         log('Calling fetch_screen_image...');
@@ -133,8 +139,8 @@ function handleMessage(msg) {
     } else if (msg.id === 3 && step === 3) {
         // Response for fetch_screen_image
         log(`fetch_screen_image Response: ${JSON.stringify(msg.result, null, 2)}`);
-        fs.writeFileSync('screen_image_output.txt', JSON.stringify(msg.result, null, 2));
-        log('Saved screen image to screen_image_output.txt');
+        fs.writeFileSync(`${ASSETS_DIR}/screen_image_${screen}.txt`, JSON.stringify(msg.result, null, 2));
+        log(`Saved screen image to ${ASSETS_DIR}/screen_image_${screen}.txt`);
         log('Done.');
         process.exit(0);
     }

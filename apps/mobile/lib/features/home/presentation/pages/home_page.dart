@@ -1,17 +1,19 @@
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter/material.dart';
-import 'package:altrupets/features/home/presentation/widgets/service_card.dart';
-import 'package:altrupets/features/home/presentation/widgets/main_navigation_bar.dart';
+import 'package:altrupets/core/widgets/molecules/app_service_card.dart';
+import 'package:altrupets/core/widgets/molecules/home_welcome_header.dart';
+import 'package:altrupets/core/widgets/organisms/main_navigation_bar.dart';
 import 'package:altrupets/features/profile/presentation/pages/profile_page.dart';
 import 'package:altrupets/features/rescues/presentation/pages/rescues_page.dart';
 
-class HomePage extends StatefulWidget {
+class HomePage extends ConsumerStatefulWidget {
   const HomePage({super.key});
 
   @override
-  State<HomePage> createState() => _HomePageState();
+  ConsumerState<HomePage> createState() => _HomePageState();
 }
 
-class _HomePageState extends State<HomePage> {
+class _HomePageState extends ConsumerState<HomePage> {
   int _currentIndex = 2; // Home as default
 
   void _onPageChanged(int index) {
@@ -40,29 +42,42 @@ class _HomePageState extends State<HomePage> {
     final theme = Theme.of(context);
     final displayIndex = _currentIndex > 4 ? 5 : _currentIndex;
 
-    return Scaffold(
-      backgroundColor: theme.colorScheme.surface,
-      body: Stack(
-        children: List.generate(_pages.length, (index) {
-          final isSelected = index == displayIndex;
-          return AnimatedOpacity(
-            opacity: isSelected ? 1.0 : 0.0,
-            duration: const Duration(milliseconds: 200),
-            curve: Curves.easeInOut,
-            child: IgnorePointer(
-              ignoring: !isSelected,
-              child: _pages[index],
-            ),
-          );
-        }),
-      ),
-      bottomNavigationBar: MainNavigationBar(
-        currentIndex: _currentIndex > 4 ? 2 : _currentIndex,
-        onTap: (index) {
+    return PopScope(
+      canPop: _currentIndex == 2, // Only allow system pop if on Home tab
+      onPopInvokedWithResult: (didPop, result) {
+        if (didPop) return;
+        
+        // If not on Home tab, go back to Home tab (index 2)
+        if (_currentIndex != 2) {
           setState(() {
-            _currentIndex = index;
+            _currentIndex = 2;
           });
-        },
+        }
+      },
+      child: Scaffold(
+        backgroundColor: theme.colorScheme.surface,
+        body: Stack(
+          children: List.generate(_pages.length, (index) {
+            final isSelected = index == displayIndex;
+            return AnimatedOpacity(
+              opacity: isSelected ? 1.0 : 0.0,
+              duration: const Duration(milliseconds: 200),
+              curve: Curves.easeInOut,
+              child: IgnorePointer(
+                ignoring: !isSelected,
+                child: _pages[index],
+              ),
+            );
+          }),
+        ),
+        bottomNavigationBar: MainNavigationBar(
+          currentIndex: _currentIndex > 4 ? 2 : _currentIndex,
+          onTap: (index) {
+            setState(() {
+              _currentIndex = index;
+            });
+          },
+        ),
       ),
     );
   }
@@ -79,56 +94,15 @@ class _HomeContent extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // ... (keep same header)
-          Padding(
-            padding: const EdgeInsets.symmetric(
-              horizontal: 24.0,
-              vertical: 20.0,
-            ),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const Text(
-                      'Bienvenido',
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 28,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    Text(
-                      '¿Cómo podemos ayudarte hoy?',
-                      style: TextStyle(
-                        color: Colors.white.withValues(alpha: 0.6),
-                        fontSize: 16,
-                      ),
-                    ),
-                  ],
-                ),
-                Container(
-                  padding: const EdgeInsets.all(10),
-                  decoration: BoxDecoration(
-                    color: Colors.white.withValues(alpha: 0.1),
-                    shape: BoxShape.circle,
-                  ),
-                  child: const Icon(
-                    Icons.notifications_none,
-                    color: Colors.white,
-                    size: 24,
-                  ),
-                ),
-              ],
-            ),
+          HomeWelcomeHeader(
+            onNotificationTap: () {},
           ),
           Expanded(
             child: ListView(
               padding: const EdgeInsets.symmetric(horizontal: 24.0),
               physics: const BouncingScrollPhysics(),
               children: [
-                ServiceCard(
+                AppServiceCard(
                   title: 'Rescates',
                   subtitle: 'Interactúa con la red de rescatistas',
                   icon: Icons.support,
@@ -138,7 +112,7 @@ class _HomeContent extends StatelessWidget {
                   ],
                   onTap: onRescuesTap,
                 ),
-                ServiceCard(
+                AppServiceCard(
                   title: 'Adopciones',
                   subtitle: 'Explora a detalle o escoge al azar',
                   icon: Icons.volunteer_activism,
@@ -148,7 +122,7 @@ class _HomeContent extends StatelessWidget {
                   ],
                   onTap: () {},
                 ),
-                ServiceCard(
+                AppServiceCard(
                   title: 'Bienestar',
                   subtitle: 'Donaciones y denuncias',
                   icon: Icons.security,
@@ -158,7 +132,7 @@ class _HomeContent extends StatelessWidget {
                   ],
                   onTap: () {},
                 ),
-                ServiceCard(
+                AppServiceCard(
                   title: 'Salud, Higiene y Aseo',
                   subtitle: 'Busca clínicas, productos y servicios',
                   icon: Icons.medical_services,
@@ -168,7 +142,7 @@ class _HomeContent extends StatelessWidget {
                   ],
                   onTap: () {},
                 ),
-                ServiceCard(
+                AppServiceCard(
                   title: 'Alimentos',
                   subtitle: 'Accede a la red de proveedores',
                   icon: Icons.pets,
@@ -178,7 +152,7 @@ class _HomeContent extends StatelessWidget {
                   ],
                   onTap: () {},
                 ),
-                ServiceCard(
+                AppServiceCard(
                   title: 'Accesorios y Juguetes',
                   subtitle: 'Lo mejor para tus compañeros',
                   icon: Icons.toys,
