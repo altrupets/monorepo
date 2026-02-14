@@ -13,82 +13,97 @@ class MainNavigationBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final secondaryColor = theme.colorScheme.secondary;
+    final isDark = theme.brightness == Brightness.dark;
 
     return Container(
-      height: 90,
-      decoration: BoxDecoration(
-        color: theme.colorScheme.surface.withValues(alpha: 0.8),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.2),
-            blurRadius: 10,
-            offset: const Offset(0, -2),
-          ),
-        ],
+      padding: EdgeInsets.only(
+        left: 24,
+        right: 24,
+        top: 8,
+        bottom: MediaQuery.of(context).padding.bottom + 8,
       ),
-      child: Stack(
-        clipBehavior: Clip.none,
-        alignment: Alignment.topCenter,
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceAround,
-            children: [
-              _NavItem(
-                icon: Icons.groups_outlined,
-                label: 'Comunidad',
-                isSelected: currentIndex == 0,
-                onTap: () => onTap(0),
-              ),
-              _NavItem(
-                icon: Icons.chat_bubble_outline,
-                label: 'Mensajes',
-                isSelected: currentIndex == 1,
-                onTap: () => onTap(1),
-              ),
-              const SizedBox(width: 48), // Space for FAB
-              _NavItem(
-                icon: Icons.person_outline,
-                label: 'Perfil',
-                isSelected: currentIndex == 3,
-                onTap: () => onTap(3),
-              ),
-              _NavItem(
-                icon: Icons.settings_outlined,
-                label: 'Ajustes',
-                isSelected: currentIndex == 4,
-                onTap: () => onTap(4),
+      height: 80 + MediaQuery.of(context).padding.bottom,
+      decoration: BoxDecoration(
+        color: theme.colorScheme.surface,
+        border: Border(
+          top: BorderSide(
+            color: isDark ? theme.colorScheme.surface : Colors.grey.shade200,
+            width: 1,
+          ),
+        ),
+        boxShadow: isDark
+            ? []
+            : [
+                BoxShadow(
+                  color: Colors.black.withValues(alpha: 0.02),
+                  blurRadius: 10,
+                  offset: const Offset(0, -5),
+                ),
+              ],
+      ),
+      child: SafeArea(
+        left: true,
+        right: true,
+        bottom: false,
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            _NavItem(
+              icon: Icons.groups_rounded,
+              label: 'Comunidad',
+              isSelected: currentIndex == 0,
+              onTap: () => onTap(0),
+            ),
+            _NavItem(
+              icon: Icons.chat_bubble_outline_rounded,
+              label: 'Mensajes',
+              isSelected: currentIndex == 1,
+              onTap: () => onTap(1),
+            ),
+            _buildCenterHome(context),
+            _NavItem(
+              icon: Icons.person_outline_rounded,
+              label: 'Perfil',
+              isSelected: currentIndex == 3,
+              onTap: () => onTap(3),
+            ),
+            _NavItem(
+              icon: Icons.settings_rounded,
+              label: 'Ajustes',
+              isSelected: currentIndex == 4,
+              onTap: () => onTap(4),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildCenterHome(BuildContext context) {
+    return Transform.translate(
+      offset: const Offset(0, -24),
+      child: GestureDetector(
+        onTap: () => onTap(2),
+        child: Container(
+          width: 56,
+          height: 56,
+          decoration: BoxDecoration(
+            color: Theme.of(context).colorScheme.secondary,
+            shape: BoxShape.circle,
+            boxShadow: [
+              BoxShadow(
+                color: Theme.of(context).colorScheme.secondary.withValues(alpha: 0.3),
+                blurRadius: 12,
+                offset: const Offset(0, 4),
               ),
             ],
           ),
-          Positioned(
-            top: -30,
-            child: GestureDetector(
-              onTap: () => onTap(2),
-              child: Container(
-                width: 65,
-                height: 65,
-                decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    colors: [secondaryColor, secondaryColor.withValues(alpha: 0.8)],
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                  ),
-                  shape: BoxShape.circle,
-                  boxShadow: [
-                    BoxShadow(
-                      color: secondaryColor.withValues(alpha: 0.4),
-                      blurRadius: 15,
-                      spreadRadius: 2,
-                      offset: const Offset(0, 4),
-                    ),
-                  ],
-                ),
-                child: const Icon(Icons.home, color: Colors.white, size: 35),
-              ),
-            ),
+          child: const Icon(
+            Icons.home_rounded,
+            color: Colors.white,
+            size: 30,
           ),
-        ],
+        ),
       ),
     );
   }
@@ -110,26 +125,33 @@ class _NavItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
+    
     final color = isSelected
-        ? theme.colorScheme.onSurface
-        : theme.colorScheme.onSurface.withValues(alpha: 0.5);
+        ? theme.colorScheme.secondary
+        : (isDark ? Colors.grey.shade500 : Colors.grey.shade400);
 
     return InkWell(
       onTap: onTap,
       borderRadius: BorderRadius.circular(12),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+      child: SizedBox(
+        width: 64,
         child: Column(
           mainAxisSize: MainAxisSize.min,
+          mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(icon, color: color, size: 28),
+            Icon(
+              icon,
+              color: color,
+              size: 24,
+            ),
             const SizedBox(height: 4),
             Text(
               label,
-              style: theme.textTheme.labelSmall?.copyWith(
+              style: TextStyle(
                 color: color,
                 fontSize: 10,
-                fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                fontWeight: FontWeight.w500,
               ),
             ),
           ],

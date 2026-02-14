@@ -63,7 +63,7 @@ class AppColorsDark {
   static const Color onPrimary = Color(0xFFFFFFFF);
   static const Color onPrimaryContainer = Color(0xFFD4E4ED);
 
-  static const Color secondary = Color(0xFFEA840B);
+  static const Color secondary = Color(0xFFF97316);
   static const Color secondaryContainer = Color(0xFF4C2A02);
   static const Color onSecondary = Color(0xFFFFFFFF);
   static const Color onSecondaryContainer = Color(0xFFFFEBD6);
@@ -73,9 +73,9 @@ class AppColorsDark {
   static const Color onError = Color(0xFFFFFFFF);
   static const Color onErrorContainer = Color(0xFFFFDAD6);
 
-  static const Color background = Color(0xFF0A0F1D);
+  static const Color background = Color(0xFF101C22);
   static const Color onBackground = Color(0xFFF1F5F9);
-  static const Color surface = Color(0xFF111827);
+  static const Color surface = Color(0xFF101C22);
   static const Color onSurface = Color(0xFFF1F5F9);
 
   static const Color surfaceContainerHighest = Color(0xFF1F2937);

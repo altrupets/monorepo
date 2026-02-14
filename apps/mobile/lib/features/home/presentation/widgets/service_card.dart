@@ -19,8 +19,8 @@ class ServiceCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
-      height: 120,
+      margin: const EdgeInsets.symmetric(vertical: 8),
+      constraints: const BoxConstraints(minHeight: 110),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(24),
         gradient: LinearGradient(
@@ -54,7 +54,7 @@ class ServiceCard extends StatelessWidget {
                         title,
                         style: const TextStyle(
                           color: Colors.white,
-                          fontSize: 22,
+                          fontSize: 20,
                           fontWeight: FontWeight.bold,
                         ),
                       ),
@@ -76,7 +76,7 @@ class ServiceCard extends StatelessWidget {
                     color: Colors.white.withValues(alpha: 0.2),
                     borderRadius: BorderRadius.circular(16),
                   ),
-                  child: Icon(icon, color: Colors.white, size: 28),
+                  child: Icon(icon, color: Colors.white, size: 32),
                 ),
               ],
             ),
