@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
-class ManagementCardButton extends StatelessWidget {
-  const ManagementCardButton({
+class FosterHomesManagementCardButton extends StatelessWidget {
+  const FosterHomesManagementCardButton({
     required this.emoji,
     required this.label,
     required this.onTap,
@@ -47,11 +47,11 @@ class ManagementCardButton extends StatelessWidget {
             FittedBox(
               fit: BoxFit.scaleDown,
               child: Text(
-                label.toUpperCase(),
+                label,
                 textAlign: TextAlign.center,
-                style: theme.textTheme.titleMedium?.copyWith(
+                style: theme.textTheme.titleLarge?.copyWith(
                   fontWeight: FontWeight.bold,
-                  letterSpacing: 0.5,
+                  letterSpacing: -0.5,
                 ),
               ),
             ),

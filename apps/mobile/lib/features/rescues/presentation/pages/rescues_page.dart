@@ -59,44 +59,59 @@ class RescuesPage extends StatelessWidget {
                       ],
                     ),
                     const SizedBox(height: 32),
-                    AppServiceCard(
-                      title: 'Informar de un\nanimal vulnerable',
-                      icon: Icons.campaign_rounded,
-                      gradientColors: const [Color(0xFF9333EA), Color(0xFF9333EA)], // Purple-600
-                      onTap: () {},
-                    ),
-                    AppServiceCard(
-                      title: 'Captar a un\nanimal vulnerable',
-                      icon: Icons.directions_car_rounded,
-                      gradientColors: const [Color(0xFFDC2626), Color(0xFFDC2626)], // Red-600
-                      onTap: () {},
-                    ),
-                    AppServiceCard(
-                      title: 'Aceptar nuevo animal\nen mi casa cuna',
-                      icon: Icons.night_shelter_rounded,
-                      gradientColors: const [Color(0xFF3B82F6), Color(0xFF3B82F6)], // Blue-500
-                      onTap: () {},
-                    ),
-                    AppServiceCard(
-                      title: 'Dar seguimiento a\nrescates activos',
-                      icon: Icons.manage_search_rounded,
-                      gradientColors: const [Color(0xFF0D9488), Color(0xFF0D9488)], // Teal-600
-                      onTap: () {},
-                    ),
-                    AppServiceCard(
-                      title: 'Entregar en\nadopción',
-                      icon: Icons.volunteer_activism_rounded,
-                      gradientColors: const [Color(0xFF65A30D), Color(0xFF65A30D)], // Lime-600
-                      onTap: () {},
-                    ),
-                    AppServiceCard(
-                      title: 'Registrarme como\nrescatista',
-                      icon: Icons.edit_note_rounded,
-                      gradientColors: const [
-                        Color(0xFF1E40AF), // Blue-800/700
-                        Color(0xFF2563EB), // Blue-600
-                      ],
-                      onTap: () {},
+                    LayoutBuilder(
+                      builder: (context, constraints) {
+                        final columns = (constraints.maxWidth / 300).floor().clamp(1, 3);
+                        return GridView.count(
+                          crossAxisCount: columns,
+                          shrinkWrap: true,
+                          physics: const NeverScrollableScrollPhysics(),
+                          mainAxisSpacing: 4,
+                          crossAxisSpacing: 12,
+                          childAspectRatio: 3.0,
+                          children: [
+                            AppServiceCard(
+                              title: 'Informar de un\nanimal vulnerable',
+                              icon: Icons.campaign_rounded,
+                              gradientColors: const [Color(0xFF9333EA), Color(0xFF9333EA)],
+                              onTap: () {},
+                            ),
+                            AppServiceCard(
+                              title: 'Captar a un\nanimal vulnerable',
+                              icon: Icons.directions_car_rounded,
+                              gradientColors: const [Color(0xFFDC2626), Color(0xFFDC2626)],
+                              onTap: () {},
+                            ),
+                            AppServiceCard(
+                              title: 'Aceptar nuevo animal\nen mi casa cuna',
+                              icon: Icons.night_shelter_rounded,
+                              gradientColors: const [Color(0xFF3B82F6), Color(0xFF3B82F6)],
+                              onTap: () {},
+                            ),
+                            AppServiceCard(
+                              title: 'Dar seguimiento a\nrescates activos',
+                              icon: Icons.manage_search_rounded,
+                              gradientColors: const [Color(0xFF0D9488), Color(0xFF0D9488)],
+                              onTap: () {},
+                            ),
+                            AppServiceCard(
+                              title: 'Entregar en\nadopción',
+                              icon: Icons.volunteer_activism_rounded,
+                              gradientColors: const [Color(0xFF65A30D), Color(0xFF65A30D)],
+                              onTap: () {},
+                            ),
+                            AppServiceCard(
+                              title: 'Registrarme como\nrescatista',
+                              icon: Icons.edit_note_rounded,
+                              gradientColors: const [
+                                Color(0xFF1E40AF),
+                                Color(0xFF2563EB),
+                              ],
+                              onTap: () {},
+                            ),
+                          ],
+                        );
+                      },
                     ),
                     const SizedBox(height: 120), // Bottom padding for nav
                   ],

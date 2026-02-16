@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:altrupets/core/providers/navigation_provider.dart';
 import 'package:altrupets/core/widgets/molecules/foster_home_header_card.dart';
-import 'package:altrupets/core/widgets/molecules/management_card_button.dart';
+import 'package:altrupets/core/widgets/molecules/foster_homes_management_card_button.dart';
 import 'package:altrupets/core/widgets/molecules/section_header.dart';
 
 class FosterHomesManagementPage extends ConsumerWidget {
@@ -53,15 +53,15 @@ class FosterHomesManagementPage extends ConsumerWidget {
               crossAxisSpacing: 12,
               childAspectRatio: 1.3,
               children: [
-                ManagementCardButton(emoji: '🥩', label: 'Alimentos', onTap: () {}),
-                ManagementCardButton(emoji: '💊', label: 'Botiquín', onTap: () {}),
-                ManagementCardButton(emoji: '🏠', label: 'Mobiliario', onTap: () {}),
-                ManagementCardButton(emoji: '🧹', label: 'Limpieza y Aseo', onTap: () {}),
-                ManagementCardButton(emoji: '🧼', label: 'Higiene Animal', onTap: () {}),
-                ManagementCardButton(emoji: '🛏', label: 'Ropa de Cama', onTap: () {}),
-                ManagementCardButton(emoji: '🥣', label: 'Utensilios', onTap: () {}),
-                ManagementCardButton(emoji: '🎾', label: 'Juguetes', onTap: () {}),
-                ManagementCardButton(emoji: '🚗', label: 'Transporte', onTap: () {}),
+                FosterHomesManagementCardButton(emoji: '🥩', label: 'Alimentos', onTap: () {}),
+                FosterHomesManagementCardButton(emoji: '💊', label: 'Botiquín', onTap: () {}),
+                FosterHomesManagementCardButton(emoji: '🏠', label: 'Mobiliario', onTap: () {}),
+                FosterHomesManagementCardButton(emoji: '🧹', label: 'Limpieza y Aseo', onTap: () {}),
+                FosterHomesManagementCardButton(emoji: '🧼', label: 'Higiene Animal', onTap: () {}),
+                FosterHomesManagementCardButton(emoji: '🛏', label: 'Ropa de Cama', onTap: () {}),
+                FosterHomesManagementCardButton(emoji: '🥣', label: 'Utensilios', onTap: () {}),
+                FosterHomesManagementCardButton(emoji: '🎾', label: 'Juguetes', onTap: () {}),
+                FosterHomesManagementCardButton(emoji: '🚗', label: 'Transporte', onTap: () {}),
               ],
             ),
             
@@ -81,12 +81,12 @@ class FosterHomesManagementPage extends ConsumerWidget {
               crossAxisSpacing: 12,
               childAspectRatio: 1.3,
               children: [
-                ManagementCardButton(emoji: '⚡', label: 'Servicios Públicos', onTap: () {}),
-                ManagementCardButton(emoji: '🚛', label: 'Gastos de Logística', onTap: () {}),
-                ManagementCardButton(emoji: '🛒', label: 'Compras de Activos', onTap: () {}),
-                ManagementCardButton(emoji: '🏛️', label: 'Impuestos', onTap: () {}),
-                ManagementCardButton(emoji: '🩺', label: 'Veterinaria', onTap: () {}),
-                ManagementCardButton(emoji: '✂️', label: 'Estéticos', onTap: () {}),
+                FosterHomesManagementCardButton(emoji: '⚡', label: 'Servicios Públicos', onTap: () {}),
+                FosterHomesManagementCardButton(emoji: '🚛', label: 'Gastos de Logística', onTap: () {}),
+                FosterHomesManagementCardButton(emoji: '🛒', label: 'Compras de Activos', onTap: () {}),
+                FosterHomesManagementCardButton(emoji: '🏛️', label: 'Impuestos', onTap: () {}),
+                FosterHomesManagementCardButton(emoji: '🩺', label: 'Veterinaria', onTap: () {}),
+                FosterHomesManagementCardButton(emoji: '✂️', label: 'Estéticos', onTap: () {}),
               ],
             ),
             
