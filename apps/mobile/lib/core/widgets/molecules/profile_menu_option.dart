@@ -58,7 +58,7 @@ class ProfileMenuOption extends StatelessWidget {
             Text(
               label,
               textAlign: TextAlign.center,
-              style: theme.textTheme.labelMedium?.copyWith(
+              style: theme.textTheme.titleSmall?.copyWith(
                 fontWeight: FontWeight.w600,
               ),
             ),

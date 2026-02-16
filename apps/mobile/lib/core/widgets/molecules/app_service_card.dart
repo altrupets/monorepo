@@ -3,15 +3,15 @@ import 'package:flutter/material.dart';
 class AppServiceCard extends StatelessWidget {
   const AppServiceCard({
     required this.title,
-    required this.subtitle,
     required this.icon,
     required this.gradientColors,
     required this.onTap,
+    this.subtitle,
     super.key,
   });
 
   final String title;
-  final String subtitle;
+  final String? subtitle;
   final IconData icon;
   final List<Color> gradientColors;
   final VoidCallback onTap;
@@ -58,14 +58,16 @@ class AppServiceCard extends StatelessWidget {
                               letterSpacing: -0.5,
                             ),
                       ),
-                      const SizedBox(height: 1),
-                      Text(
-                        subtitle,
-                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                              color: Colors.white.withValues(alpha: 0.8),
-                              letterSpacing: -0.2,
-                            ),
-                      ),
+                      if (subtitle != null) ...[
+                        const SizedBox(height: 1),
+                        Text(
+                          subtitle!,
+                          style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                                color: Colors.white.withValues(alpha: 0.8),
+                                letterSpacing: -0.2,
+                              ),
+                        ),
+                      ],
                     ],
                   ),
                 ),
