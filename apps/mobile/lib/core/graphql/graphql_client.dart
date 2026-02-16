@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
 
+import 'package:flutter/foundation.dart';
 import 'package:graphql/client.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:altrupets/core/utils/constants.dart';
@@ -13,7 +14,8 @@ class GraphQLClientService {
       StreamController<void>.broadcast();
   static bool _sessionExpiryHandlingInProgress = false;
 
-  static Stream<void> get sessionExpiredStream => _sessionExpiredController.stream;
+  static Stream<void> get sessionExpiredStream =>
+      _sessionExpiredController.stream;
 
   static GraphQLClient getClient() {
     _client ??= _createClient();
@@ -44,14 +46,14 @@ class GraphQLClientService {
 
     final httpLink = HttpLink(
       '${AppConstants.baseUrl}/graphql',
-      defaultHeaders: {
-        'Content-Type': 'application/json',
-      },
+      defaultHeaders: {'Content-Type': 'application/json'},
     );
 
     final authLink = AuthLink(
       getToken: () async {
+        debugPrint('[GraphQLClient] 🔑 Solicitando token para AuthLink...');
         final token = await getToken();
+        debugPrint('[GraphQLClient] 🔑 Token ${token != null ? 'encontrado (len: ${token.length})' : 'NO ENCONTRADO'}');
         return token != null ? 'Bearer $token' : null;
       },
     );
@@ -65,9 +67,12 @@ class GraphQLClientService {
   }
 
   static Future<void> saveToken(String token) async {
+    debugPrint('[GraphQLClient] 💾 Guardando token (len: ${token.length})...');
     await _storage.write(key: _tokenKey, value: token);
+    debugPrint('[GraphQLClient] ✅ Token guardado exitosamente');
     // Recrear cliente con nuevo token
     _client = _createClient();
+    debugPrint('[GraphQLClient] 🔄 Cliente GraphQL recreado con nuevo token');
   }
 
   static Future<void> clearToken() async {
@@ -77,14 +82,19 @@ class GraphQLClientService {
   }
 
   static Future<String?> getToken() async {
+    debugPrint('[GraphQLClient] 📖 Leyendo token desde storage...');
     final token = await _storage.read(key: _tokenKey);
     if (token == null) {
+      debugPrint('[GraphQLClient] ⚠️ Token no encontrado en storage');
       return null;
     }
+    debugPrint('[GraphQLClient] 📋 Token encontrado (len: ${token.length})');
     if (_isJwtExpired(token)) {
+      debugPrint('[GraphQLClient] ⏰ Token expirado - limpiando');
       await clearToken();
       return null;
     }
+    debugPrint('[GraphQLClient] ✅ Token válido');
     return token;
   }
 

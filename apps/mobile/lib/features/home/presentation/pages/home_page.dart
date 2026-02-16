@@ -7,6 +7,7 @@ import 'package:altrupets/core/widgets/organisms/main_navigation_bar.dart';
 import 'package:altrupets/features/profile/presentation/pages/profile_page.dart';
 import 'package:altrupets/features/rescues/presentation/pages/rescues_page.dart';
 import 'package:altrupets/features/settings/presentation/pages/settings_page.dart';
+import 'package:altrupets/features/profile/presentation/providers/profile_provider.dart';
 
 class HomePage extends ConsumerStatefulWidget {
   const HomePage({super.key});
@@ -29,10 +30,16 @@ class _HomePageState extends ConsumerState<HomePage> {
   @override
   void initState() {
     super.initState();
+    debugPrint('[HomePage] 🏠 initState llamado');
+
     _pages = [
       const Center(key: ValueKey(0), child: Text('Comunidad', style: TextStyle(color: Colors.white))),
       const Center(key: ValueKey(1), child: Text('Mensajes', style: TextStyle(color: Colors.white))),
-      _HomeContent(key: const ValueKey(2), onRescuesTap: () => _onPageChanged(5)),
+      _HomeContent(
+        key: const ValueKey(2),
+        onRescuesTap: () => _onPageChanged(5),
+        greetingName: null,
+      ),
       ProfilePage(
         key: const ValueKey(3),
         onBack: () => _onPageChanged(2),
@@ -43,12 +50,51 @@ class _HomePageState extends ConsumerState<HomePage> {
         onBack: () => _onPageChanged(2),
       ),
     ];
+
+    // Race condition fix: Solo invalidar si no viene de login exitoso
+    // El login ya invalida y precarga el provider
+    Future.microtask(() async {
+      final currentUserAsync = ref.read(currentUserProvider);
+      debugPrint('[HomePage] ⏳ initState - currentUserProvider state: ${currentUserAsync.toString()}');
+
+      // Solo recargar si está en estado inicial (no está cargando ni tiene valor)
+      if (currentUserAsync is! AsyncLoading && currentUserAsync is! AsyncData) {
+        debugPrint('[HomePage] 🔄 Invalidando currentUserProvider desde initState...');
+        ref.invalidate(currentUserProvider);
+        final user = await ref.read(currentUserProvider.future);
+        debugPrint('[HomePage] ✅ currentUserProvider resuelto: ${user != null ? user.username : 'NULL'}');
+      } else {
+        debugPrint('[HomePage] ⏭️ Saltando recarga - provider ya en estado: ${currentUserAsync.runtimeType}');
+      }
+    });
   }
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final displayIndex = _currentIndex > 4 ? 5 : _currentIndex;
+    final currentUserAsync = ref.watch(currentUserProvider);
+    final user = currentUserAsync.valueOrNull;
+    final fullName = [
+      user?.firstName?.trim() ?? '',
+      user?.lastName?.trim() ?? '',
+    ].where((value) => value.isNotEmpty).join(' ');
+    final greetingName = fullName.isNotEmpty ? fullName : user?.username;
+
+    debugPrint('[HomePage] 🔨 BUILD - currentUserAsync: ${currentUserAsync.runtimeType}, user: ${user?.username ?? 'NULL'}, greetingName: $greetingName');
+
+    final updatedPages = [
+      _pages[0],
+      _pages[1],
+      _HomeContent(
+        key: const ValueKey(2),
+        onRescuesTap: () => _onPageChanged(5),
+        greetingName: greetingName,
+      ),
+      _pages[3],
+      _pages[4],
+      _pages[5],
+    ];
 
     return PopScope(
       canPop: _currentIndex == 2, // Only allow system pop if on Home tab
@@ -65,7 +111,7 @@ class _HomePageState extends ConsumerState<HomePage> {
       child: Scaffold(
         backgroundColor: theme.colorScheme.surface,
         body: Stack(
-          children: List.generate(_pages.length, (index) {
+          children: List.generate(updatedPages.length, (index) {
             final isSelected = index == displayIndex;
             return AnimatedOpacity(
               opacity: isSelected ? 1.0 : 0.0,
@@ -73,7 +119,7 @@ class _HomePageState extends ConsumerState<HomePage> {
               curve: Curves.easeInOut,
               child: IgnorePointer(
                 ignoring: !isSelected,
-                child: _pages[index],
+                child: updatedPages[index],
               ),
             );
           }),
@@ -92,9 +138,14 @@ class _HomePageState extends ConsumerState<HomePage> {
 }
 
 class _HomeContent extends StatelessWidget {
-  const _HomeContent({required this.onRescuesTap, super.key});
+  const _HomeContent({
+    required this.onRescuesTap,
+    required this.greetingName,
+    super.key,
+  });
 
   final VoidCallback onRescuesTap;
+  final String? greetingName;
 
   @override
   Widget build(BuildContext context) {
@@ -104,6 +155,7 @@ class _HomeContent extends StatelessWidget {
         children: [
           HomeWelcomeHeader(
             onNotificationTap: () {},
+            greetingName: greetingName,
           ),
           Expanded(
             child: ListView(

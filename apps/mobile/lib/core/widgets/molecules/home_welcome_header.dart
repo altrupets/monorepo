@@ -3,10 +3,12 @@ import 'package:altrupets/core/widgets/atoms/app_circular_button.dart';
 
 class HomeWelcomeHeader extends StatelessWidget {
   const HomeWelcomeHeader({
+    this.greetingName,
     required this.onNotificationTap,
     super.key,
   });
 
+  final String? greetingName;
   final VoidCallback onNotificationTap;
 
   @override
@@ -26,7 +28,9 @@ class HomeWelcomeHeader extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'Bienvenido',
+                  greetingName == null || greetingName!.trim().isEmpty
+                      ? 'Bienvenido'
+                      : 'Hola, ${greetingName!.trim()}!',
                   style: Theme.of(context).textTheme.headlineMedium?.copyWith(
                         color: Colors.white,
                         fontWeight: FontWeight.bold,

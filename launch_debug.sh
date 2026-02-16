@@ -27,6 +27,7 @@ BACKEND_REDEPLOY_ARGO_ENABLED=false
 BACKEND_ROLLOUT_RESTART_ENABLED=false
 BACKEND_PRUNE_STALE_PODS=true
 BACKEND_LOGS_WINDOW_ENABLED=true
+BACKEND_FORWARD_IN_TERMINAL=true
 
 # ─── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -107,6 +108,27 @@ cleanup_backend_forward() {
         echo -e "${BLUE}🧹 Cerrando port-forward del backend (PID: $BACKEND_FORWARD_PID)...${NC}"
         kill "$BACKEND_FORWARD_PID" 2>/dev/null || true
     fi
+}
+
+is_local_backend_graphql_reachable() {
+    if ! command -v curl >/dev/null 2>&1; then
+        return 1
+    fi
+
+    local status
+    status="$(curl -sS -o /dev/null -m 2 -w "%{http_code}" \
+        -X POST "http://127.0.0.1:3001/graphql" \
+        -H "Content-Type: application/json" \
+        --data '{"query":"query { __typename }"}' 2>/dev/null || true)"
+
+    case "$status" in
+        200|400)
+            return 0
+            ;;
+        *)
+            return 1
+            ;;
+    esac
 }
 
 init_mobile_logging() {
@@ -292,11 +314,40 @@ start_backend_forward_if_available() {
     fi
 
     if ss -ltn 2>/dev/null | grep -qE '127\.0\.0\.1:3001|::1:3001'; then
-        echo -e "${ORANGE}⚠️  El puerto localhost:3001 ya está en uso. Asumiendo backend ya expuesto.${NC}"
-        return 0
+        if is_local_backend_graphql_reachable; then
+            echo -e "${ORANGE}⚠️  El puerto localhost:3001 ya está en uso. Backend accesible; se reutiliza el túnel existente.${NC}"
+            return 0
+        fi
+
+        echo -e "${RED}❌ localhost:3001 está ocupado, pero GraphQL no responde.${NC}"
+        echo -e "${RED}   Esto rompe la carga de sesión (currentUser falla al iniciar).${NC}"
+        echo -e "${ORANGE}   Libera el puerto 3001 o cierra el proceso stale y vuelve a ejecutar.${NC}"
+        return 1
     fi
 
-    echo -e "${BLUE}🔌 Iniciando port-forward backend: localhost:3001 -> svc/backend-service:3001${NC}"
+    local forward_cmd
+    forward_cmd="echo '🔌 Port-forward backend: localhost:3001 -> svc/backend-service:3001'; echo; kubectl -n altrupets-dev port-forward svc/backend-service 3001:3001"
+
+    if [ "$BACKEND_FORWARD_IN_TERMINAL" = true ] && [ "$OS_NAME" = "Linux" ]; then
+        if command -v gnome-terminal >/dev/null 2>&1; then
+            gnome-terminal -- bash -lc "$forward_cmd; echo; read -r -p 'Cerrar port-forward (ENTER)...' _" >/dev/null 2>&1 &
+            echo -e "${GREEN}✅ Port-forward del backend abierto en nueva terminal (gnome-terminal).${NC}"
+            return 0
+        fi
+        if command -v x-terminal-emulator >/dev/null 2>&1; then
+            x-terminal-emulator -e bash -lc "$forward_cmd; echo; read -r -p 'Cerrar port-forward (ENTER)...' _" >/dev/null 2>&1 &
+            echo -e "${GREEN}✅ Port-forward del backend abierto en nueva terminal (x-terminal-emulator).${NC}"
+            return 0
+        fi
+        if command -v konsole >/dev/null 2>&1; then
+            konsole -e bash -lc "$forward_cmd; echo; read -r -p 'Cerrar port-forward (ENTER)...' _" >/dev/null 2>&1 &
+            echo -e "${GREEN}✅ Port-forward del backend abierto en nueva terminal (konsole).${NC}"
+            return 0
+        fi
+        echo -e "${ORANGE}⚠️  No se encontró terminal para abrir port-forward aparte. Usando modo background.${NC}"
+    fi
+
+    echo -e "${BLUE}🔌 Iniciando port-forward backend (background): localhost:3001 -> svc/backend-service:3001${NC}"
     kubectl -n altrupets-dev port-forward svc/backend-service 3001:3001 >/tmp/altrupets-backend-forward.log 2>&1 &
     BACKEND_FORWARD_PID=$!
     trap cleanup_backend_forward EXIT

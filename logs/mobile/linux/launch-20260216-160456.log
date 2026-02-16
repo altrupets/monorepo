@@ -7,7 +7,7 @@
 #1 DONE 0.0s
 
 #2 [internal] load metadata for docker.io/library/node:20-alpine
-#2 DONE 0.7s
+#2 DONE 0.6s
 
 #3 [internal] load .dockerignore
 #3 transferring context: 2B done
@@ -17,36 +17,71 @@
 #4 DONE 0.0s
 
 #5 [internal] load build context
-#5 transferring context: 217.80MB 3.5s done
-#5 DONE 3.5s
+#5 transferring context: 217.80MB 3.3s done
+#5 DONE 3.3s
 
-#6 [builder 6/6] RUN npm run build && npm prune --omit=dev
+#6 [builder 2/6] WORKDIR /app
 #6 CACHED
 
-#7 [builder 5/6] COPY . .
+#7 [builder 3/6] COPY package*.json ./
 #7 CACHED
 
-#8 [stage-1 3/5] COPY --from=builder /app/node_modules ./node_modules
+#8 [builder 4/6] RUN npm ci
 #8 CACHED
 
-#9 [builder 3/6] COPY package*.json ./
-#9 CACHED
+#9 [builder 5/6] COPY . .
+#9 DONE 9.9s
 
-#10 [stage-1 4/5] COPY --from=builder /app/dist ./dist
-#10 CACHED
+#10 [builder 6/6] RUN npm run build && npm prune --omit=dev
+#10 0.275 
+#10 0.275 > altrupets-backend@0.0.1 build
+#10 0.275 > nest build
+#10 0.275 
+#10 4.330 npm warn ERESOLVE overriding peer dependency
+#10 4.330 npm warn While resolving: @apollo/server-plugin-landing-page-graphql-playground@4.0.1
+#10 4.330 npm warn Found: @apollo/server@5.2.0
+#10 4.330 npm warn node_modules/@apollo/server
+#10 4.330 npm warn   @apollo/server@"^5.2.0" from the root project
+#10 4.330 npm warn   2 more (@as-integrations/express5, @nestjs/apollo)
+#10 4.330 npm warn
+#10 4.330 npm warn Could not resolve dependency:
+#10 4.330 npm warn peer @apollo/server@"^4.0.0" from @apollo/server-plugin-landing-page-graphql-playground@4.0.1
+#10 4.330 npm warn node_modules/@apollo/server-plugin-landing-page-graphql-playground
+#10 4.330 npm warn   @apollo/server-plugin-landing-page-graphql-playground@"4.0.1" from @nestjs/apollo@13.2.3
+#10 4.330 npm warn   node_modules/@nestjs/apollo
+#10 4.330 npm warn
+#10 4.330 npm warn Conflicting peer dependency: @apollo/server@4.13.0
+#10 4.330 npm warn node_modules/@apollo/server
+#10 4.330 npm warn   peer @apollo/server@"^4.0.0" from @apollo/server-plugin-landing-page-graphql-playground@4.0.1
+#10 4.330 npm warn   node_modules/@apollo/server-plugin-landing-page-graphql-playground
+#10 4.330 npm warn     @apollo/server-plugin-landing-page-graphql-playground@"4.0.1" from @nestjs/apollo@13.2.3
+#10 4.330 npm warn     node_modules/@nestjs/apollo
+#10 9.888 
+#10 9.888 removed 6 packages, and audited 363 packages in 6s
+#10 9.888 
+#10 9.888 78 packages are looking for funding
+#10 9.888   run `npm fund` for details
+#10 9.895 
+#10 9.895 6 vulnerabilities (2 low, 3 moderate, 1 high)
+#10 9.895 
+#10 9.895 To address all issues, run:
+#10 9.895   npm audit fix
+#10 9.895 
+#10 9.895 Run `npm audit` for details.
+#10 DONE 9.9s
 
-#11 [builder 2/6] WORKDIR /app
+#11 [stage-1 3/5] COPY --from=builder /app/node_modules ./node_modules
 #11 CACHED
 
-#12 [builder 4/6] RUN npm ci
-#12 CACHED
+#12 [stage-1 4/5] COPY --from=builder /app/dist ./dist
+#12 DONE 0.0s
 
 #13 [stage-1 5/5] COPY --from=builder /app/package*.json ./
-#13 CACHED
+#13 DONE 0.2s
 
 #14 exporting to image
-#14 exporting layers done
-#14 writing image sha256:c2ca9500ce8d2477405af0f4d131f36f9f181448618d4e447c828227607355a0 done
+#14 exporting layers 0.0s done
+#14 writing image sha256:1ab868817b0e7d30adfe0ea0258e1a19adeba631e0800981ee93fdd8a116810a done
 #14 naming to docker.io/library/altrupets-backend:dev done
 #14 DONE 0.0s
 [0;32m✅ Image built in Minikube runtime: altrupets-backend:dev[0m
@@ -59,7 +94,7 @@
 [0;34m🔎 Verificando backend en Kubernetes (intento 1/5)...[0m
 deployment "backend" successfully rolled out
 [0;32m✅ Logs de backend abiertos en nueva terminal (gnome-terminal).[0m
-[0;34m🔌 Iniciando port-forward backend: localhost:3001 -> svc/backend-service:3001[0m
+[0;32m✅ Port-forward del backend abierto en nueva terminal (gnome-terminal).[0m
 🧹 flutter pub get...
 Resolving dependencies...
 Downloading packages...
@@ -104,18 +139,8 @@ Try `flutter pub outdated` for more information.
 [0;32m🚀 Ejecutando en Linux desktop...[0m
 Launching lib/main.dart on Linux in debug mode...
 Building Linux application...                                   
-✓ Built build/linux/x64/debug/bundle/altrupets
-Syncing files to device Linux...                                   118ms
-
-Flutter run key commands.
-r Hot reload. 🔥🔥🔥
-R Hot restart.
-h List all available interactive commands.
-d Detach (terminate "flutter run" but leave application running).
-c Clear the screen
-q Quit (terminate the application on the device).
-
-A Dart VM Service on Linux is available at: http://127.0.0.1:35115/8DxW6FxrS2w=/
-The Flutter DevTools debugger and profiler on Linux is available at: http://127.0.0.1:35115/8DxW6FxrS2w=/devtools/?uri=ws://127.0.0.1:35115/8DxW6FxrS2w=/ws
-Lost connection to device.
-[0;34m🧹 Cerrando port-forward del backend (PID: 888070)...[0m
+ERROR: lib/features/auth/presentation/pages/login_page.dart:51:9: Error: 'await' can only be used in 'async' or 'async*' methods.
+ERROR:         await ref.read(currentUserProvider.future);
+ERROR:         ^^^^^
+ERROR: Target kernel_snapshot_program failed: Exception
+Error: Build process failed

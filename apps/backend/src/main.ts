@@ -51,8 +51,9 @@ async function bootstrap() {
   }
 
   await app.listen(port);
+  const envName = configService.get<string>('ENV_NAME', 'dev').toUpperCase();
   console.log(
-    `User Management Service is running on: http://localhost:${port}`,
+    `AltruPets ${envName} Backend is running on: http://localhost:${port}`,
   );
 }
 bootstrap().catch((err) => {
