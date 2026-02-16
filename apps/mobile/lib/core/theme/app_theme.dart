@@ -167,19 +167,19 @@ class AppTheme {
 
       // Switch Theme
       switchTheme: SwitchThemeData(
-        thumbColor: MaterialStateProperty.resolveWith((states) {
-          if (states.contains(MaterialState.selected)) {
+        thumbColor: WidgetStateProperty.resolveWith((states) {
+          if (states.contains(WidgetState.selected)) {
             return AppColors.onSuccess;
           }
           return AppColors.onError;
         }),
-        trackColor: MaterialStateProperty.resolveWith((states) {
-          if (states.contains(MaterialState.selected)) {
+        trackColor: WidgetStateProperty.resolveWith((states) {
+          if (states.contains(WidgetState.selected)) {
             return AppColors.success;
           }
           return AppColors.error;
         }),
-        trackOutlineColor: MaterialStateProperty.all(Colors.transparent),
+        trackOutlineColor: WidgetStateProperty.all(Colors.transparent),
       ),
     );
   }
@@ -330,19 +330,19 @@ class AppTheme {
 
       // Switch Theme
       switchTheme: SwitchThemeData(
-        thumbColor: MaterialStateProperty.resolveWith((states) {
-          if (states.contains(MaterialState.selected)) {
+        thumbColor: WidgetStateProperty.resolveWith((states) {
+          if (states.contains(WidgetState.selected)) {
             return AppColorsDark.onSuccess;
           }
           return AppColorsDark.onError;
         }),
-        trackColor: MaterialStateProperty.resolveWith((states) {
-          if (states.contains(MaterialState.selected)) {
+        trackColor: WidgetStateProperty.resolveWith((states) {
+          if (states.contains(WidgetState.selected)) {
             return AppColorsDark.success;
           }
           return AppColorsDark.error;
         }),
-        trackOutlineColor: MaterialStateProperty.all(Colors.transparent),
+        trackOutlineColor: WidgetStateProperty.all(Colors.transparent),
       ),
     );
   }

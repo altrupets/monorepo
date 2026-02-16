@@ -39,7 +39,7 @@ class StickyFooterButton extends StatelessWidget {
         : (isDark ? AppColorsDark.onError : AppColors.onError);
         
     // Both now have solid backgrounds, so border can be transparent or match background
-    final borderColor = Colors.transparent;
+    const borderColor = Colors.transparent;
 
     return Material(
       color: backgroundColor,

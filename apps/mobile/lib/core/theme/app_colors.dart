@@ -68,7 +68,7 @@ class AppColorsDark {
   static Color get onPrimaryContainer => _tokens.palette.primary[90]!;
 
   // Secondary (Dark)
-  static Color get secondary => _tokens.palette.secondary[80]!;
+  static Color get secondary => _tokens.brand.secondary;
   static Color get secondaryContainer => _tokens.palette.secondary[30]!;
   static Color get onSecondary => _tokens.palette.secondary[20]!;
   static Color get onSecondaryContainer => _tokens.palette.secondary[90]!;

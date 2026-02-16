@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:altrupets/core/widgets/atoms/app_circular_button.dart';
 import 'package:altrupets/core/widgets/molecules/app_nav_item.dart';
+import 'package:altrupets/core/widgets/molecules/home_navigation_button.dart';
 
 class MainNavigationBar extends StatelessWidget {
   const MainNavigationBar({
@@ -82,22 +82,8 @@ class MainNavigationBar extends StatelessWidget {
   }
 
   Widget _buildCenterHome(BuildContext context) {
-    final theme = Theme.of(context);
-    return Transform.translate(
-      offset: const Offset(0, -24),
-      child: AppCircularButton(
-        icon: Icons.home_rounded,
-        onTap: () => onTap(2),
-        size: 56,
-        iconSize: 30,
-        boxShadow: [
-          BoxShadow(
-            color: theme.colorScheme.secondary.withValues(alpha: 0.3),
-            blurRadius: 12,
-            offset: const Offset(0, 4),
-          ),
-        ],
-      ),
+    return HomeNavigationButton(
+      onTap: () => onTap(2),
     );
   }
 }

@@ -32,9 +32,15 @@ class _HomePageState extends ConsumerState<HomePage> {
       const Center(key: ValueKey(0), child: Text('Comunidad', style: TextStyle(color: Colors.white))),
       const Center(key: ValueKey(1), child: Text('Mensajes', style: TextStyle(color: Colors.white))),
       _HomeContent(key: const ValueKey(2), onRescuesTap: () => _onPageChanged(5)),
-      const ProfilePage(key: ValueKey(3)),
+      ProfilePage(
+        key: const ValueKey(3),
+        onBack: () => _onPageChanged(2),
+      ),
       const Center(key: ValueKey(4), child: Text('Ajustes', style: TextStyle(color: Colors.white))),
-      const RescuesPage(key: ValueKey(5)),
+      RescuesPage(
+        key: const ValueKey(5),
+        onBack: () => _onPageChanged(2),
+      ),
     ];
   }
 
@@ -100,7 +106,7 @@ class _HomeContent extends StatelessWidget {
           ),
           Expanded(
             child: ListView(
-              padding: const EdgeInsets.symmetric(horizontal: 24.0),
+              padding: const EdgeInsets.only(left: 24.0, right: 24.0, top: 16.0),
               physics: const BouncingScrollPhysics(),
               children: [
                 AppServiceCard(
