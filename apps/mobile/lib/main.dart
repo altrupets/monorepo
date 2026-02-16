@@ -7,6 +7,8 @@ import 'package:altrupets/core/theme/app_theme.dart';
 import 'package:altrupets/core/theme/theme_provider.dart';
 import 'package:altrupets/features/home/presentation/pages/home_page.dart';
 import 'package:altrupets/core/providers/navigation_provider.dart';
+import 'package:altrupets/features/auth/presentation/pages/login_page.dart';
+import 'package:altrupets/features/auth/presentation/providers/auth_provider.dart';
 
 import 'package:altrupets/core/theme/token_service.dart';
 
@@ -42,6 +44,7 @@ class AltruPetsApp extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final themeMode = ref.watch(themeModeProvider);
+    final isAuthenticatedAsync = ref.watch(isAuthenticatedProvider);
 
     return MaterialApp(
       navigatorKey: ref.read(navigationProvider).navigatorKey,
@@ -56,7 +59,14 @@ class AltruPetsApp extends ConsumerWidget {
         GlobalCupertinoLocalizations.delegate,
       ],
       supportedLocales: const [Locale('en', ''), Locale('es', '')],
-      home: const HomePage(),
+      home: isAuthenticatedAsync.when(
+        data: (isAuthenticated) =>
+            isAuthenticated ? const HomePage() : const LoginPage(),
+        loading: () => const Scaffold(
+          body: Center(child: CircularProgressIndicator()),
+        ),
+        error: (_, __) => const LoginPage(),
+      ),
     );
   }
 }

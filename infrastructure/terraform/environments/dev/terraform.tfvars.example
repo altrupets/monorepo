@@ -1,0 +1,6 @@
+# Copy this file to terraform.tfvars and fill in your values
+# terraform.tfvars should be in .gitignore
+
+postgres_username = "postgres"
+postgres_password = "your-secure-password-here"
+postgres_database = "altrupets_user_management"

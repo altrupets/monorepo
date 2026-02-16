@@ -3,7 +3,7 @@ class AppConstants {
   AppConstants._();
 
   // API
-  static const String baseUrl = 'https://api.example.com';
+  static const String baseUrl = 'http://localhost:3001';
   static const Duration connectTimeout = Duration(seconds: 5);
   static const Duration receiveTimeout = Duration(seconds: 3);
 

@@ -30,6 +30,10 @@ dependencies:
   # Networking
   dio: ^5.4.0
   http: ^1.2.0
+  
+  # GraphQL
+  graphql: ^5.1.2
+  graphql_flutter: ^5.1.2
 
   # Local Storage
   shared_preferences: ^2.2.2
