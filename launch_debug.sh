@@ -24,6 +24,7 @@ BACKEND_MAX_RECOVERY_ATTEMPTS=5
 ADB_REVERSE_ENABLED=true
 BACKEND_REDEPLOY_ENABLED=false
 BACKEND_PRUNE_STALE_PODS=true
+BACKEND_LOGS_WINDOW_ENABLED=true
 
 # ─── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -149,14 +150,42 @@ backend_redeploy_if_requested() {
         return 1
     fi
 
+    # 1) Build local image in Minikube runtime
     echo -e "${BLUE}♻️  --backend-redeploy: reconstruyendo imagen backend...${NC}"
     ./infrastructure/scripts/build-backend-image-minikube.sh
 
+    # 2) Force ArgoCD to refresh desired state (if app exists)
+    if kubectl get ns argocd >/dev/null 2>&1 && kubectl -n argocd get application altrupets-backend-dev >/dev/null 2>&1; then
+        echo -e "${BLUE}♻️  --backend-redeploy: solicitando refresh=hard a ArgoCD app...${NC}"
+        kubectl -n argocd annotate application altrupets-backend-dev argocd.argoproj.io/refresh=hard --overwrite >/dev/null || true
+    else
+        echo -e "${ORANGE}⚠️  ArgoCD app 'altrupets-backend-dev' no encontrada. Saltando refresh hard.${NC}"
+    fi
+
+    # 3) Restart rollout so pod picks latest local image
     echo -e "${BLUE}♻️  --backend-redeploy: reiniciando deployment/backend...${NC}"
     kubectl -n altrupets-dev rollout restart deployment/backend
 
-    echo -e "${BLUE}♻️  --backend-redeploy: esperando rollout...${NC}"
-    kubectl -n altrupets-dev rollout status deployment/backend --timeout=180s
+    echo -e "${BLUE}♻️  --backend-redeploy: esperando rollout inicial...${NC}"
+    local redeploy_rollout_output
+    local redeploy_rollout_code
+    set +e
+    redeploy_rollout_output="$(kubectl -n altrupets-dev rollout status deployment/backend --timeout=60s 2>&1)"
+    redeploy_rollout_code=$?
+    set -e
+    echo "$redeploy_rollout_output"
+
+    if [ "$redeploy_rollout_code" -ne 0 ]; then
+        if echo "$redeploy_rollout_output" | grep -q "old replicas are pending termination"; then
+            echo -e "${ORANGE}⚠️  Rollout bloqueado por réplica vieja durante --backend-redeploy.${NC}"
+            prune_old_backend_replicaset_pods
+            echo -e "${BLUE}♻️  Reintentando rollout corto tras limpieza...${NC}"
+            kubectl -n altrupets-dev rollout status deployment/backend --timeout=45s >/dev/null 2>&1 || true
+        else
+            echo -e "${ORANGE}⚠️  Rollout inicial de --backend-redeploy no completó a tiempo.${NC}"
+        fi
+        echo -e "${ORANGE}   Continuando: el chequeo robusto de backend correrá a continuación.${NC}"
+    fi
 }
 
 prune_stale_backend_pods_if_safe() {
@@ -184,6 +213,33 @@ prune_stale_backend_pods_if_safe() {
         echo -e "  ${ORANGE}- $pod_name${NC}"
         kubectl -n altrupets-dev delete pod "$pod_name" --wait=false >/dev/null || true
     done <<< "$stale_pods"
+}
+
+prune_old_backend_replicaset_pods() {
+    local current_rs
+    current_rs="$(kubectl -n altrupets-dev get rs -l app=backend --sort-by=.metadata.creationTimestamp -o name 2>/dev/null | tail -n 1 | cut -d/ -f2)"
+    if [ -z "$current_rs" ]; then
+        return 0
+    fi
+
+    local current_hash
+    current_hash="${current_rs#backend-}"
+    if [ -z "$current_hash" ] || [ "$current_hash" = "$current_rs" ]; then
+        return 0
+    fi
+
+    local old_pods
+    old_pods="$(kubectl -n altrupets-dev get pods -l app=backend --no-headers -o custom-columns=NAME:.metadata.name,HASH:.metadata.labels.pod-template-hash 2>/dev/null | awk -v h="$current_hash" '$2 != h {print $1}')"
+    if [ -z "$old_pods" ]; then
+        return 0
+    fi
+
+    echo -e "${ORANGE}🧹 Detectados pods de ReplicaSet viejo. Forzando limpieza para destrabar rollout:${NC}"
+    while IFS= read -r pod_name; do
+        [ -z "$pod_name" ] && continue
+        echo -e "  ${ORANGE}- $pod_name${NC}"
+        kubectl -n altrupets-dev delete pod "$pod_name" --grace-period=0 --force >/dev/null 2>&1 || true
+    done <<< "$old_pods"
 }
 
 start_backend_forward_if_available() {
@@ -223,6 +279,48 @@ start_backend_forward_if_available() {
     fi
 }
 
+open_backend_logs_window_if_available() {
+    if [ "$BACKEND_LOGS_WINDOW_ENABLED" = false ]; then
+        return 0
+    fi
+
+    if ! command -v kubectl >/dev/null 2>&1; then
+        return 0
+    fi
+
+    if ! kubectl get ns altrupets-dev >/dev/null 2>&1; then
+        return 0
+    fi
+
+    if ! kubectl -n altrupets-dev get deploy/backend >/dev/null 2>&1; then
+        return 0
+    fi
+
+    local logs_cmd
+    logs_cmd="echo '📜 Backend logs (altrupets-dev/deploy/backend)'; echo; kubectl -n altrupets-dev logs -f deploy/backend --tail=200"
+
+    if [ "$OS_NAME" = "Linux" ]; then
+        if command -v gnome-terminal >/dev/null 2>&1; then
+            gnome-terminal -- bash -lc "$logs_cmd; echo; read -r -p 'Cerrar ventana (ENTER)...' _" >/dev/null 2>&1 &
+            echo -e "${GREEN}✅ Logs de backend abiertos en nueva terminal (gnome-terminal).${NC}"
+            return 0
+        fi
+        if command -v x-terminal-emulator >/dev/null 2>&1; then
+            x-terminal-emulator -e bash -lc "$logs_cmd; echo; read -r -p 'Cerrar ventana (ENTER)...' _" >/dev/null 2>&1 &
+            echo -e "${GREEN}✅ Logs de backend abiertos en nueva terminal (x-terminal-emulator).${NC}"
+            return 0
+        fi
+        if command -v konsole >/dev/null 2>&1; then
+            konsole -e bash -lc "$logs_cmd; echo; read -r -p 'Cerrar ventana (ENTER)...' _" >/dev/null 2>&1 &
+            echo -e "${GREEN}✅ Logs de backend abiertos en nueva terminal (konsole).${NC}"
+            return 0
+        fi
+    fi
+
+    echo -e "${ORANGE}⚠️  No se pudo abrir terminal adicional para logs de backend.${NC}"
+    echo -e "${ORANGE}   Ejecuta manualmente: kubectl -n altrupets-dev logs -f deploy/backend --tail=200${NC}"
+}
+
 ensure_backend_ready_if_available() {
     if [ "$BACKEND_CHECK_ENABLED" = false ]; then
         return 0
@@ -250,8 +348,24 @@ ensure_backend_ready_if_available() {
     local attempt=1
     while [ "$attempt" -le "$BACKEND_MAX_RECOVERY_ATTEMPTS" ]; do
         echo -e "${BLUE}🔎 Verificando backend en Kubernetes (intento ${attempt}/${BACKEND_MAX_RECOVERY_ATTEMPTS})...${NC}"
-        if kubectl -n altrupets-dev rollout status deployment/backend --timeout=90s; then
+        local rollout_output
+        local rollout_code
+        set +e
+        rollout_output="$(kubectl -n altrupets-dev rollout status deployment/backend --timeout=90s 2>&1)"
+        rollout_code=$?
+        set -e
+        echo "$rollout_output"
+
+        if [ "$rollout_code" -eq 0 ]; then
             return 0
+        fi
+
+        if echo "$rollout_output" | grep -q "old replicas are pending termination"; then
+            echo -e "${ORANGE}⚠️  Rollout bloqueado por réplica vieja en terminación.${NC}"
+            prune_old_backend_replicaset_pods
+            attempt=$((attempt + 1))
+            sleep 2
+            continue
         fi
 
         local ready_replicas
@@ -268,7 +382,7 @@ ensure_backend_ready_if_available() {
 
         echo -e "${ORANGE}⚠️  El backend no está Ready. Revisando causa...${NC}"
         local pod_name
-        pod_name="$(kubectl -n altrupets-dev get pod -l app=backend -o jsonpath='{.items[0].metadata.name}' 2>/dev/null || true)"
+        pod_name="$(kubectl -n altrupets-dev get pod -l app=backend --sort-by=.metadata.creationTimestamp -o name 2>/dev/null | tail -n 1 | cut -d/ -f2)"
 
         if [ -z "$pod_name" ]; then
             echo -e "${ORANGE}⚠️  No se encontró pod del backend.${NC}"
@@ -342,6 +456,7 @@ show_help() {
     echo "    --backend-retries N    Cantidad de intentos de recuperación backend (default: 5)"
     echo "    --backend-redeploy    Ejecuta build+restart+rollout del backend antes de lanzar Flutter"
     echo "    --no-backend-prune    No eliminar pods backend viejos en CrashLoopBackOff"
+    echo "    --no-backend-logs-window  No abrir ventana separada con logs del backend"
     echo "    --no-adb-reverse       No configurar adb reverse en modo --device"
     echo "    -h, --help        Mostrar esta ayuda"
 }
@@ -404,6 +519,10 @@ while [[ $# -gt 0 ]]; do
             ;;
         --no-backend-prune)
             BACKEND_PRUNE_STALE_PODS=false
+            shift
+            ;;
+        --no-backend-logs-window)
+            BACKEND_LOGS_WINDOW_ENABLED=false
             shift
             ;;
         --no-adb-reverse)
@@ -492,6 +611,7 @@ elif [ "$TARGET" = "desktop" ]; then
         echo -e "${RED}❌ Backend no disponible. Abortando launch de Flutter para evitar sesión rota.${NC}"
         exit 1
     fi
+    open_backend_logs_window_if_available
     start_backend_forward_if_available
     cd "$MOBILE_DIR"
     echo "🧹 flutter pub get..."
@@ -507,6 +627,7 @@ elif [ "$TARGET" = "android" ]; then
         echo -e "${RED}❌ Backend no disponible. Abortando launch de Flutter para evitar sesión rota.${NC}"
         exit 1
     fi
+    open_backend_logs_window_if_available
     start_backend_forward_if_available
     setup_adb_reverse_if_needed
     cd "$MOBILE_DIR"

@@ -28,7 +28,12 @@ class AuthNotifier extends StateNotifier<AuthState> {
   final AuthRepositoryInterface _repository;
 
   Future<void> login(String username, String password) async {
-    state = state.copyWith(isLoading: true, error: null);
+    state = state.copyWith(
+      isLoading: true,
+      error: null,
+      payload: null,
+      user: null,
+    );
 
     final result = await _repository.login(username, password);
 
@@ -37,6 +42,7 @@ class AuthNotifier extends StateNotifier<AuthState> {
         state = state.copyWith(
           isLoading: false,
           error: failure.message,
+          payload: null,
         );
       },
       (payload) {
@@ -74,13 +80,11 @@ class AuthNotifier extends StateNotifier<AuthState> {
   Future<void> logout() async {
     final result = await _repository.logout();
     result.fold(
-      (failure) {
-        state = state.copyWith(error: failure.message);
-      },
-      (_) {
-        state = const AuthState();
-      },
+      (_) {},
+      (_) {},
     );
+    // Siempre limpiamos el estado local de auth al cerrar sesión.
+    state = const AuthState();
   }
 }
 
@@ -90,8 +94,24 @@ final authProvider = StateNotifierProvider<AuthNotifier, AuthState>((ref) {
 });
 
 final isAuthenticatedProvider = FutureProvider<bool>((ref) async {
-  final token = await GraphQLClientService.getToken();
-  return token != null;
+  final hasActiveSession = await GraphQLClientService.hasActiveSession();
+  if (!hasActiveSession) {
+    return false;
+  }
+
+  final repository = ref.read(authRepositoryProvider);
+  final currentUserResult = await repository.getCurrentUser();
+
+  final isValid = currentUserResult.fold(
+    (_) => false,
+    (_) => true,
+  );
+
+  if (!isValid) {
+    await GraphQLClientService.clearToken();
+  }
+
+  return isValid;
 });
 
 final sessionExpiredProvider = StreamProvider<void>((ref) {

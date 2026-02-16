@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:convert';
 
 import 'package:graphql/client.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
@@ -50,7 +51,7 @@ class GraphQLClientService {
 
     final authLink = AuthLink(
       getToken: () async {
-        final token = await _storage.read(key: _tokenKey);
+        final token = await getToken();
         return token != null ? 'Bearer $token' : null;
       },
     );
@@ -76,7 +77,20 @@ class GraphQLClientService {
   }
 
   static Future<String?> getToken() async {
-    return await _storage.read(key: _tokenKey);
+    final token = await _storage.read(key: _tokenKey);
+    if (token == null) {
+      return null;
+    }
+    if (_isJwtExpired(token)) {
+      await clearToken();
+      return null;
+    }
+    return token;
+  }
+
+  static Future<bool> hasActiveSession() async {
+    final token = await getToken();
+    return token != null;
   }
 
   static Future<void> _handleSessionExpired() async {
@@ -89,6 +103,26 @@ class GraphQLClientService {
       _sessionExpiredController.add(null);
     } finally {
       _sessionExpiryHandlingInProgress = false;
+    }
+  }
+
+  static bool _isJwtExpired(String token) {
+    try {
+      final parts = token.split('.');
+      if (parts.length != 3) {
+        return true;
+      }
+      final payloadRaw = base64Url.normalize(parts[1]);
+      final payloadJson = utf8.decode(base64Url.decode(payloadRaw));
+      final payload = jsonDecode(payloadJson) as Map<String, dynamic>;
+      final exp = payload['exp'];
+      if (exp is! int) {
+        return true;
+      }
+      final nowSeconds = DateTime.now().millisecondsSinceEpoch ~/ 1000;
+      return nowSeconds >= exp;
+    } catch (_) {
+      return true;
     }
   }
 }
