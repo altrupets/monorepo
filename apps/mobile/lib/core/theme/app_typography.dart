@@ -10,6 +10,7 @@ class AppTypography {
 
   static String get headerFontFamily => _tokens.typography.headerFamily;
   static String get bodyFontFamily => _tokens.typography.primaryFamily;
+  static String get uiFontFamily => _tokens.typography.tertiaryFamily;
 
   static TextTheme textTheme({bool isDark = false}) {
     final baseColor = isDark

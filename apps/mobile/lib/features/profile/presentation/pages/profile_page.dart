@@ -3,6 +3,7 @@ import 'package:altrupets/core/widgets/molecules/profile_menu_option.dart';
 import 'package:altrupets/core/widgets/organisms/profile_main_header.dart';
 import 'package:altrupets/features/profile/presentation/pages/edit_personal_information_page.dart';
 import 'package:altrupets/features/profile/presentation/pages/foster_homes_management_page.dart';
+import 'package:altrupets/core/providers/navigation_provider.dart'; // Importer AppPageRoute
 
 class ProfilePage extends StatelessWidget {
   const ProfilePage({super.key});
@@ -43,7 +44,7 @@ class ProfilePage extends StatelessWidget {
                         onTap: () {
                           Navigator.push(
                             context,
-                            MaterialPageRoute<void>(
+                            AppPageRoute<void>(
                               builder: (context) => const EditPersonalInformationPage(),
                             ),
                           );
@@ -56,7 +57,7 @@ class ProfilePage extends StatelessWidget {
                         onTap: () {
                           Navigator.push(
                             context,
-                            MaterialPageRoute<void>(
+                            AppPageRoute<void>(
                               builder: (context) => const FosterHomesManagementPage(),
                             ),
                           );

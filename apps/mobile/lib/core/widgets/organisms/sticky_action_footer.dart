@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:altrupets/core/widgets/atoms/sticky_footer_button.dart';
 
 class StickyActionFooter extends StatelessWidget {
   const StickyActionFooter({
@@ -34,36 +35,21 @@ class StickyActionFooter extends StatelessWidget {
         children: [
           Expanded(
             flex: 1,
-            child: OutlinedButton.icon(
-              onPressed: onCancel,
-              icon: const Icon(Icons.close_rounded, size: 20),
-              label: Text(cancelLabel),
-              style: OutlinedButton.styleFrom(
-                foregroundColor: Colors.red,
-                padding: const EdgeInsets.symmetric(vertical: 16),
-                side: const BorderSide(color: Colors.red),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
-              ),
+            child: StickyFooterButton(
+              label: cancelLabel,
+              onTap: onCancel,
+              type: StickyFooterButtonType.secondary,
+              icon: Icons.close_rounded,
             ),
           ),
           const SizedBox(width: 12),
           Expanded(
             flex: 2,
-            child: ElevatedButton.icon(
-              onPressed: onSave,
-              icon: const Icon(Icons.check_rounded, size: 20),
-              label: Text(saveLabel),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.green,
-                foregroundColor: Colors.white,
-                padding: const EdgeInsets.symmetric(vertical: 16),
-                elevation: 0,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
-              ),
+            child: StickyFooterButton(
+              label: saveLabel,
+              onTap: onSave,
+              type: StickyFooterButtonType.primary,
+              icon: Icons.check_rounded,
             ),
           ),
         ],

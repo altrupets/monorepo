@@ -1,14 +1,11 @@
 import 'package:flutter/material.dart';
 
 class DesignTokenModel {
-  final BrandColors brand;
-  final ColorPalette palette;
-  final TypographyTokens typography;
-
   DesignTokenModel({
     required this.brand,
     required this.palette,
     required this.typography,
+    required this.motion,
   });
 
   factory DesignTokenModel.fromJson(Map<String, dynamic> json) {
@@ -16,22 +13,23 @@ class DesignTokenModel {
     final brandJson = color['brand'] as Map<String, dynamic>;
     final paletteJson = color['palette'] as Map<String, dynamic>;
     final typographyJson = json['typography'] as Map<String, dynamic>;
+    final motionJson = json['motion'] as Map<String, dynamic>;
 
     return DesignTokenModel(
       brand: BrandColors.fromJson(brandJson),
       palette: ColorPalette.fromJson(paletteJson),
       typography: TypographyTokens.fromJson(typographyJson),
+      motion: MotionTokens.fromJson(motionJson),
     );
   }
+
+  final BrandColors brand;
+  final ColorPalette palette;
+  final TypographyTokens typography;
+  final MotionTokens motion;
 }
 
 class BrandColors {
-  final Color primary;
-  final Color secondary;
-  final Color accent;
-  final Color warning;
-  final Color error;
-
   BrandColors({
     required this.primary,
     required this.secondary,
@@ -49,18 +47,15 @@ class BrandColors {
       error: _parseHex(json['error']['value'] as String),
     );
   }
+
+  final Color primary;
+  final Color secondary;
+  final Color accent;
+  final Color warning;
+  final Color error;
 }
 
 class ColorPalette {
-  final Map<int, Color> primary;
-  final Map<int, Color> secondary;
-  final Map<int, Color> accent;
-  final Map<int, Color> warning;
-  final Map<int, Color> error;
-  final Map<int, Color> success;
-  final Map<int, Color> neutral;
-  final Map<int, Color> neutralVariant;
-
   ColorPalette({
     required this.primary,
     required this.secondary,
@@ -96,15 +91,22 @@ class ColorPalette {
     });
     return palette;
   }
+
+  final Map<int, Color> primary;
+  final Map<int, Color> secondary;
+  final Map<int, Color> accent;
+  final Map<int, Color> warning;
+  final Map<int, Color> error;
+  final Map<int, Color> success;
+  final Map<int, Color> neutral;
+  final Map<int, Color> neutralVariant;
 }
 
 class TypographyTokens {
-  final String primaryFamily;
-  final String headerFamily;
-
   TypographyTokens({
     required this.primaryFamily,
     required this.headerFamily,
+    required this.tertiaryFamily,
   });
 
   factory TypographyTokens.fromJson(Map<String, dynamic> json) {
@@ -112,8 +114,34 @@ class TypographyTokens {
     return TypographyTokens(
       primaryFamily: family['primary']['value'] as String,
       headerFamily: family['header']['value'] as String,
+      tertiaryFamily: (family['tertiary'] ?? family['primary'])['value'] as String,
     );
   }
+
+  final String primaryFamily;
+  final String headerFamily;
+  final String tertiaryFamily;
+}
+
+class MotionTokens {
+  MotionTokens({
+    required this.short,
+    required this.medium,
+    required this.long,
+  });
+
+  factory MotionTokens.fromJson(Map<String, dynamic> json) {
+    final duration = json['duration'] as Map<String, dynamic>;
+    return MotionTokens(
+      short: duration['short']['value'] as int,
+      medium: duration['medium']['value'] as int,
+      long: duration['long']['value'] as int,
+    );
+  }
+
+  final int short;
+  final int medium;
+  final int long;
 }
 
 Color _parseHex(String hex) {
