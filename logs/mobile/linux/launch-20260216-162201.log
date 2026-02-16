@@ -1,0 +1,4 @@
+[0;33m⚠️  Namespace 'altrupets-dev' no existe. Saltando verificación de backend.[0m
+[0;33m⚠️  Namespace 'altrupets-dev' no existe. Continuando sin port-forward.[0m
+🧹 flutter pub get...
+/home/kvttvrsis/flutter/bin/internal/update_engine_version.sh: line 64: /home/kvttvrsis/flutter/bin/cache/engine.stamp: Permission denied

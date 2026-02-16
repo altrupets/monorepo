@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:graphql/client.dart';
 import 'package:internet_connection_checker/internet_connection_checker.dart';
@@ -51,37 +52,111 @@ const _updateUserMutation = '''
   }
 ''';
 
-final currentUserProvider = FutureProvider.autoDispose<User?>((ref) async {
+final currentUserProvider = FutureProvider<User?>((ref) async {
+  debugPrint('[currentUserProvider] 🔄 INICIANDO...');
+
   final client = GraphQLClientService.getClient();
   final isConnected = await InternetConnectionChecker().hasConnection;
 
+  debugPrint('[currentUserProvider] 📡 Conexión a internet: $isConnected');
+
+  // Primero intentar leer del cache para tener fallback inmediato
+  User? cachedUser;
+  try {
+    cachedUser = await ProfileCacheStore.getCurrentUser();
+    debugPrint(
+      '[currentUserProvider] 💾 Cache leída: ${cachedUser != null ? 'Usuario encontrado (${cachedUser.username})' : 'VACÍA'}',
+    );
+    if (cachedUser != null) {
+      debugPrint(
+        '[currentUserProvider]   ├─ firstName: ${cachedUser.firstName}',
+      );
+      debugPrint('[currentUserProvider]   ├─ lastName: ${cachedUser.lastName}');
+      debugPrint('[currentUserProvider]   └─ username: ${cachedUser.username}');
+    }
+  } catch (e) {
+    debugPrint('[currentUserProvider] ❌ Error leyendo cache: $e');
+  }
+
   try {
     if (isConnected) {
-      await _flushQueuedProfileUpdates(client);
+      debugPrint(
+        '[currentUserProvider] 📤 Ejecutando flush de updates en cola...',
+      );
+      try {
+        await _flushQueuedProfileUpdates(client);
+      } catch (flushError) {
+        debugPrint(
+          '[currentUserProvider] ⚠️ Error en flush (no crítico): $flushError',
+        );
+        // Continuar de todos modos - el flush es secundario
+      }
     }
 
+    debugPrint('[currentUserProvider] 🌐 Ejecutando query GraphQL...');
+
     final result = await client.query(
-      QueryOptions(document: gql(_currentUserQuery)),
+      QueryOptions(
+        document: gql(_currentUserQuery),
+        fetchPolicy: FetchPolicy.cacheAndNetwork,
+      ),
+    );
+
+    debugPrint(
+      '[currentUserProvider] 📥 Query completada. hasException: ${result.hasException}',
     );
 
     if (result.hasException) {
+      debugPrint(
+        '[currentUserProvider] ⚠️ GraphQL Exception: ${result.exception}',
+      );
       if (_isUnauthorized(result.exception!)) {
+        debugPrint('[currentUserProvider] 🚫 Unauthorized - retornando null');
         return null;
       }
-      return await ProfileCacheStore.getCurrentUser();
+      debugPrint('[currentUserProvider] ↩️ Fallback a cache por excepción');
+      return cachedUser;
     }
 
     final data = result.data?['currentUser'] as Map<String, dynamic>?;
+
+    debugPrint(
+      '[currentUserProvider] 📊 Datos recibidos de GraphQL: ${data != null ? 'OK' : 'NULL'}',
+    );
+
+    if (data != null) {
+      debugPrint(
+        '[currentUserProvider] 📋 Campos recibidos: ${data.keys.toList()}',
+      );
+      debugPrint('[currentUserProvider]   ├─ id: ${data['id']}');
+      debugPrint('[currentUserProvider]   ├─ username: ${data['username']}');
+      debugPrint('[currentUserProvider]   ├─ firstName: ${data['firstName']}');
+      debugPrint('[currentUserProvider]   ├─ lastName: ${data['lastName']}');
+    }
+
     if (data == null) {
-      return await ProfileCacheStore.getCurrentUser();
+      debugPrint(
+        '[currentUserProvider] ⚠️ currentUser es NULL - usando cache fallback',
+      );
+      return cachedUser;
     }
 
     final user = User.fromJson(data);
+    debugPrint(
+      '[currentUserProvider] ✅ Usuario parseado exitosamente: ${user.username}',
+    );
+
     await ProfileCacheStore.saveCurrentUser(user);
     await AppPrefsStore.setLastCurrentUserSyncNow();
+
+    debugPrint('[currentUserProvider] 💾 Usuario guardado en cache');
+
     return user;
-  } catch (_) {
-    return await ProfileCacheStore.getCurrentUser();
+  } catch (e, stackTrace) {
+    debugPrint('[currentUserProvider] ❌ ERROR: $e');
+    debugPrint('[currentUserProvider] Stack: $stackTrace');
+    debugPrint('[currentUserProvider] ↩️ Fallback a cache por error');
+    return cachedUser;
   }
 });
 
@@ -96,9 +171,16 @@ final updateUserProfileProvider =
 
       try {
         if (!isConnected) {
-          await ProfileUpdateQueueStore.enqueue(input);
-          final pending = await ProfileUpdateQueueStore.all();
-          await AppPrefsStore.setPendingProfileUpdatesCount(pending.length);
+          // En desktop (Linux), la cola sqflite puede fallar
+          try {
+            await ProfileUpdateQueueStore.enqueue(input);
+            final pending = await ProfileUpdateQueueStore.all();
+            await AppPrefsStore.setPendingProfileUpdatesCount(pending.length);
+          } catch (queueError) {
+            debugPrint(
+              '[updateUserProfileProvider] ⚠️ Cola no disponible: $queueError',
+            );
+          }
           final cached = await ProfileCacheStore.getCurrentUser();
           if (cached != null) {
             final optimistic = _mergeUserWithInput(cached, input);
@@ -111,7 +193,13 @@ final updateUserProfileProvider =
           );
         }
 
-        await _flushQueuedProfileUpdates(client);
+        try {
+          await _flushQueuedProfileUpdates(client);
+        } catch (flushError) {
+          debugPrint(
+            '[updateUserProfileProvider] ⚠️ Flush no disponible: $flushError',
+          );
+        }
         final result = await _executeUpdateMutation(client, input);
         if (result.hasException) {
           final exception = result.exception!;

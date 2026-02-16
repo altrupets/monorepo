@@ -1,0 +1,59 @@
+[0;34m♻️  --backend-rollout-restart: reiniciando deployment/backend...[0m
+deployment.apps/backend restarted
+[0;34m♻️  --backend-rollout-restart: esperando rollout inicial...[0m
+Waiting for deployment "backend" rollout to finish: 1 old replicas are pending termination...
+Waiting for deployment "backend" rollout to finish: 1 old replicas are pending termination...
+deployment "backend" successfully rolled out
+[0;34m🔎 Verificando backend en Kubernetes (intento 1/5)...[0m
+deployment "backend" successfully rolled out
+[0;32m✅ Logs de backend abiertos en nueva terminal (gnome-terminal).[0m
+[0;32m✅ Port-forward del backend abierto en nueva terminal (gnome-terminal).[0m
+🧹 flutter pub get...
+Resolving dependencies...
+Downloading packages...
+  _fe_analyzer_shared 85.0.0 (94.0.0 available)
+  analyzer 7.7.1 (10.0.2 available)
+  build 2.5.4 (4.0.4 available)
+  build_config 1.1.2 (1.2.0 available)
+  build_resolvers 2.5.4 (3.0.4 available)
+  build_runner 2.5.4 (2.11.1 available)
+  build_runner_core 9.1.2 (9.3.2 available)
+  connectivity_plus 6.1.5 (7.0.0 available)
+  dart_style 3.1.1 (3.1.5 available)
+  flutter_riverpod 2.6.1 (3.2.1 available)
+  flutter_secure_storage 9.2.4 (10.0.0 available)
+  flutter_secure_storage_linux 1.2.3 (3.0.0 available)
+  flutter_secure_storage_macos 3.1.3 (4.0.0 available)
+  flutter_secure_storage_platform_interface 1.1.2 (2.0.1 available)
+  flutter_secure_storage_web 1.2.1 (2.1.0 available)
+  flutter_secure_storage_windows 3.1.2 (4.1.0 available)
+  freezed 2.5.8 (3.2.5 available)
+  freezed_annotation 2.4.4 (3.1.0 available)
+  geolocator 11.1.0 (14.0.2 available)
+  geolocator_android 4.6.2 (5.0.2 available)
+  geolocator_web 3.0.0 (4.1.3 available)
+  google_fonts 6.3.3 (8.0.1 available)
+  gql_dedupe_link 2.0.4-alpha+1715521079596 (4.0.0 available)
+  internet_connection_checker 1.0.0+1 (3.0.1 available)
+  js 0.6.7 (0.7.2 available)
+  json_annotation 4.9.0 (4.10.0 available)
+  json_serializable 6.9.5 (6.12.0 available)
+  meta 1.17.0 (1.18.1 available)
+  mockito 5.4.6 (5.6.3 available)
+  normalize 0.9.1 (0.10.0 available)
+  permission_handler 11.4.0 (12.0.1 available)
+  permission_handler_android 12.1.0 (13.0.1 available)
+  riverpod 2.6.1 (3.2.1 available)
+  source_gen 2.0.0 (4.2.0 available)
+  source_helper 1.3.7 (1.3.10 available)
+Got dependencies!
+35 packages have newer versions incompatible with dependency constraints.
+Try `flutter pub outdated` for more information.
+[0;32m🚀 Ejecutando en Linux desktop...[0m
+Launching lib/main.dart on Linux in debug mode...
+Building Linux application...                                   
+ERROR: lib/features/auth/presentation/pages/login_page.dart:51:9: Error: 'await' can only be used in 'async' or 'async*' methods.
+ERROR:         await ref.read(currentUserProvider.future);
+ERROR:         ^^^^^
+ERROR: Target kernel_snapshot_program failed: Exception
+Error: Build process failed

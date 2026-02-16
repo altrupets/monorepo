@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:altrupets/core/providers/navigation_provider.dart';
 import 'package:altrupets/features/auth/presentation/providers/auth_provider.dart';
 import 'package:altrupets/features/home/presentation/pages/home_page.dart';
+import 'package:altrupets/features/profile/presentation/providers/profile_provider.dart';
 
 class LoginPage extends ConsumerStatefulWidget {
   const LoginPage({super.key});
@@ -42,14 +43,29 @@ class _LoginPageState extends ConsumerState<LoginPage> {
     final authState = ref.watch(authProvider);
 
     // Escuchar cambios en el estado de auth
-    ref.listen<AuthState>(authProvider, (previous, next) {
+    ref.listen<AuthState>(authProvider, (previous, next) async {
+      debugPrint('[LoginPage] 👂 AuthState cambió: isLoading=${next.isLoading}, error=${next.error != null}, payload=${next.payload != null}');
+
       final loginCompleted = previous?.isLoading == true && !next.isLoading;
       if (loginCompleted && next.payload != null) {
-        // Login exitoso, navegar a home
+        debugPrint('[LoginPage] ✅ Login completado - invalidando currentUserProvider...');
+
+        // Login exitoso: precargar perfil y navegar a home
+        ref.invalidate(currentUserProvider);
+
+        debugPrint('[LoginPage] ⏳ Esperando currentUserProvider.future...');
+
+        final user = await ref.read(currentUserProvider.future);
+
+        debugPrint('[LoginPage] ✅ currentUserProvider resuelto: ${user != null ? user.username : 'NULL'}');
+
         final navigation = ref.read(navigationProvider);
         navigation.navigateAndRemoveAll(context, const HomePage());
+
+        debugPrint('[LoginPage] 🚀 Navegación a HomePage completada');
       } else if (next.error != null && previous?.error != next.error) {
         // Mostrar error
+        debugPrint('[LoginPage] ❌ Error de login: ${next.error}');
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text('Error de login: ${next.error}'),

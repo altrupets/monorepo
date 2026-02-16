@@ -1,65 +1,7 @@
-[0;34m♻️  --backend-redeploy-argo: reconstruyendo imagen backend...[0m
-[0;34m🐳 Building backend image for Minikube: altrupets-backend:dev[0m
-#0 building with "default" instance using docker driver
-
-#1 [internal] load build definition from Dockerfile
-#1 transferring dockerfile: 402B done
-#1 DONE 0.0s
-
-#2 [internal] load metadata for docker.io/library/node:20-alpine
-#2 DONE 0.7s
-
-#3 [internal] load .dockerignore
-#3 transferring context: 2B done
-#3 DONE 0.0s
-
-#4 [builder 1/6] FROM docker.io/library/node:20-alpine@sha256:09e2b3d9726018aecf269bd35325f46bf75046a643a66d28360ec71132750ec8
-#4 DONE 0.0s
-
-#5 [internal] load build context
-#5 transferring context: 217.80MB 3.5s done
-#5 DONE 3.5s
-
-#6 [builder 6/6] RUN npm run build && npm prune --omit=dev
-#6 CACHED
-
-#7 [builder 5/6] COPY . .
-#7 CACHED
-
-#8 [stage-1 3/5] COPY --from=builder /app/node_modules ./node_modules
-#8 CACHED
-
-#9 [builder 3/6] COPY package*.json ./
-#9 CACHED
-
-#10 [stage-1 4/5] COPY --from=builder /app/dist ./dist
-#10 CACHED
-
-#11 [builder 2/6] WORKDIR /app
-#11 CACHED
-
-#12 [builder 4/6] RUN npm ci
-#12 CACHED
-
-#13 [stage-1 5/5] COPY --from=builder /app/package*.json ./
-#13 CACHED
-
-#14 exporting to image
-#14 exporting layers done
-#14 writing image sha256:c2ca9500ce8d2477405af0f4d131f36f9f181448618d4e447c828227607355a0 done
-#14 naming to docker.io/library/altrupets-backend:dev done
-#14 DONE 0.0s
-[0;32m✅ Image built in Minikube runtime: altrupets-backend:dev[0m
-[0;34mTip:[0m para aplicar cambios en este repo (GitOps), usa:
-  ./launch_debug.sh --linux --backend-redeploy-argo
-[0;34mFallback imperativo (solo troubleshooting):[0m
-  ./launch_debug.sh --linux --backend-rollout-restart
-[0;34m♻️  --backend-redeploy-argo: solicitando refresh=hard a ArgoCD app...[0m
-[0;34m♻️  --backend-redeploy-argo: solicitando sync a ArgoCD app...[0m
 [0;34m🔎 Verificando backend en Kubernetes (intento 1/5)...[0m
 deployment "backend" successfully rolled out
 [0;32m✅ Logs de backend abiertos en nueva terminal (gnome-terminal).[0m
-[0;34m🔌 Iniciando port-forward backend: localhost:3001 -> svc/backend-service:3001[0m
+[0;33m⚠️  El puerto localhost:3001 ya está en uso. Asumiendo backend ya expuesto.[0m
 🧹 flutter pub get...
 Resolving dependencies...
 Downloading packages...
@@ -105,7 +47,7 @@ Try `flutter pub outdated` for more information.
 Launching lib/main.dart on Linux in debug mode...
 Building Linux application...                                   
 ✓ Built build/linux/x64/debug/bundle/altrupets
-Syncing files to device Linux...                                   118ms
+Syncing files to device Linux...                                    91ms
 
 Flutter run key commands.
 r Hot reload. 🔥🔥🔥
@@ -115,7 +57,6 @@ d Detach (terminate "flutter run" but leave application running).
 c Clear the screen
 q Quit (terminate the application on the device).
 
-A Dart VM Service on Linux is available at: http://127.0.0.1:35115/8DxW6FxrS2w=/
-The Flutter DevTools debugger and profiler on Linux is available at: http://127.0.0.1:35115/8DxW6FxrS2w=/devtools/?uri=ws://127.0.0.1:35115/8DxW6FxrS2w=/ws
+A Dart VM Service on Linux is available at: http://127.0.0.1:46461/32CL-EKnw-o=/
+The Flutter DevTools debugger and profiler on Linux is available at: http://127.0.0.1:46461/32CL-EKnw-o=/devtools/?uri=ws://127.0.0.1:46461/32CL-EKnw-o=/ws
 Lost connection to device.
-[0;34m🧹 Cerrando port-forward del backend (PID: 888070)...[0m

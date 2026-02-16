@@ -1,3 +1,5 @@
+import 'package:flutter/foundation.dart';
+
 import 'package:dartz/dartz.dart';
 import 'package:graphql/client.dart';
 import 'package:altrupets/core/error/failures.dart';
@@ -68,8 +70,12 @@ class AuthRepository implements AuthRepositoryInterface {
 
       final payload = AuthPayload.fromJson(data);
 
+      debugPrint('[AuthRepository] ✅ Login exitoso - token recibido (len: ${payload.accessToken.length})');
+
       // Guardar token
       await GraphQLClientService.saveToken(payload.accessToken);
+
+      debugPrint('[AuthRepository] ✅ Token guardado exitosamente');
 
       return Right(payload);
     } catch (e) {
@@ -79,25 +85,36 @@ class AuthRepository implements AuthRepositoryInterface {
 
   @override
   Future<Either<Failure, User>> getCurrentUser() async {
+    debugPrint('[AuthRepository] 🔍 Solicitando currentUser desde GraphQL...');
+
     try {
       final result = await _client.query(
-        QueryOptions(document: gql(_currentUserQuery)),
+        QueryOptions(
+          document: gql(_currentUserQuery),
+          fetchPolicy: FetchPolicy.networkOnly,
+        ),
       );
 
       if (result.hasException) {
+        debugPrint('[AuthRepository] ❌ Error GraphQL: ${result.exception}');
         return Left(
           ServerFailure(result.exception!.graphqlErrors.first.message),
         );
       }
 
       final data = result.data?['currentUser'] as Map<String, dynamic>?;
+      debugPrint('[AuthRepository] 📊 currentUser data: ${data != null ? 'OK' : 'NULL'}');
+
       if (data == null) {
         return const Left(ServerFailure('User not found'));
       }
 
       final user = User.fromJson(data);
+      debugPrint('[AuthRepository] ✅ Usuario obtenido: ${user.username} (${user.firstName} ${user.lastName})');
+
       return Right(user);
     } catch (e) {
+      debugPrint('[AuthRepository] ❌ Error: $e');
       return Left(ServerFailure(e.toString()));
     }
   }
