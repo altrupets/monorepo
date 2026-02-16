@@ -14,7 +14,6 @@ const graphql_1 = require("@nestjs/graphql");
 const apollo_1 = require("@nestjs/apollo");
 const typeorm_1 = require("@nestjs/typeorm");
 const cache_manager_1 = require("@nestjs/cache-manager");
-const cache_manager_redis_yet_1 = require("cache-manager-redis-yet");
 const app_controller_1 = require("./app.controller");
 const app_service_1 = require("./app.service");
 const auth_module_1 = require("./auth/auth.module");
@@ -49,18 +48,16 @@ exports.AppModule = AppModule = __decorate([
             cache_manager_1.CacheModule.registerAsync({
                 isGlobal: true,
                 imports: [config_1.ConfigModule],
-                useFactory: async (configService) => ({
-                    ...(configService.get('REDIS_URL')
-                        ? {
-                            store: await (0, cache_manager_redis_yet_1.redisStore)({
-                                url: configService.get('REDIS_URL'),
-                                ttl: configService.get('CACHE_TTL', 600) * 1000,
-                            }),
-                        }
-                        : {
-                            ttl: configService.get('CACHE_TTL', 600) * 1000,
-                        }),
-                }),
+                useFactory: async (configService) => {
+                    const ttlMs = configService.get('CACHE_TTL', 600) * 1000;
+                    const redisUrl = configService.get('REDIS_URL');
+                    if (redisUrl) {
+                        console.warn('REDIS_URL is set but Redis cache adapter is not configured; using in-memory cache for now.');
+                    }
+                    return {
+                        ttl: ttlMs,
+                    };
+                },
                 inject: [config_1.ConfigService],
             }),
             graphql_1.GraphQLModule.forRoot({

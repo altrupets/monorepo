@@ -17,6 +17,7 @@ class User with _$User {
     String? province,
     String? canton,
     String? district,
+    String? avatarBase64,
     @JsonKey(fromJson: _dateTimeFromJson) DateTime? createdAt,
     @JsonKey(fromJson: _dateTimeFromJson) DateTime? updatedAt,
   }) = _User;

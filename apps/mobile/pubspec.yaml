@@ -37,6 +37,10 @@ dependencies:
 
   # Local Storage
   shared_preferences: ^2.2.2
+  hive: ^2.2.3
+  hive_flutter: ^1.1.0
+  sqflite: ^2.3.3+1
+  path: ^1.9.0
 
   # Network Check
   internet_connection_checker: ^1.0.0+1

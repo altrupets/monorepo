@@ -104,6 +104,7 @@ kubectl -n altrupets-dev port-forward svc/backend-service 3001:3001
 - [ ] Argo Rollouts (Blue/Green o Canary) para reemplazar `RollingUpdate` estándar.
 - [ ] Protección de queries admin (`users`, `user`) con guardas y roles en producción.
 - [ ] Migraciones DB formales (reemplazar `synchronize: true` fuera de dev).
+- [ ] Migrar avatars de `bytea` (BLOB en PostgreSQL) a object storage (S3/MinIO) + URL en DB para producción.
 
 ---
 

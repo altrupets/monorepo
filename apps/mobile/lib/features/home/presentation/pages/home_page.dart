@@ -6,6 +6,7 @@ import 'package:altrupets/core/widgets/molecules/home_welcome_header.dart';
 import 'package:altrupets/core/widgets/organisms/main_navigation_bar.dart';
 import 'package:altrupets/features/profile/presentation/pages/profile_page.dart';
 import 'package:altrupets/features/rescues/presentation/pages/rescues_page.dart';
+import 'package:altrupets/features/settings/presentation/pages/settings_page.dart';
 
 class HomePage extends ConsumerStatefulWidget {
   const HomePage({super.key});
@@ -36,7 +37,7 @@ class _HomePageState extends ConsumerState<HomePage> {
         key: const ValueKey(3),
         onBack: () => _onPageChanged(2),
       ),
-      const Center(key: ValueKey(4), child: Text('Ajustes', style: TextStyle(color: Colors.white))),
+      const SettingsPage(key: ValueKey(4)),
       RescuesPage(
         key: const ValueKey(5),
         onBack: () => _onPageChanged(2),

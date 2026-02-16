@@ -42,4 +42,10 @@ export class UpdateUserInput {
     @IsOptional()
     @IsString()
     district?: string;
+
+    @Field({ nullable: true })
+    @IsOptional()
+    @IsString()
+    @MaxLength(8_000_000)
+    avatarBase64?: string;
 }

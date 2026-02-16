@@ -94,6 +94,7 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                 // Campo de usuario
                 TextFormField(
                   controller: _usernameController,
+                  textInputAction: TextInputAction.next,
                   decoration: InputDecoration(
                     labelText: 'Usuario',
                     hintText: 'Ingresa tu usuario',
@@ -114,6 +115,12 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                 TextFormField(
                   controller: _passwordController,
                   obscureText: _obscurePassword,
+                  textInputAction: TextInputAction.done,
+                  onFieldSubmitted: (_) {
+                    if (!authState.isLoading) {
+                      _handleLogin();
+                    }
+                  },
                   decoration: InputDecoration(
                     labelText: 'Contraseña',
                     hintText: 'Ingresa tu contraseña',

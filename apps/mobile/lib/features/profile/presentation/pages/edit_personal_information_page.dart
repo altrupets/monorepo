@@ -1,3 +1,6 @@
+import 'dart:io';
+import 'dart:convert';
+
 import 'package:altrupets/core/providers/navigation_provider.dart';
 import 'package:altrupets/core/widgets/atoms/app_role_badge.dart';
 import 'package:altrupets/core/widgets/molecules/app_input_card.dart';
@@ -9,6 +12,7 @@ import 'package:altrupets/features/profile/presentation/data/costa_rica_location
 import 'package:altrupets/features/profile/presentation/providers/profile_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:image_picker/image_picker.dart';
 
 class EditPersonalInformationPage extends ConsumerStatefulWidget {
   const EditPersonalInformationPage({super.key});
@@ -29,6 +33,9 @@ class _EditPersonalInformationPageState
   late final TextEditingController _provinceController;
   late final TextEditingController _cantonController;
   late final TextEditingController _districtController;
+  final ImagePicker _imagePicker = ImagePicker();
+  String? _selectedProfileImagePath;
+  String? _currentAvatarBase64;
 
   String _phoneCountryCode = '+506';
 
@@ -97,6 +104,7 @@ class _EditPersonalInformationPageState
     _provinceController.text = user.province ?? '';
     _cantonController.text = user.canton ?? '';
     _districtController.text = user.district ?? '';
+    _currentAvatarBase64 = user.avatarBase64;
   }
 
   Future<String?> _pickOption({
@@ -248,6 +256,12 @@ class _EditPersonalInformationPageState
         ? null
         : '${_phoneCountryCode.trim()} ${phoneLocal.trim()}';
 
+    String? avatarBase64;
+    if (_selectedProfileImagePath != null) {
+      final imageBytes = await File(_selectedProfileImagePath!).readAsBytes();
+      avatarBase64 = base64Encode(imageBytes);
+    }
+
     final params = UpdateUserParams(
       firstName: _firstNameController.text.trim().isEmpty
           ? null
@@ -271,6 +285,7 @@ class _EditPersonalInformationPageState
       district: _districtController.text.trim().isEmpty
           ? null
           : _districtController.text.trim(),
+      avatarBase64: avatarBase64,
     );
 
     final result = await ref.read(updateUserProfileProvider(params).future);
@@ -289,6 +304,9 @@ class _EditPersonalInformationPageState
         );
       },
       (_) {
+        if (avatarBase64 != null) {
+          _currentAvatarBase64 = avatarBase64;
+        }
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
             content: Text('Informacion guardada exitosamente'),
@@ -300,11 +318,80 @@ class _EditPersonalInformationPageState
     );
   }
 
+  Future<void> _onCameraTap() async {
+    final source = await showModalBottomSheet<ImageSource>(
+      context: context,
+      showDragHandle: true,
+      builder: (context) {
+        return SafeArea(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              ListTile(
+                leading: const Icon(Icons.camera_alt_rounded),
+                title: const Text('Tomar foto'),
+                onTap: () => Navigator.of(context).pop(ImageSource.camera),
+              ),
+              ListTile(
+                leading: const Icon(Icons.folder_rounded),
+                title: const Text('Seleccionar archivo'),
+                onTap: () => Navigator.of(context).pop(ImageSource.gallery),
+              ),
+            ],
+          ),
+        );
+      },
+    );
+
+    if (source == null) {
+      return;
+    }
+
+    try {
+      final picked = await _imagePicker.pickImage(
+        source: source,
+        imageQuality: 85,
+      );
+
+      if (picked == null || !mounted) {
+        return;
+      }
+
+      setState(() {
+        _selectedProfileImagePath = picked.path;
+      });
+    } catch (_) {
+      if (!mounted) {
+        return;
+      }
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            source == ImageSource.camera
+                ? 'No se pudo abrir la camara en este dispositivo.'
+                : 'No se pudo abrir el selector de archivos.',
+          ),
+          backgroundColor: Colors.red,
+        ),
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final navigation = ref.read(navigationProvider);
     final userAsync = ref.watch(currentUserProvider);
+    ImageProvider<Object>? profileImage;
+    if (_selectedProfileImagePath != null) {
+      profileImage = FileImage(File(_selectedProfileImagePath!));
+    } else if (_currentAvatarBase64 != null && _currentAvatarBase64!.isNotEmpty) {
+      try {
+        profileImage = MemoryImage(base64Decode(_currentAvatarBase64!));
+      } catch (_) {
+        profileImage = null;
+      }
+    }
 
     userAsync.whenData((user) {
       if (user != null && _firstNameController.text.isEmpty) {
@@ -329,7 +416,8 @@ class _EditPersonalInformationPageState
                     imageUrl:
                         'https://lh3.googleusercontent.com/aida-public/AB6AXuCq_iWgFzHah59OBIvWrzkg3zd6Db9TdftdNUavNvy6VGk53MEnNpB2Iih6Zn7VNCtIYW3xgWSqBwgtVTJEeuPQLeVgaDdr2L0VYrQ4etjPIFC4N7CHHsUoqD4Zm3jDawc73XeGAXZVshhN0i86f_DYwoGCoCrrKFA5gQK_qu5Mi49vFS3OxGr0iQoW88L-C_AQ-1__z3EeRMigF4hGXVwEF7x8JZ3zxFTIyjuxjOT6BXSjoKuXF-IQAcDQwt6O7IN7YhLRQoIo78Y',
                     onBackTap: () => navigation.pop(context),
-                    onCameraTap: () {},
+                    onCameraTap: _onCameraTap,
+                    profileImage: profileImage,
                   ),
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 24.0),

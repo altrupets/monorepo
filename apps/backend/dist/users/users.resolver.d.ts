@@ -8,4 +8,7 @@ export declare class UsersResolver {
     getUser(id: string): Promise<User>;
     getCurrentUser(user: any): Promise<User>;
     updateUserProfile(user: any, input: UpdateUserInput): Promise<User>;
+    private getAuthenticatedUserId;
+    private decodeAvatarBase64;
+    private mapUserForResponse;
 }

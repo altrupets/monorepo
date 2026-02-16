@@ -21,6 +21,7 @@ let UpdateUserInput = class UpdateUserInput {
     province;
     canton;
     district;
+    avatarBase64;
 };
 exports.UpdateUserInput = UpdateUserInput;
 __decorate([
@@ -71,6 +72,13 @@ __decorate([
     (0, class_validator_1.IsString)(),
     __metadata("design:type", String)
 ], UpdateUserInput.prototype, "district", void 0);
+__decorate([
+    (0, graphql_1.Field)({ nullable: true }),
+    (0, class_validator_1.IsOptional)(),
+    (0, class_validator_1.IsString)(),
+    (0, class_validator_1.MaxLength)(8_000_000),
+    __metadata("design:type", String)
+], UpdateUserInput.prototype, "avatarBase64", void 0);
 exports.UpdateUserInput = UpdateUserInput = __decorate([
     (0, graphql_1.InputType)()
 ], UpdateUserInput);

@@ -16,7 +16,8 @@ export class UsersResolver {
 
     @Query(() => [User], { name: 'users' })
     async getUsers(): Promise<User[]> {
-        return this.userRepository.findAll();
+        const users = await this.userRepository.findAll();
+        return users.map((user) => this.mapUserForResponse(user));
     }
 
     @Query(() => User, { name: 'user' })
@@ -25,17 +26,18 @@ export class UsersResolver {
         if (!user) {
             throw new Error('User not found');
         }
-        return user;
+        return this.mapUserForResponse(user);
     }
 
     @Query(() => User, { name: 'currentUser' })
     @UseGuards(JwtAuthGuard)
     async getCurrentUser(@GqlUser() user: any): Promise<User> {
-        const fullUser = await this.userRepository.findById(user.userId);
+        const userId = this.getAuthenticatedUserId(user);
+        const fullUser = await this.userRepository.findById(userId);
         if (!fullUser) {
             throw new Error('User not found');
         }
-        return fullUser;
+        return this.mapUserForResponse(fullUser);
     }
 
     @Mutation(() => User)
@@ -44,14 +46,46 @@ export class UsersResolver {
         @GqlUser() user: any,
         @Args('input') input: UpdateUserInput,
     ): Promise<User> {
-        const existingUser = await this.userRepository.findById(user.userId);
+        const userId = this.getAuthenticatedUserId(user);
+        const existingUser = await this.userRepository.findById(userId);
         if (!existingUser) {
             throw new Error('User not found');
         }
 
-        // Update fields
-        Object.assign(existingUser, input);
+        const { avatarBase64, ...profileFields } = input;
+        Object.assign(existingUser, profileFields);
 
-        return this.userRepository.save(existingUser);
+        if (avatarBase64 !== undefined) {
+            existingUser.avatarImage = this.decodeAvatarBase64(avatarBase64);
+        }
+
+        const saved = await this.userRepository.save(existingUser);
+        return this.mapUserForResponse(saved);
+    }
+
+    private getAuthenticatedUserId(user: any): string {
+        const userId = user?.id ?? user?.userId;
+        if (!userId) {
+            throw new Error('Invalid authenticated user');
+        }
+        return userId;
+    }
+
+    private decodeAvatarBase64(avatarBase64: string): Buffer | null {
+        const trimmed = avatarBase64.trim();
+        if (trimmed.length === 0) {
+            return null;
+        }
+        const payload = trimmed.includes(',')
+            ? trimmed.split(',').pop() ?? ''
+            : trimmed;
+
+        return Buffer.from(payload, 'base64');
+    }
+
+    private mapUserForResponse(user: User): User {
+        const avatarBuffer = user.avatarImage;
+        user.avatarBase64 = avatarBuffer ? avatarBuffer.toString('base64') : null;
+        return user;
     }
 }
