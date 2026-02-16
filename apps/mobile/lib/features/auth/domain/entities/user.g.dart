@@ -18,6 +18,7 @@ _$UserImpl _$$UserImplFromJson(Map<String, dynamic> json) => _$UserImpl(
   province: json['province'] as String?,
   canton: json['canton'] as String?,
   district: json['district'] as String?,
+  avatarBase64: json['avatarBase64'] as String?,
   createdAt: _dateTimeFromJson(json['createdAt']),
   updatedAt: _dateTimeFromJson(json['updatedAt']),
 );
@@ -35,6 +36,7 @@ Map<String, dynamic> _$$UserImplToJson(_$UserImpl instance) =>
       'province': instance.province,
       'canton': instance.canton,
       'district': instance.district,
+      'avatarBase64': instance.avatarBase64,
       'createdAt': instance.createdAt?.toIso8601String(),
       'updatedAt': instance.updatedAt?.toIso8601String(),
     };

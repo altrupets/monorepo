@@ -6,6 +6,7 @@ class ProfileHeader extends StatelessWidget {
     required this.imageUrl,
     required this.onBackTap,
     required this.onCameraTap,
+    this.profileImage,
     super.key,
   });
 
@@ -13,6 +14,7 @@ class ProfileHeader extends StatelessWidget {
   final String imageUrl;
   final VoidCallback onBackTap;
   final VoidCallback onCameraTap;
+  final ImageProvider<Object>? profileImage;
 
   @override
   Widget build(BuildContext context) {
@@ -51,7 +53,7 @@ class ProfileHeader extends StatelessWidget {
                 ),
                 child: CircleAvatar(
                   radius: 48,
-                  backgroundImage: NetworkImage(imageUrl),
+                  backgroundImage: profileImage ?? NetworkImage(imageUrl),
                 ),
               ),
               Positioned(

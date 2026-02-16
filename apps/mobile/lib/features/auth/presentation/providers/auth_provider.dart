@@ -93,3 +93,7 @@ final isAuthenticatedProvider = FutureProvider<bool>((ref) async {
   final token = await GraphQLClientService.getToken();
   return token != null;
 });
+
+final sessionExpiredProvider = StreamProvider<void>((ref) {
+  return GraphQLClientService.sessionExpiredStream;
+});

@@ -31,6 +31,29 @@ read_env_var() {
   fi
 }
 
+upsert_env_var() {
+  local file="$1"
+  local key="$2"
+  local value="$3"
+
+  mkdir -p "$(dirname "$file")"
+  touch "$file"
+  chmod 600 "$file"
+
+  if grep -q "^${key}=" "$file"; then
+    sed -i "s|^${key}=.*|${key}=${value}|" "$file"
+  else
+    printf "%s=%s\n" "$key" "$value" >> "$file"
+  fi
+}
+
+read_k8s_secret() {
+  local namespace="$1"
+  local secret_name="$2"
+  local key="$3"
+  kubectl -n "$namespace" get secret "$secret_name" -o "jsonpath={.data.${key}}" 2>/dev/null | base64 -d 2>/dev/null || true
+}
+
 prompt_password() {
   local password=""
 
@@ -110,16 +133,34 @@ if [ -z "${DB_PASSWORD}" ]; then
 fi
 
 if [ -z "${DB_USERNAME}" ]; then
-  DB_USERNAME="postgres"
+  DB_USERNAME="dev_demo_admin"
 fi
 
 if [ -z "${DB_NAME}" ]; then
   DB_NAME="altrupets_user_management"
 fi
 
+POSTGRES_SECRET_PASSWORD="$(read_k8s_secret "default" "postgres-dev-secret" "password")"
+POSTGRES_SECRET_USERNAME="$(read_k8s_secret "default" "postgres-dev-secret" "username")"
+POSTGRES_SECRET_DATABASE="$(read_k8s_secret "default" "postgres-dev-secret" "database")"
+
+if [ -n "${POSTGRES_SECRET_PASSWORD}" ] && [ -z "${DB_PASSWORD}" ]; then
+  DB_PASSWORD="${POSTGRES_SECRET_PASSWORD}"
+fi
+
+if [ -n "${POSTGRES_SECRET_USERNAME}" ] && [ -z "${DB_USERNAME}" ]; then
+  DB_USERNAME="${POSTGRES_SECRET_USERNAME}"
+fi
+
+if [ -n "${POSTGRES_SECRET_DATABASE}" ] && [ -z "${DB_NAME}" ]; then
+  DB_NAME="${POSTGRES_SECRET_DATABASE}"
+fi
+
 JWT_SECRET="$(read_env_var "$ENV_FILE" "JWT_SECRET")"
 if [ -z "${JWT_SECRET}" ]; then
   JWT_SECRET="$(openssl rand -hex 32)"
+  echo -e "${BLUE}🔐 JWT_SECRET was missing. Generated and persisted to ${ENV_FILE}.${NC}"
+  upsert_env_var "$ENV_FILE" "JWT_SECRET" "$JWT_SECRET"
 fi
 
 if [ "$ENABLE_ADMIN_SEED" = "true" ]; then

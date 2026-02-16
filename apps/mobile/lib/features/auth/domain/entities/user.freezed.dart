@@ -33,6 +33,7 @@ mixin _$User {
   String? get province => throw _privateConstructorUsedError;
   String? get canton => throw _privateConstructorUsedError;
   String? get district => throw _privateConstructorUsedError;
+  String? get avatarBase64 => throw _privateConstructorUsedError;
   @JsonKey(fromJson: _dateTimeFromJson)
   DateTime? get createdAt => throw _privateConstructorUsedError;
   @JsonKey(fromJson: _dateTimeFromJson)
@@ -64,6 +65,7 @@ abstract class $UserCopyWith<$Res> {
     String? province,
     String? canton,
     String? district,
+    String? avatarBase64,
     @JsonKey(fromJson: _dateTimeFromJson) DateTime? createdAt,
     @JsonKey(fromJson: _dateTimeFromJson) DateTime? updatedAt,
   });
@@ -95,6 +97,7 @@ class _$UserCopyWithImpl<$Res, $Val extends User>
     Object? province = freezed,
     Object? canton = freezed,
     Object? district = freezed,
+    Object? avatarBase64 = freezed,
     Object? createdAt = freezed,
     Object? updatedAt = freezed,
   }) {
@@ -144,6 +147,10 @@ class _$UserCopyWithImpl<$Res, $Val extends User>
                 ? _value.district
                 : district // ignore: cast_nullable_to_non_nullable
                       as String?,
+            avatarBase64: freezed == avatarBase64
+                ? _value.avatarBase64
+                : avatarBase64 // ignore: cast_nullable_to_non_nullable
+                      as String?,
             createdAt: freezed == createdAt
                 ? _value.createdAt
                 : createdAt // ignore: cast_nullable_to_non_nullable
@@ -178,6 +185,7 @@ abstract class _$$UserImplCopyWith<$Res> implements $UserCopyWith<$Res> {
     String? province,
     String? canton,
     String? district,
+    String? avatarBase64,
     @JsonKey(fromJson: _dateTimeFromJson) DateTime? createdAt,
     @JsonKey(fromJson: _dateTimeFromJson) DateTime? updatedAt,
   });
@@ -206,6 +214,7 @@ class __$$UserImplCopyWithImpl<$Res>
     Object? province = freezed,
     Object? canton = freezed,
     Object? district = freezed,
+    Object? avatarBase64 = freezed,
     Object? createdAt = freezed,
     Object? updatedAt = freezed,
   }) {
@@ -255,6 +264,10 @@ class __$$UserImplCopyWithImpl<$Res>
             ? _value.district
             : district // ignore: cast_nullable_to_non_nullable
                   as String?,
+        avatarBase64: freezed == avatarBase64
+            ? _value.avatarBase64
+            : avatarBase64 // ignore: cast_nullable_to_non_nullable
+                  as String?,
         createdAt: freezed == createdAt
             ? _value.createdAt
             : createdAt // ignore: cast_nullable_to_non_nullable
@@ -283,6 +296,7 @@ class _$UserImpl implements _User {
     this.province,
     this.canton,
     this.district,
+    this.avatarBase64,
     @JsonKey(fromJson: _dateTimeFromJson) this.createdAt,
     @JsonKey(fromJson: _dateTimeFromJson) this.updatedAt,
   }) : _roles = roles;
@@ -322,6 +336,8 @@ class _$UserImpl implements _User {
   @override
   final String? district;
   @override
+  final String? avatarBase64;
+  @override
   @JsonKey(fromJson: _dateTimeFromJson)
   final DateTime? createdAt;
   @override
@@ -330,7 +346,7 @@ class _$UserImpl implements _User {
 
   @override
   String toString() {
-    return 'User(id: $id, username: $username, roles: $roles, firstName: $firstName, lastName: $lastName, phone: $phone, identification: $identification, country: $country, province: $province, canton: $canton, district: $district, createdAt: $createdAt, updatedAt: $updatedAt)';
+    return 'User(id: $id, username: $username, roles: $roles, firstName: $firstName, lastName: $lastName, phone: $phone, identification: $identification, country: $country, province: $province, canton: $canton, district: $district, avatarBase64: $avatarBase64, createdAt: $createdAt, updatedAt: $updatedAt)';
   }
 
   @override
@@ -355,6 +371,8 @@ class _$UserImpl implements _User {
             (identical(other.canton, canton) || other.canton == canton) &&
             (identical(other.district, district) ||
                 other.district == district) &&
+            (identical(other.avatarBase64, avatarBase64) ||
+                other.avatarBase64 == avatarBase64) &&
             (identical(other.createdAt, createdAt) ||
                 other.createdAt == createdAt) &&
             (identical(other.updatedAt, updatedAt) ||
@@ -376,6 +394,7 @@ class _$UserImpl implements _User {
     province,
     canton,
     district,
+    avatarBase64,
     createdAt,
     updatedAt,
   );
@@ -407,6 +426,7 @@ abstract class _User implements User {
     final String? province,
     final String? canton,
     final String? district,
+    final String? avatarBase64,
     @JsonKey(fromJson: _dateTimeFromJson) final DateTime? createdAt,
     @JsonKey(fromJson: _dateTimeFromJson) final DateTime? updatedAt,
   }) = _$UserImpl;
@@ -436,6 +456,8 @@ abstract class _User implements User {
   String? get canton;
   @override
   String? get district;
+  @override
+  String? get avatarBase64;
   @override
   @JsonKey(fromJson: _dateTimeFromJson)
   DateTime? get createdAt;

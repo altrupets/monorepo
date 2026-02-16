@@ -84,7 +84,7 @@ ensure_local_secret() {
   fi
 
   if [ -z "$postgres_username" ]; then
-    postgres_username="postgres"
+    postgres_username="dev_demo_admin"
   fi
 
   if [ -z "$postgres_database" ]; then
@@ -240,4 +240,4 @@ echo -e "${BLUE}📝 Backend environment variables:${NC}"
 echo -e "  ${GREEN}DB_HOST=postgres-dev-service${NC}"
 echo -e "  ${GREEN}DB_PORT=5432${NC}"
 echo -e "  ${GREEN}DB_NAME=altrupets_user_management${NC}"
-echo -e "  ${GREEN}DB_USERNAME=$($TERRAFORM_CMD output -raw postgres_username 2>/dev/null || echo 'postgres')${NC}"
+echo -e "  ${GREEN}DB_USERNAME=$($TERRAFORM_CMD output -raw postgres_username 2>/dev/null || echo 'dev_demo_admin')${NC}"

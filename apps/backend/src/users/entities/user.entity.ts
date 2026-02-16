@@ -63,6 +63,12 @@ export class User {
   @Column({ nullable: true })
   district?: string;
 
+  @Column({ type: 'bytea', nullable: true })
+  avatarImage?: Buffer | null;
+
+  @Field({ nullable: true })
+  avatarBase64?: string | null;
+
   @Field()
   @CreateDateColumn()
   createdAt: Date;

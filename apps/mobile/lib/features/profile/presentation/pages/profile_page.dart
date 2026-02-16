@@ -1,18 +1,51 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:altrupets/core/widgets/molecules/profile_menu_option.dart';
 import 'package:altrupets/core/widgets/organisms/profile_main_header.dart';
+import 'package:altrupets/features/auth/presentation/pages/login_page.dart';
+import 'package:altrupets/features/auth/presentation/providers/auth_provider.dart';
 import 'package:altrupets/features/profile/presentation/pages/edit_personal_information_page.dart';
 import 'package:altrupets/features/profile/presentation/pages/foster_homes_management_page.dart';
+import 'package:altrupets/features/profile/presentation/providers/profile_provider.dart';
 import 'package:altrupets/core/providers/navigation_provider.dart'; // Importer AppPageRoute
 
-class ProfilePage extends StatelessWidget {
+class ProfilePage extends ConsumerWidget {
   const ProfilePage({this.onBack, super.key});
 
   final VoidCallback? onBack;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
+    final currentUserAsync = ref.watch(currentUserProvider);
+
+    final user = currentUserAsync.valueOrNull;
+    final fullName = [
+      user?.firstName?.trim() ?? '',
+      user?.lastName?.trim() ?? '',
+    ].where((value) => value.isNotEmpty).join(' ');
+    final displayName = fullName.isNotEmpty ? fullName : (user?.username ?? 'Usuario');
+    final locationParts = [
+      user?.district?.trim() ?? '',
+      user?.canton?.trim() ?? '',
+      user?.province?.trim() ?? '',
+      user?.country?.trim() ?? '',
+    ].where((value) => value.isNotEmpty).toList();
+    final displayLocation =
+        locationParts.isNotEmpty ? locationParts.join(', ') : 'Sin ubicacion';
+    final displayRole = user?.roles?.isNotEmpty == true
+        ? user!.roles!.first.replaceAll('_', ' ')
+        : 'Sin rol';
+    ImageProvider<Object>? profileImage;
+    if (user?.avatarBase64 != null && user!.avatarBase64!.isNotEmpty) {
+      try {
+        profileImage = MemoryImage(base64Decode(user.avatarBase64!));
+      } catch (_) {
+        profileImage = null;
+      }
+    }
 
     return Scaffold(
       backgroundColor: theme.colorScheme.surface,
@@ -22,11 +55,12 @@ class ProfilePage extends StatelessWidget {
             physics: const BouncingScrollPhysics(),
             child: Column(
               children: [
-                const ProfileMainHeader(
-                  name: 'María González',
-                  location: 'Heredia, Costa Rica',
-                  role: 'Rescatista Senior',
+                ProfileMainHeader(
+                  name: displayName,
+                  location: displayLocation,
+                  role: displayRole,
                   imageUrl: 'https://lh3.googleusercontent.com/aida-public/AB6AXuDewHnSjAOHz99DJQjDllzYf3AgXQST019_jrays0NgNdSDNYFxOMDEivzqbVFInb23TW4WhzQOxgzRdWf2TBsdBvjaqVNn6pHmt6aKkdePvbTSFR_89ypKVWEpt4cWev7wQXBnYvJRL8DDHw_jFpL8IMzQg5fBYGZe_aj2DHmxo-Hhk6kGaHtOZ1M711l3vzY_3nC0VXKwjneZ13pR6F0o1QzCnA1HGSs5BvZny6515xa2Uj-SIfvhTG-Awe_xdRMXNbKQVw6xx8g',
+                  profileImage: profileImage,
                 ),
                 
                 Center(
@@ -120,7 +154,16 @@ class ProfilePage extends StatelessWidget {
                           SizedBox(
                             width: double.infinity,
                             child: OutlinedButton.icon(
-                              onPressed: () {},
+                              onPressed: () async {
+                                await ref.read(authProvider.notifier).logout();
+                                if (!context.mounted) {
+                                  return;
+                                }
+                                ref.read(navigationProvider).navigateAndRemoveAll(
+                                      context,
+                                      const LoginPage(),
+                                    );
+                              },
                               icon: const Icon(Icons.logout_rounded),
                               label: const Text('Cerrar Sesión'),
                               style: OutlinedButton.styleFrom(

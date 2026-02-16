@@ -43,9 +43,28 @@ class NavigationService {
     );
   }
 
+  void navigateAndRemoveAll(BuildContext context, Widget page) {
+    Navigator.pushAndRemoveUntil(
+      context,
+      AppPageRoute<void>(builder: (context) => page),
+      (route) => false,
+    );
+  }
+
   /// Specialized pop that doesn't require context
   void globalPop() {
     navigatorKey.currentState?.maybePop();
+  }
+
+  void navigateAndRemoveAllGlobal(Widget page) {
+    final state = navigatorKey.currentState;
+    if (state == null) {
+      return;
+    }
+    state.pushAndRemoveUntil(
+      AppPageRoute<void>(builder: (context) => page),
+      (route) => false,
+    );
   }
 }
 

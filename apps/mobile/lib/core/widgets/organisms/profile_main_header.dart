@@ -7,6 +7,7 @@ class ProfileMainHeader extends StatelessWidget {
     required this.location,
     required this.role,
     required this.imageUrl,
+    this.profileImage,
     super.key,
   });
 
@@ -14,6 +15,7 @@ class ProfileMainHeader extends StatelessWidget {
   final String location;
   final String role;
   final String imageUrl;
+  final ImageProvider<Object>? profileImage;
 
   @override
   Widget build(BuildContext context) {
@@ -47,7 +49,7 @@ class ProfileMainHeader extends StatelessWidget {
             ),
             child: CircleAvatar(
               radius: 64,
-              backgroundImage: NetworkImage(imageUrl),
+              backgroundImage: profileImage ?? NetworkImage(imageUrl),
             ),
           ),
           const SizedBox(height: 16),

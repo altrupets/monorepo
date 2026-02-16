@@ -26,29 +26,59 @@ let UsersResolver = class UsersResolver {
         this.userRepository = userRepository;
     }
     async getUsers() {
-        return this.userRepository.findAll();
+        const users = await this.userRepository.findAll();
+        return users.map((user) => this.mapUserForResponse(user));
     }
     async getUser(id) {
         const user = await this.userRepository.findById(id);
         if (!user) {
             throw new Error('User not found');
         }
-        return user;
+        return this.mapUserForResponse(user);
     }
     async getCurrentUser(user) {
-        const fullUser = await this.userRepository.findById(user.userId);
+        const userId = this.getAuthenticatedUserId(user);
+        const fullUser = await this.userRepository.findById(userId);
         if (!fullUser) {
             throw new Error('User not found');
         }
-        return fullUser;
+        return this.mapUserForResponse(fullUser);
     }
     async updateUserProfile(user, input) {
-        const existingUser = await this.userRepository.findById(user.userId);
+        const userId = this.getAuthenticatedUserId(user);
+        const existingUser = await this.userRepository.findById(userId);
         if (!existingUser) {
             throw new Error('User not found');
         }
-        Object.assign(existingUser, input);
-        return this.userRepository.save(existingUser);
+        const { avatarBase64, ...profileFields } = input;
+        Object.assign(existingUser, profileFields);
+        if (avatarBase64 !== undefined) {
+            existingUser.avatarImage = this.decodeAvatarBase64(avatarBase64);
+        }
+        const saved = await this.userRepository.save(existingUser);
+        return this.mapUserForResponse(saved);
+    }
+    getAuthenticatedUserId(user) {
+        const userId = user?.id ?? user?.userId;
+        if (!userId) {
+            throw new Error('Invalid authenticated user');
+        }
+        return userId;
+    }
+    decodeAvatarBase64(avatarBase64) {
+        const trimmed = avatarBase64.trim();
+        if (trimmed.length === 0) {
+            return null;
+        }
+        const payload = trimmed.includes(',')
+            ? trimmed.split(',').pop() ?? ''
+            : trimmed;
+        return Buffer.from(payload, 'base64');
+    }
+    mapUserForResponse(user) {
+        const avatarBuffer = user.avatarImage;
+        user.avatarBase64 = avatarBuffer ? avatarBuffer.toString('base64') : null;
+        return user;
     }
 };
 exports.UsersResolver = UsersResolver;

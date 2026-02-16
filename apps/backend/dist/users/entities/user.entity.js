@@ -26,6 +26,8 @@ let User = class User {
     province;
     canton;
     district;
+    avatarImage;
+    avatarBase64;
     createdAt;
     updatedAt;
 };
@@ -94,6 +96,14 @@ __decorate([
     (0, typeorm_1.Column)({ nullable: true }),
     __metadata("design:type", String)
 ], User.prototype, "district", void 0);
+__decorate([
+    (0, typeorm_1.Column)({ type: 'bytea', nullable: true }),
+    __metadata("design:type", Object)
+], User.prototype, "avatarImage", void 0);
+__decorate([
+    (0, graphql_1.Field)({ nullable: true }),
+    __metadata("design:type", Object)
+], User.prototype, "avatarBase64", void 0);
 __decorate([
     (0, graphql_1.Field)(),
     (0, typeorm_1.CreateDateColumn)(),

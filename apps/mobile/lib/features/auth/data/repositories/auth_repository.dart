@@ -2,6 +2,9 @@ import 'package:dartz/dartz.dart';
 import 'package:graphql/client.dart';
 import 'package:altrupets/core/error/failures.dart';
 import 'package:altrupets/core/graphql/graphql_client.dart';
+import 'package:altrupets/core/storage/profile_cache_store.dart';
+import 'package:altrupets/core/storage/app_prefs_store.dart';
+import 'package:altrupets/core/sync/profile_update_queue_store.dart';
 import 'package:altrupets/features/auth/domain/entities/user.dart';
 import 'package:altrupets/features/auth/domain/repositories/auth_repository_interface.dart';
 import 'package:altrupets/features/auth/data/models/auth_payload.dart';
@@ -47,16 +50,15 @@ class AuthRepository implements AuthRepositoryInterface {
         MutationOptions(
           document: gql(_loginMutation),
           variables: {
-            'loginInput': {
-              'username': username,
-              'password': password,
-            },
+            'loginInput': {'username': username, 'password': password},
           },
         ),
       );
 
       if (result.hasException) {
-        return Left(ServerFailure(result.exception!.graphqlErrors.first.message));
+        return Left(
+          ServerFailure(result.exception!.graphqlErrors.first.message),
+        );
       }
 
       final data = result.data?['login'] as Map<String, dynamic>?;
@@ -79,15 +81,13 @@ class AuthRepository implements AuthRepositoryInterface {
   Future<Either<Failure, User>> getCurrentUser() async {
     try {
       final result = await _client.query(
-        QueryOptions(
-          document: gql(_currentUserQuery),
-        ),
+        QueryOptions(document: gql(_currentUserQuery)),
       );
 
       if (result.hasException) {
-        return Left(ServerFailure(
-          result.exception!.graphqlErrors.first.message,
-        ));
+        return Left(
+          ServerFailure(result.exception!.graphqlErrors.first.message),
+        );
       }
 
       final data = result.data?['currentUser'] as Map<String, dynamic>?;
@@ -106,6 +106,9 @@ class AuthRepository implements AuthRepositoryInterface {
   Future<Either<Failure, void>> logout() async {
     try {
       await GraphQLClientService.clearToken();
+      await ProfileCacheStore.clearCurrentUser();
+      await ProfileUpdateQueueStore.clearAll();
+      await AppPrefsStore.setPendingProfileUpdatesCount(0);
       return const Right(null);
     } catch (e) {
       return Left(ServerFailure(e.toString()));
