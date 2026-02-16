@@ -56,7 +56,7 @@ class AppTypography {
         package: TokenService.instance.isExternal ? 'altrupets' : null,
       );
     }
-    // For Google Fonts, use the dynamic getter.
+    // For Google Fonts (like Inter), use the dynamic getter.
     return GoogleFonts.getFont(fontFamily, textStyle: textStyle);
   }
 
@@ -69,14 +69,14 @@ class AppTypography {
       case 'headlineMedium': return 28;
       case 'headlineSmall': return 24;
       case 'titleLarge': return 22;
-      case 'titleMedium': return 20; // Increased from 18
-      case 'titleSmall': return 18;  // Increased from 16
-      case 'bodyLarge': return 20;   // Increased from 18
-      case 'bodyMedium': return 18;  // Increased from 16 (Input Fields)
-      case 'bodySmall': return 16;   // Increased from 14
-      case 'labelLarge': return 20;  // Increased from 18 (Main Action Buttons)
-      case 'labelMedium': return 16; // Increased from 14 (Section Headers)
-      case 'labelSmall': return 14;  // Increased from 12 (Card/Input Labels)
+      case 'titleMedium': return 16;
+      case 'titleSmall': return 14;
+      case 'bodyLarge': return 16;
+      case 'bodyMedium': return 14;
+      case 'bodySmall': return 12;
+      case 'labelLarge': return 14;
+      case 'labelMedium': return 12;
+      case 'labelSmall': return 11;
       default: return 14;
     }
   }

@@ -21,63 +21,35 @@ class AppInputCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final isDark = theme.brightness == Brightness.dark;
-
-    return Container(
-      padding: const EdgeInsets.all(16),
-      constraints: const BoxConstraints(minHeight: 100),
-      decoration: BoxDecoration(
-        color: isDark ? const Color(0xFF1A1A1A) : Colors.grey.shade100,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(
-          color: isDark ? const Color(0xFF2A2A2A) : Colors.grey.shade300,
-        ),
+    
+    return TextFormField(
+      initialValue: initialValue,
+      enabled: enabled,
+      readOnly: isDropdown, // To prevent typing if it's strictly a dropdown trigger
+      keyboardType: keyboardType,
+      style: theme.textTheme.bodyMedium?.copyWith(
+        fontWeight: FontWeight.w500,
+        color: enabled ? theme.colorScheme.onSurface : theme.colorScheme.onSurface.withValues(alpha: 0.38),
       ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Text(
-            label,
-            style: theme.textTheme.labelSmall?.copyWith(
-              fontWeight: FontWeight.bold,
-              letterSpacing: 0.5,
-              color: theme.colorScheme.onSurface.withValues(alpha: 0.4),
-            ),
+      decoration: InputDecoration(
+        labelText: label,
+        hintText: hint,
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+        ),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: BorderSide(
+            color: theme.colorScheme.outline,
           ),
-          const SizedBox(height: 8),
-          Row(
-            children: [
-              Expanded(
-                child: TextFormField(
-                  initialValue: initialValue,
-                  enabled: enabled && !isDropdown,
-                  keyboardType: keyboardType,
-                  style: theme.textTheme.bodyMedium?.copyWith(
-                    fontWeight: FontWeight.w500,
-                    color: enabled 
-                        ? theme.colorScheme.onSurface 
-                        : theme.colorScheme.onSurface.withValues(alpha: 0.4),
-                  ),
-                  decoration: InputDecoration(
-                    hintText: hint,
-                    isDense: true,
-                    contentPadding: EdgeInsets.zero,
-                    border: InputBorder.none,
-                    enabledBorder: InputBorder.none,
-                    focusedBorder: InputBorder.none,
-                    disabledBorder: InputBorder.none,
-                  ),
-                ),
-              ),
-              if (isDropdown)
-                Icon(
-                  Icons.keyboard_arrow_down_rounded,
-                  color: theme.colorScheme.onSurface.withValues(alpha: 0.4),
-                ),
-            ],
-          ),
-        ],
+        ),
+        suffixIcon: isDropdown 
+            ? Icon(
+                Icons.keyboard_arrow_down_rounded,
+                color: theme.colorScheme.onSurfaceVariant,
+              )
+            : null,
+        contentPadding: const EdgeInsets.all(16),
       ),
     );
   }
