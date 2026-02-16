@@ -16,6 +16,7 @@ NC='\033[0m'
 
 MOBILE_DIR="apps/mobile"
 WIDGETBOOK_DIR="apps/widgetbook"
+LOG_BASE_DIR="$SCRIPT_DIR/logs/mobile"
 BACKEND_FORWARD_ENABLED=true
 BACKEND_FORWARD_PID=""
 BACKEND_CHECK_ENABLED=true
@@ -106,6 +107,17 @@ cleanup_backend_forward() {
         echo -e "${BLUE}🧹 Cerrando port-forward del backend (PID: $BACKEND_FORWARD_PID)...${NC}"
         kill "$BACKEND_FORWARD_PID" 2>/dev/null || true
     fi
+}
+
+init_mobile_logging() {
+    local device_label="$1"
+    local ts
+    ts="$(date +%Y%m%d-%H%M%S)"
+    local log_dir="$LOG_BASE_DIR/$device_label"
+    mkdir -p "$log_dir"
+    local log_file="$log_dir/launch-${ts}.log"
+    echo -e "${BLUE}🧾 Mobile log file: ${log_file}${NC}"
+    exec > >(tee -a "$log_file") 2>&1
 }
 
 setup_adb_reverse_if_needed() {
@@ -484,6 +496,7 @@ show_help() {
 TARGET=""
 DEVICE_ID=""
 DIRTY=false
+ANDROID_TARGET_LABEL=""
 
 # Parsear todos los argumentos
 while [[ $# -gt 0 ]]; do
@@ -495,11 +508,13 @@ while [[ $# -gt 0 ]]; do
         -e|--emulator)
             TARGET="android"
             DEVICE_ID=$(get_android_emulator_id)
+            ANDROID_TARGET_LABEL="android-emulator"
             shift
             ;;
         -d|--device)
             TARGET="android"
             DEVICE_ID=$(get_android_device_id)
+            ANDROID_TARGET_LABEL="android-device"
             shift
             ;;
         -w|--widgetbook)
@@ -587,6 +602,7 @@ if [ -z "$TARGET" ]; then
         2)
             TARGET="android"
             DEVICE_ID=$(get_android_emulator_id)
+            ANDROID_TARGET_LABEL="android-emulator"
             if [ -z "$DEVICE_ID" ]; then
                 echo -e "${ORANGE}⚠️  Emulador no activo. Intentando lanzar...${NC}"
                 flutter emulators --launch "$(flutter emulators 2>/dev/null | grep 'id:' | head -1 | sed 's/.*id: \([^ ]*\).*/\1/')" 2>/dev/null || true
@@ -597,6 +613,7 @@ if [ -z "$TARGET" ]; then
         3)
             TARGET="android"
             DEVICE_ID=$(get_android_device_id)
+            ANDROID_TARGET_LABEL="android-device"
             ;;
         4) TARGET="widgetbook" ;;
         *) echo -e "${RED}❌ Opción inválida.${NC}"; exit 1 ;;
@@ -631,6 +648,7 @@ if [ "$TARGET" = "widgetbook" ]; then
     fi
 elif [ "$TARGET" = "desktop" ]; then
     echo -e "${BLUE}🖥️  AltruPets – $DESKTOP_LABEL Debug${NC}"
+    init_mobile_logging "${DESKTOP_TARGET}"
     if ! backend_redeploy_argo_if_requested; then
         exit 1
     fi
@@ -650,6 +668,10 @@ elif [ "$TARGET" = "desktop" ]; then
     flutter run -d "$DESKTOP_TARGET"
 elif [ "$TARGET" = "android" ]; then
     echo -e "${BLUE}📱 AltruPets – Android Debug ($DEVICE_ID)${NC}"
+    if [ -z "$ANDROID_TARGET_LABEL" ]; then
+        ANDROID_TARGET_LABEL="android-device"
+    fi
+    init_mobile_logging "$ANDROID_TARGET_LABEL"
     if ! backend_redeploy_argo_if_requested; then
         exit 1
     fi

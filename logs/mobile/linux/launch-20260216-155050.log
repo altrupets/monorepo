@@ -1,0 +1,122 @@
+[0;34m♻️  --backend-redeploy-argo: reconstruyendo imagen backend...[0m
+[0;34m🐳 Building backend image for Minikube: altrupets-backend:dev[0m
+#0 building with "default" instance using docker driver
+
+#1 [internal] load build definition from Dockerfile
+#1 transferring dockerfile:
+#1 transferring dockerfile: 402B done
+#1 DONE 0.2s
+
+#2 [internal] load metadata for docker.io/library/node:20-alpine
+#2 DONE 0.3s
+
+#3 [internal] load .dockerignore
+#3 transferring context: 2B done
+#3 DONE 0.0s
+
+#4 [builder 1/6] FROM docker.io/library/node:20-alpine@sha256:09e2b3d9726018aecf269bd35325f46bf75046a643a66d28360ec71132750ec8
+#4 DONE 0.0s
+
+#5 [internal] load build context
+#5 transferring context: 217.80MB 3.3s done
+#5 DONE 3.4s
+
+#6 [builder 4/6] RUN npm ci
+#6 CACHED
+
+#7 [builder 6/6] RUN npm run build && npm prune --omit=dev
+#7 CACHED
+
+#8 [builder 2/6] WORKDIR /app
+#8 CACHED
+
+#9 [builder 5/6] COPY . .
+#9 CACHED
+
+#10 [stage-1 4/5] COPY --from=builder /app/dist ./dist
+#10 CACHED
+
+#11 [builder 3/6] COPY package*.json ./
+#11 CACHED
+
+#12 [stage-1 3/5] COPY --from=builder /app/node_modules ./node_modules
+#12 CACHED
+
+#13 [stage-1 5/5] COPY --from=builder /app/package*.json ./
+#13 CACHED
+
+#14 exporting to image
+#14 exporting layers done
+#14 writing image sha256:c2ca9500ce8d2477405af0f4d131f36f9f181448618d4e447c828227607355a0 done
+#14 naming to docker.io/library/altrupets-backend:dev done
+#14 DONE 0.0s
+[0;32m✅ Image built in Minikube runtime: altrupets-backend:dev[0m
+[0;34mTip:[0m para aplicar cambios en este repo (GitOps), usa:
+  ./launch_debug.sh --linux --backend-redeploy-argo
+[0;34mFallback imperativo (solo troubleshooting):[0m
+  ./launch_debug.sh --linux --backend-rollout-restart
+[0;34m♻️  --backend-redeploy-argo: solicitando refresh=hard a ArgoCD app...[0m
+[0;34m♻️  --backend-redeploy-argo: solicitando sync a ArgoCD app...[0m
+[0;34m🔎 Verificando backend en Kubernetes (intento 1/5)...[0m
+error: deployment "backend" exceeded its progress deadline
+[0;33m⚠️  El backend no está Ready. Revisando causa...[0m
+[0;33m⚠️  Reason actual del contenedor: CrashLoopBackOff[0m
+[0;34m🔎 Verificando backend en Kubernetes (intento 2/5)...[0m
+error: deployment "backend" exceeded its progress deadline
+[0;33m⚠️  El backend no está Ready. Revisando causa...[0m
+[0;33m⚠️  Reason actual del contenedor: CrashLoopBackOff[0m
+[0;34m🔎 Verificando backend en Kubernetes (intento 3/5)...[0m
+error: deployment "backend" exceeded its progress deadline
+[0;33m⚠️  El backend no está Ready. Revisando causa...[0m
+[0;33m⚠️  Reason actual del contenedor: CrashLoopBackOff[0m
+[0;34m🔎 Verificando backend en Kubernetes (intento 4/5)...[0m
+error: deployment "backend" exceeded its progress deadline
+[0;33m⚠️  El backend no está Ready. Revisando causa...[0m
+[0;33m⚠️  Reason actual del contenedor: CrashLoopBackOff[0m
+[0;34m🔎 Verificando backend en Kubernetes (intento 5/5)...[0m
+error: deployment "backend" exceeded its progress deadline
+[0;33m⚠️  El backend no está Ready. Revisando causa...[0m
+[0;33m⚠️  Reason actual del contenedor: CrashLoopBackOff[0m
+[0;31m❌ El backend sigue sin estar Ready después de 5 intentos.[0m
+[0;33mÚltimos logs:[0m
+    at TCP.onStreamRead (node:internal/stream_base_commons:191:23)
+[31m[Nest] 1  - [39m02/16/2026, 9:47:15 PM [31m  ERROR[39m [38;5;3m[TypeOrmModule] [39m[31mUnable to connect to the database. Retrying (9)...[39m
+error: database "altrupets_user_management" does not exist
+    at Parser.parseErrorMessage (/app/node_modules/pg-protocol/dist/parser.js:285:98)
+    at Parser.handlePacket (/app/node_modules/pg-protocol/dist/parser.js:122:29)
+    at Parser.parse (/app/node_modules/pg-protocol/dist/parser.js:35:38)
+    at Socket.<anonymous> (/app/node_modules/pg-protocol/dist/index.js:11:42)
+    at Socket.emit (node:events:524:28)
+    at addChunk (node:internal/streams/readable:561:12)
+    at readableAddChunkPushByteMode (node:internal/streams/readable:512:3)
+    at Readable.push (node:internal/streams/readable:392:5)
+    at TCP.onStreamRead (node:internal/stream_base_commons:191:23)
+[31m[Nest] 1  - [39m02/16/2026, 9:47:15 PM [31m  ERROR[39m [38;5;3m[ExceptionHandler] [39merror: database "altrupets_user_management" does not exist
+    at Parser.parseErrorMessage [90m(/app/[39mnode_modules/[4mpg-protocol[24m/dist/parser.js:285:98[90m)[39m
+    at Parser.handlePacket [90m(/app/[39mnode_modules/[4mpg-protocol[24m/dist/parser.js:122:29[90m)[39m
+    at Parser.parse [90m(/app/[39mnode_modules/[4mpg-protocol[24m/dist/parser.js:35:38[90m)[39m
+    at Socket.<anonymous> [90m(/app/[39mnode_modules/[4mpg-protocol[24m/dist/index.js:11:42[90m)[39m
+[90m    at Socket.emit (node:events:524:28)[39m
+[90m    at addChunk (node:internal/streams/readable:561:12)[39m
+[90m    at readableAddChunkPushByteMode (node:internal/streams/readable:512:3)[39m
+[90m    at Readable.push (node:internal/streams/readable:392:5)[39m
+[90m    at TCP.onStreamRead (node:internal/stream_base_commons:191:23)[39m {
+  length: [33m110[39m,
+  severity: [32m'FATAL'[39m,
+  code: [32m'3D000'[39m,
+  detail: [90mundefined[39m,
+  hint: [90mundefined[39m,
+  position: [90mundefined[39m,
+  internalPosition: [90mundefined[39m,
+  internalQuery: [90mundefined[39m,
+  where: [90mundefined[39m,
+  schema: [90mundefined[39m,
+  table: [90mundefined[39m,
+  column: [90mundefined[39m,
+  dataType: [90mundefined[39m,
+  constraint: [90mundefined[39m,
+  file: [32m'postinit.c'[39m,
+  line: [32m'948'[39m,
+  routine: [32m'InitPostgres'[39m
+}
+[0;31m❌ Backend no disponible. Abortando launch de Flutter para evitar sesión rota.[0m

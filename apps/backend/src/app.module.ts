@@ -27,10 +27,14 @@ import { CaptureRequest } from './captures/entities/capture-request.entity';
         port: configService.get<number>('DB_PORT', 5432),
         username: configService.get<string>('DB_USERNAME', 'postgres'),
         password: configService.get<string>('DB_PASSWORD', 'postgres'),
-        database: configService.get<string>(
-          'DB_NAME',
-          'altrupets_user_management',
-        ),
+        database: (() => {
+          const dbName = configService.get<string>('DB_NAME');
+          if (dbName && dbName.trim().length > 0) {
+            return dbName;
+          }
+          const envName = configService.get<string>('ENV_NAME', 'dev');
+          return `altrupets_${envName}_database`;
+        })(),
         entities: [User, CaptureRequest],
         synchronize: true, // Only for development
       }),

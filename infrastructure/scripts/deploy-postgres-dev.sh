@@ -11,6 +11,7 @@ PROJECT_ROOT="$(cd "$SCRIPT_DIR/../.." && pwd)"
 TERRAFORM_DIR="$PROJECT_ROOT/infrastructure/terraform/environments/dev"
 ENV_FILE="$TERRAFORM_DIR/.env"
 BACKEND_ENV_FILE="$PROJECT_ROOT/apps/backend/.env"
+ENV_NAME="${ENV_NAME:-dev}"
 
 GREEN='\033[0;32m'
 BLUE='\033[0;34m'
@@ -51,13 +52,14 @@ prompt_password() {
   local password=""
 
   if command -v zenity &> /dev/null && [ -n "${DISPLAY:-}" ]; then
-    password="$(zenity --password --title='AltruPets PostgreSQL Secret' 2>/dev/null || true)"
+    password="$(zenity --password --title='AltruPets PostgreSQL Password' \
+      --text='Define la contraseña del usuario PostgreSQL para el cluster dev' 2>/dev/null || true)"
   elif command -v kdialog &> /dev/null && [ -n "${DISPLAY:-}" ]; then
-    password="$(kdialog --password 'PostgreSQL password (local dev)' 2>/dev/null || true)"
+    password="$(kdialog --password 'Define la contraseña del usuario PostgreSQL para el cluster dev' 2>/dev/null || true)"
   fi
 
   if [ -z "$password" ]; then
-    read -rsp "Enter PostgreSQL password for local dev: " password
+    read -rsp "Define la contraseña del usuario PostgreSQL para el cluster dev: " password
     echo
   fi
 
@@ -88,7 +90,7 @@ ensure_local_secret() {
   fi
 
   if [ -z "$postgres_database" ]; then
-    postgres_database="altrupets_user_management"
+    postgres_database="altrupets_${ENV_NAME}_database"
   fi
 
   umask 077
@@ -239,5 +241,5 @@ echo ""
 echo -e "${BLUE}📝 Backend environment variables:${NC}"
 echo -e "  ${GREEN}DB_HOST=postgres-dev-service${NC}"
 echo -e "  ${GREEN}DB_PORT=5432${NC}"
-echo -e "  ${GREEN}DB_NAME=altrupets_user_management${NC}"
+echo -e "  ${GREEN}DB_NAME=${POSTGRES_DATABASE}${NC}"
 echo -e "  ${GREEN}DB_USERNAME=$($TERRAFORM_CMD output -raw postgres_username 2>/dev/null || echo 'dev_demo_admin')${NC}"
