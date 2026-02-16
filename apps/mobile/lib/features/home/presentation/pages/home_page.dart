@@ -109,65 +109,80 @@ class _HomeContent extends StatelessWidget {
               padding: const EdgeInsets.only(left: 24.0, right: 24.0, top: 16.0),
               physics: const BouncingScrollPhysics(),
               children: [
-                AppServiceCard(
-                  title: 'Rescates',
-                  subtitle: 'Interactúa con la red de rescatistas',
-                  icon: Icons.support,
-                  gradientColors: const [
-                    Color(0xFF2563EB),
-                    Color(0xFF3B82F6),
-                  ],
-                  onTap: onRescuesTap,
-                ),
-                AppServiceCard(
-                  title: 'Adopciones',
-                  subtitle: 'Explora a detalle o escoge al azar',
-                  icon: Icons.volunteer_activism,
-                  gradientColors: const [
-                    Color(0xFF3B82F6),
-                    Color(0xFF6366F1),
-                  ],
-                  onTap: () {},
-                ),
-                AppServiceCard(
-                  title: 'Bienestar',
-                  subtitle: 'Donaciones y denuncias',
-                  icon: Icons.security,
-                  gradientColors: const [
-                    Color(0xFF2563EB),
-                    Color(0xFF1D4ED8),
-                  ],
-                  onTap: () {},
-                ),
-                AppServiceCard(
-                  title: 'Salud, Higiene y Aseo',
-                  subtitle: 'Busca clínicas, productos y servicios',
-                  icon: Icons.medical_services,
-                  gradientColors: const [
-                    Color(0xFF3B82F6),
-                    Color(0xFF2563EB),
-                  ],
-                  onTap: () {},
-                ),
-                AppServiceCard(
-                  title: 'Alimentos',
-                  subtitle: 'Accede a la red de proveedores',
-                  icon: Icons.pets,
-                  gradientColors: const [
-                    Color(0xFF2563EB),
-                    Color(0xFF3B82F6),
-                  ],
-                  onTap: () {},
-                ),
-                AppServiceCard(
-                  title: 'Accesorios y Juguetes',
-                  subtitle: 'Lo mejor para tus compañeros',
-                  icon: Icons.toys,
-                  gradientColors: const [
-                    Color(0xFF3B82F6),
-                    Color(0xFF6366F1),
-                  ],
-                  onTap: () {},
+                LayoutBuilder(
+                  builder: (context, constraints) {
+                    final columns = (constraints.maxWidth / 300).floor().clamp(1, 3);
+                    return GridView.count(
+                      crossAxisCount: columns,
+                      shrinkWrap: true,
+                      physics: const NeverScrollableScrollPhysics(),
+                      mainAxisSpacing: 4,
+                      crossAxisSpacing: 12,
+                      childAspectRatio: 3.0,
+                      children: [
+                        AppServiceCard(
+                          title: 'Rescates',
+                          subtitle: 'Interactúa con la red de rescatistas',
+                          icon: Icons.support,
+                          gradientColors: const [
+                            Color(0xFF2563EB),
+                            Color(0xFF3B82F6),
+                          ],
+                          onTap: onRescuesTap,
+                        ),
+                        AppServiceCard(
+                          title: 'Adopciones',
+                          subtitle: 'Explora a detalle o escoge al azar',
+                          icon: Icons.volunteer_activism,
+                          gradientColors: const [
+                            Color(0xFF3B82F6),
+                            Color(0xFF6366F1),
+                          ],
+                          onTap: () {},
+                        ),
+                        AppServiceCard(
+                          title: 'Bienestar',
+                          subtitle: 'Donaciones y denuncias',
+                          icon: Icons.security,
+                          gradientColors: const [
+                            Color(0xFF2563EB),
+                            Color(0xFF1D4ED8),
+                          ],
+                          onTap: () {},
+                        ),
+                        AppServiceCard(
+                          title: 'Salud, Higiene y Aseo',
+                          subtitle: 'Busca clínicas, productos y servicios',
+                          icon: Icons.medical_services,
+                          gradientColors: const [
+                            Color(0xFF3B82F6),
+                            Color(0xFF2563EB),
+                          ],
+                          onTap: () {},
+                        ),
+                        AppServiceCard(
+                          title: 'Alimentos',
+                          subtitle: 'Accede a la red de proveedores',
+                          icon: Icons.pets,
+                          gradientColors: const [
+                            Color(0xFF2563EB),
+                            Color(0xFF3B82F6),
+                          ],
+                          onTap: () {},
+                        ),
+                        AppServiceCard(
+                          title: 'Accesorios y Juguetes',
+                          subtitle: 'Lo mejor para tus compañeros',
+                          icon: Icons.toys,
+                          gradientColors: const [
+                            Color(0xFF3B82F6),
+                            Color(0xFF6366F1),
+                          ],
+                          onTap: () {},
+                        ),
+                      ],
+                    );
+                  },
                 ),
                 const SizedBox(height: 100), // Space for navigation bar
               ],
