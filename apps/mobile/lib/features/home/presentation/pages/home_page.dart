@@ -1,3 +1,4 @@
+import 'package:altrupets/core/theme/app_motion.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter/material.dart';
 import 'package:altrupets/core/widgets/molecules/app_service_card.dart';
@@ -61,7 +62,7 @@ class _HomePageState extends ConsumerState<HomePage> {
             final isSelected = index == displayIndex;
             return AnimatedOpacity(
               opacity: isSelected ? 1.0 : 0.0,
-              duration: const Duration(milliseconds: 200),
+              duration: AppMotion.medium,
               curve: Curves.easeInOut,
               child: IgnorePointer(
                 ignoring: !isSelected,

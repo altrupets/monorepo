@@ -1,5 +1,20 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:altrupets/core/theme/app_motion.dart';
+
+/// A custom PageRoute that respects Design System Motion tokens.
+class AppPageRoute<T> extends MaterialPageRoute<T> {
+  AppPageRoute({
+    required super.builder,
+    super.settings,
+    super.maintainState,
+    super.fullscreenDialog,
+    super.allowSnapshotting,
+  });
+
+  @override
+  Duration get transitionDuration => AppMotion.medium;
+}
 
 /// A service that handles navigation actions.
 class NavigationService {
@@ -17,7 +32,7 @@ class NavigationService {
   void push(BuildContext context, Widget page) {
     Navigator.push(
       context,
-      MaterialPageRoute<void>(builder: (context) => page),
+      AppPageRoute<void>(builder: (context) => page),
     );
   }
 

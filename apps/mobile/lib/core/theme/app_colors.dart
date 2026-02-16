@@ -80,10 +80,16 @@ class AppColorsDark {
   static Color get onTertiaryContainer => _tokens.palette.accent[90]!;
 
   // Error (Dark)
-  static Color get error => _tokens.palette.error[80]!;
+  static Color get error => _tokens.brand.error;
   static Color get errorContainer => _tokens.palette.error[30]!;
-  static Color get onError => _tokens.palette.error[20]!;
+  static Color get onError => _tokens.palette.error[100]!;
   static Color get onErrorContainer => _tokens.palette.error[90]!;
+
+  // Success (Dark)
+  static Color get success => _tokens.palette.success[40]!;
+  static Color get successContainer => _tokens.palette.success[30]!;
+  static Color get onSuccess => _tokens.palette.success[100]!;
+  static Color get onSuccessContainer => _tokens.palette.success[90]!;
 
   // Surface & Background (Dark)
   static Color get background => _tokens.palette.neutral[6] ?? _tokens.palette.primary[6] ?? const Color(0xFF111416);

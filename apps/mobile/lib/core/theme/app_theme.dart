@@ -24,6 +24,16 @@ class AppTheme {
         error: AppColors.error,
         surface: AppColors.surface,
       ),
+      
+      // Motion - Global Transitions
+      pageTransitionsTheme: PageTransitionsTheme(
+        builders: {
+          TargetPlatform.android: _FadeTransitionBuilder(),
+          TargetPlatform.iOS: _FadeTransitionBuilder(),
+          TargetPlatform.linux: _FadeTransitionBuilder(),
+          TargetPlatform.windows: _FadeTransitionBuilder(),
+        },
+      ),
 
       // Typography
       textTheme: AppTypography.textTheme(isDark: false),
@@ -154,6 +164,23 @@ class AppTheme {
         thickness: 1,
         space: 1,
       ),
+
+      // Switch Theme
+      switchTheme: SwitchThemeData(
+        thumbColor: MaterialStateProperty.resolveWith((states) {
+          if (states.contains(MaterialState.selected)) {
+            return AppColors.onSuccess;
+          }
+          return AppColors.onError;
+        }),
+        trackColor: MaterialStateProperty.resolveWith((states) {
+          if (states.contains(MaterialState.selected)) {
+            return AppColors.success;
+          }
+          return AppColors.error;
+        }),
+        trackOutlineColor: MaterialStateProperty.all(Colors.transparent),
+      ),
     );
   }
 
@@ -171,6 +198,16 @@ class AppTheme {
         tertiary: AppColorsDark.tertiary,
         error: AppColorsDark.error,
         surface: AppColorsDark.surface,
+      ),
+
+      // Motion - Global Transitions
+      pageTransitionsTheme: PageTransitionsTheme(
+        builders: {
+          TargetPlatform.android: _FadeTransitionBuilder(),
+          TargetPlatform.iOS: _FadeTransitionBuilder(),
+          TargetPlatform.linux: _FadeTransitionBuilder(),
+          TargetPlatform.windows: _FadeTransitionBuilder(),
+        },
       ),
 
       textTheme: AppTypography.textTheme(isDark: true),
@@ -289,6 +326,43 @@ class AppTheme {
         color: AppColorsDark.outlineVariant,
         thickness: 1,
         space: 1,
+      ),
+
+      // Switch Theme
+      switchTheme: SwitchThemeData(
+        thumbColor: MaterialStateProperty.resolveWith((states) {
+          if (states.contains(MaterialState.selected)) {
+            return AppColorsDark.onSuccess;
+          }
+          return AppColorsDark.onError;
+        }),
+        trackColor: MaterialStateProperty.resolveWith((states) {
+          if (states.contains(MaterialState.selected)) {
+            return AppColorsDark.success;
+          }
+          return AppColorsDark.error;
+        }),
+        trackOutlineColor: MaterialStateProperty.all(Colors.transparent),
+      ),
+    );
+  }
+}
+
+/// A custom page transition that respects Design System Motion tokens.
+class _FadeTransitionBuilder extends PageTransitionsBuilder {
+  @override
+  Widget buildTransitions<T>(
+    PageRoute<T> route,
+    BuildContext context,
+    Animation<double> animation,
+    Animation<double> secondaryAnimation,
+    Widget child,
+  ) {
+    return FadeTransition(
+      opacity: animation,
+      child: FadeTransition(
+        opacity: ReverseAnimation(secondaryAnimation),
+        child: child,
       ),
     );
   }
