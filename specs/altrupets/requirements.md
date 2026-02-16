@@ -46,10 +46,10 @@ Este documento de Especificación de Requisitos Software (ERS) define los requis
 ### 1.3. Definiciones, Acrónimos y Abreviaturas
 
 **Roles de Usuario:**
-- **Centinela:** Persona que alerta sobre animales abandonados, maltratados, desnutridos, malheridos, enfermos o accidentados que necesitan auxilio inmediato
-- **Auxiliar:** Persona con capacidad de brindar auxilio inmediato a animales vulnerables, pero sin capacidad de refugio a largo plazo. Usualmente entrega el animal a un rescatista
-- **Rescatista:** Persona con casa cuna que puede rescatar y cuidar animales a largo plazo, proporcionando comida, vacunas, castración y cuidado maternal
-- **Adoptante:** Persona que desea adoptar animales rescatados, preferiblemente castrados y vacunados
+- **Centinela:** Persona que alerta sobre animales abandonados, maltratados, desnutridos, malheridos, enfermos o accidentados que necesitan captura inmediata
+- **Auxiliar:** Persona con capacidad de capturar animales vulnerables y brindarles auxilio inmediato. Si no tiene casa cuna propia, crea solicitudes de rescate para que un rescatista pueda darle acogida al animal
+- **Rescatista:** Persona con casa cuna que puede rescatar y cuidar animales a largo plazo, proporcionando comida, vacunas, castración y cuidado maternal. Determina cuándo un animal está listo para adopción y gestiona las solicitudes de adopción
+- **Adoptante:** Persona que desea adoptar animales rescatados. Envía solicitudes de adopción que son aprobadas o rechazadas por los rescatistas
 - **Donante:** Persona física o jurídica que sufraga gastos asociados al rescate animal sin adoptar
 - **Veterinario:** Profesional con credenciales para atención médica animal
 
@@ -135,10 +135,12 @@ El sistema proporciona las siguientes funciones principales:
 - Gestión de membresías organizacionales
 
 **Red de Rescate Animal:**
-- Denuncias anónimas de maltrato animal
-- Coordinación entre centinelas, auxiliares y rescatistas
-- Gestión de casas cuna e inventarios de animales
-- Proceso de adopción con contratos digitales
+- Solicitudes de captura de animales vulnerables por centinelas
+- Procesamiento de capturas por auxiliares
+- Creación de solicitudes de rescate por auxiliares sin casa cuna
+- Gestión de casas cuna e inventarios de animales por rescatistas
+- Marcado de animales como "Listos para Adoptar" por rescatistas
+- Proceso de adopción iniciado por adoptantes y gestionado por rescatistas
 
 **Sistema Financiero:**
 - Donaciones individuales y suscripciones recurrentes
@@ -167,25 +169,28 @@ El sistema proporciona las siguientes funciones principales:
 - Nivel educativo: Diverso (primaria a universitario)
 - Experiencia técnica: Básica a intermedia con dispositivos móviles
 - Motivación: Alta sensibilidad hacia el bienestar animal
-- Frecuencia de uso: Esporádica, basada en avistamientos
+- Frecuencia de uso: Esporádica, basada en avistamientos de animales vulnerables
 
 **Auxiliares:**
 - Nivel educativo: Secundaria a universitario
 - Experiencia técnica: Intermedia con aplicaciones móviles
-- Capacidades: Transporte y tiempo disponible para rescates inmediatos
+- Capacidades: Transporte y tiempo disponible para capturas inmediatas
 - Frecuencia de uso: Regular, según disponibilidad
+- Nota: Pueden o no tener casa cuna propia
 
 **Rescatistas:**
 - Nivel educativo: Secundaria a universitario
 - Experiencia técnica: Intermedia a avanzada
 - Recursos: Casa cuna establecida, recursos financieros
 - Frecuencia de uso: Diaria, gestión continua de animales
+- Responsabilidades: Determinar adoptabilidad y gestionar solicitudes de adopción
 
 **Adoptantes:**
 - Nivel educativo: Diverso
 - Experiencia técnica: Básica a intermedia
 - Motivación: Deseo de adoptar mascotas responsablemente
-- Frecuencia de uso: Esporádica, durante proceso de adopción
+- Frecuencia de uso: Esporádica, durante proceso de búsqueda y adopción
+- Responsabilidades: Enviar solicitudes de adopción y cumplir requisitos del rescatista
 
 **Donantes:**
 - Nivel educativo: Secundaria a universitario
@@ -292,30 +297,31 @@ El sistema proporciona las siguientes funciones principales:
 
 *Esta funcionalidad es crítica para el primer sprint y release del sistema, estableciendo la coordinación básica entre centinelas, auxiliares y rescatistas.*
 
-**REQ-COORD-001: Flujo Básico de Rescate**
+**REQ-COORD-001: Flujo Básico de Captura y Rescate**
 
 CUANDO un centinela identifique un animal vulnerable ENTONCES el sistema DEBERÁ:
-- Permitir crear una alerta con ubicación GPS, descripción, fotografías y nivel de urgencia
+- Permitir crear una solicitud de captura con ubicación GPS, descripción, fotografías y nivel de urgencia
 - Notificar automáticamente a auxiliares en un radio de 5km
 - Establecer comunicación directa entre centinela y auxiliar mediante chat interno
 
-**REQ-COORD-002: Respuesta de Auxiliares**
+**REQ-COORD-002: Respuesta de Auxiliares a Solicitudes de Captura**
 
-CUANDO un auxiliar reciba una alerta ENTONCES el sistema DEBERÁ:
+CUANDO un auxiliar reciba una solicitud de captura ENTONCES el sistema DEBERÁ:
 - Mostrar notificación push inmediata con detalles del caso
 - Permitir aceptar o declinar la solicitud con justificación
 - Proporcionar navegación GPS al lugar del incidente
 
-**REQ-COORD-003: Transferencia a Rescatistas**
+**REQ-COORD-003: Creación de Solicitud de Rescate por Auxiliar**
 
-CUANDO un auxiliar brinde auxilio inmediato a un animal ENTONCES el sistema DEBERÁ:
+CUANDO un auxiliar capture un animal Y no tenga casa cuna propia ENTONCES el sistema DEBERÁ:
+- Permitir crear una solicitud de rescate para buscar rescatista con casa cuna disponible
 - Mostrar rescatistas disponibles con casa cuna en un radio de 15km inicialmente
 - Permitir documentar el estado del animal con fotografías
 - Facilitar la coordinación para transferencia del animal al rescatista
 
 **REQ-COORD-004: Seguimiento de Casos**
 
-CUANDO se inicie un proceso de rescate ENTONCES el sistema DEBERÁ:
+CUANDO se inicie un proceso de captura o rescate ENTONCES el sistema DEBERÁ:
 - Generar código de seguimiento único
 - Mantener historial completo de todas las interacciones
 - Permitir consultar estado del caso a todos los participantes
@@ -326,17 +332,17 @@ CUANDO se inicie un proceso de rescate ENTONCES el sistema DEBERÁ:
 
 CUANDO una persona desee registrarse como centinela ENTONCES el sistema DEBERÁ permitir registro con datos personales básicos, ubicación y motivación para el rescate animal
 
-**REQ-CEN-002: Creación de Alertas**
+**REQ-CEN-002: Creación de Solicitudes de Captura**
 
-CUANDO un centinela identifique un animal vulnerable ENTONCES el sistema DEBERÁ permitir crear una alerta con ubicación GPS, descripción del estado del animal, fotografías opcionales y nivel de urgencia
+CUANDO un centinela identifique un animal vulnerable ENTONCES el sistema DEBERÁ permitir crear una solicitud de captura con ubicación GPS, descripción del estado del animal, fotografías opcionales y nivel de urgencia
 
-**REQ-CEN-003: Seguimiento de Alertas**
+**REQ-CEN-003: Seguimiento de Solicitudes de Captura**
 
-CUANDO un centinela cree una alerta ENTONCES el sistema DEBERÁ generar un código de seguimiento único y permitir consultar el estado de la alerta
+CUANDO un centinela cree una solicitud de captura ENTONCES el sistema DEBERÁ generar un código de seguimiento único y permitir consultar el estado de la solicitud
 
 **REQ-CEN-004: Comunicación con Auxiliares**
 
-CUANDO un auxiliar responda a una alerta ENTONCES el sistema DEBERÁ establecer comunicación directa entre centinela y auxiliar mediante chat interno
+CUANDO un auxiliar responda a una solicitud de captura ENTONCES el sistema DEBERÁ establecer comunicación directa entre centinela y auxiliar mediante chat interno
 
 #### 3.2.2. Funciones para Auxiliares
 
@@ -344,25 +350,25 @@ CUANDO un auxiliar responda a una alerta ENTONCES el sistema DEBERÁ establecer 
 
 CUANDO una persona desee registrarse como auxiliar ENTONCES el sistema DEBERÁ verificar capacidad de transporte, disponibilidad horaria y experiencia en manejo de animales
 
-**REQ-AUX-002: Recepción de Alertas**
+**REQ-AUX-002: Recepción de Solicitudes de Captura**
 
-CUANDO haya una alerta en el área del auxiliar ENTONCES el sistema DEBERÁ enviar notificación push inmediata con detalles del caso y distancia
+CUANDO haya una solicitud de captura en el área del auxiliar ENTONCES el sistema DEBERÁ enviar notificación push inmediata con detalles del caso y distancia
 
-**REQ-AUX-003: Aceptación de Rescates**
+**REQ-AUX-003: Procesamiento de Solicitudes de Captura**
 
-CUANDO un auxiliar acepte una alerta ENTONCES el sistema DEBERÁ proporcionar información de contacto del centinela y navegación GPS al lugar
+CUANDO un auxiliar acepte una solicitud de captura ENTONCES el sistema DEBERÁ proporcionar información de contacto del centinela y navegación GPS al lugar
 
-**REQ-AUX-004: Coordinación con Rescatistas**
+**REQ-AUX-004: Creación de Solicitudes de Rescate**
 
-CUANDO un auxiliar brinde auxilio inmediato a un animal ENTONCES el sistema DEBERÁ mostrar rescatistas disponibles cercanos y facilitar la transferencia del animal
+CUANDO un auxiliar capture un animal Y no tenga casa cuna propia ENTONCES el sistema DEBERÁ permitir crear una solicitud de rescate para que un rescatista pueda darle acogida al animal
 
-**REQ-AUX-005: Documentación de Rescate**
+**REQ-AUX-005: Documentación de Captura**
 
-CUANDO un auxiliar complete el auxilio ENTONCES el sistema DEBERÁ permitir documentar el estado del animal con fotografías y descripción para el rescatista
+CUANDO un auxiliar complete la captura ENTONCES el sistema DEBERÁ permitir documentar el estado del animal con fotografías y descripción para el rescatista
 
 **REQ-AUX-006: Solicitud de Crowdfunding para Gastos de Transporte**
 
-CUANDO un auxiliar acepte una alerta y no tenga transporte propio viable ENTONCES el sistema DEBERÁ permitir crear una "vaca" o "banca" (crowdfunding) para cubrir gastos de transporte con:
+CUANDO un auxiliar acepte una solicitud de captura y no tenga transporte propio viable ENTONCES el sistema DEBERÁ permitir crear una "vaca" o "banca" (crowdfunding) para cubrir gastos de transporte con:
 - Descripción del caso específico y animal a rescatar
 - Desglose de costos estimados (viaje ida, viaje vuelta con Uber Pets/similar)
 - Meta de recaudación específica y plazo límite
@@ -509,9 +515,25 @@ CUANDO un rescatista incurra en gastos ENTONCES el sistema DEBERÁ permitir regi
 
 CUANDO un animal requiera atención médica ENTONCES el sistema DEBERÁ mostrar veterinarios colaboradores cercanos y facilitar la solicitud de atención
 
-**REQ-RES-005: Proceso de Adopción**
+**REQ-RES-005: Marcado de Animal Listo para Adopción**
 
-CUANDO un animal esté listo para adopción ENTONCES el sistema DEBERÁ permitir publicar el perfil del animal y gestionar solicitudes de adopción
+CUANDO un rescatista determine que un animal cumple todos los requisitos de adoptabilidad ENTONCES el sistema DEBERÁ permitir marcar el animal como "Listo para Adoptar" (Ready for Adoption) y publicar automáticamente su perfil en el catálogo de adopción
+
+**REQ-RES-005A: Gestión de Solicitudes de Adopción Recibidas**
+
+CUANDO un rescatista reciba solicitudes de adopción para sus animales ENTONCES el sistema DEBERÁ permitir:
+- Ver todas las solicitudes pendientes con información del adoptante
+- Revisar historial y experiencia del adoptante con mascotas
+- Aprobar o rechazar solicitudes con justificación obligatoria
+- Establecer comunicación directa con el adoptante mediante chat interno
+
+**REQ-RES-005B: Coordinación de Entrega Post-Aprobación**
+
+CUANDO un rescatista apruebe una solicitud de adopción ENTONCES el sistema DEBERÁ:
+- Notificar inmediatamente al adoptante sobre la aprobación
+- Facilitar coordinación de fecha y lugar de entrega
+- Generar contrato digital de adopción para firma de ambas partes
+- Cambiar automáticamente el estado del animal a "En Proceso de Adopción"
 
 **REQ-RES-006: Recepción de Donaciones**
 
@@ -569,13 +591,13 @@ CUANDO una persona desee adoptar ENTONCES el sistema DEBERÁ permitir registro c
 
 CUANDO un adoptante busque mascotas ENTONCES el sistema DEBERÁ mostrar animales disponibles con filtros por especie, edad, tamaño y ubicación
 
-**REQ-ADO-003: Solicitud de Adopción**
+**REQ-ADO-003: Envío de Solicitud de Adopción**
 
-CUANDO un adoptante seleccione un animal ENTONCES el sistema DEBERÁ permitir enviar solicitud con información personal y motivación para adopción
+CUANDO un adoptante seleccione un animal marcado como "Listo para Adoptar" ENTONCES el sistema DEBERÁ permitir enviar solicitud de adopción con información personal, motivación y experiencia con mascotas
 
-**REQ-ADO-004: Proceso de Adopción**
+**REQ-ADO-004: Aprobación/Rechazo de Solicitud de Adopción**
 
-CUANDO se apruebe una adopción ENTONCES el sistema DEBERÁ facilitar la coordinación entre adoptante y rescatista para entrega del animal
+CUANDO un rescatista reciba una solicitud de adopción ENTONCES el sistema DEBERÁ permitir aprobarla o rechazarla con justificación, y facilitar la coordinación para entrega del animal si es aprobada
 
 **REQ-ADO-005: Seguimiento Post-Adopción**
 
