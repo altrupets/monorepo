@@ -36,6 +36,13 @@ class NavigationService {
     );
   }
 
+  void navigateReplacement(BuildContext context, Widget page) {
+    Navigator.pushReplacement(
+      context,
+      AppPageRoute<void>(builder: (context) => page),
+    );
+  }
+
   /// Specialized pop that doesn't require context
   void globalPop() {
     navigatorKey.currentState?.maybePop();

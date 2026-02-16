@@ -3,29 +3,35 @@ import 'package:flutter/material.dart';
 class AppInputCard extends StatelessWidget {
   const AppInputCard({
     required this.label,
-    required this.initialValue,
     required this.hint,
     super.key,
+    this.initialValue,
+    this.controller,
     this.enabled = true,
     this.isDropdown = false,
     this.keyboardType = TextInputType.text,
+    this.onTap,
   });
 
   final String label;
-  final String initialValue;
+  final String? initialValue;
+  final TextEditingController? controller;
   final String hint;
   final bool enabled;
   final bool isDropdown;
   final TextInputType keyboardType;
+  final VoidCallback? onTap;
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     
     return TextFormField(
-      initialValue: initialValue,
+      controller: controller,
+      initialValue: controller == null ? initialValue : null,
       enabled: enabled,
       readOnly: isDropdown, // To prevent typing if it's strictly a dropdown trigger
+      onTap: onTap,
       keyboardType: keyboardType,
       style: theme.textTheme.bodyMedium?.copyWith(
         fontWeight: FontWeight.w500,
