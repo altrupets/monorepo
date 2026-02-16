@@ -43,13 +43,11 @@ class _LoginPageState extends ConsumerState<LoginPage> {
 
     // Escuchar cambios en el estado de auth
     ref.listen<AuthState>(authProvider, (previous, next) {
-      if (next.payload != null && previous?.payload == null) {
+      final loginCompleted = previous?.isLoading == true && !next.isLoading;
+      if (loginCompleted && next.payload != null) {
         // Login exitoso, navegar a home
         final navigation = ref.read(navigationProvider);
-        navigation.navigateReplacement(
-          context,
-          const HomePage(),
-        );
+        navigation.navigateAndRemoveAll(context, const HomePage());
       } else if (next.error != null && previous?.error != next.error) {
         // Mostrar error
         ScaffoldMessenger.of(context).showSnackBar(

@@ -9,4 +9,5 @@ spec:
       containers:
         - name: backend
           image: altrupets-backend:dev
-          imagePullPolicy: IfNotPresent
+          # Dev local: force usage of image built inside Minikube runtime.
+          imagePullPolicy: Never
