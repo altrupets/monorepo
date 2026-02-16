@@ -1,0 +1,584 @@
+[0;31m⚠️  ADVERTENCIA: operación destructiva en cluster local.[0m
+[0;34mResumen por modo:[0m
+  [0;32msoft[0m: borra namespace [0;33maltrupets-dev[0m y limpia Application/AppProject de ArgoCD.
+  [0;32mhard[0m: todo lo de soft + borra namespace [0;33margocd[0m completo.
+  [0;32mfull[0m: todo lo de hard + ejecuta [0;33mminikube delete[0m (elimina cluster Minikube local: control plane y nodo).
+  [0;32m--delete-pvcs[0m: opcional, borra PVCs con label [0;33mapp=postgres[0m.
+
+[0;33mModo elegido: hard[0m
+Para confirmar escribe exactamente: hard > [0;34m🧭 Iniciando reset dev cluster (mode=hard)...[0m
+[0;34m▶️  [1/4] Aplicando reset (hard)[0m
+[0;34m🧹 Reset HARD: reset soft + ArgoCD completo...[0m
+[0;34m   - Subpaso A: ejecutar reset_soft[0m
+[0;34m🧹 Reset SOFT: limpiando recursos de app...[0m
+[0;34m   - Objetivo 1: namespace altrupets-dev[0m
+[0;34m🗑️  Eliminando namespace altrupets-dev...[0m
+[0;33m⏳ namespace/altrupets-dev estado=Terminating (0s)[0m
+[0;33m⏳ namespace/altrupets-dev estado=Terminating (6s)[0m
+[0;32m✅ namespace/altrupets-dev eliminado.[0m
+[0;34m   - Objetivo 2: limpiar recursos ArgoCD de la app[0m
+[0;33m     • Deleting application/altrupets-backend-dev[0m
+[0;33m       ⏳ application/altrupets-backend-dev sigue presente (0s), finalizers=["resources-finalizer.argocd.argoproj.io"][0m
+5m7s        Normal    OperationCompleted   application/altrupets-backend-dev                       Sync operation to 7f0389aea5c8dc55deeec82a7853550e579cca02 succeeded
+1s          Normal    OperationStarted     application/altrupets-backend-dev                       Initiated automated sync to [7f0389aea5c8dc55deeec82a7853550e579cca02]
+1s          Normal    ResourceUpdated      application/altrupets-backend-dev                       Updated sync status: Synced -> OutOfSync
+1s          Normal    ResourceUpdated      application/altrupets-backend-dev                       Updated health status: Progressing -> Missing
+[0;33m       ⏳ application/altrupets-backend-dev sigue presente (5s), finalizers=["resources-finalizer.argocd.argoproj.io"][0m
+5m13s       Normal    OperationCompleted   application/altrupets-backend-dev                       Sync operation to 7f0389aea5c8dc55deeec82a7853550e579cca02 succeeded
+7s          Normal    OperationStarted     application/altrupets-backend-dev                       Initiated automated sync to [7f0389aea5c8dc55deeec82a7853550e579cca02]
+7s          Normal    ResourceUpdated      application/altrupets-backend-dev                       Updated sync status: Synced -> OutOfSync
+7s          Normal    ResourceUpdated      application/altrupets-backend-dev                       Updated health status: Progressing -> Missing
+[0;33m       ⏳ application/altrupets-backend-dev sigue presente (11s), finalizers=["resources-finalizer.argocd.argoproj.io"][0m
+5m18s       Normal    OperationCompleted   application/altrupets-backend-dev                       Sync operation to 7f0389aea5c8dc55deeec82a7853550e579cca02 succeeded
+12s         Normal    OperationStarted     application/altrupets-backend-dev                       Initiated automated sync to [7f0389aea5c8dc55deeec82a7853550e579cca02]
+12s         Normal    ResourceUpdated      application/altrupets-backend-dev                       Updated sync status: Synced -> OutOfSync
+12s         Normal    ResourceUpdated      application/altrupets-backend-dev                       Updated health status: Progressing -> Missing
+[0;33m       ⏳ application/altrupets-backend-dev sigue presente (16s), finalizers=["resources-finalizer.argocd.argoproj.io"][0m
+5m23s       Normal    OperationCompleted   application/altrupets-backend-dev                       Sync operation to 7f0389aea5c8dc55deeec82a7853550e579cca02 succeeded
+17s         Normal    OperationStarted     application/altrupets-backend-dev                       Initiated automated sync to [7f0389aea5c8dc55deeec82a7853550e579cca02]
+17s         Normal    ResourceUpdated      application/altrupets-backend-dev                       Updated sync status: Synced -> OutOfSync
+17s         Normal    ResourceUpdated      application/altrupets-backend-dev                       Updated health status: Progressing -> Missing
+[0;33m       ⏳ application/altrupets-backend-dev sigue presente (21s), finalizers=["resources-finalizer.argocd.argoproj.io"][0m
+5m29s       Normal    OperationCompleted   application/altrupets-backend-dev                       Sync operation to 7f0389aea5c8dc55deeec82a7853550e579cca02 succeeded
+23s         Normal    OperationStarted     application/altrupets-backend-dev                       Initiated automated sync to [7f0389aea5c8dc55deeec82a7853550e579cca02]
+23s         Normal    ResourceUpdated      application/altrupets-backend-dev                       Updated sync status: Synced -> OutOfSync
+23s         Normal    ResourceUpdated      application/altrupets-backend-dev                       Updated health status: Progressing -> Missing
+[0;33m       ⏳ application/altrupets-backend-dev sigue presente (27s), finalizers=["resources-finalizer.argocd.argoproj.io"][0m
+5m34s       Normal    OperationCompleted   application/altrupets-backend-dev                       Sync operation to 7f0389aea5c8dc55deeec82a7853550e579cca02 succeeded
+28s         Normal    OperationStarted     application/altrupets-backend-dev                       Initiated automated sync to [7f0389aea5c8dc55deeec82a7853550e579cca02]
+28s         Normal    ResourceUpdated      application/altrupets-backend-dev                       Updated sync status: Synced -> OutOfSync
+28s         Normal    ResourceUpdated      application/altrupets-backend-dev                       Updated health status: Progressing -> Missing
+[0;33m       ⏳ application/altrupets-backend-dev sigue presente (32s), finalizers=["resources-finalizer.argocd.argoproj.io"][0m
+5m39s       Normal    OperationCompleted   application/altrupets-backend-dev                       Sync operation to 7f0389aea5c8dc55deeec82a7853550e579cca02 succeeded
+33s         Normal    OperationStarted     application/altrupets-backend-dev                       Initiated automated sync to [7f0389aea5c8dc55deeec82a7853550e579cca02]
+33s         Normal    ResourceUpdated      application/altrupets-backend-dev                       Updated sync status: Synced -> OutOfSync
+33s         Normal    ResourceUpdated      application/altrupets-backend-dev                       Updated health status: Progressing -> Missing
+[0;33m       ⏳ application/altrupets-backend-dev sigue presente (37s), finalizers=["resources-finalizer.argocd.argoproj.io"][0m
+5m45s       Normal    OperationCompleted   application/altrupets-backend-dev                       Sync operation to 7f0389aea5c8dc55deeec82a7853550e579cca02 succeeded
+39s         Normal    OperationStarted     application/altrupets-backend-dev                       Initiated automated sync to [7f0389aea5c8dc55deeec82a7853550e579cca02]
+39s         Normal    ResourceUpdated      application/altrupets-backend-dev                       Updated sync status: Synced -> OutOfSync
+39s         Normal    ResourceUpdated      application/altrupets-backend-dev                       Updated health status: Progressing -> Missing
+[0;33m       ⏳ application/altrupets-backend-dev sigue presente (43s), finalizers=["resources-finalizer.argocd.argoproj.io"][0m
+5m50s       Normal    OperationCompleted   application/altrupets-backend-dev                       Sync operation to 7f0389aea5c8dc55deeec82a7853550e579cca02 succeeded
+44s         Normal    OperationStarted     application/altrupets-backend-dev                       Initiated automated sync to [7f0389aea5c8dc55deeec82a7853550e579cca02]
+44s         Normal    ResourceUpdated      application/altrupets-backend-dev                       Updated sync status: Synced -> OutOfSync
+44s         Normal    ResourceUpdated      application/altrupets-backend-dev                       Updated health status: Progressing -> Missing
+[0;33m       ⏳ application/altrupets-backend-dev sigue presente (48s), finalizers=["resources-finalizer.argocd.argoproj.io"][0m
+5m55s       Normal    OperationCompleted   application/altrupets-backend-dev                       Sync operation to 7f0389aea5c8dc55deeec82a7853550e579cca02 succeeded
+49s         Normal    OperationStarted     application/altrupets-backend-dev                       Initiated automated sync to [7f0389aea5c8dc55deeec82a7853550e579cca02]
+49s         Normal    ResourceUpdated      application/altrupets-backend-dev                       Updated sync status: Synced -> OutOfSync
+49s         Normal    ResourceUpdated      application/altrupets-backend-dev                       Updated health status: Progressing -> Missing
+[0;33m       ⏳ application/altrupets-backend-dev sigue presente (53s), finalizers=["resources-finalizer.argocd.argoproj.io"][0m
+6m1s        Normal    OperationCompleted   application/altrupets-backend-dev                       Sync operation to 7f0389aea5c8dc55deeec82a7853550e579cca02 succeeded
+55s         Normal    OperationStarted     application/altrupets-backend-dev                       Initiated automated sync to [7f0389aea5c8dc55deeec82a7853550e579cca02]
+55s         Normal    ResourceUpdated      application/altrupets-backend-dev                       Updated sync status: Synced -> OutOfSync
+55s         Normal    ResourceUpdated      application/altrupets-backend-dev                       Updated health status: Progressing -> Missing
+[0;33m       ⏳ application/altrupets-backend-dev sigue presente (59s), finalizers=["resources-finalizer.argocd.argoproj.io"][0m
+6m6s        Normal    OperationCompleted   application/altrupets-backend-dev                       Sync operation to 7f0389aea5c8dc55deeec82a7853550e579cca02 succeeded
+60s         Normal    OperationStarted     application/altrupets-backend-dev                       Initiated automated sync to [7f0389aea5c8dc55deeec82a7853550e579cca02]
+60s         Normal    ResourceUpdated      application/altrupets-backend-dev                       Updated sync status: Synced -> OutOfSync
+60s         Normal    ResourceUpdated      application/altrupets-backend-dev                       Updated health status: Progressing -> Missing
+[0;33m       ⏳ application/altrupets-backend-dev sigue presente (64s), finalizers=["resources-finalizer.argocd.argoproj.io"][0m
+6m11s       Normal    OperationCompleted   application/altrupets-backend-dev                       Sync operation to 7f0389aea5c8dc55deeec82a7853550e579cca02 succeeded
+65s         Normal    OperationStarted     application/altrupets-backend-dev                       Initiated automated sync to [7f0389aea5c8dc55deeec82a7853550e579cca02]
+65s         Normal    ResourceUpdated      application/altrupets-backend-dev                       Updated sync status: Synced -> OutOfSync
+65s         Normal    ResourceUpdated      application/altrupets-backend-dev                       Updated health status: Progressing -> Missing
+[0;33m       ⏳ application/altrupets-backend-dev sigue presente (69s), finalizers=["resources-finalizer.argocd.argoproj.io"][0m
+6m17s       Normal    OperationCompleted   application/altrupets-backend-dev                       Sync operation to 7f0389aea5c8dc55deeec82a7853550e579cca02 succeeded
+71s         Normal    OperationStarted     application/altrupets-backend-dev                       Initiated automated sync to [7f0389aea5c8dc55deeec82a7853550e579cca02]
+71s         Normal    ResourceUpdated      application/altrupets-backend-dev                       Updated sync status: Synced -> OutOfSync
+71s         Normal    ResourceUpdated      application/altrupets-backend-dev                       Updated health status: Progressing -> Missing
+[0;33m       ⏳ application/altrupets-backend-dev sigue presente (75s), finalizers=["resources-finalizer.argocd.argoproj.io"][0m
+6m22s       Normal    OperationCompleted   application/altrupets-backend-dev                       Sync operation to 7f0389aea5c8dc55deeec82a7853550e579cca02 succeeded
+76s         Normal    OperationStarted     application/altrupets-backend-dev                       Initiated automated sync to [7f0389aea5c8dc55deeec82a7853550e579cca02]
+76s         Normal    ResourceUpdated      application/altrupets-backend-dev                       Updated sync status: Synced -> OutOfSync
+76s         Normal    ResourceUpdated      application/altrupets-backend-dev                       Updated health status: Progressing -> Missing
+[0;33m       ⏳ application/altrupets-backend-dev sigue presente (80s), finalizers=["resources-finalizer.argocd.argoproj.io"][0m
+6m27s       Normal    OperationCompleted   application/altrupets-backend-dev                       Sync operation to 7f0389aea5c8dc55deeec82a7853550e579cca02 succeeded
+81s         Normal    OperationStarted     application/altrupets-backend-dev                       Initiated automated sync to [7f0389aea5c8dc55deeec82a7853550e579cca02]
+81s         Normal    ResourceUpdated      application/altrupets-backend-dev                       Updated sync status: Synced -> OutOfSync
+81s         Normal    ResourceUpdated      application/altrupets-backend-dev                       Updated health status: Progressing -> Missing
+[0;33m       ⏳ application/altrupets-backend-dev sigue presente (86s), finalizers=["resources-finalizer.argocd.argoproj.io"][0m
+6m33s       Normal    OperationCompleted   application/altrupets-backend-dev                       Sync operation to 7f0389aea5c8dc55deeec82a7853550e579cca02 succeeded
+87s         Normal    OperationStarted     application/altrupets-backend-dev                       Initiated automated sync to [7f0389aea5c8dc55deeec82a7853550e579cca02]
+87s         Normal    ResourceUpdated      application/altrupets-backend-dev                       Updated sync status: Synced -> OutOfSync
+87s         Normal    ResourceUpdated      application/altrupets-backend-dev                       Updated health status: Progressing -> Missing
+[0;33m       ⏳ application/altrupets-backend-dev sigue presente (91s), finalizers=["resources-finalizer.argocd.argoproj.io"][0m
+6m39s       Normal    OperationCompleted   application/altrupets-backend-dev                       Sync operation to 7f0389aea5c8dc55deeec82a7853550e579cca02 succeeded
+93s         Normal    OperationStarted     application/altrupets-backend-dev                       Initiated automated sync to [7f0389aea5c8dc55deeec82a7853550e579cca02]
+93s         Normal    ResourceUpdated      application/altrupets-backend-dev                       Updated sync status: Synced -> OutOfSync
+93s         Normal    ResourceUpdated      application/altrupets-backend-dev                       Updated health status: Progressing -> Missing
+[0;33m       ⏳ application/altrupets-backend-dev sigue presente (97s), finalizers=["resources-finalizer.argocd.argoproj.io"][0m
+6m44s       Normal    OperationCompleted   application/altrupets-backend-dev                       Sync operation to 7f0389aea5c8dc55deeec82a7853550e579cca02 succeeded
+98s         Normal    OperationStarted     application/altrupets-backend-dev                       Initiated automated sync to [7f0389aea5c8dc55deeec82a7853550e579cca02]
+98s         Normal    ResourceUpdated      application/altrupets-backend-dev                       Updated sync status: Synced -> OutOfSync
+98s         Normal    ResourceUpdated      application/altrupets-backend-dev                       Updated health status: Progressing -> Missing
+[0;33m       ⏳ application/altrupets-backend-dev sigue presente (102s), finalizers=["resources-finalizer.argocd.argoproj.io"][0m
+6m49s       Normal    OperationCompleted   application/altrupets-backend-dev                       Sync operation to 7f0389aea5c8dc55deeec82a7853550e579cca02 succeeded
+103s        Normal    OperationStarted     application/altrupets-backend-dev                       Initiated automated sync to [7f0389aea5c8dc55deeec82a7853550e579cca02]
+103s        Normal    ResourceUpdated      application/altrupets-backend-dev                       Updated sync status: Synced -> OutOfSync
+103s        Normal    ResourceUpdated      application/altrupets-backend-dev                       Updated health status: Progressing -> Missing
+[0;33m       ⏳ application/altrupets-backend-dev sigue presente (107s), finalizers=["resources-finalizer.argocd.argoproj.io"][0m
+6m54s       Normal    OperationCompleted   application/altrupets-backend-dev                       Sync operation to 7f0389aea5c8dc55deeec82a7853550e579cca02 succeeded
+108s        Normal    OperationStarted     application/altrupets-backend-dev                       Initiated automated sync to [7f0389aea5c8dc55deeec82a7853550e579cca02]
+108s        Normal    ResourceUpdated      application/altrupets-backend-dev                       Updated sync status: Synced -> OutOfSync
+108s        Normal    ResourceUpdated      application/altrupets-backend-dev                       Updated health status: Progressing -> Missing
+[0;33m       ⏳ application/altrupets-backend-dev sigue presente (112s), finalizers=["resources-finalizer.argocd.argoproj.io"][0m
+6m59s       Normal    OperationCompleted   application/altrupets-backend-dev                       Sync operation to 7f0389aea5c8dc55deeec82a7853550e579cca02 succeeded
+113s        Normal    OperationStarted     application/altrupets-backend-dev                       Initiated automated sync to [7f0389aea5c8dc55deeec82a7853550e579cca02]
+113s        Normal    ResourceUpdated      application/altrupets-backend-dev                       Updated sync status: Synced -> OutOfSync
+113s        Normal    ResourceUpdated      application/altrupets-backend-dev                       Updated health status: Progressing -> Missing
+[0;33m       ⏳ application/altrupets-backend-dev sigue presente (117s), finalizers=["resources-finalizer.argocd.argoproj.io"][0m
+7m4s        Normal    OperationCompleted   application/altrupets-backend-dev                       Sync operation to 7f0389aea5c8dc55deeec82a7853550e579cca02 succeeded
+118s        Normal    OperationStarted     application/altrupets-backend-dev                       Initiated automated sync to [7f0389aea5c8dc55deeec82a7853550e579cca02]
+118s        Normal    ResourceUpdated      application/altrupets-backend-dev                       Updated sync status: Synced -> OutOfSync
+118s        Normal    ResourceUpdated      application/altrupets-backend-dev                       Updated health status: Progressing -> Missing
+[0;33m       ⏳ application/altrupets-backend-dev sigue presente (123s), finalizers=["resources-finalizer.argocd.argoproj.io"][0m
+7m10s       Normal    OperationCompleted   application/altrupets-backend-dev                       Sync operation to 7f0389aea5c8dc55deeec82a7853550e579cca02 succeeded
+2m4s        Normal    OperationStarted     application/altrupets-backend-dev                       Initiated automated sync to [7f0389aea5c8dc55deeec82a7853550e579cca02]
+2m4s        Normal    ResourceUpdated      application/altrupets-backend-dev                       Updated sync status: Synced -> OutOfSync
+2m4s        Normal    ResourceUpdated      application/altrupets-backend-dev                       Updated health status: Progressing -> Missing
+[0;33m       ⚠️  Timeout eliminando application/altrupets-backend-dev. Intentando limpiar finalizers...[0m
+[0;32m     ✓ application/altrupets-backend-dev eliminado[0m
+[0;33m     • Deleting appproject/altrupets-dev[0m
+[0;32m     ✓ appproject/altrupets-dev eliminado[0m
+[0;32m   - Limpieza ArgoCD finalizada[0m
+[0;32m   - Subpaso A completado[0m
+[0;34m   - Subpaso B: limpiar PostgreSQL dev (statefulset/secret/service)[0m
+[0;33m     • Deleting statefulset/postgres-dev[0m
+[0;33m     • Deleting service/postgres-dev-service[0m
+[0;33m     • Deleting secret/postgres-dev-secret[0m
+[0;33m     • Deleting PVCs (app=postgres)[0m
+       - pvc/postgres-data-postgres-dev-0
+[0;32m   - Subpaso B completado[0m
+[0;34m   - Subpaso C: eliminar namespace argocd[0m
+[0;34m🗑️  Eliminando namespace argocd...[0m
+[0;33m⏳ namespace/argocd estado=Terminating (0s)[0m
+[0;33m⏳ namespace/argocd estado=Terminating (6s)[0m
+[0;33m⏳ namespace/argocd estado=Terminating (11s)[0m
+[0;32m✅ namespace/argocd eliminado.[0m
+[0;32m   - Subpaso C completado[0m
+[0;32m✅ Reset HARD completado[0m
+[0;34m🧪 Verificando basura huérfana en altrupets-dev...[0m
+[0;34m   > kubectl get all -n altrupets-dev[0m
+No resources found in altrupets-dev namespace.
+[0;34m   > kubectl get cm,secret -n altrupets-dev[0m
+No resources found in altrupets-dev namespace.
+[0;34m   > kubectl get ns altrupets-dev[0m
+Error from server (NotFound): namespaces "altrupets-dev" not found
+[0;32m✅ Sin basura huérfana detectable en altrupets-dev.[0m
+[0;34m▶️  [2/4] Reset completado, iniciando bootstrap[0m
+[0;34m▶️  [3/4] Reprovisionando PostgreSQL (OpenTofu/Terraform)[0m
+[0;34m🚀 Deploying PostgreSQL to Minikube...[0m
+[0;32m✅ Minikube is already running[0m
+[0;34m📋 Configuring kubectl context...[0m
+Switched to context "minikube".
+[0;34m✅ Using OpenTofu[0m
+[0;32m🔐 Local secret loaded from /home/kvttvrsis/Documentos/GitHub/altrupets-monorepo/infrastructure/terraform/environments/dev/.env[0m
+[0;34m📝 Password is not stored in terraform.tfvars; passed via runtime variables.[0m
+[0;34m🔧 Initializing tofu...[0m
+
+[0m[1mInitializing the backend...[0m
+[0m[1mInitializing modules...[0m
+
+[0m[1mInitializing provider plugins...[0m
+- Reusing previous version of hashicorp/kubernetes from the dependency lock file
+- Using previously-installed hashicorp/kubernetes v2.38.0
+
+[0m[1m[32mOpenTofu has been successfully initialized![0m[32m[0m
+[0m[32m
+You may now begin working with OpenTofu. Try running "tofu plan" to see
+any changes that are required for your infrastructure. All OpenTofu commands
+should now work.
+
+If you ever set or change modules or backend configuration for OpenTofu,
+rerun this command to reinitialize your working directory. If you forget, other
+commands will detect it and remind you to do so if necessary.[0m
+[0;34m🚀 Applying tofu configuration...[0m
+[0m[1mmodule.postgres.kubernetes_secret.postgres: Refreshing state... [id=default/postgres-dev-secret][0m
+[0m[1mmodule.postgres.kubernetes_service.postgres: Refreshing state... [id=default/postgres-dev-service][0m
+[0m[1mmodule.postgres.kubernetes_service.postgres_nodeport[0]: Refreshing state... [id=default/postgres-dev-nodeport][0m
+[0m[1mmodule.postgres.kubernetes_stateful_set.postgres: Refreshing state... [id=default/postgres-dev][0m
+
+[1m[36mNote:[0m[1m Objects have changed outside of OpenTofu
+[0m
+OpenTofu detected the following changes made outside of OpenTofu since the
+last "tofu apply" which may have affected this plan:
+
+[1m  # module.postgres.kubernetes_secret.postgres[0m has been deleted
+[0m  [31m-[0m[0m resource "kubernetes_secret" "postgres" {
+      [31m-[0m[0m binary_data_wo                 = (write-only attribute) [90m-> null[0m[0m
+      [31m-[0m[0m data_wo                        = (write-only attribute) [90m-> null[0m[0m
+        id                             = "default/postgres-dev-secret"
+        [90m# (4 unchanged attributes hidden)[0m[0m
+
+      [31m-[0m[0m metadata {
+          [31m-[0m[0m name             = "postgres-dev-secret" [90m-> null[0m[0m
+            [90m# (4 unchanged attributes hidden)[0m[0m
+        }
+    }
+
+[1m  # module.postgres.kubernetes_service.postgres[0m has been deleted
+[0m  [31m-[0m[0m resource "kubernetes_service" "postgres" {
+        id                     = "default/postgres-dev-service"
+        [90m# (2 unchanged attributes hidden)[0m[0m
+
+      [31m-[0m[0m metadata {
+          [31m-[0m[0m name             = "postgres-dev-service" [90m-> null[0m[0m
+            [90m# (5 unchanged attributes hidden)[0m[0m
+        }
+
+        [90m# (1 unchanged block hidden)[0m[0m
+    }
+
+
+Unless you have made equivalent changes to your configuration, or ignored the
+relevant attributes using ignore_changes, the following plan may include
+actions to undo or respond to these changes.
+[90m
+─────────────────────────────────────────────────────────────────────────────[0m
+
+OpenTofu used the selected providers to generate the following execution
+plan. Resource actions are indicated with the following symbols:
+  [32m+[0m create[0m
+
+OpenTofu will perform the following actions:
+
+[1m  # module.postgres.kubernetes_secret.postgres[0m will be created
+[0m  [32m+[0m[0m resource "kubernetes_secret" "postgres" {
+      [32m+[0m[0m binary_data_wo                 = (write-only attribute)
+      [32m+[0m[0m data                           = (sensitive value)
+      [32m+[0m[0m data_wo                        = (write-only attribute)
+      [32m+[0m[0m id                             = (known after apply)
+      [32m+[0m[0m type                           = "Opaque"
+      [32m+[0m[0m wait_for_service_account_token = true
+
+      [32m+[0m[0m metadata {
+          [32m+[0m[0m generation       = (known after apply)
+          [32m+[0m[0m name             = "postgres-dev-secret"
+          [32m+[0m[0m namespace        = "default"
+          [32m+[0m[0m resource_version = (known after apply)
+          [32m+[0m[0m uid              = (known after apply)
+        }
+    }
+
+[1m  # module.postgres.kubernetes_service.postgres[0m will be created
+[0m  [32m+[0m[0m resource "kubernetes_service" "postgres" {
+      [32m+[0m[0m id                     = (known after apply)
+      [32m+[0m[0m status                 = (known after apply)
+      [32m+[0m[0m wait_for_load_balancer = true
+
+      [32m+[0m[0m metadata {
+          [32m+[0m[0m generation       = (known after apply)
+          [32m+[0m[0m labels           = {
+              [32m+[0m[0m "app" = "postgres"
+            }
+          [32m+[0m[0m name             = "postgres-dev-service"
+          [32m+[0m[0m namespace        = "default"
+          [32m+[0m[0m resource_version = (known after apply)
+          [32m+[0m[0m uid              = (known after apply)
+        }
+
+      [32m+[0m[0m spec {
+          [32m+[0m[0m allocate_load_balancer_node_ports = true
+          [32m+[0m[0m cluster_ip                        = (known after apply)
+          [32m+[0m[0m cluster_ips                       = (known after apply)
+          [32m+[0m[0m external_traffic_policy           = (known after apply)
+          [32m+[0m[0m health_check_node_port            = (known after apply)
+          [32m+[0m[0m internal_traffic_policy           = (known after apply)
+          [32m+[0m[0m ip_families                       = (known after apply)
+          [32m+[0m[0m ip_family_policy                  = (known after apply)
+          [32m+[0m[0m publish_not_ready_addresses       = false
+          [32m+[0m[0m selector                          = {
+              [32m+[0m[0m "app" = "postgres"
+            }
+          [32m+[0m[0m session_affinity                  = "None"
+          [32m+[0m[0m type                              = "ClusterIP"
+
+          [32m+[0m[0m port {
+              [32m+[0m[0m name        = "postgres"
+              [32m+[0m[0m node_port   = (known after apply)
+              [32m+[0m[0m port        = 5432
+              [32m+[0m[0m protocol    = "TCP"
+              [32m+[0m[0m target_port = "5432"
+            }
+
+          [32m+[0m[0m session_affinity_config (known after apply)
+        }
+    }
+
+[1m  # module.postgres.kubernetes_stateful_set.postgres[0m will be created
+[0m  [32m+[0m[0m resource "kubernetes_stateful_set" "postgres" {
+      [32m+[0m[0m id               = (known after apply)
+      [32m+[0m[0m wait_for_rollout = true
+
+      [32m+[0m[0m metadata {
+          [32m+[0m[0m generation       = (known after apply)
+          [32m+[0m[0m labels           = {
+              [32m+[0m[0m "app" = "postgres"
+            }
+          [32m+[0m[0m name             = "postgres-dev"
+          [32m+[0m[0m namespace        = "default"
+          [32m+[0m[0m resource_version = (known after apply)
+          [32m+[0m[0m uid              = (known after apply)
+        }
+
+      [32m+[0m[0m spec {
+          [32m+[0m[0m min_ready_seconds      = 0
+          [32m+[0m[0m pod_management_policy  = (known after apply)
+          [32m+[0m[0m replicas               = "1"
+          [32m+[0m[0m revision_history_limit = (known after apply)
+          [32m+[0m[0m service_name           = "postgres-dev-service"
+
+          [32m+[0m[0m persistent_volume_claim_retention_policy (known after apply)
+
+          [32m+[0m[0m selector {
+              [32m+[0m[0m match_labels = {
+                  [32m+[0m[0m "app" = "postgres"
+                }
+            }
+
+          [32m+[0m[0m template {
+              [32m+[0m[0m metadata {
+                  [32m+[0m[0m generation       = (known after apply)
+                  [32m+[0m[0m labels           = {
+                      [32m+[0m[0m "app" = "postgres"
+                    }
+                  [32m+[0m[0m name             = (known after apply)
+                  [32m+[0m[0m resource_version = (known after apply)
+                  [32m+[0m[0m uid              = (known after apply)
+                }
+              [32m+[0m[0m spec {
+                  [32m+[0m[0m automount_service_account_token  = true
+                  [32m+[0m[0m dns_policy                       = "ClusterFirst"
+                  [32m+[0m[0m enable_service_links             = true
+                  [32m+[0m[0m host_ipc                         = false
+                  [32m+[0m[0m host_network                     = false
+                  [32m+[0m[0m host_pid                         = false
+                  [32m+[0m[0m hostname                         = (known after apply)
+                  [32m+[0m[0m node_name                        = (known after apply)
+                  [32m+[0m[0m restart_policy                   = "Always"
+                  [32m+[0m[0m scheduler_name                   = (known after apply)
+                  [32m+[0m[0m service_account_name             = (known after apply)
+                  [32m+[0m[0m share_process_namespace          = false
+                  [32m+[0m[0m termination_grace_period_seconds = 30
+
+                  [32m+[0m[0m container {
+                      [32m+[0m[0m image                      = "postgres:15-alpine"
+                      [32m+[0m[0m image_pull_policy          = (known after apply)
+                      [32m+[0m[0m name                       = "postgres"
+                      [32m+[0m[0m stdin                      = false
+                      [32m+[0m[0m stdin_once                 = false
+                      [32m+[0m[0m termination_message_path   = "/dev/termination-log"
+                      [32m+[0m[0m termination_message_policy = (known after apply)
+                      [32m+[0m[0m tty                        = false
+
+                      [32m+[0m[0m env {
+                          [32m+[0m[0m name = "POSTGRES_USER"
+
+                          [32m+[0m[0m value_from {
+                              [32m+[0m[0m secret_key_ref {
+                                  [32m+[0m[0m key  = "username"
+                                  [32m+[0m[0m name = "postgres-dev-secret"
+                                }
+                            }
+                        }
+                      [32m+[0m[0m env {
+                          [32m+[0m[0m name = "POSTGRES_PASSWORD"
+
+                          [32m+[0m[0m value_from {
+                              [32m+[0m[0m secret_key_ref {
+                                  [32m+[0m[0m key  = "password"
+                                  [32m+[0m[0m name = "postgres-dev-secret"
+                                }
+                            }
+                        }
+                      [32m+[0m[0m env {
+                          [32m+[0m[0m name = "POSTGRES_DB"
+
+                          [32m+[0m[0m value_from {
+                              [32m+[0m[0m secret_key_ref {
+                                  [32m+[0m[0m key  = "database"
+                                  [32m+[0m[0m name = "postgres-dev-secret"
+                                }
+                            }
+                        }
+
+                      [32m+[0m[0m port {
+                          [32m+[0m[0m container_port = 5432
+                          [32m+[0m[0m name           = "postgres"
+                          [32m+[0m[0m protocol       = "TCP"
+                        }
+
+                      [32m+[0m[0m resources {
+                          [32m+[0m[0m limits   = {
+                              [32m+[0m[0m "cpu"    = "500m"
+                              [32m+[0m[0m "memory" = "512Mi"
+                            }
+                          [32m+[0m[0m requests = {
+                              [32m+[0m[0m "cpu"    = "100m"
+                              [32m+[0m[0m "memory" = "256Mi"
+                            }
+                        }
+
+                      [32m+[0m[0m volume_mount {
+                          [32m+[0m[0m mount_path        = "/var/lib/postgresql/data"
+                          [32m+[0m[0m mount_propagation = "None"
+                          [32m+[0m[0m name              = "postgres-data"
+                          [32m+[0m[0m read_only         = false
+                        }
+                    }
+
+                  [32m+[0m[0m image_pull_secrets (known after apply)
+
+                  [32m+[0m[0m readiness_gate (known after apply)
+                }
+            }
+
+          [32m+[0m[0m volume_claim_template {
+              [32m+[0m[0m metadata {
+                  [32m+[0m[0m generation       = (known after apply)
+                  [32m+[0m[0m name             = "postgres-data"
+                  [32m+[0m[0m namespace        = "default"
+                  [32m+[0m[0m resource_version = (known after apply)
+                  [32m+[0m[0m uid              = (known after apply)
+                }
+              [32m+[0m[0m spec {
+                  [32m+[0m[0m access_modes       = [
+                      [32m+[0m[0m "ReadWriteOnce",
+                    ]
+                  [32m+[0m[0m storage_class_name = "standard"
+                  [32m+[0m[0m volume_mode        = (known after apply)
+                  [32m+[0m[0m volume_name        = (known after apply)
+
+                  [32m+[0m[0m resources {
+                      [32m+[0m[0m requests = {
+                          [32m+[0m[0m "storage" = "10Gi"
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+[1mPlan:[0m 3 to add, 0 to change, 0 to destroy.
+[0m[0m[1mmodule.postgres.kubernetes_secret.postgres: Creating...[0m[0m
+[0m[1mmodule.postgres.kubernetes_service.postgres: Creating...[0m[0m
+[0m[1mmodule.postgres.kubernetes_secret.postgres: Creation complete after 0s [id=default/postgres-dev-secret][0m
+[0m[1mmodule.postgres.kubernetes_service.postgres: Creation complete after 0s [id=default/postgres-dev-service][0m
+[0m[1mmodule.postgres.kubernetes_stateful_set.postgres: Creating...[0m[0m
+[0m[1mmodule.postgres.kubernetes_stateful_set.postgres: Creation complete after 1s [id=default/postgres-dev][0m
+[0m[1m[32m
+Apply complete! Resources: 3 added, 0 changed, 0 destroyed.
+[0m[0m[1m[32m
+Outputs:
+
+[0mpostgres_nodeport_url = "localhost:30432"
+postgres_service_endpoint = "postgres-dev-service.default.svc.cluster.local:5432"
+[0;34m⏳ Waiting for PostgreSQL pod to be ready...[0m
+pod/postgres-dev-0 condition met
+[0;32m✅ PostgreSQL deployed successfully![0m
+
+[0;34m📊 Connection Information:[0m
+  Internal endpoint: [0;32mpostgres-dev-service.default.svc.cluster.local:5432[0m
+  External NodePort: [0;32mlocalhost:30432[0m
+
+[0;34m🔗 To access PostgreSQL externally (DBeaver, etc.):[0m
+  [0;32mminikube service postgres-dev-nodeport --url[0m
+
+[0;34m🔌 Or use port-forward:[0m
+  [0;32mkubectl port-forward svc/postgres-dev-service 5432:5432[0m
+
+[0;34m📝 Backend environment variables:[0m
+  [0;32mDB_HOST=postgres-dev-service[0m
+  [0;32mDB_PORT=5432[0m
+  [0;32mDB_NAME=altrupets_dev_database[0m
+  [0;32mDB_USERNAME=dev_demo_admin[0m
+[0;34m▶️  [4/4] Reinstalando ArgoCD y aplicación backend[0m
+[0;34m🚀 Installing/ensuring ArgoCD in Minikube...[0m
+namespace/argocd created
+customresourcedefinition.apiextensions.k8s.io/applications.argoproj.io serverside-applied
+customresourcedefinition.apiextensions.k8s.io/applicationsets.argoproj.io serverside-applied
+customresourcedefinition.apiextensions.k8s.io/appprojects.argoproj.io serverside-applied
+serviceaccount/argocd-application-controller serverside-applied
+serviceaccount/argocd-applicationset-controller serverside-applied
+serviceaccount/argocd-dex-server serverside-applied
+serviceaccount/argocd-notifications-controller serverside-applied
+serviceaccount/argocd-redis serverside-applied
+serviceaccount/argocd-repo-server serverside-applied
+serviceaccount/argocd-server serverside-applied
+role.rbac.authorization.k8s.io/argocd-application-controller serverside-applied
+role.rbac.authorization.k8s.io/argocd-applicationset-controller serverside-applied
+role.rbac.authorization.k8s.io/argocd-dex-server serverside-applied
+role.rbac.authorization.k8s.io/argocd-notifications-controller serverside-applied
+role.rbac.authorization.k8s.io/argocd-redis serverside-applied
+role.rbac.authorization.k8s.io/argocd-server serverside-applied
+clusterrole.rbac.authorization.k8s.io/argocd-application-controller serverside-applied
+clusterrole.rbac.authorization.k8s.io/argocd-applicationset-controller serverside-applied
+clusterrole.rbac.authorization.k8s.io/argocd-server serverside-applied
+rolebinding.rbac.authorization.k8s.io/argocd-application-controller serverside-applied
+rolebinding.rbac.authorization.k8s.io/argocd-applicationset-controller serverside-applied
+rolebinding.rbac.authorization.k8s.io/argocd-dex-server serverside-applied
+rolebinding.rbac.authorization.k8s.io/argocd-notifications-controller serverside-applied
+rolebinding.rbac.authorization.k8s.io/argocd-redis serverside-applied
+rolebinding.rbac.authorization.k8s.io/argocd-server serverside-applied
+clusterrolebinding.rbac.authorization.k8s.io/argocd-application-controller serverside-applied
+clusterrolebinding.rbac.authorization.k8s.io/argocd-applicationset-controller serverside-applied
+clusterrolebinding.rbac.authorization.k8s.io/argocd-server serverside-applied
+configmap/argocd-cm serverside-applied
+configmap/argocd-cmd-params-cm serverside-applied
+configmap/argocd-gpg-keys-cm serverside-applied
+configmap/argocd-notifications-cm serverside-applied
+configmap/argocd-rbac-cm serverside-applied
+configmap/argocd-ssh-known-hosts-cm serverside-applied
+configmap/argocd-tls-certs-cm serverside-applied
+secret/argocd-notifications-secret serverside-applied
+secret/argocd-secret serverside-applied
+service/argocd-applicationset-controller serverside-applied
+service/argocd-dex-server serverside-applied
+service/argocd-metrics serverside-applied
+service/argocd-notifications-controller-metrics serverside-applied
+service/argocd-redis serverside-applied
+service/argocd-repo-server serverside-applied
+service/argocd-server serverside-applied
+service/argocd-server-metrics serverside-applied
+deployment.apps/argocd-applicationset-controller serverside-applied
+deployment.apps/argocd-dex-server serverside-applied
+deployment.apps/argocd-notifications-controller serverside-applied
+deployment.apps/argocd-redis serverside-applied
+deployment.apps/argocd-repo-server serverside-applied
+deployment.apps/argocd-server serverside-applied
+statefulset.apps/argocd-application-controller serverside-applied
+networkpolicy.networking.k8s.io/argocd-application-controller-network-policy serverside-applied
+networkpolicy.networking.k8s.io/argocd-applicationset-controller-network-policy serverside-applied
+networkpolicy.networking.k8s.io/argocd-dex-server-network-policy serverside-applied
+networkpolicy.networking.k8s.io/argocd-notifications-controller-network-policy serverside-applied
+networkpolicy.networking.k8s.io/argocd-redis-network-policy serverside-applied
+networkpolicy.networking.k8s.io/argocd-repo-server-network-policy serverside-applied
+networkpolicy.networking.k8s.io/argocd-server-network-policy serverside-applied
+Waiting for deployment spec update to be observed...
+Waiting for deployment "argocd-server" rollout to finish: 0 of 1 updated replicas are available...
+deployment "argocd-server" successfully rolled out
+[0;34m🔐 Creating backend secret in namespace altrupets-dev...[0m
+namespace/altrupets-dev created
+[0;34m📝 DB credentials source: env[0m
+secret/backend-secret created
+[0;34m📦 Applying ArgoCD project...[0m
+appproject.argoproj.io/altrupets-dev created
+[0;34m📦 Applying ArgoCD application...[0m
+Warning: metadata.finalizers: "resources-finalizer.argocd.argoproj.io": prefer a domain-qualified finalizer name including a path (/) to avoid accidental conflicts with other finalizer writers
+application.argoproj.io/altrupets-backend-dev created
+[0;32m✅ ArgoCD bootstrapped for backend dev[0m
+[0;34mNext steps:[0m
+  1) Build image in Minikube runtime:
+     [0;32m./infrastructure/scripts/build-backend-image-minikube.sh[0m
+  2) Check app sync:
+     [0;32mkubectl -n argocd get applications[0m
+  3) Port-forward backend:
+     [0;32mkubectl -n altrupets-dev port-forward svc/backend-service 3001:3001[0m
+  4) ArgoCD admin password:
+     [0;32mkubectl -n argocd get secret argocd-initial-admin-secret -o jsonpath='{.data.password}' | base64 -d; echo[0m
+  5) Backend seed admin credentials (dev):
+     [0;32musername=dev_lapc506[0m
+     [0;32mpassword=[REDACTED][0m
+[0;32m✅ Reset + bootstrap completados.[0m

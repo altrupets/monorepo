@@ -4,11 +4,15 @@ set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PROJECT_ROOT="$(cd "$SCRIPT_DIR/../.." && pwd)"
+ENV_FILE="$PROJECT_ROOT/infrastructure/terraform/environments/dev/.env"
+LOG_DIR="$PROJECT_ROOT/logs/backend/reset"
 
 MODE="hard"
 SKIP_BOOTSTRAP=false
+DELETE_PVCS=false
 REPO_URL="${REPO_URL:-}"
 TARGET_REVISION="${TARGET_REVISION:-main}"
+LOG_FILE="${LOG_FILE:-}"
 
 GREEN='\033[0;32m'
 BLUE='\033[0;34m'
@@ -23,10 +27,22 @@ log_step() {
   echo -e "${BLUE}▶️  [${current}/${total}] ${message}${NC}"
 }
 
+init_logging() {
+  if [ -z "$LOG_FILE" ]; then
+    local ts
+    ts="$(date +%Y%m%d-%H%M%S)"
+    LOG_FILE="$LOG_DIR/altrupets-reset-dev-${ts}.log"
+  fi
+  mkdir -p "$(dirname "$LOG_FILE")"
+  touch "$LOG_FILE"
+  echo -e "${BLUE}🧾 Log file: ${LOG_FILE}${NC}"
+  exec > >(tee -a "$LOG_FILE") 2>&1
+}
+
 show_help() {
   cat <<EOF
 Uso:
-  ./infrastructure/scripts/reset-dev-cluster.sh [opciones]
+  ./infrastructure/scripts/reset-dev-cluster.sh [soft|hard|full] [opciones]
 
 Opciones:
   --mode soft|hard|full     Nivel de reset (default: hard)
@@ -36,11 +52,14 @@ Opciones:
   --repo-url URL            Repo para re-bootstrap ArgoCD (si no viene por env REPO_URL)
   --target-revision REF     Rama/tag para ArgoCD (default: main)
   --skip-bootstrap          Solo resetea, no reprovisiona/bootstrapea
+  --delete-pvcs             Borra PVCs de PostgreSQL (app=postgres)
   -h, --help                Muestra esta ayuda
 
 Ejemplos:
   REPO_URL=https://github.com/altrupets/monorepo.git \\
     ./infrastructure/scripts/reset-dev-cluster.sh --mode full
+
+  ./infrastructure/scripts/reset-dev-cluster.sh hard
 
   ./infrastructure/scripts/reset-dev-cluster.sh --mode soft --skip-bootstrap
 EOF
@@ -50,6 +69,14 @@ require_cmd() {
   if ! command -v "$1" >/dev/null 2>&1; then
     echo -e "${RED}❌ Comando requerido no encontrado: $1${NC}"
     exit 1
+  fi
+}
+
+read_env_var() {
+  local file="$1"
+  local key="$2"
+  if [ -f "$file" ]; then
+    sed -n "s/^${key}=//p" "$file" | tail -n 1
   fi
 }
 
@@ -84,14 +111,23 @@ parse_args() {
         SKIP_BOOTSTRAP=true
         shift
         ;;
+      --delete-pvcs)
+        DELETE_PVCS=true
+        shift
+        ;;
       -h|--help)
         show_help
         exit 0
         ;;
       *)
-        echo -e "${RED}❌ Opción desconocida: $1${NC}"
-        show_help
-        exit 1
+        if [[ "$1" == "soft" || "$1" == "hard" || "$1" == "full" ]]; then
+          MODE="$1"
+          shift
+        else
+          echo -e "${RED}❌ Opción desconocida: $1${NC}"
+          show_help
+          exit 1
+        fi
         ;;
     esac
   done
@@ -103,6 +139,7 @@ confirm_destructive_action() {
   echo -e "  ${GREEN}soft${NC}: borra namespace ${ORANGE}altrupets-dev${NC} y limpia Application/AppProject de ArgoCD."
   echo -e "  ${GREEN}hard${NC}: todo lo de soft + borra namespace ${ORANGE}argocd${NC} completo."
   echo -e "  ${GREEN}full${NC}: todo lo de hard + ejecuta ${ORANGE}minikube delete${NC} (elimina cluster Minikube local: control plane y nodo)."
+  echo -e "  ${GREEN}--delete-pvcs${NC}: opcional, borra PVCs con label ${ORANGE}app=postgres${NC}."
   echo
   echo -e "${ORANGE}Modo elegido: ${MODE}${NC}"
   echo -n "Para confirmar escribe exactamente: ${MODE} > "
@@ -200,9 +237,45 @@ reset_hard() {
   echo -e "${BLUE}   - Subpaso A: ejecutar reset_soft${NC}"
   reset_soft
   echo -e "${GREEN}   - Subpaso A completado${NC}"
-  echo -e "${BLUE}   - Subpaso B: eliminar namespace argocd${NC}"
-  delete_namespace_if_exists "argocd"
+  echo -e "${BLUE}   - Subpaso B: limpiar PostgreSQL dev (statefulset/secret/service)${NC}"
+  if kubectl -n default get statefulset postgres-dev >/dev/null 2>&1; then
+    echo -e "${ORANGE}     • Deleting statefulset/postgres-dev${NC}"
+    kubectl -n default delete statefulset postgres-dev --wait=false >/dev/null 2>&1 || true
+  else
+    echo -e "${ORANGE}     • statefulset/postgres-dev no existe${NC}"
+  fi
+  if kubectl -n default get svc postgres-dev-service >/dev/null 2>&1; then
+    echo -e "${ORANGE}     • Deleting service/postgres-dev-service${NC}"
+    kubectl -n default delete svc postgres-dev-service --wait=false >/dev/null 2>&1 || true
+  else
+    echo -e "${ORANGE}     • service/postgres-dev-service no existe${NC}"
+  fi
+  if kubectl -n default get secret postgres-dev-secret >/dev/null 2>&1; then
+    echo -e "${ORANGE}     • Deleting secret/postgres-dev-secret${NC}"
+    kubectl -n default delete secret postgres-dev-secret --wait=false >/dev/null 2>&1 || true
+  else
+    echo -e "${ORANGE}     • secret/postgres-dev-secret no existe${NC}"
+  fi
+  if [ "$DELETE_PVCS" = true ]; then
+    local pg_pvcs
+    pg_pvcs="$(kubectl -n default get pvc -l app=postgres --no-headers 2>/dev/null | awk '{print $1}')"
+    if [ -n "$pg_pvcs" ]; then
+      echo -e "${ORANGE}     • Deleting PVCs (app=postgres)${NC}"
+      while IFS= read -r pvc_name; do
+        [ -z "$pvc_name" ] && continue
+        echo -e "       - pvc/${pvc_name}"
+        kubectl -n default delete pvc "$pvc_name" --wait=false >/dev/null 2>&1 || true
+      done <<< "$pg_pvcs"
+    else
+      echo -e "${ORANGE}     • No PVCs con label app=postgres${NC}"
+    fi
+  else
+    echo -e "${ORANGE}     • PVCs no se borran (usa --delete-pvcs para eliminarlos)${NC}"
+  fi
   echo -e "${GREEN}   - Subpaso B completado${NC}"
+  echo -e "${BLUE}   - Subpaso C: eliminar namespace argocd${NC}"
+  delete_namespace_if_exists "argocd"
+  echo -e "${GREEN}   - Subpaso C completado${NC}"
   echo -e "${GREEN}✅ Reset HARD completado${NC}"
 }
 
@@ -252,8 +325,12 @@ run_bootstrap() {
   fi
 
   if [ -z "$REPO_URL" ]; then
+    REPO_URL="$(read_env_var "$ENV_FILE" "REPO_URL")"
+  fi
+
+  if [ -z "$REPO_URL" ]; then
     echo -e "${RED}❌ Falta REPO_URL para bootstrap de ArgoCD.${NC}"
-    echo -e "${ORANGE}Usa --repo-url o exporta REPO_URL.${NC}"
+    echo -e "${ORANGE}Usa --repo-url, exporta REPO_URL, o agrega REPO_URL en ${ENV_FILE}.${NC}"
     exit 1
   fi
 
@@ -263,6 +340,9 @@ run_bootstrap() {
   log_step 4 4 "Reinstalando ArgoCD y aplicación backend"
   REPO_URL="$REPO_URL" TARGET_REVISION="$TARGET_REVISION" \
     "$PROJECT_ROOT/infrastructure/scripts/setup-argocd-dev.sh"
+
+  echo -e "${BLUE}🐳 Construyendo imagen backend en Minikube...${NC}"
+  "$PROJECT_ROOT/infrastructure/scripts/build-backend-image-minikube.sh"
 
   echo -e "${GREEN}✅ Reset + bootstrap completados.${NC}"
 }
@@ -277,10 +357,15 @@ main() {
       exit 1
       ;;
   esac
+  if [[ "$MODE" == "hard" || "$MODE" == "full" ]] && [ "$SKIP_BOOTSTRAP" = true ]; then
+    echo -e "${RED}❌ ${MODE} requiere bootstrap. Quita --skip-bootstrap o usa mode=soft.${NC}"
+    exit 1
+  fi
 
   require_cmd kubectl
   require_cmd minikube
 
+  init_logging
   confirm_destructive_action
 
   echo -e "${BLUE}🧭 Iniciando reset dev cluster (mode=${MODE})...${NC}"

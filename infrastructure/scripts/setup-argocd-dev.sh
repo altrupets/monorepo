@@ -5,9 +5,11 @@ set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PROJECT_ROOT="$(cd "$SCRIPT_DIR/../.." && pwd)"
 ENV_FILE="$PROJECT_ROOT/infrastructure/terraform/environments/dev/.env"
+ENV_NAME="${ENV_NAME:-dev}"
 
 REPO_URL="${REPO_URL:-${1:-}}"
 TARGET_REVISION="${TARGET_REVISION:-main}"
+FORCE_DB_CREDENTIALS_PROMPT=false
 
 GREEN='\033[0;32m'
 BLUE='\033[0;34m'
@@ -20,6 +22,20 @@ require_cmd() {
     echo -e "${RED}❌ Required command not found: $1${NC}"
     exit 1
   fi
+}
+
+parse_args() {
+  while [[ $# -gt 0 ]]; do
+    case "$1" in
+      --force-db-credentials)
+        FORCE_DB_CREDENTIALS_PROMPT=true
+        shift
+        ;;
+      *)
+        shift
+        ;;
+    esac
+  done
 }
 
 read_env_var() {
@@ -54,42 +70,69 @@ read_k8s_secret() {
   kubectl -n "$namespace" get secret "$secret_name" -o "jsonpath={.data.${key}}" 2>/dev/null | base64 -d 2>/dev/null || true
 }
 
-prompt_password() {
+prompt_db_credentials() {
+  local username=""
   local password=""
 
   if command -v zenity >/dev/null 2>&1 && [ -n "${DISPLAY:-}" ]; then
-    password="$(zenity --password --title='AltruPets PostgreSQL Secret' 2>/dev/null || true)"
+    local form
+    form="$(zenity --forms --title='AltruPets PostgreSQL Credentials' \
+      --text='Define usuario y contraseña PostgreSQL para backend-secret' \
+      --add-entry='Usuario PostgreSQL' \
+      --add-password='Contraseña PostgreSQL' 2>/dev/null || true)"
+    username="$(printf '%s' "$form" | cut -d '|' -f1)"
+    password="$(printf '%s' "$form" | cut -d '|' -f2)"
+  elif command -v kdialog >/dev/null 2>&1 && [ -n "${DISPLAY:-}" ]; then
+    username="$(kdialog --inputbox 'Define el usuario PostgreSQL para backend-secret' 2>/dev/null || true)"
+    password="$(kdialog --password 'Define la contraseña del usuario PostgreSQL para backend-secret' 2>/dev/null || true)"
+  fi
+
+  if [ -z "$username" ]; then
+    read -rp "Define el usuario PostgreSQL para backend-secret: " username
   fi
 
   if [ -z "$password" ]; then
-    read -rsp "Enter PostgreSQL password for backend-secret: " password
+    read -rsp "Define la contraseña del usuario PostgreSQL para backend-secret: " password
     echo
   fi
 
-  echo "$password"
+  printf "%s\n%s" "$username" "$password"
 }
 
-prompt_admin_seed_password() {
+prompt_admin_seed_credentials() {
+  local username=""
   local password=""
 
   if command -v zenity >/dev/null 2>&1 && [ -n "${DISPLAY:-}" ]; then
-    password="$(zenity --password --title='AltruPets Admin Seed Password' \
-      --text='Define la contraseña para dev_demo_admin' 2>/dev/null || true)"
+    local form
+    form="$(zenity --forms --title='AltruPets App Seed Admin' \
+      --text='Seed admin = usuario inicial de la app (no ArgoCD).' \
+      --add-entry='Usuario' \
+      --add-password='Contraseña' 2>/dev/null || true)"
+    username="$(printf '%s' "$form" | cut -d '|' -f1)"
+    password="$(printf '%s' "$form" | cut -d '|' -f2)"
   elif command -v kdialog >/dev/null 2>&1 && [ -n "${DISPLAY:-}" ]; then
-    password="$(kdialog --password 'Define la contraseña para dev_demo_admin' 2>/dev/null || true)"
+    username="$(kdialog --inputbox 'Seed admin = usuario inicial de la app (no ArgoCD). Usuario:' 2>/dev/null || true)"
+    password="$(kdialog --password 'Seed admin = usuario inicial de la app (no ArgoCD). Contraseña:' 2>/dev/null || true)"
+  fi
+
+  if [ -z "$username" ]; then
+    read -rp "Seed admin = usuario inicial de la app (no ArgoCD). Usuario: " username
   fi
 
   if [ -z "$password" ]; then
-    read -rsp "Define la contraseña para dev_demo_admin: " password
+    read -rsp "Seed admin = usuario inicial de la app (no ArgoCD). Contraseña: " password
     echo
   fi
 
-  echo "$password"
+  printf "%s\n%s" "$username" "$password"
 }
 
 require_cmd kubectl
 require_cmd minikube
 require_cmd openssl
+
+parse_args "$@"
 
 if ! minikube status >/dev/null 2>&1; then
   echo -e "${RED}❌ Minikube is not running. Start it first.${NC}"
@@ -122,9 +165,27 @@ SEED_ADMIN_USERNAME="${SEED_ADMIN_USERNAME:-$(read_env_var "$ENV_FILE" "SEED_ADM
 SEED_ADMIN_PASSWORD="${SEED_ADMIN_PASSWORD:-$(read_env_var "$ENV_FILE" "SEED_ADMIN_PASSWORD")}"
 ENABLE_ADMIN_SEED="${ENABLE_ADMIN_SEED:-true}"
 
+DB_CREDS_SOURCE="env"
+
+if [ "$FORCE_DB_CREDENTIALS_PROMPT" = true ]; then
+  DB_CREDS_SOURCE="prompt"
+  creds="$(prompt_db_credentials)"
+  DB_USERNAME="$(printf '%s' "$creds" | sed -n '1p')"
+  DB_PASSWORD="$(printf '%s' "$creds" | sed -n '2p')"
+fi
+
 if [ -z "${DB_PASSWORD}" ]; then
   echo -e "${ORANGE}⚠️  DB_PASSWORD not found in $ENV_FILE${NC}"
-  DB_PASSWORD="$(prompt_password)"
+  if [ -z "${DB_USERNAME}" ]; then
+    echo -e "${ORANGE}⚠️  POSTGRES_USERNAME not found in $ENV_FILE${NC}"
+    creds="$(prompt_db_credentials)"
+    DB_USERNAME="$(printf '%s' "$creds" | sed -n '1p')"
+    DB_PASSWORD="$(printf '%s' "$creds" | sed -n '2p')"
+    DB_CREDS_SOURCE="prompt"
+  else
+    DB_PASSWORD="$(prompt_db_credentials | sed -n '2p')"
+    DB_CREDS_SOURCE="prompt"
+  fi
 fi
 
 if [ -z "${DB_PASSWORD}" ]; then
@@ -137,7 +198,7 @@ if [ -z "${DB_USERNAME}" ]; then
 fi
 
 if [ -z "${DB_NAME}" ]; then
-  DB_NAME="altrupets_user_management"
+  DB_NAME="altrupets_${ENV_NAME}_database"
 fi
 
 POSTGRES_SECRET_PASSWORD="$(read_k8s_secret "default" "postgres-dev-secret" "password")"
@@ -146,10 +207,12 @@ POSTGRES_SECRET_DATABASE="$(read_k8s_secret "default" "postgres-dev-secret" "dat
 
 if [ -n "${POSTGRES_SECRET_PASSWORD}" ] && [ -z "${DB_PASSWORD}" ]; then
   DB_PASSWORD="${POSTGRES_SECRET_PASSWORD}"
+  DB_CREDS_SOURCE="cluster-secret"
 fi
 
 if [ -n "${POSTGRES_SECRET_USERNAME}" ] && [ -z "${DB_USERNAME}" ]; then
   DB_USERNAME="${POSTGRES_SECRET_USERNAME}"
+  DB_CREDS_SOURCE="cluster-secret"
 fi
 
 if [ -n "${POSTGRES_SECRET_DATABASE}" ] && [ -z "${DB_NAME}" ]; then
@@ -164,11 +227,17 @@ if [ -z "${JWT_SECRET}" ]; then
 fi
 
 if [ "$ENABLE_ADMIN_SEED" = "true" ]; then
+  if [ -z "${SEED_ADMIN_USERNAME}" ] || [ -z "${SEED_ADMIN_PASSWORD}" ]; then
+    creds="$(prompt_admin_seed_credentials)"
+    if [ -z "${SEED_ADMIN_USERNAME}" ]; then
+      SEED_ADMIN_USERNAME="$(printf '%s' "$creds" | sed -n '1p')"
+    fi
+    if [ -z "${SEED_ADMIN_PASSWORD}" ]; then
+      SEED_ADMIN_PASSWORD="$(printf '%s' "$creds" | sed -n '2p')"
+    fi
+  fi
   if [ -z "${SEED_ADMIN_USERNAME}" ]; then
     SEED_ADMIN_USERNAME="dev_demo_admin"
-  fi
-  if [ -z "${SEED_ADMIN_PASSWORD}" ]; then
-    SEED_ADMIN_PASSWORD="$(prompt_admin_seed_password)"
   fi
   if [ -z "${SEED_ADMIN_PASSWORD}" ]; then
     echo -e "${RED}❌ Debes definir la contraseña para ${SEED_ADMIN_USERNAME}.${NC}"
@@ -180,9 +249,13 @@ if [ "$ENABLE_ADMIN_SEED" = "true" ]; then
   fi
 fi
 
+echo -e "${BLUE}📝 DB credentials source: ${DB_CREDS_SOURCE}${NC}"
+
 kubectl -n altrupets-dev create secret generic backend-secret \
   --from-literal=DB_USERNAME="${DB_USERNAME}" \
   --from-literal=DB_PASSWORD="${DB_PASSWORD}" \
+  --from-literal=DB_NAME="${DB_NAME}" \
+  --from-literal=ENV_NAME="${ENV_NAME}" \
   --from-literal=JWT_SECRET="${JWT_SECRET}" \
   --from-literal=SEED_ADMIN="${ENABLE_ADMIN_SEED}" \
   --from-literal=SEED_ADMIN_USERNAME="${SEED_ADMIN_USERNAME:-}" \
@@ -231,5 +304,5 @@ echo -e "     ${GREEN}kubectl -n argocd get secret argocd-initial-admin-secret -
 if [ "$ENABLE_ADMIN_SEED" = "true" ]; then
   echo -e "  5) Backend seed admin credentials (dev):"
   echo -e "     ${GREEN}username=${SEED_ADMIN_USERNAME}${NC}"
-  echo -e "     ${GREEN}password=${SEED_ADMIN_PASSWORD}${NC}"
+  echo -e "     ${GREEN}password=[REDACTED]${NC}"
 fi

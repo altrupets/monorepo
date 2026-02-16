@@ -1,0 +1,119 @@
+[0;34m♻️  --backend-redeploy-argo: reconstruyendo imagen backend...[0m
+[0;34m🐳 Building backend image for Minikube: altrupets-backend:dev[0m
+#0 building with "default" instance using docker driver
+
+#1 [internal] load build definition from Dockerfile
+#1 transferring dockerfile: 402B done
+#1 DONE 0.0s
+
+#2 [internal] load metadata for docker.io/library/node:20-alpine
+#2 DONE 0.7s
+
+#3 [internal] load .dockerignore
+#3 transferring context: 2B done
+#3 DONE 0.0s
+
+#4 [builder 1/6] FROM docker.io/library/node:20-alpine@sha256:09e2b3d9726018aecf269bd35325f46bf75046a643a66d28360ec71132750ec8
+#4 DONE 0.0s
+
+#5 [internal] load build context
+#5 transferring context: 217.80MB 3.5s done
+#5 DONE 3.5s
+
+#6 [builder 6/6] RUN npm run build && npm prune --omit=dev
+#6 CACHED
+
+#7 [builder 5/6] COPY . .
+#7 CACHED
+
+#8 [stage-1 3/5] COPY --from=builder /app/node_modules ./node_modules
+#8 CACHED
+
+#9 [builder 3/6] COPY package*.json ./
+#9 CACHED
+
+#10 [stage-1 4/5] COPY --from=builder /app/dist ./dist
+#10 CACHED
+
+#11 [builder 2/6] WORKDIR /app
+#11 CACHED
+
+#12 [builder 4/6] RUN npm ci
+#12 CACHED
+
+#13 [stage-1 5/5] COPY --from=builder /app/package*.json ./
+#13 CACHED
+
+#14 exporting to image
+#14 exporting layers done
+#14 writing image sha256:c2ca9500ce8d2477405af0f4d131f36f9f181448618d4e447c828227607355a0 done
+#14 naming to docker.io/library/altrupets-backend:dev done
+#14 DONE 0.0s
+[0;32m✅ Image built in Minikube runtime: altrupets-backend:dev[0m
+[0;34mTip:[0m para aplicar cambios en este repo (GitOps), usa:
+  ./launch_debug.sh --linux --backend-redeploy-argo
+[0;34mFallback imperativo (solo troubleshooting):[0m
+  ./launch_debug.sh --linux --backend-rollout-restart
+[0;34m♻️  --backend-redeploy-argo: solicitando refresh=hard a ArgoCD app...[0m
+[0;34m♻️  --backend-redeploy-argo: solicitando sync a ArgoCD app...[0m
+[0;34m🔎 Verificando backend en Kubernetes (intento 1/5)...[0m
+deployment "backend" successfully rolled out
+[0;32m✅ Logs de backend abiertos en nueva terminal (gnome-terminal).[0m
+[0;34m🔌 Iniciando port-forward backend: localhost:3001 -> svc/backend-service:3001[0m
+🧹 flutter pub get...
+Resolving dependencies...
+Downloading packages...
+  _fe_analyzer_shared 85.0.0 (94.0.0 available)
+  analyzer 7.7.1 (10.0.2 available)
+  build 2.5.4 (4.0.4 available)
+  build_config 1.1.2 (1.2.0 available)
+  build_resolvers 2.5.4 (3.0.4 available)
+  build_runner 2.5.4 (2.11.1 available)
+  build_runner_core 9.1.2 (9.3.2 available)
+  connectivity_plus 6.1.5 (7.0.0 available)
+  dart_style 3.1.1 (3.1.5 available)
+  flutter_riverpod 2.6.1 (3.2.1 available)
+  flutter_secure_storage 9.2.4 (10.0.0 available)
+  flutter_secure_storage_linux 1.2.3 (3.0.0 available)
+  flutter_secure_storage_macos 3.1.3 (4.0.0 available)
+  flutter_secure_storage_platform_interface 1.1.2 (2.0.1 available)
+  flutter_secure_storage_web 1.2.1 (2.1.0 available)
+  flutter_secure_storage_windows 3.1.2 (4.1.0 available)
+  freezed 2.5.8 (3.2.5 available)
+  freezed_annotation 2.4.4 (3.1.0 available)
+  geolocator 11.1.0 (14.0.2 available)
+  geolocator_android 4.6.2 (5.0.2 available)
+  geolocator_web 3.0.0 (4.1.3 available)
+  google_fonts 6.3.3 (8.0.1 available)
+  gql_dedupe_link 2.0.4-alpha+1715521079596 (4.0.0 available)
+  internet_connection_checker 1.0.0+1 (3.0.1 available)
+  js 0.6.7 (0.7.2 available)
+  json_annotation 4.9.0 (4.10.0 available)
+  json_serializable 6.9.5 (6.12.0 available)
+  meta 1.17.0 (1.18.1 available)
+  mockito 5.4.6 (5.6.3 available)
+  normalize 0.9.1 (0.10.0 available)
+  permission_handler 11.4.0 (12.0.1 available)
+  permission_handler_android 12.1.0 (13.0.1 available)
+  riverpod 2.6.1 (3.2.1 available)
+  source_gen 2.0.0 (4.2.0 available)
+  source_helper 1.3.7 (1.3.10 available)
+Got dependencies!
+35 packages have newer versions incompatible with dependency constraints.
+Try `flutter pub outdated` for more information.
+[0;32m🚀 Ejecutando en Linux desktop...[0m
+Launching lib/main.dart on Linux in debug mode...
+Building Linux application...                                   
+✓ Built build/linux/x64/debug/bundle/altrupets
+Syncing files to device Linux...                                   118ms
+
+Flutter run key commands.
+r Hot reload. 🔥🔥🔥
+R Hot restart.
+h List all available interactive commands.
+d Detach (terminate "flutter run" but leave application running).
+c Clear the screen
+q Quit (terminate the application on the device).
+
+A Dart VM Service on Linux is available at: http://127.0.0.1:35115/8DxW6FxrS2w=/
+The Flutter DevTools debugger and profiler on Linux is available at: http://127.0.0.1:35115/8DxW6FxrS2w=/devtools/?uri=ws://127.0.0.1:35115/8DxW6FxrS2w=/ws

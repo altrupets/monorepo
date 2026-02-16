@@ -1,0 +1,6 @@
+[0;34m🔎 Verificando backend en Kubernetes (intento 1/5)...[0m
+Waiting for deployment "backend" rollout to finish: 0 of 1 updated replicas are available...
+error: timed out waiting for the condition
+[0;33m⚠️  El backend no está Ready. Revisando causa...[0m
+[0;33m⚠️  Reason actual del contenedor: ErrImageNeverPull[0m
+[0;34m🔎 Verificando backend en Kubernetes (intento 2/5)...[0m

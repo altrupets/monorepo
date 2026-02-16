@@ -109,7 +109,7 @@ Ejemplo:
 ```bash
 DB_PASSWORD=tu-password-seguro-aqui
 POSTGRES_USERNAME=postgres
-POSTGRES_DATABASE=altrupets_user_management
+POSTGRES_DATABASE=altrupets_dev_database
 ```
 
 ## Outputs

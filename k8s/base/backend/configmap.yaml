@@ -9,4 +9,3 @@ data:
   PORT: "3001"
   DB_HOST: "postgres-dev-service.default.svc.cluster.local"
   DB_PORT: "5432"
-  DB_NAME: "altrupets_user_management"
