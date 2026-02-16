@@ -1,90 +1,190 @@
 #!/bin/bash
 
 # ==============================================================================
-# AltruPets - Debug Launch Script (Multi-Device Support)
+# AltruPets - Debug Launch Script (Android + Linux Desktop)
 # ==============================================================================
 
-# Navegar a la carpeta de la app
-cd apps/mobile || exit 1
+set -e
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+cd "$SCRIPT_DIR"
 
-# Colores para el output
 GREEN='\033[0;32m'
 BLUE='\033[0;34m'
 ORANGE='\033[0;33m'
 RED='\033[0;31m'
-NC='\033[0m' # No Color
+NC='\033[0m'
 
-# Definición de IDs de dispositivos
-EMULATOR_ID="emulator-5554"
-# ID del Xiaomi detectado: 863d005830483132385106b616f8bb
-PHYSICAL_DEVICE_ID="863d005830483132385106b616f8bb"
+MOBILE_DIR="apps/mobile"
+WIDGETBOOK_DIR="apps/widgetbook"
 
-# Función de ayuda
+# ─── Helpers ──────────────────────────────────────────────────────────────────
+
+_get_id_from_line() {
+    awk -F' • ' '{print $2}' | tr -d ' \t'
+}
+
+get_android_emulator_id() {
+    flutter devices 2>/dev/null | grep -E 'emulator|Emulator' | head -1 | _get_id_from_line
+}
+
+get_android_device_id() {
+    flutter devices 2>/dev/null | grep -i android | grep -v -i emulator | head -1 | _get_id_from_line
+}
+
+# ─── OS Detection ─────────────────────────────────────────────────────────────
+
+OS_NAME="$(uname -s)"
+DESKTOP_TARGET="linux"
+DESKTOP_LABEL="Linux desktop"
+
+case "${OS_NAME}" in
+    Linux*)     DESKTOP_TARGET="linux";   DESKTOP_LABEL="Linux desktop" ;;
+    Darwin*)    DESKTOP_TARGET="macos";   DESKTOP_LABEL="macOS desktop" ;;
+    CYGWIN*|MINGW*|MSYS*) DESKTOP_TARGET="windows"; DESKTOP_LABEL="Windows desktop" ;;
+    *)          DESKTOP_TARGET="linux";   DESKTOP_LABEL="Linux desktop" ;;
+esac
+
+# ─── Help ─────────────────────────────────────────────────────────────────────
+
 show_help() {
     echo "Uso: ./launch_debug.sh [OPCIÓN]"
     echo ""
-    echo "Opciones:"
-    echo "  -e, --emulator    Lanzar en el emulador de Android"
-    echo "  -d, --device      Lanzar en el teléfono Xiaomi físico"
-    echo "  -h, --help        Mostrar esta ayuda"
+    echo "  Desktop:"
+    echo "    -l, --linux       Lanzar en $DESKTOP_LABEL (pruebas rápidas)"
     echo ""
-    echo "Si no se pasa ninguna opción, el script mostrará un menú interactivo."
+    echo "  Android:"
+    echo "    -e, --emulator    Lanzar en emulador Android"
+    echo "    -d, --device      Lanzar en dispositivo Android físico"
+    echo ""
+    echo "  Widgetbook:"
+    echo "    -w, --widgetbook  Lanzar Widgetbook en Chrome"
+    echo ""
+    echo "  Opciones Globales:"
+    echo "    --dirty           Saltar 'flutter clean' (útil en Android)"
+    echo "    -h, --help        Mostrar esta ayuda"
 }
 
-# Parsear argumentos
-TARGET_MODE=""
-if [[ "$1" == "-e" || "$1" == "--emulator" ]]; then
-    TARGET_MODE="EMULATOR"
-elif [[ "$1" == "-d" || "$1" == "--device" ]]; then
-    TARGET_MODE="DEVICE"
-elif [[ "$1" == "-h" || "$1" == "--help" ]]; then
-    show_help
-    exit 0
-fi
+# ─── Parse args ───────────────────────────────────────────────────────────────
 
-# Selección interactiva si no hay argumentos
-if [ -z "$TARGET_MODE" ]; then
-    echo -e "${BLUE}📱 Selecciona el destino de compilación:${NC}"
-    echo "1) Emulador (Android Studio)"
-    echo "2) Teléfono Xiaomi (Hardware)"
-    read -p "Opción [1-2]: " choice
+TARGET=""
+DEVICE_ID=""
+DIRTY=false
+
+# Parsear todos los argumentos
+while [[ $# -gt 0 ]]; do
+    case "$1" in
+        -l|--linux)
+            TARGET="desktop"
+            shift
+            ;;
+        -e|--emulator)
+            TARGET="android"
+            DEVICE_ID=$(get_android_emulator_id)
+            shift
+            ;;
+        -d|--device)
+            TARGET="android"
+            DEVICE_ID=$(get_android_device_id)
+            shift
+            ;;
+        -w|--widgetbook)
+            TARGET="widgetbook"
+            shift
+            ;;
+        --dirty)
+            DIRTY=true
+            shift
+            ;;
+        -h|--help)
+            show_help
+            exit 0
+            ;;
+        *)
+            # Si no es una opción conocida y no hemos asignado TARGET, 
+            # podría ser un parámetro erróneo o el inicio del menú interactivo.
+            if [[ "$1" == -* ]]; then
+                echo -e "${RED}Opción desconocida: $1${NC}"
+                show_help
+                exit 1
+            fi
+            break # Salir del loop si es texto plano (para el menú interactivo)
+            ;;
+    esac
+done
+
+# Post-parsing logic
+if [ -z "$TARGET" ]; then
+    # Menú interactivo
+    echo -e "${BLUE}📱 AltruPets — Selecciona destino:${NC}"
+    echo "  1) 🖥️  $DESKTOP_LABEL (prueba rápida)"
+    echo "  2) 📱 Emulador Android"
+    echo "  3) 📲 Dispositivo Android físico"
+    echo "  4) 📖 Widgetbook (catálogo de widgets)"
+    read -rp "Opción [1-4]: " choice
     case $choice in
-        1) TARGET_MODE="EMULATOR" ;;
-        2) TARGET_MODE="DEVICE" ;;
+        1) TARGET="desktop" ;;
+        2)
+            TARGET="android"
+            DEVICE_ID=$(get_android_emulator_id)
+            if [ -z "$DEVICE_ID" ]; then
+                echo -e "${ORANGE}⚠️  Emulador no activo. Intentando lanzar...${NC}"
+                flutter emulators --launch "$(flutter emulators 2>/dev/null | grep 'id:' | head -1 | sed 's/.*id: \([^ ]*\).*/\1/')" 2>/dev/null || true
+                sleep 5
+                DEVICE_ID=$(get_android_emulator_id)
+            fi
+            ;;
+        3)
+            TARGET="android"
+            DEVICE_ID=$(get_android_device_id)
+            ;;
+        4) TARGET="widgetbook" ;;
         *) echo -e "${RED}❌ Opción inválida.${NC}"; exit 1 ;;
     esac
 fi
 
-# Configurar el DEVICE_ID según la selección
-if [ "$TARGET_MODE" == "EMULATOR" ]; then
-    DEVICE_ID="$EMULATOR_ID"
-    # Verificar si el emulador está corriendo
-    if ! flutter devices | grep -q "$EMULATOR_ID"; then
-        echo -e "${ORANGE}⚠️  El emulador no está activo. Intentando lanzarlo...${NC}"
-        flutter emulators --launch Medium_Phone_API_36.1
-        echo "⏳ Esperando a que el emulador se inicie (10s)..."
-        sleep 10
-    fi
-else
-    DEVICE_ID="$PHYSICAL_DEVICE_ID"
-    # Verificar permisos ( troubleshooting tips )
-    if flutter devices | grep "$DEVICE_ID" | grep -q "unsupported"; then
-        echo -e "${RED}❌ ERROR DE PERMISOS ADB:${NC}"
-        echo "Asegúrate de haber aceptado el diálogo 'Permitir depuración USB' en tu Xiaomi."
-        echo "Si ya lo hiciste y sigue fallando, intenta reconectar el cable."
-        echo -e "${ORANGE}💡 Nota:${NC} Estás en el grupo 'plugdev', reinicia tu sesión de terminal si acabas de ser añadido."
-        exit 1
-    fi
+# Validación final por plataforma
+if [ "$TARGET" = "android" ] && [ -z "$DEVICE_ID" ]; then
+    echo -e "${RED}❌ No se detectó dispositivo o emulador Android.${NC}"
+    echo "Conecta tu dispositivo USB o inicia un emulador."
+    flutter devices
+    exit 1
 fi
 
-echo -e "${GREEN}🚀 Destino seleccionado: $DEVICE_ID ($TARGET_MODE)${NC}"
+# ─── Execute ──────────────────────────────────────────────────────────────────
 
-echo "🧹 Limpiando caché de construcción..."
-flutter clean
-flutter pub get
-
-echo "🏗️  Iniciando compilación debug para $TARGET_MODE..."
-flutter build apk --debug
-
-echo "📲 Ejecutando aplicación..."
-flutter run -d "$DEVICE_ID"
+if [ "$TARGET" = "widgetbook" ]; then
+    echo -e "${BLUE}📖 AltruPets Widgetbook${NC}"
+    cd "$WIDGETBOOK_DIR"
+    echo "🧹 flutter pub get..."
+    flutter pub get
+    echo "⚙️  Generando directorios (build_runner)..."
+    dart run build_runner build -d
+    # Intentar Chrome, si no está disponible usar escritorio nativo
+    if flutter devices 2>/dev/null | grep -qi chrome; then
+        echo -e "${GREEN}🚀 Abriendo Widgetbook en Chrome...${NC}"
+        flutter run -d chrome
+    else
+        echo -e "${ORANGE}⚠️  Chrome no disponible como dispositivo Flutter.${NC}"
+        echo -e "${GREEN}🚀 Abriendo Widgetbook en $DESKTOP_LABEL...${NC}"
+        flutter run -d "$DESKTOP_TARGET"
+    fi
+elif [ "$TARGET" = "desktop" ]; then
+    echo -e "${BLUE}🖥️  AltruPets – $DESKTOP_LABEL Debug${NC}"
+    cd "$MOBILE_DIR"
+    echo "🧹 flutter pub get..."
+    flutter pub get
+    echo -e "${GREEN}🚀 Ejecutando en $DESKTOP_LABEL...${NC}"
+    flutter run -d "$DESKTOP_TARGET"
+elif [ "$TARGET" = "android" ]; then
+    echo -e "${BLUE}📱 AltruPets – Android Debug ($DEVICE_ID)${NC}"
+    cd "$MOBILE_DIR"
+    if [ "$DIRTY" = false ]; then
+        echo "🧹 Limpiando caché de construcción..."
+        flutter clean
+    else
+        echo "🚀 Modo DIRTY: Saltando limpieza..."
+    fi
+    flutter pub get
+    echo -e "${GREEN}🚀 Ejecutando en Android ($DEVICE_ID)...${NC}"
+    flutter run -d "$DEVICE_ID"
+fi

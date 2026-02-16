@@ -1,0 +1,21 @@
+Analyzing widgetbook...                                         
+
+   info • 'CorePalette' is deprecated and shouldn't be used. Use [DynamicScheme] for color scheme generation.Use [CorePalettes] for core palettes container class • lib/showcase/design_system_state.dart:156:14 • deprecated_member_use
+   info • 'CorePalette' is deprecated and shouldn't be used. Use [DynamicScheme] for color scheme generation.Use [CorePalettes] for core palettes container class • lib/showcase/design_system_state.dart:157:14 • deprecated_member_use
+   info • 'CorePalette' is deprecated and shouldn't be used. Use [DynamicScheme] for color scheme generation.Use [CorePalettes] for core palettes container class • lib/showcase/design_system_state.dart:158:14 • deprecated_member_use
+   info • 'CorePalette' is deprecated and shouldn't be used. Use [DynamicScheme] for color scheme generation.Use [CorePalettes] for core palettes container class • lib/showcase/design_system_state.dart:159:14 • deprecated_member_use
+   info • 'CorePalette' is deprecated and shouldn't be used. Use [DynamicScheme] for color scheme generation.Use [CorePalettes] for core palettes container class • lib/showcase/design_system_state.dart:160:14 • deprecated_member_use
+warning • Unused import: 'dart:io' • lib/showcase/tonal_palette_generator.dart:1:8 • unused_import
+warning • Unused import: 'package:flutter/foundation.dart' • lib/showcase/tonal_palette_generator.dart:2:8 • unused_import
+   info • Don't use 'BuildContext's across async gaps • lib/showcase/tonal_palette_generator.dart:80:29 • use_build_context_synchronously
+   info • Don't use 'BuildContext's across async gaps • lib/showcase/tonal_palette_generator.dart:82:29 • use_build_context_synchronously
+   info • Don't use 'BuildContext's across async gaps • lib/showcase/tonal_palette_generator.dart:93:29 • use_build_context_synchronously
+   info • Don't use 'BuildContext's across async gaps • lib/showcase/tonal_palette_generator.dart:95:29 • use_build_context_synchronously
+warning • The declaration '_TypeSection' isn't referenced • lib/showcase/typography_showcase.dart:383:7 • unused_element
+  error • The name '_TypeSection' is already defined • lib/showcase/typography_showcase.dart:383:7 • duplicate_definition
+warning • The declaration '_TypeItem' isn't referenced • lib/showcase/typography_showcase.dart:442:7 • unused_element
+  error • The name '_TypeItem' is already defined • lib/showcase/typography_showcase.dart:442:7 • duplicate_definition
+warning • The declaration '_Divider' isn't referenced • lib/showcase/typography_showcase.dart:495:7 • unused_element
+  error • The name '_Divider' is already defined • lib/showcase/typography_showcase.dart:495:7 • duplicate_definition
+
+17 issues found. (ran in 1.3s)

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 class AppNavItem extends StatelessWidget {
   const AppNavItem({
@@ -40,10 +41,11 @@ class AppNavItem extends StatelessWidget {
             const SizedBox(height: 4),
             Text(
               label,
-              style: TextStyle(
+              style: GoogleFonts.inter(
                 color: color,
-                fontSize: 10,
-                fontWeight: FontWeight.w500,
+                fontWeight: FontWeight.normal,
+                fontSize: 11,
+                letterSpacing: -0.2,
               ),
             ),
           ],

@@ -39,8 +39,7 @@ class AppInputCard extends StatelessWidget {
         children: [
           Text(
             label,
-            style: TextStyle(
-              fontSize: 10,
+            style: theme.textTheme.labelSmall?.copyWith(
               fontWeight: FontWeight.bold,
               letterSpacing: 0.5,
               color: theme.colorScheme.onSurface.withValues(alpha: 0.4),

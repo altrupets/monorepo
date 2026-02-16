@@ -1,0 +1,5 @@
+Analyzing mobile...                                             
+
+  error • Undefined name 'theme' • lib/features/rescues/presentation/pages/rescues_page.dart:171:28 • undefined_identifier
+
+1 issue found. (ran in 1.7s)

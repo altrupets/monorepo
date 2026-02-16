@@ -135,6 +135,7 @@ class RescuesPage extends StatelessWidget {
   }
 
   Widget _buildRescatistaCard(BuildContext context) {
+    final theme = Theme.of(context);
     return Container(
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(24),
@@ -165,14 +166,12 @@ class RescuesPage extends StatelessWidget {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                const Expanded(
+                Expanded(
                   child: Text(
                     'Registrarme como\nrescatista',
-                    style: TextStyle(
+                    style: theme.textTheme.titleLarge?.copyWith(
                       color: Colors.white,
-                      fontSize: 20,
                       fontWeight: FontWeight.bold,
-                      height: 1.2,
                     ),
                   ),
                 ),

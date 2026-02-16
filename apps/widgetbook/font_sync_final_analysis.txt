@@ -1,0 +1,14 @@
+Analyzing widgetbook...                                         
+
+   info • 'CorePalette' is deprecated and shouldn't be used. Use [DynamicScheme] for color scheme generation.Use [CorePalettes] for core palettes container class • lib/showcase/design_system_state.dart:156:14 • deprecated_member_use
+   info • 'CorePalette' is deprecated and shouldn't be used. Use [DynamicScheme] for color scheme generation.Use [CorePalettes] for core palettes container class • lib/showcase/design_system_state.dart:157:14 • deprecated_member_use
+   info • 'CorePalette' is deprecated and shouldn't be used. Use [DynamicScheme] for color scheme generation.Use [CorePalettes] for core palettes container class • lib/showcase/design_system_state.dart:158:14 • deprecated_member_use
+   info • 'CorePalette' is deprecated and shouldn't be used. Use [DynamicScheme] for color scheme generation.Use [CorePalettes] for core palettes container class • lib/showcase/design_system_state.dart:159:14 • deprecated_member_use
+   info • 'CorePalette' is deprecated and shouldn't be used. Use [DynamicScheme] for color scheme generation.Use [CorePalettes] for core palettes container class • lib/showcase/design_system_state.dart:160:14 • deprecated_member_use
+   info • Don't use 'BuildContext's across async gaps • lib/showcase/tonal_palette_generator.dart:78:29 • use_build_context_synchronously
+   info • Don't use 'BuildContext's across async gaps • lib/showcase/tonal_palette_generator.dart:80:29 • use_build_context_synchronously
+   info • Don't use 'BuildContext's across async gaps • lib/showcase/tonal_palette_generator.dart:91:29 • use_build_context_synchronously
+   info • Don't use 'BuildContext's across async gaps • lib/showcase/tonal_palette_generator.dart:93:29 • use_build_context_synchronously
+  error • Expected a method, getter, setter or operator declaration • lib/showcase/typography_showcase.dart:390:1 • expected_executable
+
+10 issues found. (ran in 1.2s)

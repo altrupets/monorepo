@@ -19,8 +19,8 @@ class AppServiceCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      margin: const EdgeInsets.symmetric(vertical: 8),
-      constraints: const BoxConstraints(minHeight: 110),
+      margin: const EdgeInsets.symmetric(vertical: 4),
+      constraints: const BoxConstraints(minHeight: 90),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(24),
         gradient: LinearGradient(
@@ -42,7 +42,7 @@ class AppServiceCard extends StatelessWidget {
           onTap: onTap,
           borderRadius: BorderRadius.circular(24),
           child: Padding(
-            padding: const EdgeInsets.all(24.0),
+            padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 24),
             child: Row(
               children: [
                 Expanded(
@@ -52,23 +52,24 @@ class AppServiceCard extends StatelessWidget {
                     children: [
                       Text(
                         title,
-                        style: const TextStyle(
-                          color: Colors.white,
-                          fontSize: 20,
-                          fontWeight: FontWeight.bold,
-                        ),
+                        style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                              color: Colors.white,
+                              fontWeight: FontWeight.bold,
+                              letterSpacing: -0.5,
+                            ),
                       ),
-                      const SizedBox(height: 4),
+                      const SizedBox(height: 1),
                       Text(
                         subtitle,
-                        style: TextStyle(
-                          color: Colors.white.withValues(alpha: 0.8),
-                          fontSize: 14,
-                        ),
+                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                              color: Colors.white.withValues(alpha: 0.8),
+                              letterSpacing: -0.2,
+                            ),
                       ),
                     ],
                   ),
                 ),
+                const SizedBox(width: 16),
                 Container(
                   width: 56,
                   height: 56,

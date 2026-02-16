@@ -1,0 +1,27 @@
+name: widgetbook_workspace
+description: "Catálogo de widgets de AltruPets con Widgetbook."
+publish_to: 'none'
+version: 0.1.0+1
+
+environment:
+  sdk: ^3.10.4
+
+dependencies:
+  flutter:
+    sdk: flutter
+  widgetbook_annotation: ^3.10.0
+  widgetbook: ^3.21.0
+  material_color_utilities: ^0.13.0
+  altrupets:
+    path: ../mobile
+  google_fonts: ^6.3.3
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^6.0.0
+  build_runner:
+  widgetbook_generator: ^3.21.0
+
+flutter:
+  uses-material-design: true

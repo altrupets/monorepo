@@ -47,11 +47,9 @@ class ManagementCardButton extends StatelessWidget {
             Text(
               label.toUpperCase(),
               textAlign: TextAlign.center,
-              style: theme.textTheme.labelSmall?.copyWith(
+              style: theme.textTheme.titleSmall?.copyWith(
                 fontWeight: FontWeight.bold,
-                fontSize: 10,
                 letterSpacing: 0.5,
-                height: 1.2,
               ),
             ),
           ],
