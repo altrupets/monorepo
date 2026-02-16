@@ -66,7 +66,7 @@ export class User {
   @Column({ type: 'bytea', nullable: true })
   avatarImage?: Buffer | null;
 
-  @Field({ nullable: true })
+  @Field(() => String, { nullable: true })
   avatarBase64?: string | null;
 
   @Field()

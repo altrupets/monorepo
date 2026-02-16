@@ -53,5 +53,7 @@ fi
 rm -f "$BUILD_LOG"
 
 echo -e "${GREEN}✅ Image built in Minikube runtime: ${IMAGE_TAG}${NC}"
-echo -e "${BLUE}Tip:${NC} if pods are already running, restart deployment:"
-echo -e "  kubectl -n altrupets-dev rollout restart deployment/backend"
+echo -e "${BLUE}Tip:${NC} para aplicar cambios en este repo (GitOps), usa:"
+echo -e "  ./launch_debug.sh --linux --backend-redeploy-argo"
+echo -e "${BLUE}Fallback imperativo (solo troubleshooting):${NC}"
+echo -e "  ./launch_debug.sh --linux --backend-rollout-restart"

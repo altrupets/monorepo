@@ -22,7 +22,8 @@ BACKEND_CHECK_ENABLED=true
 BACKEND_AUTO_BUILD_ENABLED=true
 BACKEND_MAX_RECOVERY_ATTEMPTS=5
 ADB_REVERSE_ENABLED=true
-BACKEND_REDEPLOY_ENABLED=false
+BACKEND_REDEPLOY_ARGO_ENABLED=false
+BACKEND_ROLLOUT_RESTART_ENABLED=false
 BACKEND_PRUNE_STALE_PODS=true
 BACKEND_LOGS_WINDOW_ENABLED=true
 
@@ -130,18 +131,18 @@ setup_adb_reverse_if_needed() {
     fi
 }
 
-backend_redeploy_if_requested() {
-    if [ "$BACKEND_REDEPLOY_ENABLED" = false ]; then
+backend_redeploy_argo_if_requested() {
+    if [ "$BACKEND_REDEPLOY_ARGO_ENABLED" = false ]; then
         return 0
     fi
 
     if ! command -v kubectl >/dev/null 2>&1; then
-        echo -e "${RED}❌ kubectl no está instalado. No se puede hacer --backend-redeploy.${NC}"
+        echo -e "${RED}❌ kubectl no está instalado. No se puede hacer --backend-redeploy-argo.${NC}"
         return 1
     fi
 
     if ! kubectl get ns altrupets-dev >/dev/null 2>&1; then
-        echo -e "${RED}❌ Namespace 'altrupets-dev' no existe. No se puede hacer --backend-redeploy.${NC}"
+        echo -e "${RED}❌ Namespace 'altrupets-dev' no existe. No se puede hacer --backend-redeploy-argo.${NC}"
         return 1
     fi
 
@@ -150,23 +151,39 @@ backend_redeploy_if_requested() {
         return 1
     fi
 
-    # 1) Build local image in Minikube runtime
-    echo -e "${BLUE}♻️  --backend-redeploy: reconstruyendo imagen backend...${NC}"
+    echo -e "${BLUE}♻️  --backend-redeploy-argo: reconstruyendo imagen backend...${NC}"
     ./infrastructure/scripts/build-backend-image-minikube.sh
 
-    # 2) Force ArgoCD to refresh desired state (if app exists)
     if kubectl get ns argocd >/dev/null 2>&1 && kubectl -n argocd get application altrupets-backend-dev >/dev/null 2>&1; then
-        echo -e "${BLUE}♻️  --backend-redeploy: solicitando refresh=hard a ArgoCD app...${NC}"
+        echo -e "${BLUE}♻️  --backend-redeploy-argo: solicitando refresh=hard a ArgoCD app...${NC}"
         kubectl -n argocd annotate application altrupets-backend-dev argocd.argoproj.io/refresh=hard --overwrite >/dev/null || true
+        echo -e "${BLUE}♻️  --backend-redeploy-argo: solicitando sync a ArgoCD app...${NC}"
+        kubectl -n argocd patch application altrupets-backend-dev --type merge \
+          -p '{"operation":{"sync":{"prune":true,"syncOptions":["CreateNamespace=true"]}}}' >/dev/null || true
     else
-        echo -e "${ORANGE}⚠️  ArgoCD app 'altrupets-backend-dev' no encontrada. Saltando refresh hard.${NC}"
+        echo -e "${ORANGE}⚠️  ArgoCD app 'altrupets-backend-dev' no encontrada. Saltando refresh/sync.${NC}"
+    fi
+}
+
+backend_rollout_restart_if_requested() {
+    if [ "$BACKEND_ROLLOUT_RESTART_ENABLED" = false ]; then
+        return 0
     fi
 
-    # 3) Restart rollout so pod picks latest local image
-    echo -e "${BLUE}♻️  --backend-redeploy: reiniciando deployment/backend...${NC}"
+    if ! command -v kubectl >/dev/null 2>&1; then
+        echo -e "${RED}❌ kubectl no está instalado. No se puede hacer --backend-rollout-restart.${NC}"
+        return 1
+    fi
+
+    if ! kubectl get ns altrupets-dev >/dev/null 2>&1; then
+        echo -e "${RED}❌ Namespace 'altrupets-dev' no existe. No se puede hacer --backend-rollout-restart.${NC}"
+        return 1
+    fi
+
+    echo -e "${BLUE}♻️  --backend-rollout-restart: reiniciando deployment/backend...${NC}"
     kubectl -n altrupets-dev rollout restart deployment/backend
 
-    echo -e "${BLUE}♻️  --backend-redeploy: esperando rollout inicial...${NC}"
+    echo -e "${BLUE}♻️  --backend-rollout-restart: esperando rollout inicial...${NC}"
     local redeploy_rollout_output
     local redeploy_rollout_code
     set +e
@@ -177,12 +194,12 @@ backend_redeploy_if_requested() {
 
     if [ "$redeploy_rollout_code" -ne 0 ]; then
         if echo "$redeploy_rollout_output" | grep -q "old replicas are pending termination"; then
-            echo -e "${ORANGE}⚠️  Rollout bloqueado por réplica vieja durante --backend-redeploy.${NC}"
+            echo -e "${ORANGE}⚠️  Rollout bloqueado por réplica vieja durante --backend-rollout-restart.${NC}"
             prune_old_backend_replicaset_pods
             echo -e "${BLUE}♻️  Reintentando rollout corto tras limpieza...${NC}"
             kubectl -n altrupets-dev rollout status deployment/backend --timeout=45s >/dev/null 2>&1 || true
         else
-            echo -e "${ORANGE}⚠️  Rollout inicial de --backend-redeploy no completó a tiempo.${NC}"
+            echo -e "${ORANGE}⚠️  Rollout inicial de --backend-rollout-restart no completó a tiempo.${NC}"
         fi
         echo -e "${ORANGE}   Continuando: el chequeo robusto de backend correrá a continuación.${NC}"
     fi
@@ -454,7 +471,8 @@ show_help() {
     echo "    --no-backend-check    No verificar readiness de backend en Kubernetes"
     echo "    --no-backend-auto-build  No intentar build automático si hay ImagePullBackOff"
     echo "    --backend-retries N    Cantidad de intentos de recuperación backend (default: 5)"
-    echo "    --backend-redeploy    Ejecuta build+restart+rollout del backend antes de lanzar Flutter"
+    echo "    --backend-redeploy-argo   Flujo GitOps: build local + refresh/sync ArgoCD (sin rollout restart manual)"
+    echo "    --backend-rollout-restart Flujo imperativo: rollout restart deployment/backend"
     echo "    --no-backend-prune    No eliminar pods backend viejos en CrashLoopBackOff"
     echo "    --no-backend-logs-window  No abrir ventana separada con logs del backend"
     echo "    --no-adb-reverse       No configurar adb reverse en modo --device"
@@ -513,8 +531,12 @@ while [[ $# -gt 0 ]]; do
                 exit 1
             fi
             ;;
-        --backend-redeploy)
-            BACKEND_REDEPLOY_ENABLED=true
+        --backend-redeploy-argo)
+            BACKEND_REDEPLOY_ARGO_ENABLED=true
+            shift
+            ;;
+        --backend-rollout-restart)
+            BACKEND_ROLLOUT_RESTART_ENABLED=true
             shift
             ;;
         --no-backend-prune)
@@ -545,6 +567,11 @@ while [[ $# -gt 0 ]]; do
             ;;
     esac
 done
+
+if [ "$BACKEND_REDEPLOY_ARGO_ENABLED" = true ] && [ "$BACKEND_ROLLOUT_RESTART_ENABLED" = true ]; then
+    echo -e "${RED}❌ Usa solo uno: --backend-redeploy-argo o --backend-rollout-restart.${NC}"
+    exit 1
+fi
 
 # Post-parsing logic
 if [ -z "$TARGET" ]; then
@@ -604,7 +631,10 @@ if [ "$TARGET" = "widgetbook" ]; then
     fi
 elif [ "$TARGET" = "desktop" ]; then
     echo -e "${BLUE}🖥️  AltruPets – $DESKTOP_LABEL Debug${NC}"
-    if ! backend_redeploy_if_requested; then
+    if ! backend_redeploy_argo_if_requested; then
+        exit 1
+    fi
+    if ! backend_rollout_restart_if_requested; then
         exit 1
     fi
     if ! ensure_backend_ready_if_available; then
@@ -620,7 +650,10 @@ elif [ "$TARGET" = "desktop" ]; then
     flutter run -d "$DESKTOP_TARGET"
 elif [ "$TARGET" = "android" ]; then
     echo -e "${BLUE}📱 AltruPets – Android Debug ($DEVICE_ID)${NC}"
-    if ! backend_redeploy_if_requested; then
+    if ! backend_redeploy_argo_if_requested; then
+        exit 1
+    fi
+    if ! backend_rollout_restart_if_requested; then
         exit 1
     fi
     if ! ensure_backend_ready_if_available; then

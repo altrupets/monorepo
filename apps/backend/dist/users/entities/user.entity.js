@@ -101,7 +101,7 @@ __decorate([
     __metadata("design:type", Object)
 ], User.prototype, "avatarImage", void 0);
 __decorate([
-    (0, graphql_1.Field)({ nullable: true }),
+    (0, graphql_1.Field)(() => String, { nullable: true }),
     __metadata("design:type", Object)
 ], User.prototype, "avatarBase64", void 0);
 __decorate([
