@@ -1,99 +1,108 @@
 import 'package:flutter/material.dart';
+import 'package:altrupets/core/theme/token_service.dart';
+import 'package:altrupets/core/theme/design_token_model.dart';
 
-/// Colores del Design System de AltruPets
-/// Basado en Material 3 con paleta personalizada para protección animal
 class AppColors {
-  // Brand Colors
-  static const Color primary = Color(0xFF094F72); // Brand Primary
-  static const Color secondary = Color(0xFFEA840B); // Brand Secondary
-  static const Color accent = Color(0xFF1370A6); // Brand Accent
-  static const Color warning = Color(0xFFF4AE22); // Brand Warning
-  static const Color error = Color(0xFFE54C12); // Brand Error
-  static const Color errorContainer = Color(0xFFFFDAD6);
-  static const Color onError = Color(0xFFFFFFFF);
-  static const Color onErrorContainer = Color(0xFF410002);
+  static DesignTokenModel get _tokens => TokenService.instance.tokens;
 
-  // Primary Containers
-  static const Color primaryContainer = Color(0xFFD4E4ED);
-  static const Color onPrimary = Color(0xFFFFFFFF);
-  static const Color onPrimaryContainer = Color(0xFF031D2B);
+  // Brand Colors (Light)
+  static Color get primary => _tokens.brand.primary;
+  static Color get secondary => _tokens.brand.secondary;
+  static Color get accent => _tokens.brand.accent;
+  static Color get warning => _tokens.brand.warning;
+  static Color get error => _tokens.brand.error;
+  
+  // Mapped from Tonal Palettes (Light)
+  static Color get primaryContainer => _tokens.palette.primary[90]!;
+  static Color get onPrimary => _tokens.palette.primary[100]!;
+  static Color get onPrimaryContainer => _tokens.palette.primary[10]!;
 
-  // Secondary Containers
-  static const Color secondaryContainer = Color(0xFFFFEBD6);
-  static const Color onSecondary = Color(0xFFFFFFFF);
-  static const Color onSecondaryContainer = Color(0xFF4C2A02);
+  static Color get secondaryContainer => _tokens.palette.secondary[90]!;
+  static Color get onSecondary => _tokens.palette.secondary[100]!;
+  static Color get onSecondaryContainer => _tokens.palette.secondary[10]!;
 
-  // Success Colors (Mantener o ajustar según sea necesario)
-  static const Color success = Color(0xFF2E7D32);
-  static const Color successContainer = Color(0xFFC8E6C9);
-  static const Color onSuccess = Color(0xFFFFFFFF);
-  static const Color onSuccessContainer = Color(0xFF1B5E20);
+  static Color get tertiary => _tokens.brand.accent;
+  static Color get tertiaryContainer => _tokens.palette.accent[90]!;
+  static Color get onTertiary => _tokens.palette.accent[100]!;
+  static Color get onTertiaryContainer => _tokens.palette.accent[10]!;
 
-  // Surface Colors (Ajustado a un tono oscuro profundo como se ve en la imagen)
-  static const Color background = Color(0xFF0F172A); // Dark blueish background
-  static const Color onBackground = Color(0xFFF8FAFC);
-  static const Color surface = Color(0xFF1E293B);
-  static const Color onSurface = Color(0xFFF8FAFC);
+  static Color get errorContainer => _tokens.palette.error[90]!;
+  static Color get onError => _tokens.palette.error[100]!;
+  static Color get onErrorContainer => _tokens.palette.error[10]!;
 
-  static const Color surfaceContainerHighest = Color(0xFF334155);
-  static const Color surfaceContainer = Color(0xFF1E293B);
-  static const Color outline = Color(0xFF64748B);
-  static const Color outlineVariant = Color(0xFF475569);
+  // Success Colors
+  static Color get success => _tokens.palette.success[40] ?? const Color(0xFF2E7D32);
+  static Color get successContainer => _tokens.palette.success[90] ?? const Color(0xFFC8E6C9);
+  static Color get onSuccess => _tokens.palette.success[100] ?? const Color(0xFFFFFFFF);
+  static Color get onSuccessContainer => _tokens.palette.success[10] ?? const Color(0xFF1B5E20);
 
-  // Tertiary Colors (Usando accent como base)
-  static const Color tertiary = Color(0xFF1370A6);
-  static const Color tertiaryContainer = Color(0xFFD1E5F0);
-  static const Color onTertiary = Color(0xFFFFFFFF);
-  static const Color onTertiaryContainer = Color(0xFF0D1E26);
+  // Surface & Background (Using Neutral if available, fallback to Primary)
+  static Color get background => _tokens.palette.neutral[98] ?? _tokens.palette.primary[99]!;
+  static Color get onBackground => _tokens.palette.neutral[10] ?? _tokens.palette.primary[10]!;
+  static Color get surface => _tokens.palette.neutral[98] ?? _tokens.palette.primary[99]!;
+  static Color get onSurface => _tokens.palette.neutral[10] ?? _tokens.palette.primary[10]!;
+
+  static Color get surfaceContainerHighest => _tokens.palette.neutral[90] ?? _tokens.palette.primary[90]!;
+  static Color get surfaceContainer => _tokens.palette.neutral[94] ?? _tokens.palette.primary[94] ?? _tokens.palette.primary[90]!;
+  
+  static Color get outline => _tokens.palette.neutralVariant[50] ?? _tokens.palette.primary[50]!;
+  static Color get outlineVariant => _tokens.palette.neutralVariant[80] ?? _tokens.palette.primary[80]!;
 
   // Inverse Colors
-  static const Color inverseSurface = Color(0xFFF8FAFC);
-  static const Color inverseOnSurface = Color(0xFF0F172A);
-  static const Color inversePrimary = Color(0xFF10B981);
+  static Color get inverseSurface => _tokens.palette.neutral[20] ?? _tokens.palette.primary[20]!;
+  static Color get inverseOnSurface => _tokens.palette.neutral[95] ?? _tokens.palette.primary[95]!;
+  static Color get inversePrimary => _tokens.palette.primary[80]!;
 
   // Shadow & Scrim
-  static const Color shadow = Color(0xFF000000);
-  static const Color scrim = Color(0xFF000000);
+  static Color get shadow => _tokens.palette.neutral[0] ?? const Color(0xFF000000);
+  static Color get scrim => _tokens.palette.neutral[0] ?? const Color(0xFF000000);
 }
 
-/// Colores para Dark Theme (En este caso usaremos una paleta similar pero ajustada)
 class AppColorsDark {
-  static const Color primary = Color(0xFF1370A6);
-  static const Color primaryContainer = Color(0xFF094F72);
-  static const Color onPrimary = Color(0xFFFFFFFF);
-  static const Color onPrimaryContainer = Color(0xFFD4E4ED);
+  static DesignTokenModel get _tokens => TokenService.instance.tokens;
 
-  static const Color secondary = Color(0xFFF97316);
-  static const Color secondaryContainer = Color(0xFF4C2A02);
-  static const Color onSecondary = Color(0xFFFFFFFF);
-  static const Color onSecondaryContainer = Color(0xFFFFEBD6);
+  // Primary (Dark)
+  static Color get primary => _tokens.palette.primary[80]!;
+  static Color get primaryContainer => _tokens.palette.primary[30]!;
+  static Color get onPrimary => _tokens.palette.primary[20]!;
+  static Color get onPrimaryContainer => _tokens.palette.primary[90]!;
 
-  static const Color error = Color(0xFFE54C12);
-  static const Color errorContainer = Color(0xFF4C1906);
-  static const Color onError = Color(0xFFFFFFFF);
-  static const Color onErrorContainer = Color(0xFFFFDAD6);
+  // Secondary (Dark)
+  static Color get secondary => _tokens.palette.secondary[80]!;
+  static Color get secondaryContainer => _tokens.palette.secondary[30]!;
+  static Color get onSecondary => _tokens.palette.secondary[20]!;
+  static Color get onSecondaryContainer => _tokens.palette.secondary[90]!;
 
-  static const Color background = Color(0xFF101C22);
-  static const Color onBackground = Color(0xFFF1F5F9);
-  static const Color surface = Color(0xFF101C22);
-  static const Color onSurface = Color(0xFFF1F5F9);
+  // Tertiary/Accent (Dark)
+  static Color get tertiary => _tokens.palette.accent[80]!;
+  static Color get tertiaryContainer => _tokens.palette.accent[30]!;
+  static Color get onTertiary => _tokens.palette.accent[20]!;
+  static Color get onTertiaryContainer => _tokens.palette.accent[90]!;
 
-  static const Color surfaceContainerHighest = Color(0xFF1F2937);
-  static const Color surfaceContainer = Color(0xFF111827);
-  static const Color outline = Color(0xFF94A3B8);
-  static const Color outlineVariant = Color(0xFF4B5563);
+  // Error (Dark)
+  static Color get error => _tokens.palette.error[80]!;
+  static Color get errorContainer => _tokens.palette.error[30]!;
+  static Color get onError => _tokens.palette.error[20]!;
+  static Color get onErrorContainer => _tokens.palette.error[90]!;
 
-  // Tertiary Colors
-  static const Color tertiary = Color(0xFF38BDF8);
-  static const Color tertiaryContainer = Color(0xFF0C4A6E);
-  static const Color onTertiary = Color(0xFF082F49);
-  static const Color onTertiaryContainer = Color(0xFFBAE6FD);
+  // Surface & Background (Dark)
+  static Color get background => _tokens.palette.neutral[6] ?? _tokens.palette.primary[6] ?? const Color(0xFF111416);
+  static Color get onBackground => _tokens.palette.neutral[90] ?? _tokens.palette.primary[90]!;
+  static Color get surface => _tokens.palette.neutral[6] ?? _tokens.palette.primary[6] ?? const Color(0xFF111416);
+  static Color get onSurface => _tokens.palette.neutral[90] ?? _tokens.palette.primary[90]!;
+
+  static Color get surfaceContainerHighest => _tokens.palette.neutral[22] ?? _tokens.palette.primary[22] ?? _tokens.palette.primary[20]!;
+  static Color get surfaceContainer => _tokens.palette.neutral[12] ?? _tokens.palette.primary[12] ?? _tokens.palette.primary[10]!;
+  
+  static Color get outline => _tokens.palette.neutralVariant[60] ?? _tokens.palette.primary[60]!;
+  static Color get outlineVariant => _tokens.palette.neutralVariant[30] ?? _tokens.palette.primary[30]!;
 
   // Inverse Colors
-  static const Color inverseSurface = Color(0xFFF1F5F9);
-  static const Color inverseOnSurface = Color(0xFF0A0F1D);
-  static const Color inversePrimary = Color(0xFF094F72);
+  static Color get inverseSurface => _tokens.palette.neutral[90] ?? _tokens.palette.primary[90]!;
+  static Color get inverseOnSurface => _tokens.palette.neutral[20] ?? _tokens.palette.primary[20]!;
+  static Color get inversePrimary => _tokens.brand.primary;
 
-  static const Color shadow = Color(0xFF000000);
-  static const Color scrim = Color(0xFF000000);
+  // Shadow & Scrim
+  static Color get shadow => _tokens.palette.neutral[0] ?? const Color(0xFF000000);
+  static Color get scrim => _tokens.palette.neutral[0] ?? const Color(0xFF000000);
 }

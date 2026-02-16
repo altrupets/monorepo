@@ -14,41 +14,15 @@ class AppTheme {
       useMaterial3: true,
       brightness: Brightness.light,
 
-      // Color Scheme
-      colorScheme: const ColorScheme.light(
+      // Color Scheme generado dinámicamente desde el Brand Primary
+      colorScheme: ColorScheme.fromSeed(
+        seedColor: AppColors.primary,
+        brightness: Brightness.light,
         primary: AppColors.primary,
-        primaryContainer: AppColors.primaryContainer,
-        onPrimary: AppColors.onPrimary,
-        onPrimaryContainer: AppColors.onPrimaryContainer,
-
         secondary: AppColors.secondary,
-        secondaryContainer: AppColors.secondaryContainer,
-        onSecondary: AppColors.onSecondary,
-        onSecondaryContainer: AppColors.onSecondaryContainer,
-
-        tertiary: AppColors.tertiary,
-        tertiaryContainer: AppColors.tertiaryContainer,
-        onTertiary: AppColors.onTertiary,
-        onTertiaryContainer: AppColors.onTertiaryContainer,
-
+        tertiary: AppColors.accent,
         error: AppColors.error,
-        errorContainer: AppColors.errorContainer,
-        onError: AppColors.onError,
-        onErrorContainer: AppColors.onErrorContainer,
-
         surface: AppColors.surface,
-        onSurface: AppColors.onBackground,
-        surfaceContainerHighest: AppColors.surfaceContainerHighest,
-
-        outline: AppColors.outline,
-        outlineVariant: AppColors.outlineVariant,
-
-        inverseSurface: AppColors.inverseSurface,
-        onInverseSurface: AppColors.inverseOnSurface,
-        inversePrimary: AppColors.inversePrimary,
-
-        shadow: AppColors.shadow,
-        scrim: AppColors.scrim,
       ),
 
       // Typography
@@ -81,19 +55,19 @@ class AppTheme {
         ),
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
-          borderSide: const BorderSide(color: AppColors.outline),
+          borderSide: BorderSide(color: AppColors.outline),
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
-          borderSide: const BorderSide(color: AppColors.primary, width: 2),
+          borderSide: BorderSide(color: AppColors.primary, width: 2),
         ),
         errorBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
-          borderSide: const BorderSide(color: AppColors.error),
+          borderSide: BorderSide(color: AppColors.error),
         ),
         focusedErrorBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
-          borderSide: const BorderSide(color: AppColors.error, width: 2),
+          borderSide: BorderSide(color: AppColors.error, width: 2),
         ),
         contentPadding: const EdgeInsets.symmetric(
           horizontal: 16,
@@ -131,7 +105,7 @@ class AppTheme {
       outlinedButtonTheme: OutlinedButtonThemeData(
         style: OutlinedButton.styleFrom(
           foregroundColor: AppColors.primary,
-          side: const BorderSide(color: AppColors.outline),
+          side: BorderSide(color: AppColors.outline),
           padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(12),
@@ -175,7 +149,7 @@ class AppTheme {
       ),
 
       // Divider Theme
-      dividerTheme: const DividerThemeData(
+      dividerTheme: DividerThemeData(
         color: AppColors.outlineVariant,
         thickness: 1,
         space: 1,
@@ -189,40 +163,14 @@ class AppTheme {
       useMaterial3: true,
       brightness: Brightness.dark,
 
-      colorScheme: const ColorScheme.dark(
+      colorScheme: ColorScheme.fromSeed(
+        seedColor: AppColorsDark.primary,
+        brightness: Brightness.dark,
         primary: AppColorsDark.primary,
-        primaryContainer: AppColorsDark.primaryContainer,
-        onPrimary: AppColorsDark.onPrimary,
-        onPrimaryContainer: AppColorsDark.onPrimaryContainer,
-
         secondary: AppColorsDark.secondary,
-        secondaryContainer: AppColorsDark.secondaryContainer,
-        onSecondary: AppColorsDark.onSecondary,
-        onSecondaryContainer: AppColorsDark.onSecondaryContainer,
-
         tertiary: AppColorsDark.tertiary,
-        tertiaryContainer: AppColorsDark.tertiaryContainer,
-        onTertiary: AppColorsDark.onTertiary,
-        onTertiaryContainer: AppColorsDark.onTertiaryContainer,
-
         error: AppColorsDark.error,
-        errorContainer: AppColorsDark.errorContainer,
-        onError: AppColorsDark.onError,
-        onErrorContainer: AppColorsDark.onErrorContainer,
-
         surface: AppColorsDark.surface,
-        onSurface: AppColorsDark.onBackground,
-        surfaceContainerHighest: AppColorsDark.surfaceContainerHighest,
-
-        outline: AppColorsDark.outline,
-        outlineVariant: AppColorsDark.outlineVariant,
-
-        inverseSurface: AppColorsDark.inverseSurface,
-        onInverseSurface: AppColorsDark.inverseOnSurface,
-        inversePrimary: AppColorsDark.inversePrimary,
-
-        shadow: AppColorsDark.shadow,
-        scrim: AppColorsDark.scrim,
       ),
 
       textTheme: AppTypography.textTheme(isDark: true),
@@ -251,19 +199,19 @@ class AppTheme {
         ),
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
-          borderSide: const BorderSide(color: AppColorsDark.outline),
+          borderSide: BorderSide(color: AppColorsDark.outline),
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
-          borderSide: const BorderSide(color: AppColorsDark.primary, width: 2),
+          borderSide: BorderSide(color: AppColorsDark.primary, width: 2),
         ),
         errorBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
-          borderSide: const BorderSide(color: AppColorsDark.error),
+          borderSide: BorderSide(color: AppColorsDark.error),
         ),
         focusedErrorBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
-          borderSide: const BorderSide(color: AppColorsDark.error, width: 2),
+          borderSide: BorderSide(color: AppColorsDark.error, width: 2),
         ),
         contentPadding: const EdgeInsets.symmetric(
           horizontal: 16,
@@ -298,7 +246,7 @@ class AppTheme {
       outlinedButtonTheme: OutlinedButtonThemeData(
         style: OutlinedButton.styleFrom(
           foregroundColor: AppColorsDark.primary,
-          side: const BorderSide(color: AppColorsDark.outline),
+          side: BorderSide(color: AppColorsDark.outline),
           padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(12),
@@ -337,7 +285,7 @@ class AppTheme {
         contentTextStyle: AppTypography.textTheme(isDark: true).bodyMedium,
       ),
 
-      dividerTheme: const DividerThemeData(
+      dividerTheme: DividerThemeData(
         color: AppColorsDark.outlineVariant,
         thickness: 1,
         space: 1,

@@ -29,7 +29,7 @@ enum AppThemeMode {
 
 /// Notifier para gestión del tema con Riverpod
 class ThemeNotifier extends StateNotifier<ThemeMode> {
-  ThemeNotifier(this._prefs) : super(ThemeMode.system) {
+  ThemeNotifier(this._prefs) : super(ThemeMode.dark) {
     _loadSavedTheme();
   }
 
@@ -94,7 +94,7 @@ final themeModeProvider = Provider<ThemeMode>((ref) {
 
   return notifierAsync.when(
     data: (notifier) => notifier.themeMode,
-    loading: () => ThemeMode.system, // Default mientras carga
-    error: (_, _) => ThemeMode.system, // Default en caso de error
+    loading: () => ThemeMode.dark, // Default mientras carga
+    error: (_, _) => ThemeMode.dark, // Default en caso de error
   );
 });
