@@ -1,5 +1,6 @@
 import { InputType, Field, Float } from '@nestjs/graphql';
-import { IsOptional, IsString, MaxLength, IsNumber, Min, Max } from 'class-validator';
+import { IsOptional, IsString, MaxLength, IsNumber, Min, Max, IsArray, IsBoolean, IsEnum } from 'class-validator';
+import { UserRole } from '../../auth/roles/user-role.enum';
 
 @InputType()
 export class UpdateUserInput {
@@ -72,4 +73,15 @@ export class UpdateUserInput {
     @IsString()
     @MaxLength(8_000_000)
     avatarBase64?: string;
+
+    @Field(() => [String], { nullable: true })
+    @IsOptional()
+    @IsArray()
+    @IsEnum(UserRole, { each: true })
+    roles?: UserRole[];
+
+    @Field({ nullable: true })
+    @IsOptional()
+    @IsBoolean()
+    isActive?: boolean;
 }

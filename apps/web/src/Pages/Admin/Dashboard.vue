@@ -47,7 +47,8 @@ defineProps({
   title: String,
 })
 
-const logout = () => {
-  window.location.href = '/logout'
+const logout = async () => {
+  await fetch('/logout', { method: 'POST', credentials: 'include' })
+  window.location.href = '/login'
 }
 </script>
