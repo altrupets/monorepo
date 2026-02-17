@@ -10,11 +10,26 @@ import 'package:altrupets/core/providers/navigation_provider.dart';
 import 'package:altrupets/features/auth/presentation/pages/login_page.dart';
 import 'package:altrupets/features/auth/presentation/providers/auth_provider.dart';
 import 'package:altrupets/core/storage/profile_cache_store.dart';
+import 'package:altrupets/core/error/error_logging_observer.dart';
 
 import 'package:altrupets/core/theme/token_service.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
+  // Configurar manejador de errores global de Flutter
+  FlutterError.onError = (FlutterErrorDetails details) {
+    FlutterError.presentError(details);
+    debugPrint('[FlutterError] ❌ ${details.exception}');
+    debugPrint('[FlutterError] 📍 ${details.stack}');
+
+    // Detectar errores de red específicos
+    final errorStr = details.exception.toString();
+    if (errorStr.contains('SocketException') ||
+        errorStr.contains('Connection refused')) {
+      debugPrint('[FlutterError] 🔌 Network error detected!');
+    }
+  };
 
   // Inicializar tokens de diseño desde assets
   await TokenService.initialize();
@@ -39,7 +54,12 @@ void main() async {
   await SharedPreferences.getInstance();
   await ProfileCacheStore.ensureInitialized();
 
-  runApp(const ProviderScope(child: AltruPetsApp()));
+  runApp(
+    ProviderScope(
+      observers: [ErrorLoggingObserver()],
+      child: const AltruPetsApp(),
+    ),
+  );
 }
 
 class AltruPetsApp extends ConsumerWidget {

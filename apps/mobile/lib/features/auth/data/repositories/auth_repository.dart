@@ -58,9 +58,18 @@ class AuthRepository implements AuthRepositoryInterface {
       );
 
       if (result.hasException) {
-        return Left(
-          ServerFailure(result.exception!.graphqlErrors.first.message),
-        );
+        final exception = result.exception!;
+        String errorMessage;
+
+        if (exception.graphqlErrors.isNotEmpty) {
+          errorMessage = exception.graphqlErrors.first.message;
+        } else if (exception.linkException != null) {
+          errorMessage = exception.linkException.toString();
+        } else {
+          errorMessage = 'Error desconocido en la conexión';
+        }
+
+        return Left(ServerFailure(errorMessage));
       }
 
       final data = result.data?['login'] as Map<String, dynamic>?;
@@ -70,7 +79,9 @@ class AuthRepository implements AuthRepositoryInterface {
 
       final payload = AuthPayload.fromJson(data);
 
-      debugPrint('[AuthRepository] ✅ Login exitoso - token recibido (len: ${payload.accessToken.length})');
+      debugPrint(
+        '[AuthRepository] ✅ Login exitoso - token recibido (len: ${payload.accessToken.length})',
+      );
 
       // Guardar token
       await GraphQLClientService.saveToken(payload.accessToken);
@@ -96,21 +107,34 @@ class AuthRepository implements AuthRepositoryInterface {
       );
 
       if (result.hasException) {
-        debugPrint('[AuthRepository] ❌ Error GraphQL: ${result.exception}');
-        return Left(
-          ServerFailure(result.exception!.graphqlErrors.first.message),
-        );
+        final exception = result.exception!;
+        debugPrint('[AuthRepository] ❌ Error GraphQL: $exception');
+
+        String errorMessage;
+        if (exception.graphqlErrors.isNotEmpty) {
+          errorMessage = exception.graphqlErrors.first.message;
+        } else if (exception.linkException != null) {
+          errorMessage = exception.linkException.toString();
+        } else {
+          errorMessage = 'Error desconocido en la conexión';
+        }
+
+        return Left(ServerFailure(errorMessage));
       }
 
       final data = result.data?['currentUser'] as Map<String, dynamic>?;
-      debugPrint('[AuthRepository] 📊 currentUser data: ${data != null ? 'OK' : 'NULL'}');
+      debugPrint(
+        '[AuthRepository] 📊 currentUser data: ${data != null ? 'OK' : 'NULL'}',
+      );
 
       if (data == null) {
         return const Left(ServerFailure('User not found'));
       }
 
       final user = User.fromJson(data);
-      debugPrint('[AuthRepository] ✅ Usuario obtenido: ${user.username} (${user.firstName} ${user.lastName})');
+      debugPrint(
+        '[AuthRepository] ✅ Usuario obtenido: ${user.username} (${user.firstName} ${user.lastName})',
+      );
 
       return Right(user);
     } catch (e) {

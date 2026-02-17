@@ -1,0 +1,46 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+namespace: default
+
+resources:
+  - gateway.yaml
+  - httproutes.yaml
+
+commonLabels:
+  app.kubernetes.io/part-of: gateway-api
+  app.kubernetes.io/managed-by: kustomize
+
+commonAnnotations:
+  gateway-api.sigs.k8s.io/base: "true"
+
+# ConfigMap generator for environment-specific configuration
+configMapGenerator:
+  - name: gateway-config
+    literals:
+      - environment=base
+      - logLevel=info
+
+# Secret generator for TLS certificates (in production, use external secret management)
+secretGenerator:
+  - name: gateway-tls-secret
+    type: kubernetes.io/tls
+    files:
+      - tls.crt=certs/tls.crt
+      - tls.key=certs/tls.key
+    options:
+      disableNameSuffixHash: true
+
+# Images configuration (base images, can be overridden per environment)
+images:
+  - name: gateway-controller
+    newName: nginx/nginx-ingress
+    newTag: "latest"
+
+# Configurations for name prefix/suffix
+namePrefix: ""
+nameSuffix: ""
+
+# Transformers
+transformers:
+  - labels.yaml

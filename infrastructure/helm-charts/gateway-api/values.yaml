@@ -1,0 +1,116 @@
+# Default values for gateway-api
+# This is a YAML-formatted file.
+
+# Global configuration
+global:
+  environment: dev
+  clusterDomain: cluster.local
+
+# Gateway Controller Configuration
+controller:
+  # Supported: nginx, traefik, istio, none
+  type: nginx
+  enabled: true
+
+# Gateway Configuration
+gateway:
+  enabled: true
+  name: default-gateway
+  namespace: default
+  
+  # GatewayClass name
+  gatewayClassName: nginx
+  
+  # Listeners configuration
+  listeners:
+    - name: http
+      protocol: HTTP
+      port: 80
+      allowedRoutes:
+        namespaces:
+          from: All
+    # TLS listener (disabled by default, enable in prod)
+    - name: https
+      protocol: HTTPS
+      port: 443
+      tls:
+        mode: Terminate
+        certificateRefs:
+          - name: gateway-tls-secret
+      allowedRoutes:
+        namespaces:
+          from: All
+      enabled: false
+
+# HTTP Routes
+httpRoutes:
+  enabled: false
+  routes: []
+  # Example route:
+  # - name: example-route
+  #   hostnames:
+  #     - example.com
+  #   rules:
+  #     - matches:
+  #         - path:
+  #             type: PathPrefix
+  #             value: /
+  #       backendRefs:
+  #         - name: example-service
+  #           port: 80
+
+# TCP Routes
+tcpRoutes:
+  enabled: false
+  routes: []
+
+# TLS Routes
+tlsRoutes:
+  enabled: false
+  routes: []
+
+# Reference Grants for cross-namespace routing
+referenceGrants:
+  enabled: false
+  grants: []
+
+# Resource quotas and limits
+resources:
+  gateway:
+    requests:
+      cpu: 100m
+      memory: 128Mi
+    limits:
+      cpu: 500m
+      memory: 256Mi
+
+# Annotations
+annotations:
+  app.kubernetes.io/managed-by: Helm
+  app.kubernetes.io/part-of: gateway-api
+
+# Labels
+labels:
+  app.kubernetes.io/part-of: gateway-api
+
+# TLS Configuration
+tls:
+  enabled: false
+  # Certificate management: cert-manager, manual
+  certManager:
+    enabled: false
+    issuerName: ""
+    issuerKind: ClusterIssuer
+
+# Monitoring
+monitoring:
+  enabled: false
+  serviceMonitor:
+    enabled: false
+    interval: 30s
+
+# Network policies
+networkPolicy:
+  enabled: false
+  ingress: []
+  egress: []

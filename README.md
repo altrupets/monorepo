@@ -1374,13 +1374,15 @@ microservices:
 infrastructure:
   orchestration: "Kubernetes 1.28+"
   service_mesh: "Istio"
-  api_gateway: "Kong"
+  api_gateway: "NGINX Gateway Fabric + Istio"
   monitoring: "Prometheus + Grafana"
   logging: "ELK Stack"
   tracing: "Jaeger"
   secrets: "AWS Secrets Manager"
   storage: "S3 with Intelligent Tiering"
   cdn: "CloudFront"
+  gitops: "ArgoCD"
+  registry: "GitHub Container Registry (GHCR)"
 
   cost_controls:
     - "Cluster Autoscaler"
@@ -1391,6 +1393,77 @@ infrastructure:
 ```
 
 ## 🚀 Despliegue y Operaciones
+
+### 🆕 Infraestructura como Código (IaC)
+
+AltruPets implementa **Infrastructure as Code** completo con Terraform/OpenTofu, Helm y Kustomize para gestión multi-ambiente.
+
+#### Arquitectura de Gateway API
+
+```yaml
+gateway_api:
+  controller: "NGINX Gateway Fabric"
+  version: "v1.4.1"
+  features:
+    - "HTTP/HTTPS Routing"
+    - "TLS Termination"
+    - "Path-based routing"
+    - "Header-based routing"
+  
+  service_mesh:
+    enabled: true
+    platform: "Istio"
+    version: "1.20.0"
+    features:
+      - "Sidecar injection automático"
+      - "mTLS entre servicios"
+      - "Observabilidad avanzada"
+      - "Circuit breaking"
+
+  deployment_methods:
+    - "terraform-only: Solo CRDs"
+    - "helm: CRDs + Helm charts"
+    - "kustomize: CRDs + Kustomize overlays"
+    - "helm-kustomize: Todo junto (prod)"
+```
+
+#### Ambientes de Despliegue
+
+| Ambiente | Plataforma | PostgreSQL | Gateway Controller | Características |
+|----------|------------|------------|-------------------|-----------------|
+| **DEV** | Minikube local | Container | NGINX + Istio | Desarrollo local |
+| **QA** | OVHCloud K8s | Self-managed | NGINX + Istio | Efímero, auto-deploy |
+| **STAGING** | OVHCloud K8s | Self-managed | NGINX + Istio | Prod-like, testers |
+| **PROD** | OVHCloud K8s | OVH Managed | TBD | Aprobación manual |
+
+#### Scripts de Deployment
+
+```bash
+# Setup inicial
+make setup
+
+# Despliegue a DEV (minikube)
+make dev
+
+# Despliegue a QA (OVHCloud)
+make qa
+
+# Despliegue a Staging
+make stage
+
+# Verificación post-deploy
+make verify ENV=qa
+
+# Destrucción controlada
+make qa-destroy
+```
+
+#### GitHub Actions Workflows
+
+- **`.github/workflows/ci-build-push.yml`**: Build y push a GHCR
+- **`.github/workflows/deploy-qa.yml`**: Auto-deploy a QA (push a main)
+- **`.github/workflows/deploy-staging.yml`**: Deploy manual a Staging
+- **`.github/workflows/deploy-prod.yml`**: Deploy a PROD (PR + 2 aprobaciones)
 
 ### Estrategia Multi-Región Costo-Efectiva
 
@@ -1412,12 +1485,13 @@ regions:
 
 ```yaml
 cicd_pipeline:
-  source_control: "GitLab"
-  build: "GitLab CI with spot runners"
+  source_control: "GitHub"
+  build: "GitHub Actions with self-hosted runners"
   security: "SAST + DAST + Container scanning"
   deployment: "ArgoCD (GitOps)"
   testing: "Automated testing with cost controls"
-
+  images: "ghcr.io/altrupets/backend, ghcr.io/altrupets/frontend"
+  
   cost_optimizations:
     - "Spot instances for CI runners"
     - "Parallel builds"
@@ -1622,11 +1696,18 @@ docker-compose up -d      # Levantar servicios (PostgreSQL, Redis)
 docker-compose down       # Detener servicios
 docker-compose logs -f    # Ver logs en tiempo real
 
-# Infraestructura (cuando esté disponible)
-cd infrastructure/
-terraform plan            # Planificar cambios
-terraform apply           # Aplicar infraestructura
-kubectl get pods          # Ver estado de pods en K8s
+# Infraestructura (IaC completo disponible)
+make setup                # Setup inicial de desarrollo
+make dev                  # Deploy completo a DEV (minikube)
+make qa                   # Deploy a QA (OVHCloud)
+make stage                # Deploy a Staging
+make verify ENV=qa        # Verificar deployment
+make clean                # Limpiar archivos temporales
+
+# Comandos Terraform/OpenTofu directos
+cd infrastructure/terraform/environments/dev
+tofu init                 # Inicializar
+make dev                  # Deploy con make (recomendado)
 ```
 
 ## 📊 Métricas de Éxito
@@ -1651,6 +1732,32 @@ kubectl get pods          # Ver estado de pods en K8s
 - **Energy Efficiency**: 95% energía renovable
 - **Resource Utilization**: 85% promedio
 - **Waste Reduction**: Auto-shutdown de recursos no utilizados
+
+## 📋 Changelog
+
+### [2025-02-16] - Infraestructura Gateway API v1.0.0
+
+#### ✨ Nuevas Características
+- **Gateway API Infrastructure**: Implementación completa con Terraform + Helm + Kustomize
+- **Arquitectura Híbrida**: NGINX Gateway Fabric + Istio Service Mesh
+- **Multi-Ambiente**: Soporte para DEV (minikube), QA, STAGING y PROD (OVHCloud)
+- **GitHub Actions**: Workflows de CI/CD para build, deploy y verificación
+- **Scripts de Deployment**: Automatización completa con Makefile
+
+#### 🏗️ Infraestructura
+- Módulo Terraform para Gateway API con soporte dual (NGINX + Istio)
+- Helm charts para configuración de Gateways y Routes
+- Kustomize overlays por ambiente (dev, qa, staging, prod)
+- PostgreSQL self-managed para QA/Staging, OVH Managed para PROD
+
+#### 🚀 DevOps
+- GitHub Actions workflows (4 workflows)
+- GitHub Container Registry (GHCR) integration
+- Automated deployment a QA en push a main
+- Manual deployment a Staging con verificación
+- PR-based deployment a PROD con aprobaciones
+
+Ver detalles completos en [`infrastructure/terraform/modules/kubernetes/gateway-api/CHANGELOG.md`](infrastructure/terraform/modules/kubernetes/gateway-api/CHANGELOG.md)
 
 ## 📄 Licencia
 

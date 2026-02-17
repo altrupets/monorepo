@@ -1,11 +1,15 @@
 import { NestFactory } from '@nestjs/core';
 import { ValidationPipe } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
+import { NestExpressApplication } from '@nestjs/platform-express';
 import { AppModule } from './app.module';
 import { AuthService } from './auth/auth.service';
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule);
+  const app = await NestFactory.create<NestExpressApplication>(AppModule);
+
+  // Aumentar límite de tamaño para imágenes base64 (50MB)
+  app.useBodyParser('json', { limit: '50mb' });
 
   const configService = app.get(ConfigService);
   const port = configService.get<number>('PORT', 3001);
@@ -15,6 +19,8 @@ async function bootstrap() {
     origin: [
       'http://localhost:5173', // Vite dev server
       'http://localhost:3000', // Alternative dev server
+      'http://192.168.1.81:3001', // Laptop IP for mobile testing
+      'http://192.168.1.81:5173',
     ],
     credentials: true,
   });

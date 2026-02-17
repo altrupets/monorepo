@@ -1,0 +1,108 @@
+{{- if .Values.httpRoutes.enabled }}
+{{- range .Values.httpRoutes.routes }}
+---
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: {{ .name }}
+  namespace: {{ default $.Values.gateway.namespace .namespace }}
+  labels:
+    {{- include "gateway-api.labels" $ | nindent 4 }}
+  annotations:
+    {{- include "gateway-api.annotations" $ | nindent 4 }}
+spec:
+  {{- if .parentRefs }}
+  parentRefs:
+  {{- range .parentRefs }}
+    - name: {{ .name }}
+      {{- if .namespace }}
+      namespace: {{ .namespace }}
+      {{- end }}
+      {{- if .sectionName }}
+      sectionName: {{ .sectionName }}
+      {{- end }}
+  {{- end }}
+  {{- else }}
+  parentRefs:
+    - name: {{ $.Values.gateway.name }}
+      namespace: {{ $.Values.gateway.namespace }}
+  {{- end }}
+  {{- if .hostnames }}
+  hostnames:
+  {{- range .hostnames }}
+    - {{ . | quote }}
+  {{- end }}
+  {{- end }}
+  rules:
+  {{- range .rules }}
+    - {{- if .matches }}
+      matches:
+      {{- range .matches }}
+        - {{- if .path }}
+          path:
+            type: {{ .path.type }}
+            value: {{ .path.value | quote }}
+          {{- end }}
+          {{- if .method }}
+          method: {{ .method }}
+          {{- end }}
+          {{- if .headers }}
+          headers:
+          {{- range .headers }}
+            - name: {{ .name }}
+              value: {{ .value | quote }}
+              {{- if .type }}
+              type: {{ .type }}
+              {{- end }}
+          {{- end }}
+          {{- end }}
+          {{- if .queryParams }}
+          queryParams:
+          {{- range .queryParams }}
+            - name: {{ .name }}
+              value: {{ .value | quote }}
+              {{- if .type }}
+              type: {{ .type }}
+              {{- end }}
+          {{- end }}
+          {{- end }}
+      {{- end }}
+      {{- end }}
+      {{- if .backendRefs }}
+      backendRefs:
+      {{- range .backendRefs }}
+        - name: {{ .name }}
+          {{- if .namespace }}
+          namespace: {{ .namespace }}
+          {{- end }}
+          port: {{ .port }}
+          {{- if .weight }}
+          weight: {{ .weight }}
+          {{- end }}
+      {{- end }}
+      {{- end }}
+      {{- if .filters }}
+      filters:
+      {{- range .filters }}
+        - type: {{ .type }}
+          {{- if .requestRedirect }}
+          requestRedirect:
+            {{- toYaml .requestRedirect | nindent 12 }}
+          {{- end }}
+          {{- if .urlRewrite }}
+          urlRewrite:
+            {{- toYaml .urlRewrite | nindent 12 }}
+          {{- end }}
+          {{- if .requestHeaderModifier }}
+          requestHeaderModifier:
+            {{- toYaml .requestHeaderModifier | nindent 12 }}
+          {{- end }}
+          {{- if .responseHeaderModifier }}
+          responseHeaderModifier:
+            {{- toYaml .responseHeaderModifier | nindent 12 }}
+          {{- end }}
+      {{- end }}
+      {{- end }}
+  {{- end }}
+{{- end }}
+{{- end }}

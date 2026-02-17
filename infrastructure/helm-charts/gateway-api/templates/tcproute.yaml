@@ -1,0 +1,45 @@
+{{- if .Values.tcpRoutes.enabled }}
+{{- range .Values.tcpRoutes.routes }}
+---
+apiVersion: gateway.networking.k8s.io/v1alpha2
+kind: TCPRoute
+metadata:
+  name: {{ .name }}
+  namespace: {{ default $.Values.gateway.namespace .namespace }}
+  labels:
+    {{- include "gateway-api.labels" $ | nindent 4 }}
+  annotations:
+    {{- include "gateway-api.annotations" $ | nindent 4 }}
+spec:
+  {{- if .parentRefs }}
+  parentRefs:
+  {{- range .parentRefs }}
+    - name: {{ .name }}
+      {{- if .namespace }}
+      namespace: {{ .namespace }}
+      {{- end }}
+      {{- if .sectionName }}
+      sectionName: {{ .sectionName }}
+      {{- end }}
+  {{- end }}
+  {{- else }}
+  parentRefs:
+    - name: {{ $.Values.gateway.name }}
+      namespace: {{ $.Values.gateway.namespace }}
+  {{- end }}
+  rules:
+  {{- range .rules }}
+    - backendRefs:
+      {{- range .backendRefs }}
+        - name: {{ .name }}
+          {{- if .namespace }}
+          namespace: {{ .namespace }}
+          {{- end }}
+          port: {{ .port }}
+          {{- if .weight }}
+          weight: {{ .weight }}
+          {{- end }}
+      {{- end }}
+  {{- end }}
+{{- end }}
+{{- end }}

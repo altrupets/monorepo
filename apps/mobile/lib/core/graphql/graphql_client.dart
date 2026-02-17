@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:flutter/foundation.dart';
 import 'package:graphql/client.dart';
@@ -25,6 +26,9 @@ class GraphQLClientService {
   static GraphQLClient _createClient() {
     final errorLink = ErrorLink(
       onGraphQLError: (request, forward, response) {
+        debugPrint(
+          '[GraphQLClient] ⚠️ GraphQL Error: ${response.errors?.map((e) => e.message).join(', ')}',
+        );
         final hasUnauthorizedError = (response.errors ?? const []).any((error) {
           final message = error.message.toLowerCase();
           return message.contains('unauthorized') ||
@@ -36,10 +40,65 @@ class GraphQLClientService {
         return null;
       },
       onException: (request, forward, exception) {
-        if (exception is ServerException &&
-            (exception.statusCode == 401 || exception.statusCode == 403)) {
-          unawaited(_handleSessionExpired());
+        debugPrint(
+          '[GraphQLClient] ❌ Exception caught: ${exception.runtimeType}',
+        );
+
+        // Log detailed information about network errors
+        if (exception is ServerException) {
+          debugPrint(
+            '[GraphQLClient]   └─ Status Code: ${exception.statusCode}',
+          );
+          if (exception.originalException != null) {
+            debugPrint(
+              '[GraphQLClient]   └─ Original: ${exception.originalException}',
+            );
+          }
+
+          if (exception.statusCode == 401 || exception.statusCode == 403) {
+            unawaited(_handleSessionExpired());
+          }
         }
+
+        // Check for SocketException in originalException
+        final originalException = exception is ServerException
+            ? exception.originalException
+            : null;
+        if (originalException != null) {
+          debugPrint(
+            '[GraphQLClient]   └─ Checking wrapped exception: ${originalException.runtimeType}',
+          );
+          if (originalException is SocketException) {
+            debugPrint('[GraphQLClient]   └─ 🔌 SocketException detected!');
+            debugPrint(
+              '[GraphQLClient]      ├─ Message: ${originalException.message}',
+            );
+            debugPrint(
+              '[GraphQLClient]      ├─ OS Error: ${originalException.osError}',
+            );
+            debugPrint(
+              '[GraphQLClient]      ├─ Address: ${originalException.address}',
+            );
+            debugPrint(
+              '[GraphQLClient]      └─ Port: ${originalException.port}',
+            );
+            debugPrint(
+              '[GraphQLClient] 💡 Backend URL: ${AppConstants.baseUrl}',
+            );
+            debugPrint(
+              '[GraphQLClient] 💡 Tip: Verify backend is running and reachable',
+            );
+          } else if (originalException.toString().contains('SocketException') ||
+              originalException.toString().contains('Connection refused')) {
+            debugPrint(
+              '[GraphQLClient]   └─ 🌐 Network error detected: ${originalException.toString().substring(0, originalException.toString().length > 200 ? 200 : originalException.toString().length)}',
+            );
+            debugPrint(
+              '[GraphQLClient] 💡 Backend URL: ${AppConstants.baseUrl}',
+            );
+          }
+        }
+
         return null;
       },
     );
@@ -53,7 +112,9 @@ class GraphQLClientService {
       getToken: () async {
         debugPrint('[GraphQLClient] 🔑 Solicitando token para AuthLink...');
         final token = await getToken();
-        debugPrint('[GraphQLClient] 🔑 Token ${token != null ? 'encontrado (len: ${token.length})' : 'NO ENCONTRADO'}');
+        debugPrint(
+          '[GraphQLClient] 🔑 Token ${token != null ? 'encontrado (len: ${token.length})' : 'NO ENCONTRADO'}',
+        );
         return token != null ? 'Bearer $token' : null;
       },
     );
