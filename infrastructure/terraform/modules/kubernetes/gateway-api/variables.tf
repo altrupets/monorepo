@@ -109,7 +109,7 @@ variable "enable_nginx_gateway" {
 variable "nginx_gateway_version" {
   description = "NGINX Gateway Fabric version"
   type        = string
-  default     = "1.2.0"
+  default     = "2.4.1"
 }
 
 variable "nginx_gateway_namespace" {

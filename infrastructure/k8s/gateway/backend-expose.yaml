@@ -1,0 +1,41 @@
+apiVersion: gateway.networking.k8s.io/v1
+kind: Gateway
+metadata:
+  name: dev-gateway
+  namespace: altrupets-dev
+  annotations:
+    app.kubernetes.io/managed-by: kubectl
+spec:
+  gatewayClassName: nginx
+  listeners:
+    - name: http
+      protocol: HTTP
+      port: 80
+      allowedRoutes:
+        namespaces:
+          from: All
+    - name: backend
+      protocol: HTTP
+      port: 3001
+      allowedRoutes:
+        namespaces:
+          from: All
+---
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: backend-route
+  namespace: altrupets-dev
+spec:
+  parentRefs:
+    - name: dev-gateway
+      namespace: altrupets-dev
+      sectionName: backend
+  rules:
+    - matches:
+        - path:
+            type: PathPrefix
+            value: /
+      backendRefs:
+        - name: backend-service
+          port: 3001

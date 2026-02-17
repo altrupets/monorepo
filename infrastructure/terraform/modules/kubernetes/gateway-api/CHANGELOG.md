@@ -125,6 +125,22 @@ y este proyecto adhiere a [Semantic Versioning](https://semver.org/lang/es/spec/
 
 ### Changed
 
+#### NGINX Gateway Fabric -取代 ingress-nginx (2026-02-16)
+- **NGINX Gateway Fabric v2.4.1** ahora es el controlador principal
+- **Istio Service Mesh** deshabilitado por defecto (requiere más recursos: 4 CPUs, 8GB RAM)
+- CRDs ahora se instalan desde el repo oficial de NGF:
+  - `https://github.com/nginx/nginx-gateway-fabric/config/crd/gateway-api/standard?ref=v${version}`
+- Helm chart instalado desde OCI registry: `oci://ghcr.io/nginx/charts/nginx-gateway-fabric`
+- Entorno DEV configurado con:
+  - `enable_istio_service_mesh = false`
+  - `enable_nginx_gateway = true`
+  - `nginx_gateway_version = "2.4.1"`
+
+#### Terraform Module Updates
+- Actualizado repo del chart de Helm: `https://helm.nginx.com/nginx-gateway-fabric` → `oci://ghcr.io/nginx/charts`
+- Actualizada versión por defecto: `1.2.0` → `2.4.1`
+- Corregido script de instalación de CRDs para usar kustomize
+
 #### Documentación
 - **Nuevo README.md** en `infrastructure/terraform/modules/kubernetes/gateway-api/README.md`:
   - Arquitectura completa con diagrama
@@ -133,6 +149,21 @@ y este proyecto adhiere a [Semantic Versioning](https://semver.org/lang/es/spec/
   - Uso básico y avanzado
   - Verificación post-despliegue
   - Referencias
+
+### Pending - Environments Expansion
+
+#### Crear estructuras Terraform para QA, STAGE, PROD (Pendiente)
+- Crear directorios:
+  - `infrastructure/terraform/environments/qa/`
+  - `infrastructure/terraform/environments/staging/`
+  - `infrastructure/terraform/environments/prod/`
+- Cada entorno debe incluir:
+  - `main.tf` con referencias al módulo gateway-api
+  - `variables.tf` con variables específicas del entorno
+- Considerar:
+  - QA: Istio deshabilitado (recursos limitados)
+  - STAGING: Istio opcional (pruebas de service mesh)
+  - PROD: Istio habilitado (mTLS completo)
 
 ### Technical Details
 
