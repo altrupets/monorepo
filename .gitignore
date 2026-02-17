@@ -32,3 +32,15 @@ doc/api/
 
 .flutter-plugins
 .flutter-plugins-dependencies
+
+# Logs directory - keep folders but ignore files
+# Ignore everything in logs/
+/logs/*
+/logs/*/*
+/logs/*/*/*
+
+# But keep .gitkeep files at all levels
+!/logs/.gitkeep
+!/logs/*/.gitkeep
+!/logs/*/*/.gitkeep
+!/logs/*/*/*/.gitkeep

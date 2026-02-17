@@ -1,0 +1,19 @@
+apiVersion: v2
+name: gateway-api
+version: 1.0.0
+appVersion: "v1.4.1"
+description: Kubernetes Gateway API base configuration Helm chart
+keywords:
+  - gateway-api
+  - kubernetes
+  - networking
+  - ingress
+home: https://gateway-api.sigs.k8s.io
+sources:
+  - https://github.com/kubernetes-sigs/gateway-api
+maintainers:
+  - name: Platform Team
+    email: platform@example.com
+dependencies: []
+annotations:
+  category: Infrastructure

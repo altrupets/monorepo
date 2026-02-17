@@ -1,0 +1,39 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+namespace: dev
+
+resources:
+  - ../../base
+
+namePrefix: dev-
+
+commonLabels:
+  environment: dev
+  app.kubernetes.io/version: "1.0.0"
+
+commonAnnotations:
+  environment: dev
+  deployedBy: "kustomize"
+
+patches:
+  - path: patches/gateway-patch.yaml
+    target:
+      kind: Gateway
+      name: default-gateway
+
+configMapGenerator:
+  - name: gateway-config
+    behavior: replace
+    literals:
+      - environment=dev
+      - logLevel=debug
+
+replicas:
+  - name: gateway-controller
+    count: 1
+
+images:
+  - name: gateway-controller
+    newName: nginx/nginx-ingress
+    newTag: "dev-latest"

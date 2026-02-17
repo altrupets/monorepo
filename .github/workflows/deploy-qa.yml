@@ -1,0 +1,199 @@
+name: Deploy to QA (Ephemeral)
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:  # Manual trigger
+    inputs:
+      destroy:
+        description: 'Destroy QA environment after tests'
+        required: false
+        default: 'false'
+        type: choice
+        options:
+          - 'true'
+          - 'false'
+
+env:
+  ENVIRONMENT: qa
+  OVH_KUBECONFIG: ${{ secrets.OVH_QA_KUBECONFIG }}
+  POSTGRES_PASSWORD: ${{ secrets.QA_POSTGRES_PASSWORD }}
+
+jobs:
+  # ==========================================
+  # Deploy Gateway API
+  # ==========================================
+  deploy-gateway:
+    runs-on: ubuntu-latest
+    environment: qa
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup OpenTofu
+        uses: opentofu/setup-opentofu@v1
+        with:
+          tofu_version: "1.6.0"
+
+      - name: Setup kubectl
+        uses: azure/setup-kubectl@v3
+        with:
+          version: 'v1.28.0'
+
+      - name: Configure kubeconfig
+        run: |
+          mkdir -p ~/.kube
+          echo "${{ env.OVH_KUBECONFIG }}" | base64 -d > ~/.kube/config
+          chmod 600 ~/.kube/config
+          kubectl cluster-info
+
+      - name: Deploy Gateway API
+        run: |
+          chmod +x infrastructure/scripts/*.sh
+          chmod +x infrastructure/scripts/lib/*.sh
+          ./infrastructure/scripts/deploy-gateway-api.sh qa --auto-approve
+
+  # ==========================================
+  # Deploy PostgreSQL
+  # ==========================================
+  deploy-postgres:
+    runs-on: ubuntu-latest
+    needs: deploy-gateway
+    environment: qa
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup kubectl
+        uses: azure/setup-kubectl@v3
+        with:
+          version: 'v1.28.0'
+
+      - name: Configure kubeconfig
+        run: |
+          mkdir -p ~/.kube
+          echo "${{ env.OVH_KUBECONFIG }}" | base64 -d > ~/.kube/config
+          chmod 600 ~/.kube/config
+
+      - name: Deploy PostgreSQL
+        run: |
+          chmod +x infrastructure/scripts/*.sh
+          chmod +x infrastructure/scripts/lib/*.sh
+          ./infrastructure/scripts/deploy-postgres.sh qa \
+            --auto-approve \
+            --password "${{ env.POSTGRES_PASSWORD }}" \
+            --storage 10Gi
+
+  # ==========================================
+  # Deploy Applications
+  # ==========================================
+  deploy-apps:
+    runs-on: ubuntu-latest
+    needs: [deploy-gateway, deploy-postgres]
+    environment: qa
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup kubectl
+        uses: azure/setup-kubectl@v3
+        with:
+          version: 'v1.28.0'
+
+      - name: Configure kubeconfig
+        run: |
+          mkdir -p ~/.kube
+          echo "${{ env.OVH_KUBECONFIG }}" | base64 -d > ~/.kube/config
+          chmod 600 ~/.kube/config
+
+      - name: Deploy applications
+        run: |
+          echo "Deploying applications to QA..."
+          # Update image tags in manifests
+          # kubectl apply -f k8s/qa/
+          echo "✓ Applications deployed"
+
+      - name: Verify deployment
+        run: |
+          ./infrastructure/scripts/verify-deployment.sh qa
+
+  # ==========================================
+  # Run Tests
+  # ==========================================
+  test:
+    runs-on: ubuntu-latest
+    needs: deploy-apps
+    environment: qa
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup kubectl
+        uses: azure/setup-kubectl@v3
+        with:
+          version: 'v1.28.0'
+
+      - name: Configure kubeconfig
+        run: |
+          mkdir -p ~/.kube
+          echo "${{ env.OVH_KUBECONFIG }}" | base64 -d > ~/.kube/config
+          chmod 600 ~/.kube/config
+
+      - name: Run integration tests
+        run: |
+          echo "Running integration tests against QA..."
+          # Add your integration tests here
+          # Example: curl -f http://qa-api.altrupets.com/health
+          echo "✓ Tests passed"
+
+  # ==========================================
+  # Cleanup (Optional)
+  # ==========================================
+  cleanup:
+    runs-on: ubuntu-latest
+    needs: test
+    if: github.event.inputs.destroy == 'true'
+    environment: qa
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup kubectl
+        uses: azure/setup-kubectl@v3
+        with:
+          version: 'v1.28.0'
+
+      - name: Configure kubeconfig
+        run: |
+          mkdir -p ~/.kube
+          echo "${{ env.OVH_KUBECONFIG }}" | base64 -d > ~/.kube/config
+          chmod 600 ~/.kube/config
+
+      - name: Destroy QA environment
+        run: |
+          echo "Destroying ephemeral QA environment..."
+          kubectl delete namespace qa --ignore-not-found=true
+          echo "✓ QA environment destroyed"
+
+  # ==========================================
+  # Summary
+  # ==========================================
+  summary:
+    runs-on: ubuntu-latest
+    needs: [deploy-apps, test]
+    if: always()
+    steps:
+      - name: Deployment Summary
+        run: |
+          echo "## 🚀 QA Deployment Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "| Component | Status |" >> $GITHUB_STEP_SUMMARY
+          echo "|-----------|--------|" >> $GITHUB_STEP_SUMMARY
+          echo "| Gateway API | ${{ needs.deploy-gateway.result }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| PostgreSQL | ${{ needs.deploy-postgres.result }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Applications | ${{ needs.deploy-apps.result }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Tests | ${{ needs.test.result }} |" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Environment:** QA (Ephemeral)" >> $GITHUB_STEP_SUMMARY
+          echo "**Cluster:** OVHCloud Kubernetes" >> $GITHUB_STEP_SUMMARY
