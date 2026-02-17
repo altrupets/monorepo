@@ -12,6 +12,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.UpdateUserInput = void 0;
 const graphql_1 = require("@nestjs/graphql");
 const class_validator_1 = require("class-validator");
+const user_role_enum_1 = require("../../auth/roles/user-role.enum");
 let UpdateUserInput = class UpdateUserInput {
     firstName;
     lastName;
@@ -26,6 +27,8 @@ let UpdateUserInput = class UpdateUserInput {
     latitude;
     longitude;
     avatarBase64;
+    roles;
+    isActive;
 };
 exports.UpdateUserInput = UpdateUserInput;
 __decorate([
@@ -111,6 +114,19 @@ __decorate([
     (0, class_validator_1.MaxLength)(8_000_000),
     __metadata("design:type", String)
 ], UpdateUserInput.prototype, "avatarBase64", void 0);
+__decorate([
+    (0, graphql_1.Field)(() => [String], { nullable: true }),
+    (0, class_validator_1.IsOptional)(),
+    (0, class_validator_1.IsArray)(),
+    (0, class_validator_1.IsEnum)(user_role_enum_1.UserRole, { each: true }),
+    __metadata("design:type", Array)
+], UpdateUserInput.prototype, "roles", void 0);
+__decorate([
+    (0, graphql_1.Field)({ nullable: true }),
+    (0, class_validator_1.IsOptional)(),
+    (0, class_validator_1.IsBoolean)(),
+    __metadata("design:type", Boolean)
+], UpdateUserInput.prototype, "isActive", void 0);
 exports.UpdateUserInput = UpdateUserInput = __decorate([
     (0, graphql_1.InputType)()
 ], UpdateUserInput);

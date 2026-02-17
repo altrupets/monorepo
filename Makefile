@@ -11,6 +11,7 @@
 #   make help                   # Show all available targets
 
 .PHONY: help install setup dev qa stage prod \
+        dev-up dev-workspace dev-build dev-down dev-stop \
         dev-gateway qa-gateway stage-gateway prod-gateway \
         dev-postgres qa-postgres stage-postgres prod-postgres \
         dev-destroy qa-destroy stage-destroy prod-destroy \
@@ -53,7 +54,9 @@ help: ## Show this help message
 	@echo ""
 	@echo "$(GREEN)Quick Start:$(NC)"
 	@echo "  make setup          $(BLUE)# Setup local development environment$(NC)"
-	@echo "  make dev            $(BLUE)# Deploy everything to DEV (minikube)$(NC)"
+	@echo "  make dev            $(BLUE)# Deploy everything to DEV (first time)$(NC)"
+	@echo "  make dev-up         $(BLUE)# Resume DEV (start Minikube + port-forward)$(NC)"
+	@echo "  make dev-workspace  $(BLUE)# Full workspace: Minikube + DB + Backend$(NC)"
 	@echo "  make qa             $(BLUE)# Deploy to QA (OVHCloud)$(NC)"
 	@echo ""
 	@echo "$(GREEN)Environment Deployment:$(NC)"
@@ -98,6 +101,56 @@ install: setup ## Alias for setup
 dev: ## Deploy complete DEV environment (minikube)
 	@echo "$(BLUE)Deploying DEV environment...$(NC)"
 	@cd $(TF_DIR) && tofu init && tofu apply
+
+dev-up: ## Start Minikube + Gateway port-forward (resume development)
+	@echo "$(BLUE)╔════════════════════════════════════════════════════════════╗$(NC)"
+	@echo "$(BLUE)║       Resuming DEV Environment                             ║$(NC)"
+	@echo "$(BLUE)╚════════════════════════════════════════════════════════════╝$(NC)"
+	@echo ""
+	@$(SCRIPTS_DIR)/dev-validate.sh
+	@echo ""
+	@echo "$(BLUE)🔌 Setting up Gateway port-forward...$(NC)"
+	@pkill -f "kubectl port-forward.*gateway-nodeport" 2>/dev/null || true
+	@kubectl port-forward -n altrupets-dev svc/gateway-nodeport 3001:3001 > /dev/null 2>&1 &
+	@sleep 2
+	@echo "$(GREEN)✓ Gateway accessible at http://localhost:3001$(NC)"
+	@echo ""
+	@echo "$(GREEN)✓ Ready to develop!$(NC)"
+	@echo ""
+	@echo "$(BLUE)Endpoints:$(NC)"
+	@echo "  $(YELLOW)http://localhost:3001$(NC)           - Backend API"
+	@echo "  $(YELLOW)http://localhost:3001/graphql$(NC)   - GraphQL Playground"
+	@echo "  $(YELLOW)http://localhost:3001/admin/users$(NC) - Admin Panel"
+	@echo ""
+	@echo "$(BLUE)To rebuild after changes:$(NC)"
+	@echo "  $(YELLOW)make dev-build$(NC)"
+	@echo ""
+
+dev-build: ## Rebuild backend image and redeploy
+	@echo "$(BLUE)Building backend image...$(NC)"
+	@eval $$(minikube docker-env) && docker build -t altrupets-backend:dev -f apps/backend/Dockerfile apps/backend
+	@echo "$(BLUE)Restarting backend deployment...$(NC)"
+	@kubectl rollout restart deployment/backend -n altrupets-dev
+	@kubectl rollout status deployment/backend -n altrupets-dev --timeout=120s
+	@echo "$(GREEN)✓ Backend rebuilt and deployed$(NC)"
+
+dev-workspace: ## Full dev workspace: Minikube + Gateway + logs
+	@$(MAKE) dev-up
+	@echo "$(BLUE)🚀 Following backend logs (Ctrl+C to stop)...$(NC)"
+	@kubectl logs -f deployment/backend -n altrupets-dev
+
+dev-down: ## Stop port-forwards (keep Minikube running)
+	@echo "$(BLUE)Stopping development port-forwards...$(NC)"
+	@pkill -f "kubectl port-forward.*postgres-dev-service" 2>/dev/null || true
+	@pkill -f "kubectl port-forward.*backend-service" 2>/dev/null || true
+	@echo "$(GREEN)✓ Port-forwards stopped$(NC)"
+	@echo "$(YELLOW)Minikube is still running. Use 'minikube stop' to stop it.$(NC)"
+
+dev-stop: ## Stop Minikube completely
+	@echo "$(BLUE)Stopping development environment...$(NC)"
+	@pkill -f "kubectl port-forward" 2>/dev/null || true
+	@minikube stop
+	@echo "$(GREEN)✓ Development environment stopped$(NC)"
 
 dev-gateway: ## Deploy only Gateway API to DEV
 	@echo "$(BLUE)Deploying Gateway API to DEV...$(NC)"

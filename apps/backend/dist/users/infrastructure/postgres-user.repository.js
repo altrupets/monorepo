@@ -40,6 +40,9 @@ let PostgresUserRepository = class PostgresUserRepository {
         const newUser = this.repository.create(user);
         return this.repository.save(newUser);
     }
+    async delete(id) {
+        await this.repository.delete(id);
+    }
 };
 exports.PostgresUserRepository = PostgresUserRepository;
 exports.PostgresUserRepository = PostgresUserRepository = __decorate([

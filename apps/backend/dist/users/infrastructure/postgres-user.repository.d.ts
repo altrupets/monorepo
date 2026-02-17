@@ -9,4 +9,5 @@ export declare class PostgresUserRepository implements IUserRepository {
     findByEmail(email: string): Promise<User | null>;
     findAll(): Promise<User[]>;
     save(user: Partial<User>): Promise<User>;
+    delete(id: string): Promise<void>;
 }
