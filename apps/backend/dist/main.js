@@ -15,10 +15,7 @@ async function bootstrap() {
     const app = await core_1.NestFactory.create(app_module_1.AppModule);
     app.useBodyParser('json', { limit: '50mb' });
     app.use((0, cookie_parser_1.default)());
-    const isProduction = process.env.NODE_ENV === 'production';
-    if (isProduction) {
-        app.useStaticAssets((0, path_1.join)(__dirname, '..', 'public'));
-    }
+    app.useStaticAssets((0, path_1.join)(__dirname, '..', 'public'));
     app.use(nestjs_inertia_1.inertiaMiddleware);
     const configService = app.get(config_1.ConfigService);
     const port = configService.get('PORT', 3001);
