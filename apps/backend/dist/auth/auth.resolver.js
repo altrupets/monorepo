@@ -19,6 +19,7 @@ const common_1 = require("@nestjs/common");
 const auth_service_1 = require("./auth.service");
 const auth_types_1 = require("./dto/auth.types");
 const login_input_1 = require("./dto/login.input");
+const register_input_1 = require("./dto/register.input");
 const jwt_auth_guard_1 = require("./jwt-auth.guard");
 const roles_guard_1 = require("./roles/roles.guard");
 const roles_decorator_1 = require("./roles/roles.decorator");
@@ -28,6 +29,9 @@ let AuthResolver = class AuthResolver {
     authService;
     constructor(authService) {
         this.authService = authService;
+    }
+    async register(registerInput) {
+        return this.authService.register(registerInput);
     }
     async login(loginInput) {
         const user = await this.authService.validateUser(loginInput.username, loginInput.password);
@@ -44,6 +48,13 @@ let AuthResolver = class AuthResolver {
     }
 };
 exports.AuthResolver = AuthResolver;
+__decorate([
+    (0, graphql_1.Mutation)(() => user_entity_1.User),
+    __param(0, (0, graphql_1.Args)('registerInput')),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [register_input_1.RegisterInput]),
+    __metadata("design:returntype", Promise)
+], AuthResolver.prototype, "register", null);
 __decorate([
     (0, graphql_1.Mutation)(() => auth_types_1.AuthPayload),
     __param(0, (0, graphql_1.Args)('loginInput')),

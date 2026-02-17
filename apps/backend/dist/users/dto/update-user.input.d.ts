@@ -7,5 +7,9 @@ export declare class UpdateUserInput {
     province?: string;
     canton?: string;
     district?: string;
+    occupation?: string;
+    incomeSource?: string;
+    latitude?: number;
+    longitude?: number;
     avatarBase64?: string;
 }

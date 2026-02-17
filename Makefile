@@ -65,6 +65,9 @@ help: ## Show this help message
 	@echo "$(GREEN)CI/CD:$(NC)"
 	@awk 'BEGIN {FS = ":.*?## "} /^[a-zA-Z_-]+:.*?## / {printf "  $(YELLOW)%-20s$(NC) %s\n", $$1, $$2}' $(MAKEFILE_LIST) | grep "ci-" | head -10
 	@echo ""
+	@echo "$(GREEN)Development:$(NC)"
+	@awk 'BEGIN {FS = ":.*?## "} /^[a-zA-Z_-]+:.*?## / {printf "  $(YELLOW)%-20s$(NC) %s\n", $$1, $$2}' $(MAKEFILE_LIST) | grep -E "(backend-dev|seed-|web-dev)" | head -10
+	@echo ""
 	@echo "$(GREEN)Utilities:$(NC)"
 	@awk 'BEGIN {FS = ":.*?## "} /^[a-zA-Z_-]+:.*?## / {printf "  $(YELLOW)%-20s$(NC) %s\n", $$1, $$2}' $(MAKEFILE_LIST) | grep -E "(verify|logs|clean|test)" | head -10
 	@echo ""
@@ -305,6 +308,37 @@ test: ## Run all tests
 	@echo "$(BLUE)Running tests...$(NC)"
 	@# Add test commands here
 	@echo "$(GREEN)✓ Tests complete$(NC)"
+
+backend-dev: ## Start backend development server
+	@echo "$(BLUE)Starting backend development server...$(NC)"
+	@./launch_backend_dev.sh
+
+seed-superuser: ## Create SUPER_USER in Minikube (uses K8s Secrets)
+	@echo "$(BLUE)Creating SUPER_USER in Minikube...$(NC)"
+	@$(SCRIPTS_DIR)/seed-superuser-minikube.sh
+
+web-dev: ## Start web app (port-forward to backend in Minikube)
+	@echo "$(BLUE)Starting web application...$(NC)"
+	@echo "$(YELLOW)Setting up port-forward to backend in Minikube...$(NC)"
+	@kubectl port-forward -n altrupets-dev svc/backend-service 3001:3001 > /dev/null 2>&1 &
+	@sleep 2
+	@echo "$(GREEN)✓ Backend accessible at: http://localhost:3001$(NC)"
+	@echo ""
+	@echo "$(BLUE)Open in browser:$(NC)"
+	@echo "  http://localhost:3001/login"
+	@echo ""
+	@echo "$(BLUE)SUPER_USER credentials:$(NC)"
+	@echo "  Username: dev_backend_superuser"
+	@echo "  Password: [check K8s secret backend-seed-secret]"
+
+web-dev-stop: ## Stop web dev server and port-forward
+	@echo "$(BLUE)Stopping web development environment...$(NC)"
+	@pkill -f "kubectl port-forward.*backend-service" 2>/dev/null || true
+	@echo "$(GREEN)✓ Web development environment stopped$(NC)"
+
+backend-dev-watch: ## Start backend dev server in watch mode
+	@echo "$(BLUE)Starting backend dev server in watch mode...$(NC)"
+	@./launch_backend_dev.sh --watch
 
 lint: ## Lint shell scripts and terraform
 	@echo "$(BLUE)Linting...$(NC)"

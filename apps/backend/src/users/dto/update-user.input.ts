@@ -1,5 +1,5 @@
-import { InputType, Field } from '@nestjs/graphql';
-import { IsOptional, IsString, MaxLength } from 'class-validator';
+import { InputType, Field, Float } from '@nestjs/graphql';
+import { IsOptional, IsString, MaxLength, IsNumber, Min, Max } from 'class-validator';
 
 @InputType()
 export class UpdateUserInput {
@@ -42,6 +42,30 @@ export class UpdateUserInput {
     @IsOptional()
     @IsString()
     district?: string;
+
+    @Field({ nullable: true })
+    @IsOptional()
+    @IsString()
+    occupation?: string;
+
+    @Field({ nullable: true })
+    @IsOptional()
+    @IsString()
+    incomeSource?: string;
+
+    @Field(() => Float, { nullable: true })
+    @IsOptional()
+    @IsNumber()
+    @Min(-90)
+    @Max(90)
+    latitude?: number;
+
+    @Field(() => Float, { nullable: true })
+    @IsOptional()
+    @IsNumber()
+    @Min(-180)
+    @Max(180)
+    longitude?: number;
 
     @Field({ nullable: true })
     @IsOptional()

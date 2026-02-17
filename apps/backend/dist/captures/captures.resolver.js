@@ -18,6 +18,10 @@ const common_1 = require("@nestjs/common");
 const capture_request_entity_1 = require("./entities/capture-request.entity");
 const create_capture_input_1 = require("./dto/create-capture.input");
 const storage_wrapper_interface_1 = require("./interfaces/storage-wrapper.interface");
+const jwt_auth_guard_1 = require("../auth/jwt-auth.guard");
+const roles_guard_1 = require("../auth/roles/roles.guard");
+const roles_decorator_1 = require("../auth/roles/roles.decorator");
+const rbac_constants_1 = require("../auth/roles/rbac-constants");
 let CapturesResolver = class CapturesResolver {
     storage;
     constructor(storage) {
@@ -35,6 +39,8 @@ let CapturesResolver = class CapturesResolver {
 exports.CapturesResolver = CapturesResolver;
 __decorate([
     (0, graphql_1.Query)(() => [capture_request_entity_1.CaptureRequest], { name: 'getCaptureRequests' }),
+    (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard, roles_guard_1.RolesGuard),
+    (0, roles_decorator_1.Roles)(...rbac_constants_1.CAPTURE_VIEWER_ROLES),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", []),
     __metadata("design:returntype", Promise)

@@ -4,12 +4,27 @@ import { ConfigService } from '@nestjs/config';
 import { NestExpressApplication } from '@nestjs/platform-express';
 import { AppModule } from './app.module';
 import { AuthService } from './auth/auth.service';
+import cookieParser from 'cookie-parser';
+import { inertiaMiddleware } from 'nestjs-inertia';
+import { join } from 'path';
 
 async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule);
 
   // Aumentar límite de tamaño para imágenes base64 (50MB)
   app.useBodyParser('json', { limit: '50mb' });
+
+  // Cookie parser for JWT in cookies
+  app.use(cookieParser());
+
+  // Serve static files for Inertia.js frontend (built assets)
+  const isProduction = process.env.NODE_ENV === 'production';
+  if (isProduction) {
+    app.useStaticAssets(join(__dirname, '..', 'public'));
+  }
+
+  // Inertia.js middleware
+  app.use(inertiaMiddleware);
 
   const configService = app.get(ConfigService);
   const port = configService.get<number>('PORT', 3001);

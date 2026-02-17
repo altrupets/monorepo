@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:altrupets/core/providers/navigation_provider.dart';
 import 'package:altrupets/features/auth/presentation/providers/auth_provider.dart';
+import 'package:altrupets/features/auth/presentation/pages/register_page.dart';
 import 'package:altrupets/features/home/presentation/pages/home_page.dart';
 import 'package:altrupets/features/profile/presentation/providers/profile_provider.dart';
 
@@ -179,6 +180,18 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                           child: CircularProgressIndicator(strokeWidth: 2),
                         )
                       : const Text('Iniciar Sesión'),
+                ),
+                const SizedBox(height: 16),
+                // Botón de registro
+                TextButton(
+                  onPressed: () {
+                    Navigator.of(context).push(
+                      MaterialPageRoute(
+                        builder: (context) => const RegisterPage(),
+                      ),
+                    );
+                  },
+                  child: const Text('¿No tienes cuenta? Regístrate aquí'),
                 ),
               ],
             ),

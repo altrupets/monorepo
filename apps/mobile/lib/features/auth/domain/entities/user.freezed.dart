@@ -25,6 +25,7 @@ mixin _$User {
   String get username => throw _privateConstructorUsedError;
   @JsonKey(fromJson: _rolesFromJson)
   List<String>? get roles => throw _privateConstructorUsedError;
+  String? get email => throw _privateConstructorUsedError;
   String? get firstName => throw _privateConstructorUsedError;
   String? get lastName => throw _privateConstructorUsedError;
   String? get phone => throw _privateConstructorUsedError;
@@ -33,6 +34,10 @@ mixin _$User {
   String? get province => throw _privateConstructorUsedError;
   String? get canton => throw _privateConstructorUsedError;
   String? get district => throw _privateConstructorUsedError;
+  String? get occupation => throw _privateConstructorUsedError;
+  String? get incomeSource => throw _privateConstructorUsedError;
+  bool? get isActive => throw _privateConstructorUsedError;
+  bool? get isVerified => throw _privateConstructorUsedError;
   String? get avatarBase64 => throw _privateConstructorUsedError;
   @JsonKey(fromJson: _dateTimeFromJson)
   DateTime? get createdAt => throw _privateConstructorUsedError;
@@ -57,6 +62,7 @@ abstract class $UserCopyWith<$Res> {
     String id,
     String username,
     @JsonKey(fromJson: _rolesFromJson) List<String>? roles,
+    String? email,
     String? firstName,
     String? lastName,
     String? phone,
@@ -65,6 +71,10 @@ abstract class $UserCopyWith<$Res> {
     String? province,
     String? canton,
     String? district,
+    String? occupation,
+    String? incomeSource,
+    bool? isActive,
+    bool? isVerified,
     String? avatarBase64,
     @JsonKey(fromJson: _dateTimeFromJson) DateTime? createdAt,
     @JsonKey(fromJson: _dateTimeFromJson) DateTime? updatedAt,
@@ -89,6 +99,7 @@ class _$UserCopyWithImpl<$Res, $Val extends User>
     Object? id = null,
     Object? username = null,
     Object? roles = freezed,
+    Object? email = freezed,
     Object? firstName = freezed,
     Object? lastName = freezed,
     Object? phone = freezed,
@@ -97,6 +108,10 @@ class _$UserCopyWithImpl<$Res, $Val extends User>
     Object? province = freezed,
     Object? canton = freezed,
     Object? district = freezed,
+    Object? occupation = freezed,
+    Object? incomeSource = freezed,
+    Object? isActive = freezed,
+    Object? isVerified = freezed,
     Object? avatarBase64 = freezed,
     Object? createdAt = freezed,
     Object? updatedAt = freezed,
@@ -115,6 +130,10 @@ class _$UserCopyWithImpl<$Res, $Val extends User>
                 ? _value.roles
                 : roles // ignore: cast_nullable_to_non_nullable
                       as List<String>?,
+            email: freezed == email
+                ? _value.email
+                : email // ignore: cast_nullable_to_non_nullable
+                      as String?,
             firstName: freezed == firstName
                 ? _value.firstName
                 : firstName // ignore: cast_nullable_to_non_nullable
@@ -147,6 +166,22 @@ class _$UserCopyWithImpl<$Res, $Val extends User>
                 ? _value.district
                 : district // ignore: cast_nullable_to_non_nullable
                       as String?,
+            occupation: freezed == occupation
+                ? _value.occupation
+                : occupation // ignore: cast_nullable_to_non_nullable
+                      as String?,
+            incomeSource: freezed == incomeSource
+                ? _value.incomeSource
+                : incomeSource // ignore: cast_nullable_to_non_nullable
+                      as String?,
+            isActive: freezed == isActive
+                ? _value.isActive
+                : isActive // ignore: cast_nullable_to_non_nullable
+                      as bool?,
+            isVerified: freezed == isVerified
+                ? _value.isVerified
+                : isVerified // ignore: cast_nullable_to_non_nullable
+                      as bool?,
             avatarBase64: freezed == avatarBase64
                 ? _value.avatarBase64
                 : avatarBase64 // ignore: cast_nullable_to_non_nullable
@@ -177,6 +212,7 @@ abstract class _$$UserImplCopyWith<$Res> implements $UserCopyWith<$Res> {
     String id,
     String username,
     @JsonKey(fromJson: _rolesFromJson) List<String>? roles,
+    String? email,
     String? firstName,
     String? lastName,
     String? phone,
@@ -185,6 +221,10 @@ abstract class _$$UserImplCopyWith<$Res> implements $UserCopyWith<$Res> {
     String? province,
     String? canton,
     String? district,
+    String? occupation,
+    String? incomeSource,
+    bool? isActive,
+    bool? isVerified,
     String? avatarBase64,
     @JsonKey(fromJson: _dateTimeFromJson) DateTime? createdAt,
     @JsonKey(fromJson: _dateTimeFromJson) DateTime? updatedAt,
@@ -206,6 +246,7 @@ class __$$UserImplCopyWithImpl<$Res>
     Object? id = null,
     Object? username = null,
     Object? roles = freezed,
+    Object? email = freezed,
     Object? firstName = freezed,
     Object? lastName = freezed,
     Object? phone = freezed,
@@ -214,6 +255,10 @@ class __$$UserImplCopyWithImpl<$Res>
     Object? province = freezed,
     Object? canton = freezed,
     Object? district = freezed,
+    Object? occupation = freezed,
+    Object? incomeSource = freezed,
+    Object? isActive = freezed,
+    Object? isVerified = freezed,
     Object? avatarBase64 = freezed,
     Object? createdAt = freezed,
     Object? updatedAt = freezed,
@@ -232,6 +277,10 @@ class __$$UserImplCopyWithImpl<$Res>
             ? _value._roles
             : roles // ignore: cast_nullable_to_non_nullable
                   as List<String>?,
+        email: freezed == email
+            ? _value.email
+            : email // ignore: cast_nullable_to_non_nullable
+                  as String?,
         firstName: freezed == firstName
             ? _value.firstName
             : firstName // ignore: cast_nullable_to_non_nullable
@@ -264,6 +313,22 @@ class __$$UserImplCopyWithImpl<$Res>
             ? _value.district
             : district // ignore: cast_nullable_to_non_nullable
                   as String?,
+        occupation: freezed == occupation
+            ? _value.occupation
+            : occupation // ignore: cast_nullable_to_non_nullable
+                  as String?,
+        incomeSource: freezed == incomeSource
+            ? _value.incomeSource
+            : incomeSource // ignore: cast_nullable_to_non_nullable
+                  as String?,
+        isActive: freezed == isActive
+            ? _value.isActive
+            : isActive // ignore: cast_nullable_to_non_nullable
+                  as bool?,
+        isVerified: freezed == isVerified
+            ? _value.isVerified
+            : isVerified // ignore: cast_nullable_to_non_nullable
+                  as bool?,
         avatarBase64: freezed == avatarBase64
             ? _value.avatarBase64
             : avatarBase64 // ignore: cast_nullable_to_non_nullable
@@ -288,6 +353,7 @@ class _$UserImpl implements _User {
     required this.id,
     required this.username,
     @JsonKey(fromJson: _rolesFromJson) final List<String>? roles,
+    this.email,
     this.firstName,
     this.lastName,
     this.phone,
@@ -296,6 +362,10 @@ class _$UserImpl implements _User {
     this.province,
     this.canton,
     this.district,
+    this.occupation,
+    this.incomeSource,
+    this.isActive,
+    this.isVerified,
     this.avatarBase64,
     @JsonKey(fromJson: _dateTimeFromJson) this.createdAt,
     @JsonKey(fromJson: _dateTimeFromJson) this.updatedAt,
@@ -320,6 +390,8 @@ class _$UserImpl implements _User {
   }
 
   @override
+  final String? email;
+  @override
   final String? firstName;
   @override
   final String? lastName;
@@ -336,6 +408,14 @@ class _$UserImpl implements _User {
   @override
   final String? district;
   @override
+  final String? occupation;
+  @override
+  final String? incomeSource;
+  @override
+  final bool? isActive;
+  @override
+  final bool? isVerified;
+  @override
   final String? avatarBase64;
   @override
   @JsonKey(fromJson: _dateTimeFromJson)
@@ -346,7 +426,7 @@ class _$UserImpl implements _User {
 
   @override
   String toString() {
-    return 'User(id: $id, username: $username, roles: $roles, firstName: $firstName, lastName: $lastName, phone: $phone, identification: $identification, country: $country, province: $province, canton: $canton, district: $district, avatarBase64: $avatarBase64, createdAt: $createdAt, updatedAt: $updatedAt)';
+    return 'User(id: $id, username: $username, roles: $roles, email: $email, firstName: $firstName, lastName: $lastName, phone: $phone, identification: $identification, country: $country, province: $province, canton: $canton, district: $district, occupation: $occupation, incomeSource: $incomeSource, isActive: $isActive, isVerified: $isVerified, avatarBase64: $avatarBase64, createdAt: $createdAt, updatedAt: $updatedAt)';
   }
 
   @override
@@ -358,6 +438,7 @@ class _$UserImpl implements _User {
             (identical(other.username, username) ||
                 other.username == username) &&
             const DeepCollectionEquality().equals(other._roles, _roles) &&
+            (identical(other.email, email) || other.email == email) &&
             (identical(other.firstName, firstName) ||
                 other.firstName == firstName) &&
             (identical(other.lastName, lastName) ||
@@ -371,6 +452,14 @@ class _$UserImpl implements _User {
             (identical(other.canton, canton) || other.canton == canton) &&
             (identical(other.district, district) ||
                 other.district == district) &&
+            (identical(other.occupation, occupation) ||
+                other.occupation == occupation) &&
+            (identical(other.incomeSource, incomeSource) ||
+                other.incomeSource == incomeSource) &&
+            (identical(other.isActive, isActive) ||
+                other.isActive == isActive) &&
+            (identical(other.isVerified, isVerified) ||
+                other.isVerified == isVerified) &&
             (identical(other.avatarBase64, avatarBase64) ||
                 other.avatarBase64 == avatarBase64) &&
             (identical(other.createdAt, createdAt) ||
@@ -381,11 +470,12 @@ class _$UserImpl implements _User {
 
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
-  int get hashCode => Object.hash(
+  int get hashCode => Object.hashAll([
     runtimeType,
     id,
     username,
     const DeepCollectionEquality().hash(_roles),
+    email,
     firstName,
     lastName,
     phone,
@@ -394,10 +484,14 @@ class _$UserImpl implements _User {
     province,
     canton,
     district,
+    occupation,
+    incomeSource,
+    isActive,
+    isVerified,
     avatarBase64,
     createdAt,
     updatedAt,
-  );
+  ]);
 
   /// Create a copy of User
   /// with the given fields replaced by the non-null parameter values.
@@ -418,6 +512,7 @@ abstract class _User implements User {
     required final String id,
     required final String username,
     @JsonKey(fromJson: _rolesFromJson) final List<String>? roles,
+    final String? email,
     final String? firstName,
     final String? lastName,
     final String? phone,
@@ -426,6 +521,10 @@ abstract class _User implements User {
     final String? province,
     final String? canton,
     final String? district,
+    final String? occupation,
+    final String? incomeSource,
+    final bool? isActive,
+    final bool? isVerified,
     final String? avatarBase64,
     @JsonKey(fromJson: _dateTimeFromJson) final DateTime? createdAt,
     @JsonKey(fromJson: _dateTimeFromJson) final DateTime? updatedAt,
@@ -440,6 +539,8 @@ abstract class _User implements User {
   @override
   @JsonKey(fromJson: _rolesFromJson)
   List<String>? get roles;
+  @override
+  String? get email;
   @override
   String? get firstName;
   @override
@@ -456,6 +557,14 @@ abstract class _User implements User {
   String? get canton;
   @override
   String? get district;
+  @override
+  String? get occupation;
+  @override
+  String? get incomeSource;
+  @override
+  bool? get isActive;
+  @override
+  bool? get isVerified;
   @override
   String? get avatarBase64;
   @override

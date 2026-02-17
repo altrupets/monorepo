@@ -19,6 +19,10 @@ export class PostgresUserRepository implements IUserRepository {
     return this.repository.findOne({ where: { username } });
   }
 
+  async findByEmail(email: string): Promise<User | null> {
+    return this.repository.findOne({ where: { email } });
+  }
+
   async findAll(): Promise<User[]> {
     return this.repository.find({
       order: { updatedAt: 'DESC' },

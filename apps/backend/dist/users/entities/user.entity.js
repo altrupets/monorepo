@@ -16,6 +16,7 @@ const user_role_enum_1 = require("../../auth/roles/user-role.enum");
 let User = class User {
     id;
     username;
+    email;
     passwordHash;
     roles;
     firstName;
@@ -26,6 +27,14 @@ let User = class User {
     province;
     canton;
     district;
+    bio;
+    occupation;
+    incomeSource;
+    organizationId;
+    latitude;
+    longitude;
+    isActive;
+    isVerified;
     avatarImage;
     avatarBase64;
     createdAt;
@@ -40,8 +49,15 @@ __decorate([
 __decorate([
     (0, graphql_1.Field)(),
     (0, typeorm_1.Column)({ unique: true }),
+    (0, typeorm_1.Index)(),
     __metadata("design:type", String)
 ], User.prototype, "username", void 0);
+__decorate([
+    (0, graphql_1.Field)({ nullable: true }),
+    (0, typeorm_1.Column)({ unique: true, nullable: true }),
+    (0, typeorm_1.Index)(),
+    __metadata("design:type", String)
+], User.prototype, "email", void 0);
 __decorate([
     (0, typeorm_1.Column)(),
     __metadata("design:type", String)
@@ -52,7 +68,7 @@ __decorate([
         type: 'enum',
         enum: user_role_enum_1.UserRole,
         array: true,
-        default: [user_role_enum_1.UserRole.CENTINELA],
+        default: [user_role_enum_1.UserRole.WATCHER],
     }),
     __metadata("design:type", Array)
 ], User.prototype, "roles", void 0);
@@ -96,6 +112,46 @@ __decorate([
     (0, typeorm_1.Column)({ nullable: true }),
     __metadata("design:type", String)
 ], User.prototype, "district", void 0);
+__decorate([
+    (0, graphql_1.Field)({ nullable: true }),
+    (0, typeorm_1.Column)({ nullable: true }),
+    __metadata("design:type", String)
+], User.prototype, "bio", void 0);
+__decorate([
+    (0, graphql_1.Field)({ nullable: true }),
+    (0, typeorm_1.Column)({ nullable: true }),
+    __metadata("design:type", String)
+], User.prototype, "occupation", void 0);
+__decorate([
+    (0, graphql_1.Field)({ nullable: true }),
+    (0, typeorm_1.Column)({ nullable: true }),
+    __metadata("design:type", String)
+], User.prototype, "incomeSource", void 0);
+__decorate([
+    (0, graphql_1.Field)({ nullable: true }),
+    (0, typeorm_1.Column)({ type: 'uuid', nullable: true }),
+    __metadata("design:type", String)
+], User.prototype, "organizationId", void 0);
+__decorate([
+    (0, graphql_1.Field)(() => graphql_1.Float, { nullable: true }),
+    (0, typeorm_1.Column)({ type: 'decimal', precision: 10, scale: 7, nullable: true }),
+    __metadata("design:type", Number)
+], User.prototype, "latitude", void 0);
+__decorate([
+    (0, graphql_1.Field)(() => graphql_1.Float, { nullable: true }),
+    (0, typeorm_1.Column)({ type: 'decimal', precision: 10, scale: 7, nullable: true }),
+    __metadata("design:type", Number)
+], User.prototype, "longitude", void 0);
+__decorate([
+    (0, graphql_1.Field)(),
+    (0, typeorm_1.Column)({ default: true }),
+    __metadata("design:type", Boolean)
+], User.prototype, "isActive", void 0);
+__decorate([
+    (0, graphql_1.Field)(),
+    (0, typeorm_1.Column)({ default: false }),
+    __metadata("design:type", Boolean)
+], User.prototype, "isVerified", void 0);
 __decorate([
     (0, typeorm_1.Column)({ type: 'bytea', nullable: true }),
     __metadata("design:type", Object)

@@ -10,6 +10,7 @@ import 'package:altrupets/core/sync/profile_update_queue_store.dart';
 import 'package:altrupets/features/auth/domain/entities/user.dart';
 import 'package:altrupets/features/auth/domain/repositories/auth_repository_interface.dart';
 import 'package:altrupets/features/auth/data/models/auth_payload.dart';
+import 'package:altrupets/features/auth/data/models/register_input.dart';
 
 class AuthRepository implements AuthRepositoryInterface {
   GraphQLClient get _client => GraphQLClientService.getClient();
@@ -18,6 +19,31 @@ class AuthRepository implements AuthRepositoryInterface {
     mutation Login(\$loginInput: LoginInput!) {
       login(loginInput: \$loginInput) {
         access_token
+      }
+    }
+  ''';
+
+  static const String _registerMutation = '''
+    mutation Register(\$registerInput: RegisterInput!) {
+      register(registerInput: \$registerInput) {
+        id
+        username
+        email
+        firstName
+        lastName
+        phone
+        identification
+        country
+        province
+        canton
+        district
+        occupation
+        incomeSource
+        roles
+        isActive
+        isVerified
+        createdAt
+        updatedAt
       }
     }
   ''';
@@ -41,6 +67,52 @@ class AuthRepository implements AuthRepositoryInterface {
       }
     }
   ''';
+
+  @override
+  Future<Either<Failure, User>> register(RegisterInput input) async {
+    try {
+      debugPrint('[AuthRepository] 📝 Iniciando registro de usuario: ${input.username}');
+
+      final result = await _client.mutate(
+        MutationOptions(
+          document: gql(_registerMutation),
+          variables: {
+            'registerInput': input.toJson(),
+          },
+        ),
+      );
+
+      if (result.hasException) {
+        final exception = result.exception!;
+        String errorMessage;
+
+        if (exception.graphqlErrors.isNotEmpty) {
+          errorMessage = exception.graphqlErrors.first.message;
+          debugPrint('[AuthRepository] ❌ Error GraphQL: $errorMessage');
+        } else if (exception.linkException != null) {
+          errorMessage = exception.linkException.toString();
+          debugPrint('[AuthRepository] ❌ Error de conexión: $errorMessage');
+        } else {
+          errorMessage = 'Error desconocido en la conexión';
+        }
+
+        return Left(ServerFailure(errorMessage));
+      }
+
+      final data = result.data?['register'] as Map<String, dynamic>?;
+      if (data == null) {
+        return Left(ServerFailure('Invalid response from server'));
+      }
+
+      final user = User.fromJson(data);
+      debugPrint('[AuthRepository] ✅ Usuario registrado exitosamente: ${user.username}');
+
+      return Right(user);
+    } catch (e) {
+      debugPrint('[AuthRepository] ❌ Error en registro: $e');
+      return Left(ServerFailure(e.toString()));
+    }
+  }
 
   @override
   Future<Either<Failure, AuthPayload>> login(

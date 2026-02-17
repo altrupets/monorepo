@@ -9,17 +9,27 @@ var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.UserProfile = exports.AuthPayload = void 0;
+exports.RefreshTokenInput = exports.UserProfile = exports.AuthPayload = void 0;
 const graphql_1 = require("@nestjs/graphql");
 const user_role_enum_1 = require("../roles/user-role.enum");
 let AuthPayload = class AuthPayload {
     access_token;
+    refresh_token;
+    expires_in;
 };
 exports.AuthPayload = AuthPayload;
 __decorate([
     (0, graphql_1.Field)(),
     __metadata("design:type", String)
 ], AuthPayload.prototype, "access_token", void 0);
+__decorate([
+    (0, graphql_1.Field)(),
+    __metadata("design:type", String)
+], AuthPayload.prototype, "refresh_token", void 0);
+__decorate([
+    (0, graphql_1.Field)(),
+    __metadata("design:type", Number)
+], AuthPayload.prototype, "expires_in", void 0);
 exports.AuthPayload = AuthPayload = __decorate([
     (0, graphql_1.ObjectType)()
 ], AuthPayload);
@@ -44,4 +54,15 @@ __decorate([
 exports.UserProfile = UserProfile = __decorate([
     (0, graphql_1.ObjectType)()
 ], UserProfile);
+let RefreshTokenInput = class RefreshTokenInput {
+    refresh_token;
+};
+exports.RefreshTokenInput = RefreshTokenInput;
+__decorate([
+    (0, graphql_1.Field)(),
+    __metadata("design:type", String)
+], RefreshTokenInput.prototype, "refresh_token", void 0);
+exports.RefreshTokenInput = RefreshTokenInput = __decorate([
+    (0, graphql_1.InputType)()
+], RefreshTokenInput);
 //# sourceMappingURL=auth.types.js.map

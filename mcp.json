@@ -1,5 +1,4 @@
 {
-  "$schema": "https://modelcontextprotocol.io/schema/mcp.json",
   "mcpServers": {
     "dart": {
       "command": "dart",
@@ -9,15 +8,13 @@
       ],
       "env": {}
     },
-    "figma": {
+    "graphql": {
       "command": "npx",
       "args": [
         "-y",
-        "@figma/mcp-server-figma"
+        "@apollographql/apollo-mcp-server"
       ],
-      "env": {
-        "FIGMA_PERSONAL_ACCESS_TOKEN": "${FIGMA_TOKEN}"
-      }
+      "env": {}
     },
     "context7": {
       "command": "npx",
@@ -46,6 +43,13 @@
       "env": {
         "GOOGLE_CLOUD_PROJECT": "9064173060952920822"
       }
+    },
+    "sequential-thinking": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@modelcontextprotocol/server-sequential-thinking"
+      ]
     }
   }
 }

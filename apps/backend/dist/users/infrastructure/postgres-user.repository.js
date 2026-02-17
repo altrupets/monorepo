@@ -28,6 +28,9 @@ let PostgresUserRepository = class PostgresUserRepository {
     async findByUsername(username) {
         return this.repository.findOne({ where: { username } });
     }
+    async findByEmail(email) {
+        return this.repository.findOne({ where: { email } });
+    }
     async findAll() {
         return this.repository.find({
             order: { updatedAt: 'DESC' },
