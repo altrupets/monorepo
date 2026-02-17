@@ -12,8 +12,8 @@ locals {
   # Gateway API version
   gateway_version = var.gateway_version
   
-  # CRD URL based on channel
-  crd_url = var.channel == "experimental" ? "https://github.com/kubernetes-sigs/gateway-api/releases/download/${local.gateway_version}/experimental-install.yaml" : "https://github.com/kubernetes-sigs/gateway-api/releases/download/${local.gateway_version}/standard-install.yaml"
+  # CRD URL based on channel - Use NGINX Gateway Fabric CRDs (includes NGF-specific fields)
+  crd_url = var.channel == "experimental" ? "https://github.com/nginx/nginx-gateway-fabric/config/crd/gateway-api/experimental?ref=v${var.nginx_gateway_version}" : "https://github.com/nginx/nginx-gateway-fabric/config/crd/gateway-api/standard?ref=v${var.nginx_gateway_version}"
 }
 
 # ============================================
@@ -24,15 +24,16 @@ resource "null_resource" "gateway_api_crds" {
     version   = local.gateway_version
     channel   = var.channel
     crd_url   = local.crd_url
+    nginx_version = var.nginx_gateway_version
     always_run = timestamp()
   }
 
   provisioner "local-exec" {
     command = <<-EOT
-      echo "Installing Gateway API ${local.gateway_version} (${var.channel} channel)..."
-      kubectl apply --server-side -f ${local.crd_url}
+      echo "Installing Gateway API CRDs from NGINX (v${var.nginx_gateway_version})..."
+      kubectl kustomize "${local.crd_url}" | kubectl apply --server-side -f -
       echo "Waiting for CRDs to be established..."
-      kubectl wait --for condition=established --timeout=60s crd --all || echo "Some CRDs may still be establishing..."
+      kubectl wait --for condition=established --timeout=60s crd/gatewayclasses.gateway.networking.k8s.io || echo "CRD may still be establishing..."
       echo "Gateway API CRDs installation completed!"
     EOT
   }
@@ -41,7 +42,7 @@ resource "null_resource" "gateway_api_crds" {
     when    = destroy
     command = <<-EOT
       echo "Gateway API CRDs are preserved on destroy to avoid breaking existing resources."
-      echo "To remove them manually, run: kubectl delete -f ${self.triggers.crd_url}"
+      echo "To remove them manually, run: kubectl kustomize '${self.triggers.crd_url}' | kubectl delete -f -"
     EOT
     on_failure = continue
   }
@@ -103,10 +104,10 @@ resource "helm_release" "nginx_gateway_fabric" {
   
   depends_on = [null_resource.gateway_api_crds]
   
-  name       = "nginx-gateway"
+  name       = "ngf"
   namespace  = var.nginx_gateway_namespace
   chart      = "nginx-gateway-fabric"
-  repository = "https://helm.nginx.com/nginx-gateway-fabric"
+  repository = "oci://ghcr.io/nginx/charts"
   version    = var.nginx_gateway_version
   
   create_namespace = true
@@ -114,11 +115,6 @@ resource "helm_release" "nginx_gateway_fabric" {
   set {
     name  = "nginxGateway.config.logging.level"
     value = var.environment == "dev" ? "debug" : "info"
-  }
-  
-  set {
-    name  = "nginxGateway.image.tag"
-    value = var.nginx_gateway_version
   }
   
   timeout         = 300

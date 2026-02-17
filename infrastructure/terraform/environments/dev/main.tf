@@ -61,7 +61,7 @@ module "gateway_api" {
 
   # NGINX Gateway Fabric - for external routing (Gateway API)
   enable_nginx_gateway     = true
-  nginx_gateway_version    = "1.2.0"
+  nginx_gateway_version    = "2.4.1"
   nginx_gateway_namespace  = "nginx-gateway"
   nginx_gateway_class_name = "nginx"
 
