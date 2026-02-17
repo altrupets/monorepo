@@ -13,6 +13,10 @@ import { UsersModule } from './users/users.module';
 import { User } from './users/entities/user.entity';
 import { CapturesModule } from './captures/captures.module';
 import { CaptureRequest } from './captures/entities/capture-request.entity';
+import { WebModule } from './web/web.module';
+import { OrganizationsModule } from './organizations/organizations.module';
+import { Organization } from './organizations/entities/organization.entity';
+import { OrganizationMembership } from './organizations/entities/organization-membership.entity';
 
 @Module({
   imports: [
@@ -35,7 +39,7 @@ import { CaptureRequest } from './captures/entities/capture-request.entity';
           const envName = configService.get<string>('ENV_NAME', 'dev');
           return `altrupets_${envName}_database`;
         })(),
-        entities: [User, CaptureRequest],
+        entities: [User, CaptureRequest, Organization, OrganizationMembership],
         synchronize: true, // Only for development
       }),
       inject: [ConfigService],
@@ -67,6 +71,8 @@ import { CaptureRequest } from './captures/entities/capture-request.entity';
     HealthModule,
     UsersModule,
     CapturesModule,
+    WebModule,
+    OrganizationsModule,
   ],
   controllers: [AppController],
   providers: [AppService],

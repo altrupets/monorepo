@@ -4,6 +4,7 @@ import { UseGuards } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { AuthPayload, UserProfile } from './dto/auth.types';
 import { LoginInput } from './dto/login.input';
+import { RegisterInput } from './dto/register.input';
 import { JwtAuthGuard } from './jwt-auth.guard';
 import { RolesGuard } from './roles/roles.guard';
 import { Roles } from './roles/roles.decorator';
@@ -13,6 +14,11 @@ import { GqlUser } from './gql-user.decorator';
 @Resolver()
 export class AuthResolver {
   constructor(private authService: AuthService) {}
+
+  @Mutation(() => User)
+  async register(@Args('registerInput') registerInput: RegisterInput) {
+    return this.authService.register(registerInput);
+  }
 
   @Mutation(() => AuthPayload)
   async login(@Args('loginInput') loginInput: LoginInput) {

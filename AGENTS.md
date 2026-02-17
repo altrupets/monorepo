@@ -114,7 +114,34 @@ El proyecto incluye un **único archivo `mcp.json`** en la raíz que configura t
    - Consulta de componentes
    - Especificaciones de diseño
 
+3. **Apollo GraphQL MCP Server** ✅ *Compilado desde fuente*
+   - Introspección de esquemas GraphQL
+   - Generación de queries y mutations
+   - Validación de operaciones GraphQL
+   - Exploración de APIs GraphQL
+   - **Estado:** Compilado y listo para usar
+   - **Ubicación:** `apollo-mcp-server/target/release/apollo-mcp-server`
+   - **Script:** `./scripts/apollo-mcp-server.sh`
+
+4. **Context7 MCP Server**
+   - Búsqueda de documentación técnica
+   - Consulta de APIs y librerías
+   - Ejemplos de código
+
+5. **Mobile MCP Server**
+   - Gestión de dispositivos móviles
+   - Instalación y lanzamiento de apps
+   - Captura de pantallas
+   - Interacción con UI
+
+6. **Stitch MCP Server**
+   - Generación de UI desde prompts
+   - Edición de pantallas
+   - Generación de variantes de diseño
+
 **Configuración:** Ver [`docs/MCP_SETUP.md`](./docs/MCP_SETUP.md) para instrucciones específicas de cada IDE (Cursor, Cline, Windsurf, Gemini CLI, etc.)
+
+**Para Apollo GraphQL MCP Server:** Ver [`docs/APOLLO_MCP_COMPILED.md`](./docs/APOLLO_MCP_COMPILED.md) para usar el binario compilado desde fuente.
 
 ## 📚 Skills Disponibles
 
@@ -592,6 +619,20 @@ Kubernetes-native infrastructure management multi-cloud. Permite provisioning de
 Integración con Figma Dev Mode vía MCP para extraer assets y componentes directamente desde diseños.
 
 [📖 Ver documentación completa →](skills/figma/SKILL.md)
+
+---
+
+### 🔗 GraphQL Integration Skills
+
+#### 1. GraphQL Integration
+
+**Path:** `skills/graphql/SKILL.md`  
+**Keywords:** `graphql`, `apollo`, `graphql-client`, `subscriptions`, `queries`, `mutations`  
+**Nivel:** 🔴 Avanzado
+
+Integración completa con GraphQL: queries, mutations, subscriptions en tiempo real y cache automático. Incluye patrones para clientes GraphQL, gestión de estado, manejo de errores y optimización de rendimiento.
+
+[📖 Ver documentación completa →](skills/graphql/SKILL.md)
 
 ---
 
@@ -2641,6 +2682,13 @@ Con los servidores MCP configurados, puedes solicitar a tu asistente de IA:
    - "Extrae los assets del diseño de Figma"
    - "Implementa este componente según el diseño"
    - "Obtén los estilos y colores desde Figma"
+
+3. **GraphQL MCP (Apollo):**
+   - "Introspecciona el esquema GraphQL de [endpoint]"
+   - "Genera una query GraphQL para obtener [datos]"
+   - "Valida esta operación GraphQL contra el esquema"
+   - "Explora las capacidades de la API GraphQL"
+   - "Crea una mutation para [acción]"
 
 ## 🆕 Crear Nuevos Skills
 

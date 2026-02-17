@@ -6,6 +6,7 @@ export declare class PostgresUserRepository implements IUserRepository {
     constructor(repository: Repository<User>);
     findById(id: string): Promise<User | null>;
     findByUsername(username: string): Promise<User | null>;
+    findByEmail(email: string): Promise<User | null>;
     findAll(): Promise<User[]>;
     save(user: Partial<User>): Promise<User>;
 }

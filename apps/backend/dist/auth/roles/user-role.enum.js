@@ -4,17 +4,16 @@ exports.UserRole = void 0;
 const graphql_1 = require("@nestjs/graphql");
 var UserRole;
 (function (UserRole) {
+    UserRole["SUPER_USER"] = "SUPER_USER";
     UserRole["GOVERNMENT_ADMIN"] = "GOVERNMENT_ADMIN";
-    UserRole["ANIMAL_WELFARE_OFFICER"] = "ANIMAL_WELFARE_OFFICER";
-    UserRole["CONFLICT_MEDIATOR"] = "CONFLICT_MEDIATOR";
-    UserRole["LEGAL_REPRESENTATIVE"] = "LEGAL_REPRESENTATIVE";
     UserRole["USER_ADMIN"] = "USER_ADMIN";
-    UserRole["CENTINELA"] = "CENTINELA";
-    UserRole["AUXILIAR"] = "AUXILIAR";
-    UserRole["RESCATISTA"] = "RESCATISTA";
-    UserRole["ADOPTANTE"] = "ADOPTANTE";
-    UserRole["DONANTE"] = "DONANTE";
-    UserRole["VETERINARIO"] = "VETERINARIO";
+    UserRole["LEGAL_REPRESENTATIVE"] = "LEGAL_REPRESENTATIVE";
+    UserRole["WATCHER"] = "WATCHER";
+    UserRole["HELPER"] = "HELPER";
+    UserRole["RESCUER"] = "RESCUER";
+    UserRole["ADOPTER"] = "ADOPTER";
+    UserRole["DONOR"] = "DONOR";
+    UserRole["VETERINARIAN"] = "VETERINARIAN";
 })(UserRole || (exports.UserRole = UserRole = {}));
 (0, graphql_1.registerEnumType)(UserRole, {
     name: 'UserRole',

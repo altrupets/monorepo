@@ -52,10 +52,14 @@ const jwt_1 = require("@nestjs/jwt");
 const bcrypt = __importStar(require("bcrypt"));
 const cache_manager_1 = require("@nestjs/cache-manager");
 const user_repository_interface_1 = require("../users/domain/user.repository.interface");
+const crypto_1 = require("crypto");
 let AuthService = class AuthService {
     userRepository;
     jwtService;
     cacheManager;
+    ACCESS_TOKEN_EXPIRY = '1h';
+    REFRESH_TOKEN_EXPIRY = '7d';
+    REFRESH_TOKEN_CACHE_TTL = 7 * 24 * 60 * 60 * 1000;
     constructor(userRepository, jwtService, cacheManager) {
         this.userRepository = userRepository;
         this.jwtService = jwtService;
@@ -79,11 +83,85 @@ let AuthService = class AuthService {
             sub: user.id,
             roles: user.roles,
         };
-        const accessToken = this.jwtService.sign(payload);
+        const accessToken = this.jwtService.sign(payload, {
+            expiresIn: this.ACCESS_TOKEN_EXPIRY,
+        });
+        const refreshToken = this.generateRefreshToken();
+        await this.cacheManager.set(`refresh:${refreshToken}`, user.id, this.REFRESH_TOKEN_CACHE_TTL);
         await this.cacheManager.set(`token:${user.id}`, accessToken, 3600000);
         return {
             access_token: accessToken,
+            refresh_token: refreshToken,
+            expires_in: 3600,
         };
+    }
+    async refreshToken(refreshToken) {
+        const userId = await this.cacheManager.get(`refresh:${refreshToken}`);
+        if (!userId) {
+            throw new common_1.UnauthorizedException('Invalid or expired refresh token');
+        }
+        const user = await this.userRepository.findById(userId);
+        if (!user) {
+            throw new common_1.UnauthorizedException('User not found');
+        }
+        const payload = {
+            username: user.username,
+            sub: user.id,
+            roles: user.roles,
+        };
+        const newAccessToken = this.jwtService.sign(payload, {
+            expiresIn: this.ACCESS_TOKEN_EXPIRY,
+        });
+        const newRefreshToken = this.generateRefreshToken();
+        await this.cacheManager.del(`refresh:${refreshToken}`);
+        await this.cacheManager.set(`refresh:${newRefreshToken}`, user.id, this.REFRESH_TOKEN_CACHE_TTL);
+        await this.cacheManager.set(`token:${user.id}`, newAccessToken, 3600000);
+        return {
+            access_token: newAccessToken,
+            refresh_token: newRefreshToken,
+            expires_in: 3600,
+        };
+    }
+    async logout(userId, refreshToken) {
+        await this.cacheManager.del(`token:${userId}`);
+        if (refreshToken) {
+            await this.cacheManager.del(`refresh:${refreshToken}`);
+        }
+    }
+    async register(registerData) {
+        const existingUser = await this.userRepository.findByUsername(registerData.username);
+        if (existingUser) {
+            throw new Error('Username already exists');
+        }
+        if (registerData.email) {
+            const existingEmail = await this.userRepository.findByEmail(registerData.email);
+            if (existingEmail) {
+                throw new Error('Email already exists');
+            }
+        }
+        const passwordHash = await bcrypt.hash(registerData.password, 12);
+        const newUser = await this.userRepository.save({
+            username: registerData.username,
+            email: registerData.email,
+            passwordHash,
+            firstName: registerData.firstName,
+            lastName: registerData.lastName,
+            phone: registerData.phone,
+            identification: registerData.identification,
+            country: registerData.country,
+            province: registerData.province,
+            canton: registerData.canton,
+            district: registerData.district,
+            occupation: registerData.occupation,
+            incomeSource: registerData.incomeSource,
+            roles: registerData.roles || [user_role_enum_1.UserRole.WATCHER],
+            isActive: true,
+            isVerified: false,
+        });
+        return newUser;
+    }
+    generateRefreshToken() {
+        return (0, crypto_1.randomBytes)(32).toString('hex');
     }
     async createInitialAdmin(username, pass) {
         const existing = await this.userRepository.findByUsername(username);
@@ -93,8 +171,21 @@ let AuthService = class AuthService {
         await this.userRepository.save({
             username,
             passwordHash,
-            roles: [user_role_enum_1.UserRole.GOVERNMENT_ADMIN],
+            roles: [user_role_enum_1.UserRole.SUPER_USER],
         });
+    }
+    async validateToken(token) {
+        try {
+            const payload = this.jwtService.verify(token);
+            return {
+                id: payload.sub,
+                username: payload.username,
+                roles: payload.roles,
+            };
+        }
+        catch (error) {
+            throw new Error('Invalid token');
+        }
     }
 };
 exports.AuthService = AuthService;

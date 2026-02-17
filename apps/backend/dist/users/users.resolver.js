@@ -20,6 +20,9 @@ const update_user_input_1 = require("./dto/update-user.input");
 const user_repository_interface_1 = require("./domain/user.repository.interface");
 const jwt_auth_guard_1 = require("../auth/jwt-auth.guard");
 const gql_user_decorator_1 = require("../auth/gql-user.decorator");
+const roles_decorator_1 = require("../auth/roles/roles.decorator");
+const roles_guard_1 = require("../auth/roles/roles.guard");
+const rbac_constants_1 = require("../auth/roles/rbac-constants");
 let UsersResolver = class UsersResolver {
     userRepository;
     constructor(userRepository) {
@@ -84,12 +87,16 @@ let UsersResolver = class UsersResolver {
 exports.UsersResolver = UsersResolver;
 __decorate([
     (0, graphql_1.Query)(() => [user_entity_1.User], { name: 'users' }),
+    (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard, roles_guard_1.RolesGuard),
+    (0, roles_decorator_1.Roles)(...rbac_constants_1.USER_ADMIN_ROLES),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", []),
     __metadata("design:returntype", Promise)
 ], UsersResolver.prototype, "getUsers", null);
 __decorate([
     (0, graphql_1.Query)(() => user_entity_1.User, { name: 'user' }),
+    (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard, roles_guard_1.RolesGuard),
+    (0, roles_decorator_1.Roles)(...rbac_constants_1.USER_ADMIN_ROLES),
     __param(0, (0, graphql_1.Args)('id')),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [String]),

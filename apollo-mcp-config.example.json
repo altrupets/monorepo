@@ -1,0 +1,24 @@
+{
+  "endpoints": [
+    {
+      "name": "Production API",
+      "url": "https://api.example.com/graphql",
+      "headers": {
+        "Authorization": "Bearer YOUR_TOKEN",
+        "X-API-Key": "your-api-key"
+      }
+    },
+    {
+      "name": "Development API",
+      "url": "http://localhost:4000/graphql",
+      "headers": {}
+    },
+    {
+      "name": "Staging API",
+      "url": "https://staging-api.example.com/graphql",
+      "headers": {
+        "Authorization": "Bearer STAGING_TOKEN"
+      }
+    }
+  ]
+}

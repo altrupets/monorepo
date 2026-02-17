@@ -1,11 +1,14 @@
 import { Resolver, Query, Mutation, Args } from '@nestjs/graphql';
-import { UseGuards, Inject } from '@nestjs/common';
+import { UseGuards, Inject, ForbiddenException } from '@nestjs/common';
 import { User } from './entities/user.entity';
 import { UpdateUserInput } from './dto/update-user.input';
 import type { IUserRepository } from './domain/user.repository.interface';
 import { IUSER_REPOSITORY } from './domain/user.repository.interface';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { GqlUser } from '../auth/gql-user.decorator';
+import { Roles } from '../auth/roles/roles.decorator';
+import { RolesGuard } from '../auth/roles/roles.guard';
+import { USER_ADMIN_ROLES } from '../auth/roles/rbac-constants';
 
 @Resolver(() => User)
 export class UsersResolver {
@@ -15,12 +18,16 @@ export class UsersResolver {
     ) { }
 
     @Query(() => [User], { name: 'users' })
+    @UseGuards(JwtAuthGuard, RolesGuard)
+    @Roles(...USER_ADMIN_ROLES)
     async getUsers(): Promise<User[]> {
         const users = await this.userRepository.findAll();
         return users.map((user) => this.mapUserForResponse(user));
     }
 
     @Query(() => User, { name: 'user' })
+    @UseGuards(JwtAuthGuard, RolesGuard)
+    @Roles(...USER_ADMIN_ROLES)
     async getUser(@Args('id') id: string): Promise<User> {
         const user = await this.userRepository.findById(id);
         if (!user) {

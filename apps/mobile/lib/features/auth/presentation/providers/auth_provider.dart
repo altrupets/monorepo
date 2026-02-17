@@ -5,6 +5,7 @@ import 'package:altrupets/features/auth/data/repositories/auth_repository.dart';
 import 'package:altrupets/features/auth/domain/repositories/auth_repository_interface.dart';
 import 'package:altrupets/features/auth/domain/entities/user.dart';
 import 'package:altrupets/features/auth/data/models/auth_payload.dart';
+import 'package:altrupets/features/auth/data/models/register_input.dart';
 
 part 'auth_provider.freezed.dart';
 
@@ -26,6 +27,33 @@ class AuthNotifier extends StateNotifier<AuthState> {
   AuthNotifier(this._repository) : super(const AuthState());
 
   final AuthRepositoryInterface _repository;
+
+  Future<void> register(RegisterInput input) async {
+    state = state.copyWith(
+      isLoading: true,
+      error: null,
+      user: null,
+    );
+
+    final result = await _repository.register(input);
+
+    result.fold(
+      (failure) {
+        state = state.copyWith(
+          isLoading: false,
+          error: failure.message,
+          user: null,
+        );
+      },
+      (user) {
+        state = state.copyWith(
+          isLoading: false,
+          user: user,
+          error: null,
+        );
+      },
+    );
+  }
 
   Future<void> login(String username, String password) async {
     state = state.copyWith(
