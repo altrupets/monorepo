@@ -33,4 +33,8 @@ export class PostgresUserRepository implements IUserRepository {
     const newUser = this.repository.create(user);
     return this.repository.save(newUser);
   }
+
+  async delete(id: string): Promise<void> {
+    await this.repository.delete(id);
+  }
 }

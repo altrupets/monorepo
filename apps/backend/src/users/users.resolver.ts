@@ -1,6 +1,7 @@
 import { Resolver, Query, Mutation, Args } from '@nestjs/graphql';
-import { UseGuards, Inject, ForbiddenException } from '@nestjs/common';
+import { UseGuards, Inject, ForbiddenException, NotFoundException } from '@nestjs/common';
 import { User } from './entities/user.entity';
+import { CreateUserInput } from './dto/create-user.input';
 import { UpdateUserInput } from './dto/update-user.input';
 import type { IUserRepository } from './domain/user.repository.interface';
 import { IUSER_REPOSITORY } from './domain/user.repository.interface';
@@ -9,6 +10,8 @@ import { GqlUser } from '../auth/gql-user.decorator';
 import { Roles } from '../auth/roles/roles.decorator';
 import { RolesGuard } from '../auth/roles/roles.guard';
 import { USER_ADMIN_ROLES } from '../auth/roles/rbac-constants';
+import { UserRole } from '../auth/roles/user-role.enum';
+import * as bcrypt from 'bcrypt';
 
 @Resolver(() => User)
 export class UsersResolver {
@@ -31,7 +34,7 @@ export class UsersResolver {
     async getUser(@Args('id') id: string): Promise<User> {
         const user = await this.userRepository.findById(id);
         if (!user) {
-            throw new Error('User not found');
+            throw new NotFoundException('User not found');
         }
         return this.mapUserForResponse(user);
     }
@@ -42,9 +45,110 @@ export class UsersResolver {
         const userId = this.getAuthenticatedUserId(user);
         const fullUser = await this.userRepository.findById(userId);
         if (!fullUser) {
-            throw new Error('User not found');
+            throw new NotFoundException('User not found');
         }
         return this.mapUserForResponse(fullUser);
+    }
+
+    @Mutation(() => User)
+    @UseGuards(JwtAuthGuard, RolesGuard)
+    @Roles(...USER_ADMIN_ROLES)
+    async createUser(
+        @Args('input') input: CreateUserInput,
+        @GqlUser() adminUser: any,
+    ): Promise<User> {
+        const existing = await this.userRepository.findByUsername(input.username);
+        if (existing) {
+            throw new ForbiddenException('Username already exists');
+        }
+
+        const adminRoles = adminUser.roles as UserRole[];
+        const canCreateSuperUser = adminRoles.includes(UserRole.SUPER_USER);
+        
+        if (input.roles?.includes(UserRole.SUPER_USER) && !canCreateSuperUser) {
+            throw new ForbiddenException('Only SUPER_USER can create other SUPER_USER accounts');
+        }
+
+        const passwordHash = await bcrypt.hash(input.password, 12);
+        
+        const user = await this.userRepository.save({
+            username: input.username,
+            passwordHash,
+            firstName: input.firstName,
+            lastName: input.lastName,
+            roles: input.roles || [UserRole.WATCHER],
+            isActive: input.isActive ?? true,
+        });
+
+        return this.mapUserForResponse(user);
+    }
+
+    @Mutation(() => User)
+    @UseGuards(JwtAuthGuard, RolesGuard)
+    @Roles(...USER_ADMIN_ROLES)
+    async updateUser(
+        @Args('id') id: string,
+        @Args('input') input: UpdateUserInput,
+        @GqlUser() adminUser: any,
+    ): Promise<User> {
+        const user = await this.userRepository.findById(id);
+        if (!user) {
+            throw new NotFoundException('User not found');
+        }
+
+        const adminRoles = adminUser.roles as UserRole[];
+        const canModifySuperUser = adminRoles.includes(UserRole.SUPER_USER);
+
+        if (user.roles.includes(UserRole.SUPER_USER) && !canModifySuperUser) {
+            throw new ForbiddenException('Only SUPER_USER can modify other SUPER_USER accounts');
+        }
+
+        if (input.roles?.includes(UserRole.SUPER_USER) && !canModifySuperUser) {
+            throw new ForbiddenException('Only SUPER_USER can assign SUPER_USER role');
+        }
+
+        if (input.roles) {
+            user.roles = input.roles;
+        }
+        if (input.isActive !== undefined) {
+            user.isActive = input.isActive;
+        }
+        if (input.firstName !== undefined) {
+            user.firstName = input.firstName;
+        }
+        if (input.lastName !== undefined) {
+            user.lastName = input.lastName;
+        }
+
+        const saved = await this.userRepository.save(user);
+        return this.mapUserForResponse(saved);
+    }
+
+    @Mutation(() => Boolean)
+    @UseGuards(JwtAuthGuard, RolesGuard)
+    @Roles(...USER_ADMIN_ROLES)
+    async deleteUser(
+        @Args('id') id: string,
+        @GqlUser() adminUser: any,
+    ): Promise<boolean> {
+        const user = await this.userRepository.findById(id);
+        if (!user) {
+            throw new NotFoundException('User not found');
+        }
+
+        const adminRoles = adminUser.roles as UserRole[];
+        const canDeleteSuperUser = adminRoles.includes(UserRole.SUPER_USER);
+
+        if (user.roles.includes(UserRole.SUPER_USER) && !canDeleteSuperUser) {
+            throw new ForbiddenException('Only SUPER_USER can delete other SUPER_USER accounts');
+        }
+
+        if (user.id === adminUser.id || user.id === adminUser.userId) {
+            throw new ForbiddenException('Cannot delete your own account');
+        }
+
+        await this.userRepository.delete(id);
+        return true;
     }
 
     @Mutation(() => User)
@@ -56,10 +160,10 @@ export class UsersResolver {
         const userId = this.getAuthenticatedUserId(user);
         const existingUser = await this.userRepository.findById(userId);
         if (!existingUser) {
-            throw new Error('User not found');
+            throw new NotFoundException('User not found');
         }
 
-        const { avatarBase64, ...profileFields } = input;
+        const { avatarBase64, roles, isActive, ...profileFields } = input;
         Object.assign(existingUser, profileFields);
 
         if (avatarBase64 !== undefined) {

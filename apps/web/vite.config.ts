@@ -1,10 +1,42 @@
 import { defineConfig } from 'vite'
 import vue from '@vitejs/plugin-vue'
 import { resolve } from 'path'
+import fs from 'fs'
 
 // https://vitejs.dev/config/
 export default defineConfig({
-  plugins: [vue()],
+  plugins: [
+    vue(),
+    {
+      name: 'copy-fonts',
+      writeBundle() {
+        const fontsDir = resolve(__dirname, '../backend/public/dist/fonts')
+        const srcFontsDir = resolve(__dirname, '../../style-dictionary/fonts')
+        
+        if (!fs.existsSync(fontsDir)) {
+          fs.mkdirSync(fontsDir, { recursive: true })
+        }
+        
+        const copyDir = (src: string, dest: string) => {
+          if (!fs.existsSync(dest)) {
+            fs.mkdirSync(dest, { recursive: true })
+          }
+          const entries = fs.readdirSync(src, { withFileTypes: true })
+          for (const entry of entries) {
+            const srcPath = resolve(src, entry.name)
+            const destPath = resolve(dest, entry.name)
+            if (entry.isDirectory()) {
+              copyDir(srcPath, destPath)
+            } else {
+              fs.copyFileSync(srcPath, destPath)
+            }
+          }
+        }
+        
+        copyDir(srcFontsDir, fontsDir)
+      }
+    }
+  ],
   build: {
     outDir: resolve(__dirname, '../backend/public'),
     emptyOutDir: true,

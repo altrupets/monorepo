@@ -18,10 +18,7 @@ async function bootstrap() {
   app.use(cookieParser());
 
   // Serve static files for Inertia.js frontend (built assets)
-  const isProduction = process.env.NODE_ENV === 'production';
-  if (isProduction) {
-    app.useStaticAssets(join(__dirname, '..', 'public'));
-  }
+  app.useStaticAssets(join(__dirname, '..', 'public'));
 
   // Inertia.js middleware
   app.use(inertiaMiddleware);
