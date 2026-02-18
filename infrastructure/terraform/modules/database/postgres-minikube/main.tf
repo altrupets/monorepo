@@ -1,17 +1,5 @@
-# Secret para credenciales
-resource "kubernetes_secret" "postgres" {
-  metadata {
-    name      = "${var.name}-secret"
-    namespace = var.namespace
-  }
-  data = {
-    # NOTE: kubernetes_secret.data expects *plain text* values; the provider
-    # base64-encodes them automatically when writing to Kubernetes.
-    username = var.postgres_username
-    password = var.postgres_password
-    database = var.postgres_database
-  }
-}
+# Secret is managed by Infisical - this module only references it
+# The secret must contain: username, password, database
 
 # StatefulSet para PostgreSQL
 resource "kubernetes_stateful_set" "postgres" {
@@ -47,8 +35,8 @@ resource "kubernetes_stateful_set" "postgres" {
             name = "POSTGRES_USER"
             value_from {
               secret_key_ref {
-                name = kubernetes_secret.postgres.metadata[0].name
-                key  = "username"
+                name = var.secret_name
+                key  = "DB_USERNAME"
               }
             }
           }
@@ -56,8 +44,8 @@ resource "kubernetes_stateful_set" "postgres" {
             name = "POSTGRES_PASSWORD"
             value_from {
               secret_key_ref {
-                name = kubernetes_secret.postgres.metadata[0].name
-                key  = "password"
+                name = var.secret_name
+                key  = "DB_PASSWORD"
               }
             }
           }
@@ -65,8 +53,8 @@ resource "kubernetes_stateful_set" "postgres" {
             name = "POSTGRES_DB"
             value_from {
               secret_key_ref {
-                name = kubernetes_secret.postgres.metadata[0].name
-                key  = "database"
+                name = var.secret_name
+                key  = "DB_NAME"
               }
             }
           }

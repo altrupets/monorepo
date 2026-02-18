@@ -48,7 +48,7 @@ check_minikube() {
 check_postgres() {
 	log_info "Checking PostgreSQL..."
 
-	if kubectl wait --for=condition=ready pod -l app=postgres --timeout=30s 2>/dev/null; then
+	if kubectl wait --for=condition=ready pod -l app=postgres -n altrupets-dev --timeout=30s 2>/dev/null; then
 		log_success "PostgreSQL is ready"
 		return 0
 	fi
@@ -77,14 +77,16 @@ get_k8s_secret() {
 }
 
 sync_secrets() {
+	# Check if Infisical is managing secrets
+	if kubectl get infisicalsecret -n altrupets-dev >/dev/null 2>&1; then
+		log_info "Infisical is managing secrets, skipping sync..."
+		log_success "Secrets managed by Infisical"
+		return 0
+	fi
+
 	log_info "Syncing K8s secrets from .env.local..."
 
 	load_env_credentials
-
-	local pg_username pg_password pg_database
-	pg_username=$(get_k8s_secret "default" "postgres-dev-secret" "username")
-	pg_password=$(get_k8s_secret "default" "postgres-dev-secret" "password")
-	pg_database=$(get_k8s_secret "default" "postgres-dev-secret" "database")
 
 	local backend_username backend_password backend_database
 	backend_username=$(get_k8s_secret "altrupets-dev" "backend-secret" "DB_USERNAME")
@@ -93,11 +95,6 @@ sync_secrets() {
 
 	local needs_sync=false
 
-	if [ "$pg_username" != "$DB_USERNAME" ] || [ "$pg_password" != "$DB_PASSWORD" ] || [ "$pg_database" != "$DB_NAME" ]; then
-		log_warn "postgres-dev-secret mismatch"
-		needs_sync=true
-	fi
-
 	if [ "$backend_username" != "$DB_USERNAME" ] || [ "$backend_password" != "$DB_PASSWORD" ] || [ "$backend_database" != "$DB_NAME" ]; then
 		log_warn "backend-secret mismatch"
 		needs_sync=true
@@ -105,12 +102,6 @@ sync_secrets() {
 
 	if [ "$needs_sync" = true ]; then
 		log_info "Updating secrets..."
-
-		kubectl delete secret postgres-dev-secret --ignore-not-found=true 2>/dev/null
-		kubectl create secret generic postgres-dev-secret \
-			--from-literal=username="$DB_USERNAME" \
-			--from-literal=password="$DB_PASSWORD" \
-			--from-literal=database="$DB_NAME"
 
 		kubectl delete secret backend-secret -n altrupets-dev --ignore-not-found=true 2>/dev/null
 		kubectl create secret generic backend-secret -n altrupets-dev \
@@ -121,19 +112,23 @@ sync_secrets() {
 			--from-literal=ENV_NAME=dev
 
 		log_success "Secrets synced"
+		echo "CHANGED=1"
 		return 0
 	fi
 
 	log_success "Secrets are in sync"
-	return 1
+	return 0
 }
 
 test_db_connection() {
 	log_info "Testing database connection..."
 
-	load_env_credentials
+	# Read credentials from Infisical-managed secret
+	local db_user db_name
+	db_user=$(get_k8s_secret "altrupets-dev" "backend-secret" "DB_USERNAME")
+	db_name=$(get_k8s_secret "altrupets-dev" "backend-secret" "DB_NAME")
 
-	if kubectl exec postgres-dev-0 -- psql -U "$DB_USERNAME" -d "$DB_NAME" -c "SELECT 1" 2>/dev/null | grep -q "1 row"; then
+	if kubectl exec -n altrupets-dev postgres-dev-0 -- psql -U "$db_user" -d "$db_name" -c "SELECT 1" 2>/dev/null | grep -q "1 row"; then
 		log_success "Database connection OK"
 		return 0
 	else
@@ -145,22 +140,15 @@ test_db_connection() {
 recreate_postgres() {
 	log_warn "Recreating PostgreSQL..."
 
-	load_env_credentials
-
-	kubectl delete statefulset postgres-dev --ignore-not-found=true
-	kubectl delete pvc postgres-data-postgres-dev-0 --ignore-not-found=true
-
-	sync_secrets
+	kubectl delete statefulset postgres-dev -n altrupets-dev --ignore-not-found=true
+	kubectl delete pvc postgres-data-postgres-dev-0 -n altrupets-dev --ignore-not-found=true
 
 	log_info "Applying Terraform..."
 	cd "$TF_DIR"
-	tofu apply -auto-approve -target=module.postgres \
-		-var "postgres_username=$DB_USERNAME" \
-		-var "postgres_password=$DB_PASSWORD" \
-		-var "postgres_database=$DB_NAME"
+	tofu apply -auto-approve -target=module.postgres
 
 	log_info "Waiting for PostgreSQL..."
-	kubectl wait --for=condition=ready pod -l app=postgres --timeout=120s
+	kubectl wait --for=condition=ready pod -l app=postgres -n altrupets-dev --timeout=120s
 
 	log_success "PostgreSQL recreated"
 }
@@ -210,10 +198,9 @@ main() {
 	fi
 
 	local secrets_changed
-	sync_secrets
-	secrets_changed=$?
+	secrets_changed=$(sync_secrets)
 
-	if [ $secrets_changed -eq 0 ]; then
+	if [ "$secrets_changed" = "CHANGED=1" ]; then
 		log_warn "Secrets were updated. Checking if PostgreSQL needs recreation..."
 
 		if ! test_db_connection; then

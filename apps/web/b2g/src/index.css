@@ -1,5 +1,5 @@
 /* Import design tokens fonts */
-@import url('../../../style-dictionary/fonts.css');
+@import url('../../../../style-dictionary/fonts.css');
 
 @tailwind base;
 @tailwind components;

@@ -14,6 +14,7 @@ NC='\033[0m'
 build_app() {
 	local app="$1"
 	local app_dir="$PROJECT_ROOT/apps/web/$app"
+	local dockerfile="$app_dir/Dockerfile"
 	local image_tag="altrupets-web-$app:dev"
 
 	echo -e "${BLUE}🐳 Building $app image for Minikube: ${image_tag}${NC}"
@@ -23,9 +24,9 @@ build_app() {
 		exit 1
 	fi
 
-	cd "$app_dir"
+	cd "$PROJECT_ROOT"
 
-	if ! minikube image build -t "${image_tag}" -f Dockerfile . 2>&1; then
+	if ! minikube image build -t "${image_tag}" -f "$dockerfile" . 2>&1; then
 		echo -e "${RED}❌ Failed to build $app image${NC}"
 		exit 1
 	fi

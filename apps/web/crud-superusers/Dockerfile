@@ -2,10 +2,11 @@ FROM node:20-alpine AS builder
 
 WORKDIR /app
 
-COPY package*.json ./
+COPY apps/web/crud-superusers/package*.json ./
+COPY style-dictionary ./style-dictionary
 RUN npm install
 
-COPY . .
+COPY apps/web/crud-superusers .
 RUN npm run build && npm prune --omit=dev
 
 FROM node:20-alpine

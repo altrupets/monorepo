@@ -83,8 +83,7 @@ kubectl apply -f infrastructure/infisical/infisical-secrets.yaml
 # Ver estado de InfisicalSecrets
 kubectl get infisicalsecrets -A
 
-# Ver secrets creados
-kubectl get secrets postgres-dev-secret -o yaml
+# Ver secret creado
 kubectl get secrets backend-secret -n altrupets-dev -o yaml
 ```
 
@@ -101,7 +100,7 @@ kubectl logs -n infisical-operator-system -l app.kubernetes.io/name=secrets-oper
 kubectl get infisicalsecrets -A
 
 # Describir InfisicalSecret
-kubectl describe infisicalsecret infisical-postgres-secret -n default
+kubectl describe infisicalsecret infisical-backend-secret -n altrupets-dev
 ```
 
 ## Flujo de desarrollo

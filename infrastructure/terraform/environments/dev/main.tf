@@ -36,13 +36,11 @@ module "postgres" {
   source = "../../modules/database/postgres-minikube"
   
   name                = "postgres-dev"
-  namespace           = "default"
+  namespace           = "altrupets-dev"
   postgres_version    = "15-alpine"
-  postgres_username   = var.postgres_username
-  postgres_password   = var.postgres_password
-  postgres_database   = var.postgres_database
+  secret_name         = "backend-secret"  # Managed by Infisical
   storage_class_name  = "standard"  # Minikube default
-  storage_size        = "10Gi"
+  storage_size        = "20Gi"
   enable_nodeport     = true         # Para acceso externo con DBeaver
   nodeport_port       = 30432
 }

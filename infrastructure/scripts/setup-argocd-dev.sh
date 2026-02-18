@@ -154,14 +154,34 @@ kubectl -n argocd rollout status deployment/argocd-server --timeout=180s
 echo -e "${BLUE}🔐 Creating backend secret in namespace altrupets-dev...${NC}"
 kubectl create namespace altrupets-dev --dry-run=client -o yaml | kubectl apply -f -
 
-DB_PASSWORD="$(read_env_var "$ENV_FILE" "DB_PASSWORD")"
-DB_USERNAME="$(read_env_var "$ENV_FILE" "POSTGRES_USERNAME")"
-DB_NAME="$(read_env_var "$ENV_FILE" "POSTGRES_DATABASE")"
-SEED_ADMIN_USERNAME="${SEED_ADMIN_USERNAME:-$(read_env_var "$ENV_FILE" "SEED_ADMIN_USERNAME")}"
-SEED_ADMIN_PASSWORD="${SEED_ADMIN_PASSWORD:-$(read_env_var "$ENV_FILE" "SEED_ADMIN_PASSWORD")}"
+# First, try to read from Infisical-managed backend-secret
+BACKEND_SECRET_EXISTS=false
+if kubectl -n altrupets-dev get secret backend-secret >/dev/null 2>&1; then
+	BACKEND_SECRET_EXISTS=true
+	echo -e "${BLUE}🔐 Found backend-secret from Infisical, using it as source...${NC}"
+fi
+
+DB_CREDS_SOURCE="infisical"
+
+# Read DB credentials from Infisical secret (backend-secret)
+DB_PASSWORD="$(read_k8s_secret "altrupets-dev" "backend-secret" "DB_PASSWORD")"
+DB_USERNAME="$(read_k8s_secret "altrupets-dev" "backend-secret" "DB_USERNAME")"
+DB_NAME="$(read_k8s_secret "altrupets-dev" "backend-secret" "DB_NAME")"
+JWT_SECRET="$(read_k8s_secret "altrupets-dev" "backend-secret" "JWT_SECRET")"
+SEED_ADMIN_USERNAME="$(read_k8s_secret "altrupets-dev" "backend-secret" "SEED_ADMIN_USERNAME")"
+SEED_ADMIN_PASSWORD="$(read_k8s_secret "altrupets-dev" "backend-secret" "SEED_ADMIN_PASSWORD")"
 ENABLE_ADMIN_SEED="${ENABLE_ADMIN_SEED:-true}"
 
-DB_CREDS_SOURCE="env"
+# Fallback to .env file if secret not found
+if [ "$BACKEND_SECRET_EXISTS" = false ]; then
+	echo -e "${ORANGE}⚠️  backend-secret not found, falling back to .env file...${NC}"
+	DB_CREDS_SOURCE="env"
+	DB_PASSWORD="$(read_env_var "$ENV_FILE" "DB_PASSWORD")"
+	DB_USERNAME="$(read_env_var "$ENV_FILE" "POSTGRES_USERNAME")"
+	DB_NAME="$(read_env_var "$ENV_FILE" "POSTGRES_DATABASE")"
+	SEED_ADMIN_USERNAME="${SEED_ADMIN_USERNAME:-$(read_env_var "$ENV_FILE" "SEED_ADMIN_USERNAME")}"
+	SEED_ADMIN_PASSWORD="${SEED_ADMIN_PASSWORD:-$(read_env_var "$ENV_FILE" "SEED_ADMIN_PASSWORD")}"
+fi
 
 if [ "$FORCE_DB_CREDENTIALS_PROMPT" = true ]; then
 	DB_CREDS_SOURCE="prompt"
@@ -171,9 +191,9 @@ if [ "$FORCE_DB_CREDENTIALS_PROMPT" = true ]; then
 fi
 
 if [ -z "${DB_PASSWORD}" ]; then
-	echo -e "${ORANGE}⚠️  DB_PASSWORD not found in $ENV_FILE${NC}"
+	echo -e "${ORANGE}⚠️  DB_PASSWORD not found${NC}"
 	if [ -z "${DB_USERNAME}" ]; then
-		echo -e "${ORANGE}⚠️  POSTGRES_USERNAME not found in $ENV_FILE${NC}"
+		echo -e "${ORANGE}⚠️  DB_USERNAME not found${NC}"
 		creds="$(prompt_db_credentials)"
 		DB_USERNAME="$(printf '%s' "$creds" | sed -n '1p')"
 		DB_PASSWORD="$(printf '%s' "$creds" | sed -n '2p')"
@@ -190,53 +210,27 @@ if [ -z "${DB_PASSWORD}" ]; then
 fi
 
 if [ -z "${DB_USERNAME}" ]; then
-	DB_USERNAME="dev_demo_admin"
+	DB_USERNAME="postgres"
 fi
 
 if [ -z "${DB_NAME}" ]; then
 	DB_NAME="altrupets_${ENV_NAME}_database"
 fi
 
-POSTGRES_SECRET_PASSWORD="$(read_k8s_secret "default" "postgres-dev-secret" "password")"
-POSTGRES_SECRET_USERNAME="$(read_k8s_secret "default" "postgres-dev-secret" "username")"
-POSTGRES_SECRET_DATABASE="$(read_k8s_secret "default" "postgres-dev-secret" "database")"
-
-if [ -n "${POSTGRES_SECRET_PASSWORD}" ] && [ -z "${DB_PASSWORD}" ]; then
-	DB_PASSWORD="${POSTGRES_SECRET_PASSWORD}"
-	DB_CREDS_SOURCE="cluster-secret"
-fi
-
-if [ -n "${POSTGRES_SECRET_USERNAME}" ] && [ -z "${DB_USERNAME}" ]; then
-	DB_USERNAME="${POSTGRES_SECRET_USERNAME}"
-	DB_CREDS_SOURCE="cluster-secret"
-fi
-
-if [ -n "${POSTGRES_SECRET_DATABASE}" ] && [ -z "${DB_NAME}" ]; then
-	DB_NAME="${POSTGRES_SECRET_DATABASE}"
-fi
-
-JWT_SECRET="$(read_env_var "$ENV_FILE" "JWT_SECRET")"
 if [ -z "${JWT_SECRET}" ]; then
 	JWT_SECRET="$(openssl rand -hex 32)"
-	echo -e "${BLUE}🔐 JWT_SECRET was missing. Generated and persisted to ${ENV_FILE}.${NC}"
-	upsert_env_var "$ENV_FILE" "JWT_SECRET" "$JWT_SECRET"
+	echo -e "${BLUE}🔐 JWT_SECRET was missing. Generated it.${NC}"
 fi
 
 if [ "$ENABLE_ADMIN_SEED" = "true" ]; then
-	if [ -z "${SEED_ADMIN_USERNAME}" ] || [ -z "${SEED_ADMIN_PASSWORD}" ]; then
-		creds="$(prompt_admin_seed_credentials)"
-		if [ -z "${SEED_ADMIN_USERNAME}" ]; then
-			SEED_ADMIN_USERNAME="$(printf '%s' "$creds" | sed -n '1p')"
-		fi
-		if [ -z "${SEED_ADMIN_PASSWORD}" ]; then
-			SEED_ADMIN_PASSWORD="$(printf '%s' "$creds" | sed -n '2p')"
-		fi
-	fi
+	# Default SEED_ADMIN_USERNAME if not set
 	if [ -z "${SEED_ADMIN_USERNAME}" ]; then
 		SEED_ADMIN_USERNAME="dev_demo_admin"
 	fi
+	# Check SEED_ADMIN_PASSWORD - required for seeding
 	if [ -z "${SEED_ADMIN_PASSWORD}" ]; then
-		echo -e "${RED}❌ Debes definir la contraseña para ${SEED_ADMIN_USERNAME}.${NC}"
+		echo -e "${ORANGE}⚠️  SEED_ADMIN_PASSWORD not in Infisical. You need to add it to Infisical.${NC}"
+		echo -e "${ORANGE}   Go to https://app.infisical.com and add SEED_ADMIN_PASSWORD to the dev environment.${NC}"
 		exit 1
 	fi
 	if [ "${#SEED_ADMIN_PASSWORD}" -lt 12 ]; then
@@ -247,16 +241,22 @@ fi
 
 echo -e "${BLUE}📝 DB credentials source: ${DB_CREDS_SOURCE}${NC}"
 
-kubectl -n altrupets-dev create secret generic backend-secret \
-	--from-literal=DB_USERNAME="${DB_USERNAME}" \
-	--from-literal=DB_PASSWORD="${DB_PASSWORD}" \
-	--from-literal=DB_NAME="${DB_NAME}" \
-	--from-literal=ENV_NAME="${ENV_NAME}" \
-	--from-literal=JWT_SECRET="${JWT_SECRET}" \
-	--from-literal=SEED_ADMIN="${ENABLE_ADMIN_SEED}" \
-	--from-literal=SEED_ADMIN_USERNAME="${SEED_ADMIN_USERNAME:-}" \
-	--from-literal=SEED_ADMIN_PASSWORD="${SEED_ADMIN_PASSWORD:-}" \
-	--dry-run=client -o yaml | kubectl apply -f -
+# Only create/update secret if not managed by Infisical
+if [ "$BACKEND_SECRET_EXISTS" = false ]; then
+	echo -e "${BLUE}🔐 Creating backend-secret (Infisical not configured)...${NC}"
+	kubectl -n altrupets-dev create secret generic backend-secret \
+		--from-literal=DB_USERNAME="${DB_USERNAME}" \
+		--from-literal=DB_PASSWORD="${DB_PASSWORD}" \
+		--from-literal=DB_NAME="${DB_NAME}" \
+		--from-literal=ENV_NAME="${ENV_NAME}" \
+		--from-literal=JWT_SECRET="${JWT_SECRET}" \
+		--from-literal=SEED_ADMIN="${ENABLE_ADMIN_SEED}" \
+		--from-literal=SEED_ADMIN_USERNAME="${SEED_ADMIN_USERNAME:-}" \
+		--from-literal=SEED_ADMIN_PASSWORD="${SEED_ADMIN_PASSWORD:-}" \
+		--dry-run=client -o yaml | kubectl apply -f -
+else
+	echo -e "${GREEN}✓ backend-secret managed by Infisical, skipping creation${NC}"
+fi
 
 echo -e "${BLUE}📦 Applying ArgoCD project...${NC}"
 kubectl apply -f "$PROJECT_ROOT/k8s/argocd/projects/altrupets-dev-project.yaml"

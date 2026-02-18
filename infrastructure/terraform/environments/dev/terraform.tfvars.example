@@ -3,4 +3,4 @@
 
 postgres_username = "postgres"
 postgres_password = "your-secure-password-here"
-postgres_database = "altrupets_user_management"
+postgres_database = "altrupets_dev_database"

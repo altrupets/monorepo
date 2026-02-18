@@ -7,5 +7,5 @@ metadata:
 data:
   NODE_ENV: "development"
   PORT: "3001"
-  DB_HOST: "postgres-dev-service.default.svc.cluster.local"
+  DB_HOST: "postgres-dev-service.altrupets-dev.svc.cluster.local"
   DB_PORT: "5432"
