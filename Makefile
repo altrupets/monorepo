@@ -20,6 +20,8 @@
         dev-superusers-start dev-superusers-stop dev-superusers-deploy dev-superusers-destroy \
         dev-b2g-start dev-b2g-stop dev-b2g-deploy dev-b2g-destroy \
         dev-superuser-seed \
+        dev-security-scan dev-security-deps dev-security-sast dev-security-secrets \
+        dev-security-container dev-security-iac dev-security-fix \
         qa-terraform-deploy qa-terraform-destroy qa-verify \
         qa-gateway-deploy qa-postgres-deploy \
         stage-terraform-deploy stage-terraform-destroy stage-verify \
@@ -109,6 +111,15 @@ help: ## Show this help message
 	@echo ""
 	@echo "$(GREEN)DEV - Utilities:$(NC)"
 	@echo "  $(YELLOW)dev-superuser-seed$(NC)          Create SUPER_USER in minikube"
+	@echo ""
+	@echo "$(GREEN)DEV - DevSecOps:$(NC)"
+	@echo "  $(YELLOW)dev-security-scan$(NC)           Run all security scans"
+	@echo "  $(YELLOW)dev-security-deps$(NC)           Scan dependencies"
+	@echo "  $(YELLOW)dev-security-sast$(NC)           Static Application Security Testing"
+	@echo "  $(YELLOW)dev-security-secrets$(NC)        Scan for secrets"
+	@echo "  $(YELLOW)dev-security-container$(NC)      Scan container images"
+	@echo "  $(YELLOW)dev-security-iac$(NC)            Scan Infrastructure as Code"
+	@echo "  $(YELLOW)dev-security-fix$(NC)            Auto-fix vulnerabilities"
 	@echo ""
 	@echo "$(GREEN)QA (OVHCloud):$(NC)"
 	@echo "  $(YELLOW)qa-terraform-deploy$(NC)         Deploy complete QA environment"
@@ -329,6 +340,31 @@ dev-b2g-destroy: ## Remove B2G from minikube
 
 dev-superuser-seed: ## Create SUPER_USER in minikube
 	@$(SCRIPTS_DIR)/seed-superuser-minikube.sh
+
+# ==========================================
+# DEV - DevSecOps
+# ==========================================
+
+dev-security-scan: ## Run all security scans
+	@$(SCRIPTS_DIR)/dev-devsecops-scan.sh all
+
+dev-security-deps: ## Scan dependencies for vulnerabilities
+	@$(SCRIPTS_DIR)/dev-devsecops-scan.sh deps
+
+dev-security-sast: ## Static Application Security Testing
+	@$(SCRIPTS_DIR)/dev-devsecops-scan.sh sast
+
+dev-security-secrets: ## Scan for secrets in code
+	@$(SCRIPTS_DIR)/dev-devsecops-scan.sh secrets
+
+dev-security-container: ## Scan container images
+	@$(SCRIPTS_DIR)/dev-devsecops-scan.sh container
+
+dev-security-iac: ## Scan Infrastructure as Code
+	@$(SCRIPTS_DIR)/dev-devsecops-scan.sh iac
+
+dev-security-fix: ## Auto-fix vulnerabilities where possible
+	@$(SCRIPTS_DIR)/dev-devsecops-scan.sh fix
 
 # ==========================================
 # QA Environment (OVHCloud)
