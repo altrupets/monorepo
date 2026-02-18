@@ -127,22 +127,22 @@ markdown_extensions:
 nav:
   - Inicio: index.md
   - 🚀 Empezar:
-    - Instalación: getting-started/installation.md
-    - Configuración: getting-started/setup.md
+    - Instalación: docs/getting-started/installation.md
+    - Configuración: docs/getting-started/setup.md
   - 🏗️ Arquitectura:
-    - Visión general: architecture/overview.md
-    - Tecnologías: architecture/technologies.md
-    - Flujo de datos: architecture/data-flow.md
+    - Visión general: docs/architecture/overview.md
+    - Tecnologías: docs/architecture/technologies.md
+    - Flujo de datos: docs/architecture/data-flow.md
   - 💻 Desarrollo:
-    - Configuración local: development/local-setup.md
-    - Estructura: development/structure.md
-    - Testing: development/testing.md
+    - Configuración local: docs/development/local-setup.md
+    - Estructura: docs/development/structure.md
+    - Testing: docs/development/testing.md
   - 🚀 Despliegue:
-    - Kubernetes: deployment/kubernetes.md
-    - CI/CD: deployment/cicd.md
+    - Kubernetes: docs/deployment/kubernetes.md
+    - CI/CD: docs/deployment/cicd.md
   - 📦 Paquetes:
-    - latam_payments: packages/latam-payments-package.md
-    - Progreso: packages/latam-payments-progress.md
+    - latam_payments: docs/packages/latam-payments-package.md
+    - Progreso: docs/packages/latam-payments-progress.md
 
 # =============================================================================
 # Configuración adicional
