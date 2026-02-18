@@ -7,7 +7,7 @@
 | **ID** | `static-analysis` |
 | **Nivel** | 🟡 Intermedio |
 | **Versión** | 2.0.0 |
-| **Keywords** | `static-analysis`, `analyze`, `lint`, `code-quality`, `sast`, `security-scan`, `multi-language-linting` |
+| **Keywords** | `static-analysis`, `analyze`, `lint`, `code-quality`, `sast`, `security-scan`, `multi-language-linting`, `super-linter` |
 | **Lenguajes Soportados** | Dart, Python, Go, Bash, PowerShell, Rust, JavaScript/Node.js |
 | **Referencia** | [Dart Analysis Tools](https://dart.dev/tools/analysis) |
 
@@ -31,6 +31,7 @@
 - `golangci-lint`
 - `shellcheck`
 - `clippy`
+- `super-linter`
 - `@skill:static-analysis`
 
 ### Ejemplos de Prompts
@@ -1519,6 +1520,7 @@ coderabbit review --range HEAD~1..HEAD
 - [TypeScript ESLint](https://typescript-eslint.io/)
 
 ### Herramientas Generales
+- [GitHub Super-Linter](https://github.com/super-linter/super-linter)
 - [pre-commit Framework](https://pre-commit.com/)
 - [Datadog Static Analysis Rules](https://docs.datadoghq.com/es/security/code_security/static_analysis/static_analysis_rules/)
 - [CodeRabbit CLI Documentation](https://docs.coderabbit.ai/cli/overview)
