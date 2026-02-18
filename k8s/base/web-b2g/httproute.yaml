@@ -1,0 +1,45 @@
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: web-b2g-route
+  namespace: altrupets-dev
+spec:
+  parentRefs:
+    - name: dev-gateway
+      namespace: altrupets-dev
+  hostnames:
+    - "altrupets.local"
+    - "b2g.altrupets.local"
+    - "localhost"
+  rules:
+    - matches:
+        - path:
+            type: PathPrefix
+            value: /b2g
+      backendRefs:
+        - name: web-b2g-service
+          port: 3003
+---
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: b2g-subdomain-redirect
+  namespace: altrupets-dev
+spec:
+  parentRefs:
+    - name: dev-gateway
+      namespace: altrupets-dev
+  hostnames:
+    - "b2g.altrupets.local"
+  rules:
+    - matches:
+        - path:
+            type: Exact
+            value: /
+      filters:
+        - type: RequestRedirect
+          requestRedirect:
+            path:
+              type: ReplaceFullPath
+              replaceFullPath: /b2g
+            statusCode: 302

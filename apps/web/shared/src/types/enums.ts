@@ -1,0 +1,28 @@
+export enum OrganizationType {
+  FOUNDATION = 'FOUNDATION',
+  ASSOCIATION = 'ASSOCIATION',
+  NGO = 'NGO',
+  COOPERATIVE = 'COOPERATIVE',
+  GOVERNMENT = 'GOVERNMENT',
+  OTHER = 'OTHER',
+}
+
+export enum OrganizationStatus {
+  PENDING_VERIFICATION = 'PENDING_VERIFICATION',
+  ACTIVE = 'ACTIVE',
+  SUSPENDED = 'SUSPENDED',
+  INACTIVE = 'INACTIVE',
+}
+
+export enum OrganizationRole {
+  LEGAL_REPRESENTATIVE = 'LEGAL_REPRESENTATIVE',
+  USER_ADMIN = 'USER_ADMIN',
+  MEMBER = 'MEMBER',
+}
+
+export enum MembershipStatus {
+  PENDING = 'PENDING',
+  APPROVED = 'APPROVED',
+  REJECTED = 'REJECTED',
+  REVOKED = 'REVOKED',
+}

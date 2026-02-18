@@ -124,6 +124,12 @@ variable "nginx_gateway_class_name" {
   default     = "nginx"
 }
 
+variable "gateway_nodeport_port" {
+  description = "NodePort port for Gateway access (30000-32767)"
+  type        = number
+  default     = 30080
+}
+
 # ============================================
 # Istio Service Mesh Configuration
 # ============================================

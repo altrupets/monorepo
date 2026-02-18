@@ -181,7 +181,7 @@ setup_port_forward() {
 	log_info "Setting up Gateway port-forward..."
 
 	pkill -f "kubectl port-forward.*gateway-nodeport" 2>/dev/null || true
-	kubectl port-forward -n altrupets-dev svc/gateway-nodeport 3001:3001 >/dev/null 2>&1 &
+	kubectl port-forward -n nginx-gateway svc/gateway-nodeport 3001:80 >/dev/null 2>&1 &
 
 	sleep 2
 

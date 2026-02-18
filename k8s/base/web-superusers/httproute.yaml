@@ -1,0 +1,45 @@
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: web-superusers-route
+  namespace: altrupets-dev
+spec:
+  parentRefs:
+    - name: dev-gateway
+      namespace: altrupets-dev
+  hostnames:
+    - "altrupets.local"
+    - "admin.altrupets.local"
+    - "localhost"
+  rules:
+    - matches:
+        - path:
+            type: PathPrefix
+            value: /admin
+      backendRefs:
+        - name: web-superusers-service
+          port: 3002
+---
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: admin-subdomain-redirect
+  namespace: altrupets-dev
+spec:
+  parentRefs:
+    - name: dev-gateway
+      namespace: altrupets-dev
+  hostnames:
+    - "admin.altrupets.local"
+  rules:
+    - matches:
+        - path:
+            type: Exact
+            value: /
+      filters:
+        - type: RequestRedirect
+          requestRedirect:
+            path:
+              type: ReplaceFullPath
+              replaceFullPath: /admin
+            statusCode: 302

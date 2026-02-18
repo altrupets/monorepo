@@ -52,7 +52,7 @@ module "gateway_api" {
 
   # Core Configuration
   environment     = "dev"
-  namespace       = "default"
+  namespace       = "altrupets-dev"
   gateway_version = "v1.4.1"
   channel         = "standard"
 

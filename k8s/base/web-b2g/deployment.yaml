@@ -1,0 +1,49 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: web-b2g
+  labels:
+    app: web-b2g
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: web-b2g
+  template:
+    metadata:
+      labels:
+        app: web-b2g
+    spec:
+      containers:
+        - name: web-b2g
+          image: altrupets-web-b2g:dev
+          imagePullPolicy: IfNotPresent
+          ports:
+            - name: http
+              containerPort: 3003
+          env:
+            - name: NODE_ENV
+              value: production
+            - name: PORT
+              value: "3003"
+            - name: BACKEND_URL
+              value: http://backend-service:3001
+          readinessProbe:
+            httpGet:
+              path: /b2g
+              port: http
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /b2g
+              port: http
+            initialDelaySeconds: 15
+            periodSeconds: 20
+          resources:
+            requests:
+              cpu: 50m
+              memory: 64Mi
+            limits:
+              cpu: 200m
+              memory: 128Mi
