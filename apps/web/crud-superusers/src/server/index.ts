@@ -3,34 +3,40 @@ import cookieParser from 'cookie-parser'
 import { resolve, dirname } from 'path'
 import { fileURLToPath } from 'url'
 import { createInertiaApp } from './inertia.js'
+import fs from 'fs'
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
 
 const app = express()
-const PORT = process.env.PORT || 3002
+const PORT = process.env.PORT || 3003
 const BACKEND_URL = process.env.BACKEND_URL || 'http://backend-service:3001'
 const IS_DEV = process.env.NODE_ENV !== 'production'
 
 app.use(cookieParser())
 app.use(express.json())
 
+// Read the built HTML template
+const getHtmlTemplate = (): string => {
+  const htmlPath = resolve(__dirname, '../../dist/index.html')
+  return fs.readFileSync(htmlPath, 'utf-8')
+}
+
 const inertia = createInertiaApp({
-  resolvePage: (name) => {
-    const pages = import.meta.glob('../Pages/**/*.vue', { eager: true })
-    const page = pages[`../Pages/${name}.vue`]
-    if (!page) throw new Error(`Page not found: ${name}`)
-    return page
+  resolvePage: () => {
+    // Pages are loaded client-side, server just provides props
+    return { default: {} }
   },
   version: IS_DEV ? Date.now().toString() : '1',
+  htmlTemplate: getHtmlTemplate(),
 })
 
 app.use(inertia.middleware)
 
 app.use(express.static(resolve(__dirname, '../../dist')))
 
-app.get('/admin', async (req, res) => {
+app.get('/b2g', async (req, res) => {
   const user = await fetchUser(req)
-  if (!user) return res.redirect('/admin/login')
+  if (!user) return res.redirect('/b2g/login')
   if (!hasRequiredRole(user)) {
     res.clearCookie('jwt')
     return res.inertia.render('Auth/Login', { 
@@ -38,29 +44,29 @@ app.get('/admin', async (req, res) => {
       errors: { login: 'No tienes permisos para acceder a esta aplicación' }
     })
   }
-  return res.inertia.render('Dashboard', { user, title: 'Admin Dashboard' })
+  return res.inertia.render('Dashboard', { user, title: 'B2G Dashboard' })
 })
 
-app.get('/admin/users', async (req, res) => {
+app.get('/b2g/captures', async (req, res) => {
   const user = await fetchUser(req)
-  if (!user) return res.redirect('/admin/login')
+  if (!user) return res.redirect('/b2g/login')
   if (!hasRequiredRole(user)) {
     res.clearCookie('jwt')
-    return res.redirect('/admin/login')
+    return res.redirect('/b2g/login')
   }
-  return res.inertia.render('Users/Index', { user, title: 'Gestión de Usuarios' })
+  return res.inertia.render('Captures/Index', { user, title: 'Solicitudes de Captura' })
 })
 
-app.get('/admin/login', async (req, res) => {
+app.get('/b2g/login', async (req, res) => {
   const user = await fetchUser(req)
-  if (user && hasRequiredRole(user)) return res.redirect('/admin')
+  if (user && hasRequiredRole(user)) return res.redirect('/b2g')
   if (user) {
     res.clearCookie('jwt')
   }
   return res.inertia.render('Auth/Login', { title: 'Iniciar Sesión', errors: {} })
 })
 
-app.post('/admin/login', async (req, res) => {
+app.post('/b2g/login', async (req, res) => {
   try {
     const response = await fetch(`${BACKEND_URL}/login`, {
       method: 'POST',
@@ -75,7 +81,7 @@ app.post('/admin/login', async (req, res) => {
     }
     
     if (response.redirected || response.ok) {
-      return res.redirect('/admin')
+      return res.redirect('/b2g')
     }
     
     const data = await response.json()
@@ -91,13 +97,13 @@ app.post('/admin/login', async (req, res) => {
   }
 })
 
-app.post('/admin/logout', async (req, res) => {
+app.post('/b2g/logout', async (req, res) => {
   await fetch(`${BACKEND_URL}/logout`, {
     method: 'POST',
     headers: { Cookie: req.headers.cookie || '' },
   })
   res.clearCookie('jwt')
-  res.redirect('/admin/login')
+  res.redirect('/b2g/login')
 })
 
 app.use('/graphql', async (req, res) => {
@@ -146,10 +152,10 @@ async function fetchUser(req: express.Request): Promise<any> {
 }
 
 function hasRequiredRole(user: any): boolean {
-  const allowedRoles = ['SUPER_USER', 'USER_ADMIN']
+  const allowedRoles = ['GOVERNMENT_ADMIN', 'SUPER_USER']
   return user?.roles?.some((role: string) => allowedRoles.includes(role))
 }
 
 app.listen(PORT, () => {
-  console.log(`CRUD Superusers running on port ${PORT}`)
+  console.log(`B2G app running on port ${PORT}`)
 })

@@ -1,8 +1,9 @@
 import { Request, Response, NextFunction } from 'express'
 
 interface InertiaConfig {
-  resolvePage: (name: string) => Promise<any>
+  resolvePage: (name: string) => any
   version: string
+  htmlTemplate?: string
 }
 
 interface InertiaPage {
@@ -13,7 +14,7 @@ interface InertiaPage {
 }
 
 export function createInertiaApp(config: InertiaConfig) {
-  const { resolvePage, version } = config
+  const { resolvePage, version, htmlTemplate } = config
 
   function renderPage(component: string, props: Record<string, any>, req: Request): string {
     const page: InertiaPage = {
@@ -25,19 +26,24 @@ export function createInertiaApp(config: InertiaConfig) {
 
     const pageJson = JSON.stringify(page)
     
-    return `<!DOCTYPE html>
+    // Use provided template or default
+    const baseHtml = htmlTemplate || `<!DOCTYPE html>
 <html lang="es">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>AltruPets - B2G</title>
-  <link rel="stylesheet" href="/dist/css/app.css">
+  <title>AltruPets</title>
 </head>
 <body>
-  <div id="app" data-page="${escapeHtml(pageJson)}"></div>
-  <script type="module" src="/dist/js/app.js"></script>
+  <div id="app"></div>
 </body>
 </html>`
+    
+    // Inject page data into the HTML
+    return baseHtml.replace(
+      '<div id="app"></div>',
+      `<div id="app" data-page="${escapeHtml(pageJson)}"></div>`
+    )
   }
 
   function escapeHtml(str: string): string {
