@@ -1,4 +1,4 @@
-name: Deploy to PRODUCTION (PR + Approval)
+name: Deploy to PROD
 
 on:
   pull_request:
