@@ -1819,14 +1819,35 @@ pci_compliance:
 
 ```bash
 # Herramientas esenciales
-- Docker Desktop 4.0+
-- Kubernetes (Docker Desktop o minikube)
 - Node.js 18 LTS
 - Flutter SDK 3.16+
-- AWS CLI v2
 - kubectl
 - helm
+
+# Container runtime (elegir uno)
+- Podman 4.0+ (recomendado) + containerd
+- O Docker Desktop 4.0+
 ```
+
+#### Configuración de Minikube (Recomendado)
+
+Minikube debe configurarse con **Podman driver** y **containerd runtime** para evitar archivos huérfanos con permisos de root:
+
+```bash
+# Instalar Podman (si no está instalado)
+sudo apt install podman
+
+# Configurar Minikube en modo rootless
+minikube config set rootless true
+
+# Iniciar Minikube con Podman y containerd
+minikube start --driver=podman --container-runtime=containerd
+
+# Verificar configuración
+minikube status
+```
+
+**Nota:** Esta configuración evita la creación de archivos temporales `.csm_*` y `.s3_*` con permisos de root.
 
 ### Setup Rápido con Costos Mínimos
 

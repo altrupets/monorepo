@@ -33,6 +33,10 @@ doc/api/
 .flutter-plugins
 .flutter-plugins-dependencies
 
+# Minikube temporary files (can be owned by root if not using rootless mode)
+.csm_*
+.s3_*
+
 # Logs directory - keep folders but ignore files
 # Ignore everything in logs/
 /logs/*
@@ -45,6 +49,6 @@ doc/api/
 !/logs/*/*/.gitkeep
 !/logs/*/*/*/.gitkeep
 
-.s3_setup_adwEA34Bn
-
-.csm_setup_fh5C3JavY
+# Minikube temp files (can be owned by root if not using rootless mode)
+.csm_*
+.s3_*
