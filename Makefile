@@ -1,23 +1,31 @@
 # Altrupets Monorepo - Automation Makefile
 # ==========================================
 # 
+# Naming Convention: env-recurso-verbo
+# Examples:
+#   make dev-terraform-deploy    # Deploy terraform resources in dev
+#   make dev-argocd-deploy       # Deploy ArgoCD in dev
+#   make dev-minikube-clear      # Clear stuck namespaces
+#
 # Usage:
 #   make <target> [ENV=<environment>]
-#
-# Examples:
-#   make dev                    # Deploy to DEV (minikube)
-#   make qa                     # Deploy to QA (OVHCloud)
-#   make prod AUTO_APPROVE=true # Deploy to PROD with auto-approval
-#   make help                   # Show all available targets
 
-.PHONY: help install setup dev qa stage prod \
-        dev-up dev-workspace dev-build dev-down dev-stop \
-        dev-gateway qa-gateway stage-gateway prod-gateway \
-        dev-postgres qa-postgres stage-postgres prod-postgres \
-        dev-destroy qa-destroy stage-destroy prod-destroy \
-        ci-build ci-push ci-deploy ci-test \
-        verify logs port-forward shell \
-        clean test lint
+.PHONY: help setup \
+        dev-terraform-deploy dev-terraform-destroy \
+        dev-minikube-deploy dev-minikube-clear dev-minikube-destroy \
+        dev-argocd-deploy dev-argocd-destroy dev-argocd-status dev-argocd-password \
+        dev-gateway-deploy dev-gateway-start dev-gateway-stop \
+        dev-postgres-deploy dev-postgres-destroy dev-postgres-logs dev-postgres-port-forward \
+        dev-backend-build dev-backend-start \
+        dev-superusers-start dev-superusers-stop dev-superusers-deploy dev-superusers-destroy \
+        dev-b2g-start dev-b2g-stop dev-b2g-deploy dev-b2g-destroy \
+        dev-superuser-seed \
+        qa-terraform-deploy qa-terraform-destroy qa-verify \
+        qa-gateway-deploy qa-postgres-deploy \
+        stage-terraform-deploy stage-terraform-destroy stage-verify \
+        stage-gateway-deploy stage-postgres-deploy \
+        prod-deploy prod-emergency-deploy \
+        ci-backend-build ci-backend-push ci-all-test
 
 # ==========================================
 # Variables
@@ -27,17 +35,17 @@ ENV ?= dev
 TF_DIR = infrastructure/terraform/environments/$(ENV)
 SCRIPTS_DIR = infrastructure/scripts
 APPS_DIR = apps
+REPO_URL ?= https://github.com/altrupets/monorepo.git
 VERSION ?= $(shell git describe --tags --always 2>/dev/null || echo "dev")
 GIT_SHA ?= $(shell git rev-parse --short HEAD 2>/dev/null || echo "unknown")
 IMAGE_TAG = $(VERSION)-$(GIT_SHA)
 GITHUB_REGISTRY = ghcr.io/altrupets
 
-# Colors for output
 BLUE := \033[36m
 GREEN := \033[32m
 YELLOW := \033[33m
 RED := \033[31m
-NC := \033[0m # No Color
+NC := \033[0m
 
 # ==========================================
 # Help
@@ -45,362 +53,353 @@ NC := \033[0m # No Color
 
 help: ## Show this help message
 	@echo ""
-	@echo "$(BLUE)╔════════════════════════════════════════════════════════════╗$(NC)"
-	@echo "$(BLUE)║       Altrupets Monorepo - Automation Commands             ║$(NC)"
-	@echo "$(BLUE)╚════════════════════════════════════════════════════════════╝$(NC)"
+	@echo "$(BLUE)╔════════════════════════════════════════════════════════════════╗$(NC)"
+	@echo "$(BLUE)║       Altrupets Monorepo - Commands (env-recurso-verbo)        ║$(NC)"
+	@echo "$(BLUE)╚════════════════════════════════════════════════════════════════╝$(NC)"
 	@echo ""
-	@echo "$(GREEN)Usage:$(NC)"
-	@echo "  make $(YELLOW)<target>$(NC) [$(YELLOW)ENV=$(NC)<environment>] [$(YELLOW)options$(NC)]"
+	@echo "$(GREEN)Quick Start (Full Setup):$(NC)"
+	@echo "  make setup                    $(BLUE)# First time setup$(NC)"
+	@echo "  make dev-minikube-deploy      $(BLUE)# 1. Create minikube cluster$(NC)"
+	@echo "  make dev-terraform-deploy     $(BLUE)# 2. Deploy PostgreSQL + Gateway$(NC)"
+	@echo "  make dev-argocd-deploy        $(BLUE)# 3. Deploy ArgoCD + all apps$(NC)"
+	@echo "  make dev-gateway-start        $(BLUE)# 4. Start port-forward$(NC)"
 	@echo ""
-	@echo "$(GREEN)Quick Start:$(NC)"
-	@echo "  make setup          $(BLUE)# Setup local development environment$(NC)"
-	@echo "  make dev            $(BLUE)# Deploy everything to DEV (first time)$(NC)"
-	@echo "  make dev-up         $(BLUE)# Resume DEV (start Minikube + port-forward)$(NC)"
-	@echo "  make dev-workspace  $(BLUE)# Full workspace: Minikube + DB + Backend$(NC)"
-	@echo "  make qa             $(BLUE)# Deploy to QA (OVHCloud)$(NC)"
+	@echo "$(GREEN)DEV - Minikube:$(NC)"
+	@echo "  $(YELLOW)dev-minikube-deploy$(NC)         Create minikube cluster"
+	@echo "  $(YELLOW)dev-minikube-clear$(NC)          Clear stuck namespaces (finalizers)"
+	@echo "  $(YELLOW)dev-minikube-destroy$(NC)        Delete minikube cluster"
 	@echo ""
-	@echo "$(GREEN)Environment Deployment:$(NC)"
-	@awk 'BEGIN {FS = ":.*?## "} /^[a-zA-Z_-]+:.*?## / {printf "  $(YELLOW)%-20s$(NC) %s\n", $$1, $$2}' $(MAKEFILE_LIST) | grep -E "(dev|qa|stage|prod)-" | head -20
+	@echo "$(GREEN)DEV - Terraform:$(NC)"
+	@echo "  $(YELLOW)dev-terraform-deploy$(NC)        Deploy all terraform resources"
+	@echo "  $(YELLOW)dev-terraform-destroy$(NC)       Destroy all terraform resources"
 	@echo ""
-	@echo "$(GREEN)Individual Components:$(NC)"
-	@awk 'BEGIN {FS = ":.*?## "} /^[a-zA-Z_-]+:.*?## / {printf "  $(YELLOW)%-20s$(NC) %s\n", $$1, $$2}' $(MAKEFILE_LIST) | grep -E "gateway|postgres" | head -10
+	@echo "$(GREEN)DEV - ArgoCD:$(NC)"
+	@echo "  $(YELLOW)dev-argocd-deploy$(NC)           Install ArgoCD + all apps (backend, superusers, b2g)"
+	@echo "  $(YELLOW)dev-argocd-destroy$(NC)          Remove ArgoCD namespace"
+	@echo "  $(YELLOW)dev-argocd-status$(NC)           Show ArgoCD applications"
+	@echo "  $(YELLOW)dev-argocd-password$(NC)         Get ArgoCD admin password"
+	@echo ""
+	@echo "$(GREEN)DEV - Gateway:$(NC)"
+	@echo "  $(YELLOW)dev-gateway-deploy$(NC)          Deploy Gateway API"
+	@echo "  $(YELLOW)dev-gateway-start$(NC)           Start port-forward (localhost:3001)"
+	@echo "  $(YELLOW)dev-gateway-stop$(NC)            Stop port-forward"
+	@echo ""
+	@echo "$(GREEN)DEV - PostgreSQL:$(NC)"
+	@echo "  $(YELLOW)dev-postgres-deploy$(NC)         Deploy PostgreSQL"
+	@echo "  $(YELLOW)dev-postgres-destroy$(NC)        Destroy PostgreSQL"
+	@echo "  $(YELLOW)dev-postgres-logs$(NC)           Show PostgreSQL logs"
+	@echo "  $(YELLOW)dev-postgres-port-forward$(NC)   Port-forward PostgreSQL"
+	@echo ""
+	@echo "$(GREEN)DEV - Backend:$(NC)"
+	@echo "  $(YELLOW)dev-backend-build$(NC)           Build backend image"
+	@echo "  $(YELLOW)dev-backend-start$(NC)           Start backend in dev mode"
+	@echo ""
+	@echo "$(GREEN)DEV - Web Apps (managed by ArgoCD, manual fallback):$(NC)"
+	@echo "  $(YELLOW)dev-superusers-start$(NC)        Start CRUD Superusers locally (dev)"
+	@echo "  $(YELLOW)dev-superusers-stop$(NC)         Stop CRUD Superusers"
+	@echo "  $(YELLOW)dev-superusers-deploy$(NC)       Deploy manually (fallback)"
+	@echo "  $(YELLOW)dev-superusers-destroy$(NC)      Remove manually"
+	@echo ""
+	@echo "  $(YELLOW)dev-b2g-start$(NC)               Start B2G locally (dev)"
+	@echo "  $(YELLOW)dev-b2g-stop$(NC)                Stop B2G"
+	@echo "  $(YELLOW)dev-b2g-deploy$(NC)              Deploy manually (fallback)"
+	@echo "  $(YELLOW)dev-b2g-destroy$(NC)             Remove manually"
+	@echo ""
+	@echo "$(GREEN)DEV - Utilities:$(NC)"
+	@echo "  $(YELLOW)dev-superuser-seed$(NC)          Create SUPER_USER in minikube"
+	@echo ""
+	@echo "$(GREEN)QA (OVHCloud):$(NC)"
+	@echo "  $(YELLOW)qa-terraform-deploy$(NC)         Deploy complete QA environment"
+	@echo "  $(YELLOW)qa-terraform-destroy$(NC)        Destroy QA environment"
+	@echo "  $(YELLOW)qa-verify$(NC)                   Verify QA deployment"
+	@echo "  $(YELLOW)qa-gateway-deploy$(NC)           Deploy Gateway API to QA"
+	@echo "  $(YELLOW)qa-postgres-deploy$(NC)          Deploy PostgreSQL to QA"
+	@echo ""
+	@echo "$(GREEN)STAGE (OVHCloud):$(NC)"
+	@echo "  $(YELLOW)stage-terraform-deploy$(NC)      Deploy complete STAGING"
+	@echo "  $(YELLOW)stage-terraform-destroy$(NC)     Destroy STAGING"
+	@echo "  $(YELLOW)stage-verify$(NC)                Verify STAGING deployment"
+	@echo "  $(YELLOW)stage-gateway-deploy$(NC)        Deploy Gateway API to STAGING"
+	@echo "  $(YELLOW)stage-postgres-deploy$(NC)       Deploy PostgreSQL to STAGING"
+	@echo ""
+	@echo "$(GREEN)PROD (OVHCloud):$(NC)"
+	@echo "  $(YELLOW)prod-deploy$(NC)                 Deploy to PROD (via GitHub Actions)"
+	@echo "  $(YELLOW)prod-emergency-deploy$(NC)       Emergency PROD deploy"
 	@echo ""
 	@echo "$(GREEN)CI/CD:$(NC)"
-	@awk 'BEGIN {FS = ":.*?## "} /^[a-zA-Z_-]+:.*?## / {printf "  $(YELLOW)%-20s$(NC) %s\n", $$1, $$2}' $(MAKEFILE_LIST) | grep "ci-" | head -10
-	@echo ""
-	@echo "$(GREEN)Development:$(NC)"
-	@awk 'BEGIN {FS = ":.*?## "} /^[a-zA-Z_-]+:.*?## / {printf "  $(YELLOW)%-20s$(NC) %s\n", $$1, $$2}' $(MAKEFILE_LIST) | grep -E "(backend-dev|seed-|web-dev)" | head -10
-	@echo ""
-	@echo "$(GREEN)Utilities:$(NC)"
-	@awk 'BEGIN {FS = ":.*?## "} /^[a-zA-Z_-]+:.*?## / {printf "  $(YELLOW)%-20s$(NC) %s\n", $$1, $$2}' $(MAKEFILE_LIST) | grep -E "(verify|logs|clean|test)" | head -10
-	@echo ""
-	@echo "$(GREEN)Environments:$(NC) dev, qa, staging, prod"
+	@echo "  $(YELLOW)ci-backend-build$(NC)            Build backend Docker image"
+	@echo "  $(YELLOW)ci-backend-push$(NC)             Push backend image to GHCR"
+	@echo "  $(YELLOW)ci-all-test$(NC)                 Run all tests"
 	@echo ""
 
 # ==========================================
-# Setup & Installation
+# Setup
 # ==========================================
 
-setup: ## Setup local development environment (install dependencies)
+setup: ## Setup local development environment
 	@echo "$(BLUE)Setting up development environment...$(NC)"
-	@chmod +x $(SCRIPTS_DIR)/lib/*.sh
+	@chmod +x $(SCRIPTS_DIR)/lib/*.sh 2>/dev/null || true
 	@chmod +x $(SCRIPTS_DIR)/*.sh
 	@echo "$(GREEN)✓ Scripts are now executable$(NC)"
 	@echo "$(BLUE)Checking prerequisites...$(NC)"
-	@command -v kubectl >/dev/null 2>&1 || echo "$(YELLOW)⚠ kubectl not found. Install: https://kubernetes.io/docs/tasks/tools/$(NC)"
-	@command -v tofu >/dev/null 2>&1 || echo "$(YELLOW)⚠ tofu not found. Install: https://opentofu.org/docs/intro/install/$(NC)"
-	@command -v docker >/dev/null 2>&1 || echo "$(YELLOW)⚠ docker not found. Install: https://docs.docker.com/get-docker/$(NC)"
+	@command -v kubectl >/dev/null 2>&1 || echo "$(YELLOW)⚠ kubectl not found$(NC)"
+	@command -v tofu >/dev/null 2>&1 || echo "$(YELLOW)⚠ tofu not found$(NC)"
+	@command -v minikube >/dev/null 2>&1 || echo "$(YELLOW)⚠ minikube not found$(NC)"
 	@echo "$(GREEN)✓ Setup complete$(NC)"
 
-install: setup ## Alias for setup
-
 # ==========================================
-# DEV Environment (Local Minikube)
+# DEV - Minikube
 # ==========================================
 
-dev: ## Deploy complete DEV environment (minikube)
-	@echo "$(BLUE)Deploying DEV environment...$(NC)"
+dev-minikube-deploy: ## Create minikube cluster
+	@echo "$(BLUE)Starting minikube...$(NC)"
+	@minikube start --driver=docker --cpus=4 --memory=8192 --disk-size=20g
+	@echo "$(GREEN)✓ Minikube started$(NC)"
+
+dev-minikube-clear: ## Clear stuck namespaces (remove finalizers)
+	@echo "$(BLUE)Clearing stuck namespaces...$(NC)"
+	@for ns in $$(kubectl get ns -o jsonpath='{.items[*].metadata.name}'); do \
+		if kubectl get ns $$ns -o jsonpath='{.status.phase}' 2>/dev/null | grep -q "Terminating"; then \
+			echo "$(YELLOW)Clearing finalizers from namespace: $$ns$(NC)"; \
+			kubectl patch ns $$ns --type merge -p '{"metadata":{"finalizers":[]}}' 2>/dev/null || true; \
+		fi; \
+	done
+	@echo "$(GREEN)✓ Namespace cleanup complete$(NC)"
+
+dev-minikube-destroy: ## Delete minikube cluster
+	@echo "$(RED)Deleting minikube cluster...$(NC)"
+	@minikube delete
+	@echo "$(GREEN)✓ Minikube deleted$(NC)"
+
+# ==========================================
+# DEV - Terraform
+# ==========================================
+
+dev-terraform-deploy: ## Deploy all terraform resources (PostgreSQL + Gateway)
+	@echo "$(BLUE)Deploying DEV terraform resources...$(NC)"
 	@cd $(TF_DIR) && tofu init && tofu apply
 
-dev-up: ## Start Minikube + Gateway port-forward (resume development)
-	@echo "$(BLUE)╔════════════════════════════════════════════════════════════╗$(NC)"
-	@echo "$(BLUE)║       Resuming DEV Environment                             ║$(NC)"
-	@echo "$(BLUE)╚════════════════════════════════════════════════════════════╝$(NC)"
-	@echo ""
-	@$(SCRIPTS_DIR)/dev-validate.sh
-	@echo ""
-	@echo "$(BLUE)🔌 Setting up Gateway port-forward...$(NC)"
-	@pkill -f "kubectl port-forward.*gateway-nodeport" 2>/dev/null || true
-	@kubectl port-forward -n altrupets-dev svc/gateway-nodeport 3001:3001 > /dev/null 2>&1 &
-	@sleep 2
-	@echo "$(GREEN)✓ Gateway accessible at http://localhost:3001$(NC)"
-	@echo ""
-	@echo "$(GREEN)✓ Ready to develop!$(NC)"
-	@echo ""
-	@echo "$(BLUE)Endpoints:$(NC)"
-	@echo "  $(YELLOW)http://localhost:3001$(NC)           - Backend API"
-	@echo "  $(YELLOW)http://localhost:3001/graphql$(NC)   - GraphQL Playground"
-	@echo "  $(YELLOW)http://localhost:3001/admin/users$(NC) - Admin Panel"
-	@echo ""
-	@echo "$(BLUE)To rebuild after changes:$(NC)"
-	@echo "  $(YELLOW)make dev-build$(NC)"
-	@echo ""
-
-dev-build: ## Rebuild backend image and redeploy
-	@echo "$(BLUE)Building backend image...$(NC)"
-	@eval $$(minikube docker-env) && docker build -t altrupets-backend:dev -f apps/backend/Dockerfile apps/backend
-	@echo "$(BLUE)Restarting backend deployment...$(NC)"
-	@kubectl rollout restart deployment/backend -n altrupets-dev
-	@kubectl rollout status deployment/backend -n altrupets-dev --timeout=120s
-	@echo "$(GREEN)✓ Backend rebuilt and deployed$(NC)"
-
-dev-workspace: ## Full dev workspace: Minikube + Gateway + logs
-	@$(MAKE) dev-up
-	@echo "$(BLUE)🚀 Following backend logs (Ctrl+C to stop)...$(NC)"
-	@kubectl logs -f deployment/backend -n altrupets-dev
-
-dev-down: ## Stop port-forwards (keep Minikube running)
-	@echo "$(BLUE)Stopping development port-forwards...$(NC)"
-	@pkill -f "kubectl port-forward.*postgres-dev-service" 2>/dev/null || true
-	@pkill -f "kubectl port-forward.*backend-service" 2>/dev/null || true
-	@echo "$(GREEN)✓ Port-forwards stopped$(NC)"
-	@echo "$(YELLOW)Minikube is still running. Use 'minikube stop' to stop it.$(NC)"
-
-dev-stop: ## Stop Minikube completely
-	@echo "$(BLUE)Stopping development environment...$(NC)"
-	@pkill -f "kubectl port-forward" 2>/dev/null || true
-	@minikube stop
-	@echo "$(GREEN)✓ Development environment stopped$(NC)"
-
-dev-gateway: ## Deploy only Gateway API to DEV
-	@echo "$(BLUE)Deploying Gateway API to DEV...$(NC)"
-	@cd $(TF_DIR) && tofu init && tofu apply -target=module.gateway_api
-
-dev-postgres: ## Deploy only PostgreSQL to DEV
-	@echo "$(BLUE)Deploying PostgreSQL to DEV...$(NC)"
-	@cd $(TF_DIR) && tofu init && tofu apply -target=module.postgres
-
-dev-destroy: ## Destroy DEV environment
-	@echo "$(RED)Destroying DEV environment...$(NC)"
+dev-terraform-destroy: ## Destroy all terraform resources
+	@echo "$(RED)Destroying DEV terraform resources...$(NC)"
 	@cd $(TF_DIR) && tofu destroy
 
-dev-status: ## Check DEV environment status
-	@echo "$(BLUE)DEV Environment Status:$(NC)"
-	@kubectl get pods -n default
-	@kubectl get gateway -n default 2>/dev/null || echo "No gateways found"
-
 # ==========================================
-# QA Environment (OVHCloud - Ephemeral)
+# DEV - ArgoCD
 # ==========================================
 
-qa: qa-gateway qa-postgres ## Deploy complete QA environment
-	@echo "$(GREEN)✓ QA environment deployed$(NC)"
+dev-argocd-deploy: ## Install ArgoCD + bootstrap all apps
+	@echo "$(BLUE)Deploying ArgoCD...$(NC)"
+	@$(SCRIPTS_DIR)/setup-argocd-dev.sh "$(REPO_URL)"
+	@echo "$(BLUE)Building all images...$(NC)"
+	@$(SCRIPTS_DIR)/build-backend-image-minikube.sh
+	@$(SCRIPTS_DIR)/build-web-images-minikube.sh superusers
+	@$(SCRIPTS_DIR)/build-web-images-minikube.sh b2g
+	@echo "$(GREEN)✓ ArgoCD deployed with 3 applications$(NC)"
 
-qa-gateway: ## Deploy Gateway API to QA
-	@echo "$(BLUE)Deploying Gateway API to QA...$(NC)"
+dev-argocd-destroy: ## Remove ArgoCD namespace
+	@echo "$(RED)Destroying ArgoCD...$(NC)"
+	@kubectl delete namespace argocd --ignore-not-found=true --wait=false
+	@echo "$(GREEN)✓ ArgoCD namespace deleted$(NC)"
+
+dev-argocd-status: ## Show ArgoCD applications
+	@echo "$(BLUE)ArgoCD Applications:$(NC)"
+	@kubectl get applications -n argocd 2>/dev/null || echo "$(YELLOW)No applications found or ArgoCD not installed$(NC)"
+	@echo ""
+	@echo "$(BLUE)ArgoCD Pods:$(NC)"
+	@kubectl get pods -n argocd 2>/dev/null || echo "$(YELLOW)ArgoCD not installed$(NC)"
+
+dev-argocd-password: ## Get ArgoCD admin password
+	@echo "$(BLUE)ArgoCD Admin Password:$(NC)"
+	@kubectl -n argocd get secret argocd-initial-admin-secret -o jsonpath='{.data.password}' 2>/dev/null | base64 -d && echo || echo "$(YELLOW)ArgoCD not installed$(NC)"
+
+# ==========================================
+# DEV - Gateway
+# ==========================================
+
+dev-gateway-deploy: ## Deploy Gateway API only
+	@cd $(TF_DIR) && tofu init && tofu apply -target=module.gateway_api
+
+dev-gateway-start: ## Start port-forward to Gateway
+	@echo "$(BLUE)Starting Gateway port-forward...$(NC)"
+	@$(SCRIPTS_DIR)/dev-validate.sh
+	@pkill -f "kubectl port-forward.*gateway-nodeport" 2>/dev/null || true
+	@kubectl port-forward -n nginx-gateway svc/gateway-nodeport 3001:80 > /dev/null 2>&1 &
+	@sleep 2
+	@echo "$(GREEN)✓ Gateway at http://localhost:3001$(NC)"
+	@echo ""
+	@echo "$(BLUE)Endpoints:$(NC)"
+	@echo "  http://localhost:3001/admin/login     (CRUD Superusers)"
+	@echo "  http://localhost:3001/b2g/login       (B2G)"
+	@echo "  http://localhost:3001/graphql         (GraphQL API)"
+
+dev-gateway-stop: ## Stop port-forward
+	@echo "$(BLUE)Stopping port-forward...$(NC)"
+	@pkill -f "kubectl port-forward" 2>/dev/null || true
+	@echo "$(GREEN)✓ Port-forward stopped$(NC)"
+
+# ==========================================
+# DEV - PostgreSQL
+# ==========================================
+
+dev-postgres-deploy: ## Deploy PostgreSQL only
+	@cd $(TF_DIR) && tofu init && tofu apply -target=module.postgres
+
+dev-postgres-destroy: ## Destroy PostgreSQL
+	@cd $(TF_DIR) && tofu destroy -target=module.postgres
+
+dev-postgres-logs: ## Show PostgreSQL logs
+	@kubectl logs -n default -l app=postgres --tail=100 -f
+
+dev-postgres-port-forward: ## Port-forward PostgreSQL
+	@kubectl port-forward -n default svc/postgres-dev-service 5432:5432
+
+# ==========================================
+# DEV - Backend
+# ==========================================
+
+dev-backend-build: ## Build backend image
+	@echo "$(BLUE)Building backend image...$(NC)"
+	@$(SCRIPTS_DIR)/build-backend-image-minikube.sh
+	@kubectl rollout restart deployment/backend -n altrupets-dev 2>/dev/null || true
+	@kubectl rollout status deployment/backend -n altrupets-dev --timeout=120s 2>/dev/null || true
+	@echo "$(GREEN)✓ Backend image built$(NC)"
+
+dev-backend-start: ## Start backend in dev mode
+	@./launch_backend_dev.sh
+
+# ==========================================
+# DEV - CRUD Superusers
+# ==========================================
+
+dev-superusers-start: ## Start CRUD Superusers locally
+	@echo "$(BLUE)Starting CRUD Superusers...$(NC)"
+	@pkill -f "kubectl port-forward.*backend-service" 2>/dev/null || true
+	@kubectl port-forward -n altrupets-dev svc/backend-service 3001:3001 > /dev/null 2>&1 &
+	@sleep 2
+	@cd apps/web/crud-superusers && npm install && npm run dev &
+	@echo "$(GREEN)✓ Running at http://localhost:5174/login$(NC)"
+
+dev-superusers-stop: ## Stop CRUD Superusers
+	@pkill -f "vite.*crud-superusers" 2>/dev/null || true
+	@pkill -f "kubectl port-forward.*backend-service" 2>/dev/null || true
+	@echo "$(GREEN)✓ CRUD Superusers stopped$(NC)"
+
+dev-superusers-deploy: ## Deploy CRUD Superusers to minikube
+	@$(SCRIPTS_DIR)/build-web-images-minikube.sh superusers
+	@kubectl apply -k k8s/base/web-superusers --server-side -n altrupets-dev
+	@kubectl rollout status deployment/web-superusers -n altrupets-dev --timeout=60s
+	@echo "$(GREEN)✓ CRUD Superusers deployed$(NC)"
+
+dev-superusers-destroy: ## Remove CRUD Superusers from minikube
+	@kubectl delete -k k8s/base/web-superusers -n altrupets-dev --ignore-not-found=true
+	@echo "$(GREEN)✓ CRUD Superusers removed$(NC)"
+
+# ==========================================
+# DEV - B2G
+# ==========================================
+
+dev-b2g-start: ## Start B2G locally
+	@echo "$(BLUE)Starting B2G...$(NC)"
+	@pkill -f "kubectl port-forward.*backend-service" 2>/dev/null || true
+	@kubectl port-forward -n altrupets-dev svc/backend-service 3001:3001 > /dev/null 2>&1 &
+	@sleep 2
+	@cd apps/web/b2g && npm install && npm run dev &
+	@echo "$(GREEN)✓ Running at http://localhost:5175/login$(NC)"
+
+dev-b2g-stop: ## Stop B2G
+	@pkill -f "vite.*b2g" 2>/dev/null || true
+	@pkill -f "kubectl port-forward.*backend-service" 2>/dev/null || true
+	@echo "$(GREEN)✓ B2G stopped$(NC)"
+
+dev-b2g-deploy: ## Deploy B2G to minikube
+	@$(SCRIPTS_DIR)/build-web-images-minikube.sh b2g
+	@kubectl apply -k k8s/base/web-b2g --server-side -n altrupets-dev
+	@kubectl rollout status deployment/web-b2g -n altrupets-dev --timeout=60s
+	@echo "$(GREEN)✓ B2G deployed$(NC)"
+
+dev-b2g-destroy: ## Remove B2G from minikube
+	@kubectl delete -k k8s/base/web-b2g -n altrupets-dev --ignore-not-found=true
+	@echo "$(GREEN)✓ B2G removed$(NC)"
+
+# ==========================================
+# DEV - Utilities
+# ==========================================
+
+dev-superuser-seed: ## Create SUPER_USER in minikube
+	@$(SCRIPTS_DIR)/seed-superuser-minikube.sh
+
+# ==========================================
+# QA Environment (OVHCloud)
+# ==========================================
+
+qa-terraform-deploy: qa-gateway-deploy qa-postgres-deploy ## Deploy complete QA environment
+	@echo "$(GREEN)✓ QA deployed$(NC)"
+
+qa-gateway-deploy: ## Deploy Gateway API to QA
 	@$(SCRIPTS_DIR)/deploy-gateway-api.sh qa $(if $(AUTO_APPROVE),--auto-approve,)
 
-qa-postgres: ## Deploy PostgreSQL to QA
-	@echo "$(BLUE)Deploying PostgreSQL to QA...$(NC)"
+qa-postgres-deploy: ## Deploy PostgreSQL to QA
 	@$(SCRIPTS_DIR)/deploy-postgres.sh qa $(if $(AUTO_APPROVE),--auto-approve,) --storage 10Gi
 
-qa-destroy: ## Destroy QA environment
-	@echo "$(RED)Destroying QA environment...$(NC)"
-	@echo "$(YELLOW)Note: QA is ephemeral and can be recreated anytime$(NC)"
-	@$(SCRIPTS_DIR)/deploy-gateway-api.sh qa --auto-approve 2>/dev/null || true
+qa-terraform-destroy: ## Destroy QA environment
+	@echo "$(RED)Destroying QA...$(NC)"
 	@cd $(TF_DIR) && tofu destroy -auto-approve 2>/dev/null || true
 
 qa-verify: ## Verify QA deployment
 	@$(SCRIPTS_DIR)/verify-deployment.sh qa
 
 # ==========================================
-# STAGING Environment (OVHCloud - Prod-like)
+# STAGE Environment (OVHCloud)
 # ==========================================
 
-stage: stage-gateway stage-postgres ## Deploy complete STAGING environment
-	@echo "$(GREEN)✓ STAGING environment deployed$(NC)"
+stage-terraform-deploy: stage-gateway-deploy stage-postgres-deploy ## Deploy complete STAGING environment
+	@echo "$(GREEN)✓ STAGING deployed$(NC)"
 
-stage-gateway: ## Deploy Gateway API to STAGING
-	@echo "$(BLUE)Deploying Gateway API to STAGING...$(NC)"
+stage-gateway-deploy: ## Deploy Gateway API to STAGING
 	@$(SCRIPTS_DIR)/deploy-gateway-api.sh staging $(if $(AUTO_APPROVE),--auto-approve,)
 
-stage-postgres: ## Deploy PostgreSQL to STAGING
-	@echo "$(BLUE)Deploying PostgreSQL to STAGING...$(NC)"
+stage-postgres-deploy: ## Deploy PostgreSQL to STAGING
 	@$(SCRIPTS_DIR)/deploy-postgres.sh staging $(if $(AUTO_APPROVE),--auto-approve,) --storage 20Gi
 
-stage-destroy: ## Destroy STAGING environment (⚠️ Confirm first)
-	@echo "$(RED)⚠️  WARNING: Destroying STAGING environment$(NC)"
-	@echo "$(YELLOW)STAGING is prod-like and should persist$(NC)"
-	@read -p "Type 'staging' to confirm destruction: " confirm && [ "$$confirm" = "staging" ] || (echo "Cancelled" && exit 1)
-	@$(SCRIPTS_DIR)/deploy-gateway-api.sh staging --auto-approve 2>/dev/null || true
+stage-terraform-destroy: ## Destroy STAGING environment
+	@echo "$(RED)⚠️ WARNING: Destroying STAGING$(NC)"
+	@read -p "Type 'staging' to confirm: " confirm && [ "$$confirm" = "staging" ] || exit 1
+	@cd $(TF_DIR) && tofu destroy
 
 stage-verify: ## Verify STAGING deployment
 	@$(SCRIPTS_DIR)/verify-deployment.sh staging
 
 # ==========================================
-# PROD Environment (OVHCloud - Production)
+# PROD Environment (OVHCloud)
 # ==========================================
 
-prod: ## Deploy to PRODUCTION (⚠️ Requires manual approval via PR)
-	@echo "$(RED)╔════════════════════════════════════════════════════════════╗$(NC)"
-	@echo "$(RED)║  PRODUCTION DEPLOYMENT                                     ║$(NC)"
-	@echo "$(RED)╚════════════════════════════════════════════════════════════╝$(NC)"
-	@echo ""
-	@echo "$(YELLOW)Production deployments must be done via GitHub Actions:$(NC)"
-	@echo ""
-	@echo "1. Create a Pull Request from main to production branch"
-	@echo "2. Get required approvals (minimum 2 reviewers)"
-	@echo "3. Merge to trigger automatic deployment"
-	@echo ""
-	@echo "$(BLUE)Alternatively, for emergency fixes:$(NC)"
-	@echo "  make prod-emergency AUTO_APPROVE=true"
-	@echo ""
+prod-deploy: ## Deploy to PRODUCTION (via GitHub Actions)
+	@echo "$(RED)Production deployments must be done via GitHub Actions:$(NC)"
+	@echo "1. Create PR from main to production"
+	@echo "2. Get 2 approvals"
+	@echo "3. Merge to deploy"
 	@exit 1
 
-prod-emergency: ## Emergency deploy to PROD (⚠️ Dangerous - avoid if possible)
-	@echo "$(RED)⚠️  EMERGENCY PRODUCTION DEPLOYMENT$(NC)"
-	@echo "$(YELLOW)This bypasses normal approval process$(NC)"
-	@read -p "Type 'EMERGENCY-PROD' to confirm: " confirm && [ "$$confirm" = "EMERGENCY-PROD" ] || (echo "Cancelled" && exit 1)
-	@echo "$(BLUE)Deploying to PRODUCTION...$(NC)"
-	@echo "$(RED)⚠️  Not implemented - Use GitHub Actions for PROD$(NC)"
+prod-emergency-deploy: ## Emergency PROD deploy (dangerous)
+	@echo "$(RED)⚠️ EMERGENCY PRODUCTION DEPLOYMENT$(NC)"
+	@read -p "Type 'EMERGENCY-PROD': " confirm && [ "$$confirm" = "EMERGENCY-PROD" ] || exit 1
+	@echo "$(RED)Not implemented - Use GitHub Actions$(NC)"
 
 # ==========================================
-# CI/CD Commands (for GitHub Actions)
+# CI/CD
 # ==========================================
 
-ci-build: ## Build Docker images for CI (VERSION required)
-	@echo "$(BLUE)Building Docker images...$(NC)"
-	@echo "  Version: $(VERSION)"
-	@echo "  SHA: $(GIT_SHA)"
-	@echo "  Tag: $(IMAGE_TAG)"
-	@# Backend image
-	@docker build -t $(GITHUB_REGISTRY)/backend:$(IMAGE_TAG) \
-		-t $(GITHUB_REGISTRY)/backend:latest \
-		-f $(APPS_DIR)/backend/Dockerfile \
-		$(APPS_DIR)/backend
-	@# Frontend image
-	@docker build -t $(GITHUB_REGISTRY)/frontend:$(IMAGE_TAG) \
-		-t $(GITHUB_REGISTRY)/frontend:latest \
-		-f $(APPS_DIR)/web/Dockerfile \
-		$(APPS_DIR)/web
+ci-backend-build: ## Build backend Docker image
+	@echo "$(BLUE)Building backend image...$(NC)"
+	@docker build -t $(GITHUB_REGISTRY)/backend:$(IMAGE_TAG) -f $(APPS_DIR)/backend/Dockerfile $(APPS_DIR)/backend
 	@echo "$(GREEN)✓ Images built$(NC)"
 
-ci-push: ## Push images to GitHub Container Registry
-	@echo "$(BLUE)Pushing images to GHCR...$(NC)"
+ci-backend-push: ## Push backend image to GHCR
 	@docker push $(GITHUB_REGISTRY)/backend:$(IMAGE_TAG)
 	@docker push $(GITHUB_REGISTRY)/backend:latest
-	@docker push $(GITHUB_REGISTRY)/frontend:$(IMAGE_TAG)
-	@docker push $(GITHUB_REGISTRY)/frontend:latest
 	@echo "$(GREEN)✓ Images pushed$(NC)"
 
-ci-test: ## Run tests in CI
-	@echo "$(BLUE)Running tests...$(NC)"
-	@# Add your test commands here
+ci-all-test: ## Run all tests
 	@echo "$(GREEN)✓ Tests passed$(NC)"
-
-ci-deploy: ## Deploy in CI (ENV required)
-	@echo "$(BLUE)Deploying to $(ENV)...$(NC)"
-	@make $(ENV) AUTO_APPROVE=true
-
-# ==========================================
-# Gateway API Commands
-# ==========================================
-
-gateway-deploy: ## Deploy Gateway API (ENV required)
-	@echo "$(BLUE)Deploying Gateway API to $(ENV)...$(NC)"
-	@$(SCRIPTS_DIR)/deploy-gateway-api.sh $(ENV) $(if $(AUTO_APPROVE),--auto-approve,)
-
-gateway-destroy: ## Destroy Gateway API (ENV required)
-	@echo "$(RED)Destroying Gateway API in $(ENV)...$(NC)"
-	@cd $(TF_DIR) && tofu destroy -target=module.gateway_api $(if $(AUTO_APPROVE),-auto-approve,)
-
-gateway-status: ## Check Gateway API status (ENV required)
-	@echo "$(BLUE)Gateway API Status in $(ENV):$(NC)"
-	@kubectl get gateway -n $(ENV) 2>/dev/null || kubectl get gateway -n default
-	@kubectl get gatewayclass
-	@kubectl get httproute -n $(ENV) 2>/dev/null || kubectl get httproute -n default
-
-# ==========================================
-# PostgreSQL Commands
-# ==========================================
-
-postgres-deploy: ## Deploy PostgreSQL (ENV required)
-	@echo "$(BLUE)Deploying PostgreSQL to $(ENV)...$(NC)"
-	@$(SCRIPTS_DIR)/deploy-postgres.sh $(ENV) $(if $(AUTO_APPROVE),--auto-approve,)
-
-postgres-destroy: ## Destroy PostgreSQL (ENV required)
-	@echo "$(RED)Destroying PostgreSQL in $(ENV)...$(NC)"
-	@cd $(TF_DIR) && tofu destroy -target=module.postgres $(if $(AUTO_APPROVE),-auto-approve,)
-
-postgres-logs: ## Show PostgreSQL logs (ENV required)
-	@kubectl logs -n $(ENV) -l app=postgres --tail=100 -f
-
-postgres-port-forward: ## Port-forward PostgreSQL to localhost (ENV required)
-	@echo "$(BLUE)Port-forwarding PostgreSQL from $(ENV) to localhost:5432$(NC)"
-	@kubectl port-forward -n $(ENV) svc/postgres-$(ENV)-service 5432:5432
-
-# ==========================================
-# Verification & Debugging
-# ==========================================
-
-verify: ## Verify deployment status (ENV required)
-	@echo "$(BLUE)Verifying $(ENV) deployment...$(NC)"
-	@$(SCRIPTS_DIR)/verify-deployment.sh $(ENV)
-
-logs: ## Show all logs for environment (ENV required)
-	@echo "$(BLUE)Logs for $(ENV):$(NC)"
-	@kubectl get pods -n $(ENV) -o name | xargs -I {} kubectl logs -n $(ENV) {} --tail=50
-
-port-forward: ## Interactive port-forward helper (ENV required)
-	@echo "$(BLUE)Available services in $(ENV):$(NC)"
-	@kubectl get svc -n $(ENV)
-	@echo ""
-	@echo "Usage: kubectl port-forward -n $(ENV) svc/<service-name> <local-port>:<service-port>"
-
-shell: ## Open shell in a pod (ENV required, specify POD)
-	@if [ -z "$(POD)" ]; then \
-		echo "$(YELLOW)Usage: make shell ENV=$(ENV) POD=<pod-name>$(NC)"; \
-		kubectl get pods -n $(ENV); \
-	else \
-		kubectl exec -n $(ENV) -it $(POD) -- /bin/sh; \
-	fi
-
-# ==========================================
-# Utilities
-# ==========================================
-
-clean: ## Clean temporary files and terraform cache
-	@echo "$(BLUE)Cleaning temporary files...$(NC)"
-	@find . -type d -name ".terraform" -exec rm -rf {} + 2>/dev/null || true
-	@find . -type f -name "*.tfstate.backup" -delete 2>/dev/null || true
-	@find . -type f -name "crash.log" -delete 2>/dev/null || true
-	@rm -rf /tmp/postgres-deploy-* 2>/dev/null || true
-	@echo "$(GREEN)✓ Cleanup complete$(NC)"
-
-test: ## Run all tests
-	@echo "$(BLUE)Running tests...$(NC)"
-	@# Add test commands here
-	@echo "$(GREEN)✓ Tests complete$(NC)"
-
-backend-dev: ## Start backend development server
-	@echo "$(BLUE)Starting backend development server...$(NC)"
-	@./launch_backend_dev.sh
-
-seed-superuser: ## Create SUPER_USER in Minikube (uses K8s Secrets)
-	@echo "$(BLUE)Creating SUPER_USER in Minikube...$(NC)"
-	@$(SCRIPTS_DIR)/seed-superuser-minikube.sh
-
-web-dev: ## Start web app (port-forward to backend in Minikube)
-	@echo "$(BLUE)Starting web application...$(NC)"
-	@echo "$(YELLOW)Setting up port-forward to backend in Minikube...$(NC)"
-	@kubectl port-forward -n altrupets-dev svc/backend-service 3001:3001 > /dev/null 2>&1 &
-	@sleep 2
-	@echo "$(GREEN)✓ Backend accessible at: http://localhost:3001$(NC)"
-	@echo ""
-	@echo "$(BLUE)Open in browser:$(NC)"
-	@echo "  http://localhost:3001/login"
-	@echo ""
-	@echo "$(BLUE)SUPER_USER credentials:$(NC)"
-	@echo "  Username: dev_backend_superuser"
-	@echo "  Password: [check K8s secret backend-seed-secret]"
-
-web-dev-stop: ## Stop web dev server and port-forward
-	@echo "$(BLUE)Stopping web development environment...$(NC)"
-	@pkill -f "kubectl port-forward.*backend-service" 2>/dev/null || true
-	@echo "$(GREEN)✓ Web development environment stopped$(NC)"
-
-backend-dev-watch: ## Start backend dev server in watch mode
-	@echo "$(BLUE)Starting backend dev server in watch mode...$(NC)"
-	@./launch_backend_dev.sh --watch
-
-lint: ## Lint shell scripts and terraform
-	@echo "$(BLUE)Linting...$(NC)"
-	@shellcheck $(SCRIPTS_DIR)/*.sh 2>/dev/null || echo "$(YELLOW)shellcheck not installed$(NC)"
-	@tofu fmt -check -recursive infrastructure/terraform/ 2>/dev/null || echo "$(YELLOW)Terraform formatting issues found$(NC)"
-	@echo "$(GREEN)✓ Lint complete$(NC)"
-
-# ==========================================
-# Default Target
-# ==========================================
 
 .DEFAULT_GOAL := help

@@ -122,32 +122,10 @@ resource "helm_release" "nginx_gateway_fabric" {
 }
 
 # ============================================
-# STEP 4: Create GatewayClass for NGINX
+# STEP 4: GatewayClass for NGINX
 # ============================================
-
-resource "kubernetes_manifest" "nginx_gateway_class" {
-  count = var.enable_nginx_gateway ? 1 : 0
-  
-  depends_on = [
-    null_resource.gateway_api_crds,
-    helm_release.nginx_gateway_fabric
-  ]
-  
-  manifest = {
-    apiVersion = "gateway.networking.k8s.io/v1"
-    kind       = "GatewayClass"
-    metadata = {
-      name = var.nginx_gateway_class_name
-      annotations = {
-        "app.kubernetes.io/managed-by" = "terraform"
-      }
-    }
-    spec = {
-      controllerName = "gateway.nginx.org/nginx-gateway-controller"
-      description    = "NGINX Gateway Fabric for ${local.environment}"
-    }
-  }
-}
+# NOTE: NGINX Gateway Fabric Helm chart creates the GatewayClass automatically.
+# No Terraform resource needed - the GatewayClass is managed by the Helm release.
 
 # ============================================
 # STEP 5: Create GatewayClass for Istio (Optional)
@@ -434,15 +412,25 @@ resource "null_resource" "kustomize_apply" {
 }
 
 # ============================================
-# STEP 10: Create Main Gateway
+# STEP 10: Create App Namespace
+# ============================================
+
+resource "kubernetes_namespace" "app_namespace" {
+  metadata {
+    name = var.namespace
+  }
+}
+
+# ============================================
+# STEP 11: Create Main Gateway
 # ============================================
 resource "kubernetes_manifest" "main_gateway" {
   count = var.deploy_gateway ? 1 : 0
   
   depends_on = [
     null_resource.gateway_api_crds,
-    kubernetes_manifest.nginx_gateway_class,
-    helm_release.nginx_gateway_fabric
+    helm_release.nginx_gateway_fabric,
+    kubernetes_namespace.app_namespace
   ]
   
   manifest = {
@@ -474,23 +462,41 @@ resource "kubernetes_manifest" "main_gateway" {
 }
 
 # ============================================
-# STEP 11: Enable Istio Sidecar Injection on Namespace
+# STEP 12: NodePort Service for Gateway (Minikube/Local)
 # ============================================
 
-resource "kubernetes_namespace" "app_namespace" {
-  count = var.enable_istio_service_mesh ? 1 : 0
+resource "kubernetes_service" "gateway_nodeport" {
+  count = var.deploy_gateway && var.enable_nginx_gateway ? 1 : 0
+  
+  depends_on = [
+    helm_release.nginx_gateway_fabric,
+    kubernetes_manifest.main_gateway
+  ]
   
   metadata {
-    name = var.namespace
+    name      = "gateway-nodeport"
+    namespace = var.nginx_gateway_namespace
+  }
+  
+  spec {
+    type = "NodePort"
     
-    labels = {
-      "istio-injection" = "enabled"
+    selector = {
+      "app.kubernetes.io/name" = "nginx-gateway-fabric"
+    }
+    
+    port {
+      name        = "http"
+      port        = 80
+      target_port = 80
+      node_port   = var.gateway_nodeport_port
+      protocol    = "TCP"
     }
   }
 }
 
 # ============================================
-# STEP 12: Wait for Gateway to be Ready
+# STEP 13: Wait for Gateway to be Ready
 # ============================================
 resource "time_sleep" "wait_for_gateway" {
   count = var.deploy_gateway ? 1 : 0
@@ -501,7 +507,8 @@ resource "time_sleep" "wait_for_gateway" {
     helm_release.istiod,
     helm_release.gateway_api,
     null_resource.kustomize_apply,
-    kubernetes_manifest.main_gateway
+    kubernetes_manifest.main_gateway,
+    kubernetes_service.gateway_nodeport
   ]
   
   create_duration = "60s"
