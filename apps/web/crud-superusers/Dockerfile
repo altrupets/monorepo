@@ -2,10 +2,15 @@ FROM node:20-alpine AS builder
 
 WORKDIR /app
 
-COPY apps/web/crud-superusers/package*.json ./
+# Copy monorepo structure to preserve relative paths
 COPY style-dictionary ./style-dictionary
+COPY apps/web/shared ./apps/web/shared
+COPY apps/web/crud-superusers/package*.json ./apps/web/crud-superusers/
+
+WORKDIR /app/apps/web/crud-superusers
 RUN npm install
 
+# Copy source files
 COPY apps/web/crud-superusers .
 RUN npm run build && npm prune --omit=dev
 
@@ -16,9 +21,9 @@ ENV NODE_ENV=production
 ENV PORT=3002
 ENV BACKEND_URL=http://backend-service:3001
 
-COPY --from=builder /app/node_modules ./node_modules
-COPY --from=builder /app/dist ./dist
-COPY --from=builder /app/package*.json ./
+COPY --from=builder /app/apps/web/crud-superusers/node_modules ./node_modules
+COPY --from=builder /app/apps/web/crud-superusers/dist ./dist
+COPY --from=builder /app/apps/web/crud-superusers/package*.json ./
 
 EXPOSE 3002
 
