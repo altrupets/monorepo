@@ -1378,7 +1378,7 @@ infrastructure:
   monitoring: "Prometheus + Grafana"
   logging: "ELK Stack"
   tracing: "Jaeger"
-  secrets: "AWS Secrets Manager"
+  secrets: "Infisical (cloud-agnostic, funciona en Minikube y OVHCloud)"
   storage: "S3 with Intelligent Tiering"
   cdn: "CloudFront"
   gitops: "ArgoCD"
@@ -1429,12 +1429,14 @@ gateway_api:
 
 #### Ambientes de Despliegue
 
-| Ambiente | Plataforma | PostgreSQL | Gateway Controller | Características |
-|----------|------------|------------|-------------------|-----------------|
-| **DEV** | Minikube local | Container | NGINX + Istio | Desarrollo local |
-| **QA** | OVHCloud K8s | Self-managed | NGINX + Istio | Efímero, auto-deploy |
-| **STAGING** | OVHCloud K8s | Self-managed | NGINX + Istio | Prod-like, testers |
-| **PROD** | OVHCloud K8s | OVH Managed | TBD | Aprobación manual |
+| Ambiente | Plataforma | PostgreSQL | Secrets | Características |
+|----------|------------|------------|---------|-----------------|
+| **DEV** | Minikube local | Container | Infisical | Desarrollo local |
+| **QA** | OVHCloud K8s | Self-managed | Infisical | Efímero, auto-deploy |
+| **STAGING** | OVHCloud K8s | Self-managed | Infisical | Prod-like, testers |
+| **PROD** | OVHCloud K8s | OVH Managed | Infisical | Aprobación manual |
+
+> **Nota**: Se usa Infisical (cloud-agnostic) en todos los ambientes porque OVHCloud no ofrece Secrets Manager.
 
 #### Scripts de Deployment
 
@@ -1456,6 +1458,189 @@ make verify ENV=qa
 
 # Destrucción controlada
 make qa-destroy
+```
+
+#### Estrategia de Configuración: Kustomize + Helm
+
+AltruPets usa una estrategia híbrida para gestión de configuración:
+
+| Componente | Herramienta | Razón |
+|------------|-------------|-------|
+| **Apps** (Backend, Web) | Kustomize | Simple, parches declarativos entre environments |
+| **Infraestructura** (Gateway, Istio, Infisical) | Helm | Dependencies, versioning, charts oficiales |
+
+##### Kustomize para Aplicaciones
+
+```
+k8s/
+├── base/                    # Manifests comunes (sin environment)
+│   ├── backend/
+│   ├── web-superusers/
+│   └── web-b2g/
+│
+└── overlays/                # Parches por ambiente
+    ├── dev/                 # namespace: altrupets-dev
+    │   └── kustomization.yaml
+    ├── qa/                  # namespace: altrupets-qa
+    ├── staging/             # namespace: altrupets-staging
+    └── prod/                # namespace: altrupets-prod
+```
+
+**Ventajas:**
+- Sin templating complejo
+- GitOps-friendly con ArgoCD
+- Cambios auditables entre environments
+- `kustomize build overlays/dev/` genera el manifiesto final
+
+##### Helm para Infraestructura
+
+```
+infrastructure/helm-charts/
+├── gateway-api/             # NGINX Gateway Fabric
+├── infisical/               # Secrets Operator
+└── nginx-gateway/           # Gateway configuration
+```
+
+**Ventajas:**
+- Gestión de releases y rollbacks
+- Dependencies entre charts
+- Values por ambiente (`values-dev.yaml`, `values-prod.yaml`)
+- Charts oficiales de Infisical, NGINX, Istio
+
+##### Flujo de Despliegue
+
+```
+┌─────────────────────────────────────────────────────────┐
+│                    ArgoCD (GitOps)                       │
+├─────────────────────────────────────────────────────────┤
+│                                                          │
+│   Applications (Kustomize)     Infrastructure (Helm)    │
+│   ┌─────────────────────┐      ┌─────────────────────┐  │
+│   │ k8s/overlays/dev/   │      │ helm-charts/        │  │
+│   │ ├── backend         │      │ ├── gateway-api     │  │
+│   │ ├── web-superusers  │      │ ├── infisical       │  │
+│   │ └── web-b2g         │      │ └── nginx-gateway   │  │
+│   └─────────────────────┘      └─────────────────────┘  │
+│            │                            │                │
+│            ▼                            ▼                │
+│   ┌─────────────────────────────────────────────────┐   │
+│   │              Kubernetes Cluster                  │   │
+│   │         namespace: altrupets-dev                 │   │
+│   └─────────────────────────────────────────────────┘   │
+└─────────────────────────────────────────────────────────┘
+```
+
+#### Entorno de Desarrollo Local (DEV)
+
+El entorno DEV utiliza Minikube con Infisical para gestión centralizada de secrets.
+
+##### Requisitos de Hardware para DEV
+
+| Recurso | Valor |
+|---------|-------|
+| CPU | 8 cores |
+| Memoria | 16 GB |
+| Disco | 50 GB |
+
+##### Configuración de Infisical
+
+Los secrets se gestionan centralizadamente en [Infisical](https://app.infisical.com):
+
+1. **Crear Machine Identity**:
+   - Proyecto: `altrupets-monorepo`
+   - Nombre: `minikube-dev`
+   - Rol: `Viewer`
+   - Ambiente: `dev`
+
+2. **Configurar credenciales en Kubernetes**:
+   ```bash
+   kubectl create secret generic infisical-operator-credentials \
+     --namespace infisical-operator-system \
+     --from-literal=clientId=<CLIENT_ID> \
+     --from-literal=clientSecret=<CLIENT_SECRET>
+   ```
+
+3. **Secrets sincronizados automáticamente**:
+   - `DB_USERNAME` - Usuario PostgreSQL
+   - `DB_PASSWORD` - Contraseña PostgreSQL
+   - `DB_NAME` - Nombre de base de datos
+   - `JWT_SECRET` - Secret para JWT
+   - `SEED_ADMIN_USERNAME` - Usuario admin seed
+   - `SEED_ADMIN_PASSWORD` - Contraseña admin seed
+
+##### Despliegue Rápido DEV
+
+```bash
+# Setup completo
+make dev-minikube-deploy && make dev-terraform-deploy && make dev-argocd-deploy && make dev-gateway-start
+
+# O paso a paso:
+make dev-minikube-deploy    # Crear cluster Minikube
+make dev-terraform-deploy   # Desplegar infraestructura (PostgreSQL, Gateway API)
+make dev-argocd-deploy      # Desplegar ArgoCD y aplicaciones
+make dev-gateway-start      # Iniciar port-forward al Gateway
+```
+
+##### Verificación del Entorno
+
+```bash
+# Verificar secrets sincronizados
+kubectl get infisicalsecret -n altrupets-dev
+kubectl get secret backend-secret -n altrupets-dev -o jsonpath='{.data}' | jq 'keys'
+
+# Verificar servicios
+kubectl get pods -n altrupets-dev
+kubectl get gateway -n altrupets-dev
+kubectl get httproute -n altrupets-dev
+
+# Endpoints disponibles
+# http://localhost:3001/graphql       - GraphQL API
+# http://localhost:3001/admin/login   - Admin Panel
+# localhost:30432                     - PostgreSQL (NodePort)
+```
+
+##### Arquitectura de Secrets
+
+```
+Infisical Cloud
+       │
+       ▼
+Infisical Secrets Operator (Kubernetes)
+       │
+       ▼
+┌─────────────────────────────────┐
+│     backend-secret              │
+│     (altrupets-dev namespace)   │
+├─────────────────────────────────┤
+│ • DB_USERNAME                   │
+│ • DB_PASSWORD                   │
+│ • DB_NAME                       │
+│ • JWT_SECRET                    │
+│ • SEED_ADMIN_USERNAME           │
+│ • SEED_ADMIN_PASSWORD           │
+└─────────────────────────────────┘
+       │
+       ├──────────────┬───────────────┐
+       ▼              ▼               ▼
+  PostgreSQL      Backend API     ArgoCD Scripts
+```
+
+##### Troubleshooting DEV
+
+```bash
+# Ver logs del operator Infisical
+kubectl logs -n infisical-operator-system -l app.kubernetes.io/name=secrets-operator
+
+# Forzar sincronización de secrets
+kubectl annotate infisicalsecret infisical-backend-secret -n altrupets-dev \
+  secrets.infisical.com/resync="$(date +%s)" --overwrite
+
+# Reiniciar backend para cargar nuevos secrets
+kubectl rollout restart deployment/backend -n altrupets-dev
+
+# Ver estado de ArgoCD
+kubectl get applications -n argocd
+argocd app get altrupets-backend-dev --grpc-web
 ```
 
 #### GitHub Actions Workflows

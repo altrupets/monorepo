@@ -100,15 +100,71 @@ kubectl -n altrupets-dev port-forward svc/backend-service 3001:3001
 
 ---
 
-## Pendientes / Nice-to-Have
-- [ ] Argo Rollouts (Blue/Green o Canary) para reemplazar `RollingUpdate` estándar.
-- [ ] Protección de queries admin (`users`, `user`) con guardas y roles en producción.
-- [ ] Migraciones DB formales (reemplazar `synchronize: true` fuera de dev).
-- [ ] Migrar avatars de `bytea` (BLOB en PostgreSQL) a object storage (S3/MinIO) + URL en DB para producción.
+## Implementación v0.2.1 - Completado ✅
 
----
+### Argo Rollouts (Blue/Green Deployment)
+- **Archivos creados**:
+  - `k8s/base/backend/rollout.yaml` - Rollout con estrategia Blue/Green
+  - `k8s/base/backend/service-preview.yaml` - Servicio para preview de nueva versión
+  - `k8s/base/backend/pvc.yaml` - PVC para persistencia de avatars
+- **Características**:
+  - 2 réplicas para alta disponibilidad
+  - Auto-promoción después de 30 segundos
+  - Servicio preview para testing antes de switch
+  - Estrategia Canary comentada como alternativa
+
+### Protección de Queries Admin
+- **Estado**: ✅ Ya implementado en `users.resolver.ts`
+- **Queries protegidas**: `users`, `user`, `createUser`, `updateUser`, `deleteUser`
+- **Roles requeridos**: `SUPER_USER`, `USER_ADMIN`, `LEGAL_REPRESENTATIVE`
+- **Implementación**:
+  - `@UseGuards(JwtAuthGuard, RolesGuard)`
+  - `@Roles(...USER_ADMIN_ROLES)`
+  - Verificación adicional: solo `SUPER_USER` puede gestionar otros `SUPER_USER`
+
+### Migraciones DB Formales
+- **Cambios en `app.module.ts`**:
+  - `synchronize: false` en producción (`NODE_ENV=production`)
+  - `migrationsRun: true` para ejecución automática
+  - Configuración de path de migraciones
+- **Scripts agregados a `package.json`**:
+  - `migration:generate` - Generar nuevas migraciones
+  - `migration:run` - Ejecutar migraciones pendientes
+  - `migration:revert` - Revertir última migración
+- **Archivos creados**:
+  - `src/data-source.ts` - Configuración TypeORM CLI
+  - `src/migrations/1771407449000-MigrateAvatarToUrl.ts` - Migración de avatars
+
+### Migración de Avatars a Object Storage
+- **Entidad `User` actualizada**:
+  - Nuevo campo: `avatarUrl` (string, nullable)
+  - Nuevo campo: `avatarStorageProvider` (string, default: 'local')
+  - Campos legacy mantenidos para compatibilidad: `avatarImage`, `avatarBase64`
+- **Servicio creado**: `AvatarStorageService`
+  - Soporte para almacenamiento local (DEV) y S3 (PROD)
+  - Configuración vía variables de entorno:
+    - `AVATAR_STORAGE_TYPE`: 'local' | 's3'
+    - `S3_ENDPOINT`: Endpoint S3/MinIO
+    - `S3_BUCKET_NAME`: Nombre del bucket
+- **Actualización de resolver**: `updateUserProfile` ahora usa el servicio de almacenamiento
+- **Infraestructura**:
+  - PVC para persistencia de avatars en DEV
+  - Volumen montado en `/app/uploads/avatars`
+  - ConfigMap actualizado con variables de almacenamiento
+
+### Variables de Entorno Agregadas
+```bash
+# Almacenamiento de avatars
+AVATAR_STORAGE_TYPE=local  # 'local' para DEV, 's3' para PROD
+S3_ENDPOINT=               # URL de S3/MinIO (solo PROD)
+S3_BUCKET_NAME=            # Nombre del bucket (solo PROD)
+
+# Database migrations (ya existía)
+NODE_ENV=development       # 'production' para deshabilitar synchronize
+```
 
 ## Referencias
 - Skill de versionado: `skills/versioning-management/SKILL.md`
 - Skill ArgoCD: `skills/cicd/argocd/SKILL.md`
 - Guía K8s local: `k8s/README.md`
+- Argo Rollouts: https://argoproj.github.io/argo-rollouts/

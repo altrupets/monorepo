@@ -102,7 +102,7 @@ nodes:
 
 ---
 
-## 🔎 ¿Qué falta en @[specs/altrupets] ?
+## 🔎 ¿Qué falta en las especificaciones del proyecto?
 
 Al revisar los actuales documentos de diseño y requisitos, se identifican las siguientes ausencias críticas para la estandarización de entornos:
 

@@ -108,6 +108,14 @@ export class User {
   @Field(() => String, { nullable: true })
   avatarBase64?: string | null;
 
+  @Field(() => String, { nullable: true })
+  @Column({ nullable: true })
+  avatarUrl?: string | null;
+
+  @Field(() => String, { nullable: true })
+  @Column({ nullable: true, default: 'local' })
+  avatarStorageProvider?: string | null;
+
   @Field()
   @CreateDateColumn()
   createdAt: Date;
