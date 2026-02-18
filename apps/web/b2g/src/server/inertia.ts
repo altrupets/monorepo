@@ -1,4 +1,4 @@
-import { Request, Response } from 'express'
+import { Request, Response, NextFunction } from 'express'
 
 interface InertiaConfig {
   resolvePage: (name: string) => Promise<any>
@@ -50,16 +50,17 @@ export function createInertiaApp(config: InertiaConfig) {
   }
 
   return {
-    middleware: (req: Request, res: Response, next: express.NextFunction) => {
+    middleware: (req: Request, res: Response, next: NextFunction) => {
       res.inertia = {
-        render: async (component: string, props: Record<string, any> = {}) => {
+        render: (component: string, props: Record<string, any> = {}) => {
           if (req.headers['x-inertia']) {
-            return res.json({
+            res.json({
               component,
               props,
               url: req.originalUrl,
               version,
             })
+            return
           }
           
           const html = renderPage(component, props, req)
@@ -81,7 +82,7 @@ export function createInertiaApp(config: InertiaConfig) {
 declare module 'express' {
   interface Response {
     inertia: {
-      render: (component: string, props?: Record<string, any>) => Promise<void>
+      render: (component: string, props?: Record<string, any>) => void
       redirect: (url: string) => void
     }
   }

@@ -7,7 +7,7 @@
     "strict": true,
     "skipLibCheck": true,
     "outDir": "./dist/server",
-    "rootDir": "./src/server"
+    "types": ["node"]
   },
-  "include": ["src/server/**/*.ts"]
+  "include": ["src/server/**/*.ts", "src/types/**/*.d.ts"]
 }
