@@ -219,7 +219,7 @@ dev-argocd-password: ## Get ArgoCD admin password
 # ==========================================
 
 dev-gateway-deploy: ## Deploy Gateway API only
-	@cd $(TF_DIR) && tofu init && tofu apply -target=module.gateway_api
+	@cd $(TF_DIR) && tofu init && tofu apply -target=module.gateway_api -auto-approve
 
 dev-gateway-start: ## Start port-forward to Gateway
 	@echo "$(BLUE)Starting Gateway port-forward...$(NC)"
