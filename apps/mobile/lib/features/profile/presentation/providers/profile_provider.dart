@@ -8,6 +8,7 @@ import 'package:altrupets/core/error/failures.dart';
 import 'package:altrupets/core/storage/profile_cache_store.dart';
 import 'package:altrupets/core/storage/app_prefs_store.dart';
 import 'package:altrupets/core/sync/profile_update_queue_store.dart';
+import 'package:altrupets/core/sync/sync_status_provider.dart';
 import 'package:dartz/dartz.dart';
 
 const _currentUserQuery = '''
@@ -60,6 +61,9 @@ final currentUserProvider = FutureProvider<User?>((ref) async {
 
   debugPrint('[currentUserProvider] 📡 Conexión a internet: $isConnected');
 
+  // Actualizar estado de sincronización
+  ref.read(syncStatusProvider.notifier).setSyncing(isConnected);
+
   // Primero intentar leer del cache para tener fallback inmediato
   User? cachedUser;
   try {
@@ -85,6 +89,8 @@ final currentUserProvider = FutureProvider<User?>((ref) async {
       );
       try {
         await _flushQueuedProfileUpdates(client);
+        // Marcar como sincronizado exitosamente
+        await ref.read(syncStatusProvider.notifier).markSynced();
       } catch (flushError) {
         debugPrint(
           '[currentUserProvider] ⚠️ Error en flush (no crítico): $flushError',
@@ -92,6 +98,9 @@ final currentUserProvider = FutureProvider<User?>((ref) async {
         // Continuar de todos modos - el flush es secundario
       }
     }
+
+    // Actualizar conteo de pendientes
+    await ref.read(syncStatusProvider.notifier).refreshPendingCount();
 
     debugPrint('[currentUserProvider] 🌐 Ejecutando query GraphQL...');
 

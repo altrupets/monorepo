@@ -11,6 +11,7 @@ import { Roles } from '../auth/roles/roles.decorator';
 import { RolesGuard } from '../auth/roles/roles.guard';
 import { USER_ADMIN_ROLES } from '../auth/roles/rbac-constants';
 import { UserRole } from '../auth/roles/user-role.enum';
+import { AvatarStorageService } from './services/avatar-storage.service';
 import * as bcrypt from 'bcrypt';
 
 @Resolver(() => User)
@@ -18,6 +19,7 @@ export class UsersResolver {
     constructor(
         @Inject(IUSER_REPOSITORY)
         private readonly userRepository: IUserRepository,
+        private readonly avatarStorageService: AvatarStorageService,
     ) { }
 
     @Query(() => [User], { name: 'users' })
@@ -167,7 +169,23 @@ export class UsersResolver {
         Object.assign(existingUser, profileFields);
 
         if (avatarBase64 !== undefined) {
-            existingUser.avatarImage = this.decodeAvatarBase64(avatarBase64);
+            // Support both legacy BLOB and new URL-based storage
+            const imageBuffer = this.decodeAvatarBase64(avatarBase64);
+            
+            if (imageBuffer) {
+                // Upload to storage service (S3/MinIO or local)
+                const uploadResult = await this.avatarStorageService.uploadAvatar(userId, imageBuffer);
+                existingUser.avatarUrl = uploadResult.url;
+                existingUser.avatarStorageProvider = uploadResult.storageProvider;
+                
+                // Keep BLOB for backward compatibility during migration
+                existingUser.avatarImage = imageBuffer;
+            } else {
+                // Clear avatar if empty
+                existingUser.avatarUrl = null;
+                existingUser.avatarStorageProvider = null;
+                existingUser.avatarImage = null;
+            }
         }
 
         const saved = await this.userRepository.save(existingUser);

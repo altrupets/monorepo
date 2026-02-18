@@ -7,6 +7,7 @@ import 'package:altrupets/core/widgets/molecules/app_input_card.dart';
 import 'package:altrupets/core/widgets/molecules/section_header.dart';
 import 'package:altrupets/core/widgets/organisms/profile_header.dart';
 import 'package:altrupets/core/widgets/organisms/sticky_action_footer.dart';
+import 'package:altrupets/core/widgets/organisms/onvo_pay_input_widget.dart';
 import 'package:altrupets/features/auth/domain/entities/user.dart';
 import 'package:altrupets/features/profile/presentation/data/costa_rica_locations.dart';
 import 'package:altrupets/features/profile/presentation/providers/profile_provider.dart';
@@ -38,6 +39,9 @@ class _EditPersonalInformationPageState
   String? _currentAvatarBase64;
 
   String _phoneCountryCode = '+506';
+
+  // Métodos de pago guardados (ONVO Pay)
+  final List<OnvoPaymentMethod> _savedPaymentMethods = [];
 
   static const List<Map<String, String>> _countryPhoneCodes = [
     {'code': '+506', 'country': 'Costa Rica'},
@@ -227,9 +231,7 @@ class _EditPersonalInformationPageState
   Future<void> _selectDistrict() async {
     if (_provinceController.text.isEmpty || _cantonController.text.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Selecciona primero provincia y canton'),
-        ),
+        const SnackBar(content: Text('Selecciona primero provincia y canton')),
       );
       return;
     }
@@ -385,7 +387,8 @@ class _EditPersonalInformationPageState
     ImageProvider<Object>? profileImage;
     if (_selectedProfileImagePath != null) {
       profileImage = FileImage(File(_selectedProfileImagePath!));
-    } else if (_currentAvatarBase64 != null && _currentAvatarBase64!.isNotEmpty) {
+    } else if (_currentAvatarBase64 != null &&
+        _currentAvatarBase64!.isNotEmpty) {
       try {
         profileImage = MemoryImage(base64Decode(_currentAvatarBase64!));
       } catch (_) {
@@ -506,6 +509,20 @@ class _EditPersonalInformationPageState
                           ],
                         ),
                         const SizedBox(height: 32),
+                        const SectionHeader(title: 'MÉTODOS DE PAGO'),
+                        const SizedBox(height: 8),
+                        Text(
+                          'Agrega tarjeta o SINPE Móvil para donaciones y compras en el marketplace',
+                          style: Theme.of(context).textTheme.bodySmall
+                              ?.copyWith(
+                                color: Theme.of(
+                                  context,
+                                ).colorScheme.onSurface.withOpacity(0.6),
+                              ),
+                        ),
+                        const SizedBox(height: 16),
+                        _buildPaymentMethodsSection(),
+                        const SizedBox(height: 32),
                         const SectionHeader(title: 'RESIDENCIA'),
                         const SizedBox(height: 16),
                         AppInputCard(
@@ -581,6 +598,143 @@ class _EditPersonalInformationPageState
         Icons.add_rounded,
         size: 18,
         color: theme.colorScheme.onSurface.withValues(alpha: 0.5),
+      ),
+    );
+  }
+
+  Widget _buildPaymentMethodsSection() {
+    final theme = Theme.of(context);
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        // Lista de métodos de pago guardados
+        if (_savedPaymentMethods.isNotEmpty)
+          ..._savedPaymentMethods.map(
+            (method) => OnvoSavedMethodWidget(
+              method: method,
+              onDelete: () {
+                setState(() {
+                  _savedPaymentMethods.remove(method);
+                });
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                    content: Text('Método de pago eliminado'),
+                    backgroundColor: Colors.orange,
+                  ),
+                );
+              },
+            ),
+          )
+        else
+          Container(
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: theme.colorScheme.surfaceContainerHighest.withOpacity(0.3),
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(
+                color: theme.colorScheme.outline.withOpacity(0.2),
+              ),
+            ),
+            child: Row(
+              children: [
+                Icon(
+                  Icons.credit_card_outlined,
+                  color: theme.colorScheme.onSurface.withOpacity(0.4),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Text(
+                    'No tienes métodos de pago guardados',
+                    style: theme.textTheme.bodyMedium?.copyWith(
+                      color: theme.colorScheme.onSurface.withOpacity(0.6),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+
+        const SizedBox(height: 16),
+
+        // Botón para agregar método de pago
+        InkWell(
+          onTap: _showAddCardModal,
+          borderRadius: BorderRadius.circular(12),
+          child: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+            decoration: BoxDecoration(
+              border: Border.all(color: theme.colorScheme.primary, width: 1.5),
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(
+                  Icons.add_circle_outline,
+                  color: theme.colorScheme.primary,
+                ),
+                const SizedBox(width: 8),
+                Text(
+                  'Agregar Método de Pago',
+                  style: theme.textTheme.labelLarge?.copyWith(
+                    color: theme.colorScheme.primary,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  void _showAddCardModal() {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (context) => Container(
+        height: MediaQuery.of(context).size.height * 0.85,
+        decoration: BoxDecoration(
+          color: Theme.of(context).colorScheme.surface,
+          borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
+        ),
+        child: Column(
+          children: [
+            // Handle bar
+            Container(
+              margin: const EdgeInsets.only(top: 8),
+              width: 40,
+              height: 4,
+              decoration: BoxDecoration(
+                color: Colors.grey[300],
+                borderRadius: BorderRadius.circular(2),
+              ),
+            ),
+            // Close button
+            Align(
+              alignment: Alignment.centerRight,
+              child: IconButton(
+                icon: const Icon(Icons.close),
+                onPressed: () => Navigator.of(context).pop(),
+              ),
+            ),
+            // ONVO Pay input widget
+            Expanded(
+              child: OnvoPayInputWidget(
+                apiKey: 'YOUR_ONVO_API_KEY', // TODO: Usar desde configuración
+                sandbox: true, // TODO: Cambiar a false en producción
+                onPaymentMethodAdded: (method) {
+                  setState(() {
+                    _savedPaymentMethods.add(method);
+                  });
+                },
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

@@ -1,0 +1,14 @@
+/* AltruPets Custom Styles */
+
+:root {
+  --md-primary-fg-color: #00897B;
+  --md-accent-fg-color: #00897B;
+}
+
+.md-header {
+  background-color: #00897B;
+}
+
+.md-tabs {
+  background-color: #00796B;
+}

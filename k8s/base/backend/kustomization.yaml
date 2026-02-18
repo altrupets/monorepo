@@ -3,6 +3,8 @@ kind: Kustomization
 
 resources:
   - configmap.yaml
-  - deployment.yaml
+  - pvc.yaml
+  - rollout.yaml
   - service.yaml
+  - service-preview.yaml
   - httproute.yaml

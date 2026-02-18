@@ -1,0 +1,172 @@
+# =============================================================================
+# Material for MkDocs - Configuración para AltruPets
+# Documentación moderna e interactiva para la plataforma de protección animal
+# =============================================================================
+
+site_name: AltruPets - Plataforma de Protección Animal
+site_description: "Plataforma cloud-native que reduce el tiempo de respuesta en rescates de animales vulnerables en Latinoamérica"
+site_url: https://altrupets.github.io/altrupets-monorepo
+repo_url: https://github.com/altrupets/altrupets-monorepo
+repo_name: altrupets/altrupets-monorepo
+edit_uri: edit/main/docs/
+
+# Directorio de documentos
+docs_dir: content
+site_dir: ../site
+
+# =============================================================================
+# Configuración del Tema Material
+# =============================================================================
+theme:
+  name: material
+  language: es
+  palette:
+    # Esquema de color claro
+    - scheme: default
+      primary: teal
+      accent: teal
+      toggle:
+        icon: material/brightness-7
+        name: Cambiar a modo oscuro
+    # Esquema de color oscuro  
+    - scheme: slate
+      primary: teal
+      accent: teal
+      toggle:
+        icon: material/brightness-4
+        name: Cambiar a modo claro
+  features:
+    - navigation.tabs
+    - navigation.tabs.sticky
+    - navigation.sections
+    - navigation.expand
+    - navigation.path
+    - navigation.top
+    - search.highlight
+    - search.share
+    - search.suggest
+    - content.code.copy
+    - content.code.annotate
+    - content.tabs.link
+    - content.action.edit
+    - content.action.view
+  icon:
+    repo: fontawesome/brands/github
+    edit: material/pencil
+    view: material/eye
+  logo: assets/images/altrupets-logo.png
+  favicon: assets/images/altrupets-favicon.png
+
+# =============================================================================
+# Plugins y Extensiones
+# =============================================================================
+plugins:
+  - search:
+      lang: es
+  - git-revision-date-localized:
+      enable_creation_date: true
+  - git-committers:
+      repository: altrupets/altrupets-monorepo
+  - minify:
+      minify_html: true
+
+# =============================================================================
+# Configuración de Markdown
+# =============================================================================
+markdown_extensions:
+  - abbr
+  - admonition
+  - attr_list
+  - def_list
+  - footnotes
+  - md_in_html
+  - toc:
+      permalink: true
+      title: En esta página
+  - pymdownx.arithmatex:
+      generic: true
+  - pymdownx.betterem:
+      smart_enable: all
+  - pymdownx.caret
+  - pymdownx.critic
+  - pymdownx.details
+  - pymdownx.emoji:
+      emoji_generator: !!python/name:material.extensions.emoji.to_svg
+      emoji_index: !!python/name:material.extensions.emoji.twemoji
+  - pymdownx.highlight:
+      anchor_linenums: true
+      line_spans: __span
+      pygments_lang_class: true
+  - pymdownx.inlinehilite
+  - pymdownx.keys
+  - pymdownx.magiclink:
+      normalize_issue_symbols: true
+      repo_url_shorthand: true
+      user: altrupets
+      repo: altrupets-monorepo
+  - pymdownx.mark
+  - pymdownx.smartsymbols
+  - pymdownx.superfences:
+      custom_fences:
+        - name: mermaid
+          class: mermaid
+          format: !!python/name:pymdownx.superfences.fence_code_format
+  - pymdownx.tabbed:
+      alternate_style: true
+      combine_header_slug: true
+      slugify: !!python/object/apply:pymdownx.slugs.slugify
+        kwds:
+          case: lower
+  - pymdownx.tasklist:
+      custom_checkbox: true
+  - pymdownx.tilde
+
+# =============================================================================
+# Configuración de Páginas
+# =============================================================================
+nav:
+  - Inicio: index.md
+  - 🚀 Empezar:
+    - Instalación: getting-started/installation.md
+    - Configuración: getting-started/setup.md
+  - 🏗️ Arquitectura:
+    - Visión general: architecture/overview.md
+    - Tecnologías: architecture/technologies.md
+    - Flujo de datos: architecture/data-flow.md
+  - 💻 Desarrollo:
+    - Configuración local: development/local-setup.md
+    - Estructura: development/structure.md
+    - Testing: development/testing.md
+  - 🚀 Despliegue:
+    - Kubernetes: deployment/kubernetes.md
+    - CI/CD: deployment/cicd.md
+  - 📦 Paquetes:
+    - latam_payments: packages/latam-payments-package.md
+    - Progreso: packages/latam-payments-progress.md
+
+# =============================================================================
+# Configuración adicional
+# =============================================================================
+extra:
+  social:
+    - icon: fontawesome/brands/github
+      link: https://github.com/altrupets
+    - icon: fontawesome/brands/linkedin
+      link: https://linkedin.com/company/altrupets
+  version:
+    provider: mike
+  generator: false
+
+# =============================================================================
+# Configuración de desarrollo
+# =============================================================================
+dev_addr: 0.0.0.0:8000
+
+# =============================================================================
+# Configuración de archivos estáticos
+# =============================================================================
+extra_css:
+  - stylesheets/altrupets-custom.css
+
+extra_javascript:
+  - javascripts/altrupets-custom.js

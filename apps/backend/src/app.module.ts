@@ -40,7 +40,9 @@ import { OrganizationMembership } from './organizations/entities/organization-me
           return `altrupets_${envName}_database`;
         })(),
         entities: [User, CaptureRequest, Organization, OrganizationMembership],
-        synchronize: true, // Only for development
+        synchronize: configService.get<string>('NODE_ENV') !== 'production',
+        migrations: [join(__dirname, 'migrations', '*{.ts,.js}')],
+        migrationsRun: true,
       }),
       inject: [ConfigService],
     }),

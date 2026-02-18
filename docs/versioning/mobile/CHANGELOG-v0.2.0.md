@@ -46,7 +46,82 @@
   3. Editar perfil offline: debe encolar cambios.
   4. Reconectar red y refrescar perfil: cola debe sincronizarse.
 
-### Pending / Next
-- [ ] Exponer en UI el contador de cambios pendientes de sincronización.
-- [ ] Resolver conflictos de edición offline/online con estrategia explícita.
-- [ ] Extender sync offline a más entidades fuera de perfil.
+### Completado en v0.2.1 ✅
+- [x] Exponer en UI el contador de cambios pendientes de sincronización.
+- [x] Extender sync offline a más entidades fuera de perfil.
+
+---
+
+## [0.2.1] - 2026-02-18
+
+### Added - UI de Sincronización
+- [x] Provider de estado de sincronización: `sync_status_provider.dart`
+  - Exposición de contador de cambios pendientes
+  - Estados: sincronizado, sincronizando, cambios pendientes
+- [x] Widgets de sincronización siguiendo Atomic Design:
+  - **Átomo**: `SyncStatusIndicator` - Icono con estado visual
+  - **Molécula**: `SyncBadge` - Badge con icono y contador
+  - **Organismo**: `SyncStatusBanner` - Banner completo con acciones
+- [x] Integración en `ProfilePage` con badge y banner de sincronización
+
+### Added - Sync Offline Genérico
+- [x] Store genérico: `GenericSyncQueueStore` soporta múltiples entidades
+  - Tipos soportados: `profile`, `organization`, `rescue`, `donation`
+  - Operaciones: `create`, `update`, `delete`
+  - Retry automático con contador de intentos
+- [x] Integración con Organizations:
+  - `registerOrganization` soporta modo offline
+  - Creación optimista de organizaciones temporales
+  - Método `syncPendingOperations()` para sincronización manual
+  - Estado extendido con `pendingSyncCount` y `hasPendingChanges`
+
+### Architecture - Atomic Design
+- [x] Estructura de widgets según metodología Atomic Design:
+  - Átomos: Componentes básicos reutilizables
+  - Moléculas: Grupos simples funcionando juntos
+  - Organismos: Secciones complejas de UI
+- [x] Uso de tokens de tema (colores, tipografía) de Material 3
+- [x] Soporte para modo oscuro automático
+
+### Changed
+- [x] `currentUserProvider` integrado con `syncStatusProvider`
+  - Actualiza estado de sincronización automáticamente
+  - Marca como sincronizado al completar flush
+  - Refresca conteo de pendientes después de cada operación
+- [x] `OrganizationsNotifier` con soporte offline completo
+  - Verificación de conexión antes de operaciones
+  - Encolamiento automático en modo offline
+  - Actualización optimista de UI
+
+### Files Created
+```
+lib/core/sync/
+  ├── sync_status_provider.dart      # Estado de sincronización
+  └── generic_sync_queue_store.dart  # Cola offline genérica
+
+lib/core/widgets/atoms/
+  └── sync_status_indicator.dart     # Átomo: indicador visual
+
+lib/core/widgets/molecules/
+  └── sync_badge.dart                # Molécula: badge con contador
+
+lib/core/widgets/organisms/
+  └── sync_status_banner.dart        # Organismo: banner con acciones
+```
+
+### Usage Example
+```dart
+// En cualquier pantalla, mostrar badge de sincronización
+const SyncBadge(compact: true)
+
+// Banner automático en la parte superior
+const SyncStatusBanner()
+
+// Forzar sincronización manual
+ref.read(syncStatusProvider.notifier).setSyncing(true);
+```
+
+### Notas de Implementación
+- **MVP**: Se optó por una estrategia simple "last-write-wins" (último en escribir gana)
+- **No se implementó**: Resolución de conflictos compleja (no es requisito del sistema)
+- **Estrategia**: Si hay cambios pendientes, se sincronizan en orden FIFO cuando hay conexión
