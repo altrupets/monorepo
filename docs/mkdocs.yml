@@ -5,9 +5,9 @@
 
 site_name: AltruPets - Plataforma de Protección Animal
 site_description: "Plataforma cloud-native que reduce el tiempo de respuesta en rescates de animales vulnerables en Latinoamérica"
-site_url: https://altrupets.github.io/altrupets-monorepo
-repo_url: https://github.com/altrupets/altrupets-monorepo
-repo_name: altrupets/altrupets-monorepo
+site_url: https://altrupets.github.io/monorepo
+repo_url: https://github.com/altrupets/monorepo
+repo_name: altrupets/monorepo
 edit_uri: edit/main/docs/
 
 # Directorio de documentos
