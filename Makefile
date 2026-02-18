@@ -153,7 +153,7 @@ setup: ## Setup local development environment
 
 dev-minikube-deploy: ## Create minikube cluster
 	@echo "$(BLUE)Starting minikube...$(NC)"
-	@minikube start --driver=docker --cpus=4 --memory=8192 --disk-size=20g
+	@minikube start --driver=podman --cpus=8 --memory=16384 --disk-size=50g
 	@echo "$(GREEN)✓ Minikube started$(NC)"
 
 dev-minikube-clear: ## Clear stuck namespaces (remove finalizers)
@@ -177,7 +177,7 @@ dev-minikube-destroy: ## Delete minikube cluster
 
 dev-terraform-deploy: ## Deploy all terraform resources (PostgreSQL + Gateway)
 	@echo "$(BLUE)Deploying DEV terraform resources...$(NC)"
-	@cd $(TF_DIR) && tofu init && tofu apply
+	@cd $(TF_DIR) && tofu init && tofu apply -auto-approve
 
 dev-terraform-destroy: ## Destroy all terraform resources
 	@echo "$(RED)Destroying DEV terraform resources...$(NC)"

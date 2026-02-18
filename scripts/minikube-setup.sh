@@ -10,10 +10,10 @@ echo "🚀 Starting Minikube setup..."
 # 1. Start Minikube with Docker driver
 # Check if minikube is already running
 if minikube status | grep -q "Running"; then
-    echo "✅ Minikube is already running."
+	echo "✅ Minikube is already running."
 else
-    echo "⚡ Starting Minikube..."
-    minikube start --driver=docker --cpus=4 --memory=8192
+	echo "⚡ Starting Minikube..."
+	minikube start --driver=podman --cpus=8 --memory=16384 --disk-size=50g
 fi
 
 # 2. Enable necessary addons

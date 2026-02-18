@@ -16,22 +16,10 @@ variable "postgres_version" {
   default     = "15-alpine"
 }
 
-variable "postgres_username" {
-  description = "PostgreSQL username"
+variable "secret_name" {
+  description = "Name of the existing Kubernetes secret (managed by Infisical)"
   type        = string
-  default     = "postgres"
-}
-
-variable "postgres_password" {
-  description = "PostgreSQL password"
-  type        = string
-  sensitive   = true
-}
-
-variable "postgres_database" {
-  description = "PostgreSQL database name"
-  type        = string
-  default     = "altrupets_user_management"
+  default     = "backend-secret"
 }
 
 variable "storage_class_name" {

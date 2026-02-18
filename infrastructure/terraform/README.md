@@ -97,7 +97,7 @@ Puedes definir variables en `environments/dev/terraform.tfvars` o pasar `TF_VAR_
 ```hcl
 postgres_username = "postgres"
 postgres_password = "tu-password-seguro-aqui"
-postgres_database = "altrupets_user_management"
+postgres_database = "altrupets_dev_database"
 ```
 
 Para entorno local se recomienda guardar el secret en:
