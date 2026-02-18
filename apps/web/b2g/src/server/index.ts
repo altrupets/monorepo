@@ -3,6 +3,7 @@ import cookieParser from 'cookie-parser'
 import { resolve, dirname } from 'path'
 import { fileURLToPath } from 'url'
 import { createInertiaApp } from './inertia.js'
+import fs from 'fs'
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
 
@@ -14,14 +15,19 @@ const IS_DEV = process.env.NODE_ENV !== 'production'
 app.use(cookieParser())
 app.use(express.json())
 
+// Read the built HTML template
+const getHtmlTemplate = (): string => {
+  const htmlPath = resolve(__dirname, '../../dist/index.html')
+  return fs.readFileSync(htmlPath, 'utf-8')
+}
+
 const inertia = createInertiaApp({
-  resolvePage: (name) => {
-    const pages = import.meta.glob('../Pages/**/*.vue', { eager: true })
-    const page = pages[`../Pages/${name}.vue`]
-    if (!page) throw new Error(`Page not found: ${name}`)
-    return page
+  resolvePage: () => {
+    // Pages are loaded client-side, server just provides props
+    return { default: {} }
   },
   version: IS_DEV ? Date.now().toString() : '1',
+  htmlTemplate: getHtmlTemplate(),
 })
 
 app.use(inertia.middleware)
