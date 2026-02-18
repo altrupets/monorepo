@@ -1571,14 +1571,13 @@ Los secrets se gestionan centralizadamente en [Infisical](https://app.infisical.
 ##### Despliegue Rápido DEV
 
 ```bash
-# Setup completo
-make dev-minikube-deploy && make dev-terraform-deploy && make dev-argocd-deploy && make dev-gateway-start
-
-# O paso a paso:
-make dev-minikube-deploy    # Crear cluster Minikube
-make dev-terraform-deploy   # Desplegar infraestructura (PostgreSQL, Gateway API)
-make dev-argocd-deploy      # Desplegar ArgoCD y aplicaciones
-make dev-gateway-start      # Iniciar port-forward al Gateway
+# Setup completo paso a paso:
+make dev-minikube-deploy      # 1. Crear cluster Minikube y namespace
+make dev-gateway-deploy       # 2. Desplegar Gateway API (instala CRDs)
+make dev-backend-build        # 3. Build backend image
+make dev-superusers-deploy    # 4. Deploy CRUD Superusers
+make dev-b2g-deploy           # 5. Deploy B2G
+make dev-gateway-start        # 6. Iniciar port-forward al Gateway
 ```
 
 ##### Verificación del Entorno
