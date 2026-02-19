@@ -12,40 +12,40 @@ AltruPets Mobile implementa **Clean Architecture** con **Riverpod** como soluci�
 ## Diagrama de Capas
 
 ```mermaid
-graph TB
-    subgraph Presentation["Presentation Layer"]
-        Pages["Pages/Screens"]
-        Widgets["Widgets"]
-        Providers["Riverpod Providers"]
-        States["Freezed States"]
+flowchart TB
+    subgraph Presentation[Presentation Layer]
+        Pages[Pages/Screens]
+        Widgets[Widgets]
+        Providers[Riverpod Providers]
+        States[Freezed States]
     end
-    
-    subgraph Domain["Domain Layer"]
-        Entities["Entities"]
-        RepoInterfaces["Repository Interfaces"]
-        UseCases["Use Cases"]
-        Failures["Failures"]
+
+    subgraph Domain[Domain Layer]
+        Entities[Entities]
+        RepoInterfaces[Repository Interfaces]
+        UseCases[Use Cases]
+        Failures[Failures]
     end
-    
-    subgraph Data["Data Layer"]
-        Models["Models"]
-        RepoImpl["Repository Implementations"]
-        DataSources["Data Sources"]
-        GraphQL["GraphQL Client"]
+
+    subgraph Data[Data Layer]
+        Models[Models]
+        RepoImpl[Repository Implementations]
+        DataSources[Data Sources]
+        GraphQL[GraphQL Client]
     end
-    
+
     Pages --> Providers
     Providers --> States
     Providers --> RepoInterfaces
-    
+
     UseCases --> RepoInterfaces
     UseCases --> Entities
-    
+
     RepoImpl -.->|implements| RepoInterfaces
     RepoImpl --> Models
     RepoImpl --> DataSources
     DataSources --> GraphQL
-    
+
     Models -.->|toEntity| Entities
 ```
 
@@ -124,16 +124,16 @@ import 'package:altrupets/features/auth/data/models/register_input.dart';
 abstract class AuthRepositoryInterface {
   /// Registra un nuevo usuario
   Future<Either<Failure, User>> register(RegisterInput input);
-  
+
   /// Inicia sesión y retorna el payload con token
   Future<Either<Failure, AuthPayload>> login(
     String username,
     String password,
   );
-  
+
   /// Obtiene el usuario actual desde el token
   Future<Either<Failure, User>> getCurrentUser();
-  
+
   /// Cierra la sesión
   Future<Either<Failure, void>> logout();
 }
@@ -288,7 +288,7 @@ class LoginPage extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final authState = ref.watch(authProvider);
-    
+
     // React to state changes
     ref.listen<AuthState>(authProvider, (previous, next) {
       if (next.error != null) {
@@ -300,7 +300,7 @@ class LoginPage extends ConsumerWidget {
         Navigator.pushReplacement(context, ...);
       }
     });
-    
+
     return Scaffold(
       body: authState.isLoading
         ? const CircularProgressIndicator()
@@ -341,10 +341,10 @@ class AuthRepository implements AuthRepositoryInterface {
       }
 
       final payload = AuthPayload.fromJson(result.data!['login']);
-      
+
       // Save token
       await GraphQLClientService.saveToken(payload.accessToken);
-      
+
       return Right(payload);
     } catch (e) {
       return Left(ServerFailure(e.toString()));
@@ -395,7 +395,7 @@ sequenceDiagram
     participant R as AuthRepository
     participant G as GraphQLClient
     participant S as SecureStorage
-    
+
     UI->>P: login(username, password)
     P->>P: state = loading
     P->>R: login(username, password)
