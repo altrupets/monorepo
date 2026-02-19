@@ -492,13 +492,16 @@ flutter pub outdated
 ### Análisis de Código
 
 ```bash
-# Ejecutar analyzer
+# Usar script SAST (recomendado)
+./flutter-sast.sh analyze    # dart analyze
+./flutter-sast.sh test       # unit tests
+./flutter-sast.sh coverage   # tests con coverage
+./flutter-sast.sh lint       # all linting
+./flutter-sast.sh all        # full analysis
+
+# O comandos directos
 flutter analyze
-
-# Formatear código
 dart format lib/
-
-# Fix automático de issues
 dart fix --apply
 ```
 

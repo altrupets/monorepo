@@ -377,11 +377,7 @@ dev-infisical-sync-cli: ## Sync secrets using Infisical CLI (no operator needed)
 # ==========================================
 
 dev-security-build: ## Build security scanner image in Minikube
-	@echo "$(BLUE)Building security scanner image in Minikube...$(NC)"
-	@eval $$(minikube docker-env) && \
-		docker build -t altrupets/security-scanner:latest \
-		-f infrastructure/docker/security-scanner/Dockerfile .
-	@echo "$(GREEN)✓ Security scanner image built in Minikube$(NC)"
+	@$(SCRIPTS_DIR)/build-security-scanner.sh
 
 dev-security-scan: dev-security-build ## Run all security scans (Kubernetes Job in Minikube)
 	@echo "$(BLUE)Running security scans in Minikube...$(NC)"
@@ -500,3 +496,19 @@ dev-mobile-launch-device: ## Launch Flutter on Android device
 
 dev-mobile-widgetbook: ## Launch Widgetbook (UI catalog)
 	@cd apps/mobile && ./launch_flutter_debug.sh -w
+
+# ==========================================
+# Mobile - Analysis & Testing
+# ==========================================
+
+dev-mobile-analyze: ## Run dart analyze (Flutter SAST)
+	@cd apps/mobile && ./flutter-sast.sh analyze
+
+dev-mobile-test: ## Run Flutter unit tests
+	@cd apps/mobile && ./flutter-sast.sh test
+
+dev-mobile-test-coverage: ## Run Flutter tests with coverage
+	@cd apps/mobile && ./flutter-sast.sh coverage
+
+dev-mobile-lint: ## Run all Flutter linting
+	@cd apps/mobile && ./flutter-sast.sh lint
