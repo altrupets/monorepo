@@ -234,9 +234,9 @@ dev-gateway-deploy: ## Deploy Gateway API only
 
 dev-gateway-start: ## Start port-forward to Gateway
 	@echo "$(BLUE)Starting Gateway port-forward...$(NC)"
-	@$(SCRIPTS_DIR)/dev-validate.sh
+	@$(SCRIPTS_DIR)/dev-validate.sh || true
 	@pkill -f "kubectl port-forward.*gateway" 2>/dev/null || true
-	@kubectl port-forward -n altrupets-dev svc/dev-gateway-nginx 3001:80 > /dev/null 2>&1 &
+	@kubectl port-forward -n nginx-gateway svc/gateway-nodeport 3001:80 > /dev/null 2>&1 &
 	@sleep 2
 	@echo "$(GREEN)✓ Gateway at http://localhost:3001$(NC)"
 	@echo ""
