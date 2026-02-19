@@ -235,8 +235,8 @@ dev-gateway-deploy: ## Deploy Gateway API only
 dev-gateway-start: ## Start port-forward to Gateway
 	@echo "$(BLUE)Starting Gateway port-forward...$(NC)"
 	@$(SCRIPTS_DIR)/dev-validate.sh
-	@pkill -f "kubectl port-forward.*gateway-nodeport" 2>/dev/null || true
-	@kubectl port-forward -n nginx-gateway svc/gateway-nodeport 3001:80 > /dev/null 2>&1 &
+	@pkill -f "kubectl port-forward.*gateway" 2>/dev/null || true
+	@kubectl port-forward -n altrupets-dev svc/dev-gateway-nginx 3001:80 > /dev/null 2>&1 &
 	@sleep 2
 	@echo "$(GREEN)✓ Gateway at http://localhost:3001$(NC)"
 	@echo ""
@@ -346,25 +346,25 @@ dev-superuser-seed: ## Create SUPER_USER in minikube
 # ==========================================
 
 dev-security-scan: ## Run all security scans
-	@$(SCRIPTS_DIR)/dev-devsecops-scan.sh all
+	@bash $(SCRIPTS_DIR)/dev-devsecops-scan.sh all
 
 dev-security-deps: ## Scan dependencies for vulnerabilities
-	@$(SCRIPTS_DIR)/dev-devsecops-scan.sh deps
+	@bash $(SCRIPTS_DIR)/dev-devsecops-scan.sh deps
 
 dev-security-sast: ## Static Application Security Testing
-	@$(SCRIPTS_DIR)/dev-devsecops-scan.sh sast
+	@bash $(SCRIPTS_DIR)/dev-devsecops-scan.sh sast
 
 dev-security-secrets: ## Scan for secrets in code
-	@$(SCRIPTS_DIR)/dev-devsecops-scan.sh secrets
+	@bash $(SCRIPTS_DIR)/dev-devsecops-scan.sh secrets
 
 dev-security-container: ## Scan container images
-	@$(SCRIPTS_DIR)/dev-devsecops-scan.sh container
+	@bash $(SCRIPTS_DIR)/dev-devsecops-scan.sh container
 
 dev-security-iac: ## Scan Infrastructure as Code
-	@$(SCRIPTS_DIR)/dev-devsecops-scan.sh iac
+	@bash $(SCRIPTS_DIR)/dev-devsecops-scan.sh iac
 
 dev-security-fix: ## Auto-fix vulnerabilities where possible
-	@$(SCRIPTS_DIR)/dev-devsecops-scan.sh fix
+	@bash $(SCRIPTS_DIR)/dev-devsecops-scan.sh fix
 
 # ==========================================
 # QA Environment (OVHCloud)
