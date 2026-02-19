@@ -4,25 +4,36 @@
 
 AltruPets se despliega en **OVHCloud Managed Kubernetes** para QA, STAGING y PROD.
 
-```
-┌─────────────────────────────────────────────────┐
-│              OVHCloud Kubernetes Cluster         │
-├─────────────────────────────────────────────────┤
-│  ┌─────────────┐  ┌─────────────┐              │
-│  │   Ingress   │  │   Ingress   │              │
-│  │ Controller  │  │   (SSL)     │              │
-│  └──────┬──────┘  └──────┬──────┘              │
-│         │                │                      │
-│  ┌──────▼──────┐  ┌──────▼──────┐              │
-│  │   Backend   │  │   Backend   │  (Replicas)  │
-│  │   NestJS    │  │   NestJS    │              │
-│  └──────┬──────┘  └──────┬──────┘              │
-│         │                │                      │
-│  ┌──────▼──────┐  ┌──────▼──────┐              │
-│  │ PostgreSQL  │  │   Valkey    │              │
-│  │  (Managed)  │  │   (Cache)   │              │
-│  └─────────────┘  └─────────────┘              │
-└─────────────────────────────────────────────────┘
+```mermaid
+flowchart TB
+    subgraph Cluster["OVHCloud Kubernetes Cluster"]
+        subgraph Ingress["Ingress Layer"]
+            NGINX["NGINX Gateway<br/>API"]
+            SSL["SSL Termination"]
+        end
+        
+        subgraph Apps["Application Layer"]
+            Backend1["Backend<br/>NestJS"]
+            Backend2["Backend<br/>NestJS"]
+            Backend3["Backend<br/>NestJS"]
+        end
+        
+        subgraph Data["Data Layer"]
+            PG[(PostgreSQL<br/>Managed)]
+            Valkey[(Valkey<br/>Cache)]
+        end
+        
+        NGINX --> SSL
+        SSL --> Backend1
+        SSL --> Backend2
+        SSL --> Backend3
+        Backend1 --> PG
+        Backend2 --> PG
+        Backend3 --> PG
+        Backend1 --> Valkey
+        Backend2 --> Valkey
+        Backend3 --> Valkey
+    end
 ```
 
 ## Flujos de Deployment
@@ -50,28 +61,38 @@ make dev-images-build && make dev-argocd-deploy && make dev-gateway-start
 
 Los manifiestos usan **Kustomize overlays** para diferenciar ambientes:
 
+```mermaid
+graph TD
+    k8s["k8s/"]
+    base["base/"]
+    overlays["overlays/"]
+    
+    base --> backend["backend/"]
+    base --> websuper["web-superusers/"]
+    base --> webb2g["web-b2g/"]
+    
+    backend --> dep["deployment.yaml"]
+    backend --> svc["service.yaml"]
+    backend --> cm["configmap.yaml"]
+    backend --> kust["kustomization.yaml"]
+    
+    overlays --> dev["dev/"]
+    dev --> devbe["backend/"]
+    dev --> devweb["web-superusers/"]
+    dev --> devb2g["web-b2g/"]
+    
+    devbe --> kustbe["kustomization.yaml"]
+    devbe --> nsbe["namespace.yaml"]
+    devbe --> patch["patch-deployment.yaml"]
+    
+    devweb --> kustweb["kustomization.yaml"]
+    devb2g --> kustb2g["kustomization.yaml"]
+    
+    k8s --> base
+    k8s --> overlays
 ```
-k8s/
-├── base/                          # Manifiestos base (sin namespace)
-│   ├── backend/
-│   │   ├── deployment.yaml
-│   │   ├── service.yaml
-│   │   ├── configmap.yaml
-│   │   └── kustomization.yaml
-│   ├── web-superusers/
-│   └── web-b2g/
-│
-└── overlays/
-    └── dev/
-        ├── backend/
-        │   ├── kustomization.yaml   # namespace + patches
-        │   ├── namespace.yaml
-        │   └── patch-deployment.yaml
-        ├── web-superusers/
-        │   └── kustomization.yaml   # namespace
-        └── web-b2g/
-            └── kustomization.yaml   # namespace
-```
+
+> **Nota:** Cada ambiente (dev, qa, staging) tiene su propio overlay que hereda de `base/`
 
 ### Targets de Deploy
 

@@ -174,7 +174,7 @@ flowchart TB
 
 ```mermaid
 flowchart LR
-    subgraph Security["🛡️ Security Layer"]
+    subgraph Security["Security Layer"]
         JWT["JWT Auth<br/>Refresh Tokens"]
         RBAC["RBAC<br/>Role-Based Access"]
         Rate["Rate Limiting<br/>Por Endpoint"]
