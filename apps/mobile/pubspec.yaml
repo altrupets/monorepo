@@ -63,6 +63,9 @@ dependencies:
   dynamic_color: ^1.8.1
 
   connectivity_plus: any
+  
+  # Window management (desktop)
+  window_manager: ^0.4.3
 dev_dependencies:
   flutter_test:
     sdk: flutter
@@ -78,6 +81,9 @@ dev_dependencies:
   # Testing
   mockito: ^5.4.4
   mocktail: ^1.0.1
+
+  # App Icon Generator
+  flutter_launcher_icons: ^0.14.2
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
@@ -170,3 +176,26 @@ flutter:
         - asset: assets/fonts/poppins/Poppins-BlackItalic.ttf
           weight: 900
           style: italic
+
+# =============================================================================
+# Flutter Launcher Icons Configuration
+# =============================================================================
+flutter_launcher_icons:
+  android: true
+  ios: true
+  image_path: "assets/icon.png"
+  min_sdk_android: 21
+  remove_alpha_ios: true
+  background_color_ios: "#ea830a"
+  web:
+    generate: true
+    image_path: "assets/icon.png"
+  windows:
+    generate: true
+    image_path: "assets/icon.png"
+  macos:
+    generate: true
+    image_path: "assets/icon.png"
+  linux:
+    generate: true
+    image_path: "assets/icon.png"

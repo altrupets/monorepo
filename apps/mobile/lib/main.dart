@@ -11,11 +11,31 @@ import 'package:altrupets/features/auth/presentation/pages/login_page.dart';
 import 'package:altrupets/features/auth/presentation/providers/auth_provider.dart';
 import 'package:altrupets/core/storage/profile_cache_store.dart';
 import 'package:altrupets/core/error/error_logging_observer.dart';
+import 'dart:io' show Platform;
+import 'package:window_manager/window_manager.dart';
 
 import 'package:altrupets/core/theme/token_service.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
+  // Configurar icono de ventana para desktop
+  if (Platform.isLinux || Platform.isWindows || Platform.isMacOS) {
+    await windowManager.ensureInitialized();
+    
+    WindowOptions windowOptions = const WindowOptions(
+      title: 'AltruPets',
+      center: true,
+      backgroundColor: Colors.transparent,
+      skipTaskbar: false,
+      titleBarStyle: TitleBarStyle.normal,
+    );
+    
+    windowManager.waitUntilReadyToShow(windowOptions, () async {
+      await windowManager.show();
+      await windowManager.focus();
+    });
+  }
 
   // Configurar manejador de errores global de Flutter
   FlutterError.onError = (FlutterErrorDetails details) {

@@ -39,14 +39,14 @@ echo ""
 
 # Check if minikube is running
 if ! minikube status &>/dev/null; then
-    echo -e "${RED}❌ Minikube is not running. Start it with: make dev-minikube-deploy${NC}"
-    exit 1
+	echo -e "${RED}❌ Minikube is not running. Start it with: make dev-minikube-deploy${NC}"
+	exit 1
 fi
 
 # Check if namespace exists
 if ! kubectl get namespace "$NAMESPACE" &>/dev/null; then
-    echo -e "${YELLOW}⚠️  Namespace $NAMESPACE does not exist. Creating...${NC}"
-    kubectl create namespace "$NAMESPACE"
+	echo -e "${YELLOW}⚠️  Namespace $NAMESPACE does not exist. Creating...${NC}"
+	kubectl create namespace "$NAMESPACE"
 fi
 
 echo -e "${BLUE}Creating Kubernetes Job: $JOB_NAME${NC}"
@@ -76,7 +76,7 @@ spec:
       restartPolicy: Never
       containers:
       - name: scanner
-        image: altrupets/security-scanner:latest
+        image: localhost/altrupets-security-scanner:latest
         imagePullPolicy: Never
         args: ["$TARGET"]
         volumeMounts:
@@ -113,9 +113,9 @@ kubectl wait --for=condition=Ready pod -l job-name=$JOB_NAME -n $NAMESPACE --tim
 POD_NAME=$(kubectl get pods -n $NAMESPACE -l job-name=$JOB_NAME -o jsonpath='{.items[0].metadata.name}' 2>/dev/null || echo "")
 
 if [ -z "$POD_NAME" ]; then
-    echo -e "${RED}❌ Failed to get pod name${NC}"
-    kubectl get jobs -n $NAMESPACE -l app=security-scanner
-    exit 1
+	echo -e "${RED}❌ Failed to get pod name${NC}"
+	kubectl get jobs -n $NAMESPACE -l app=security-scanner
+	exit 1
 fi
 
 echo -e "${GREEN}✓ Pod started: $POD_NAME${NC}"
@@ -133,32 +133,35 @@ echo ""
 echo -e "${BLUE}════════════════════════════════════════════════════════════════${NC}"
 echo ""
 
-# Check job status
-JOB_STATUS=$(kubectl get job $JOB_NAME -n $NAMESPACE -o jsonpath='{.status.conditions[0].type}' 2>/dev/null || echo "Unknown")
+echo -e "${BLUE}Waiting for job to complete...${NC}"
+kubectl wait --for=condition=Complete job/$JOB_NAME -n $NAMESPACE --timeout=120s 2>/dev/null || true
 
-if [ "$JOB_STATUS" = "Complete" ]; then
-    echo -e "${GREEN}✅ Security scan completed successfully!${NC}"
-    echo ""
-    echo -e "${BLUE}Reports saved to: $PROJECT_ROOT/.security-reports${NC}"
-    echo ""
-    
-    # Show summary if it exists
-    LATEST_SUMMARY=$(ls -t "$PROJECT_ROOT/.security-reports"/summary-*.md 2>/dev/null | head -1 || echo "")
-    if [ -n "$LATEST_SUMMARY" ]; then
-        echo -e "${BLUE}Summary Report:${NC}"
-        echo ""
-        cat "$LATEST_SUMMARY"
-    fi
-    
-    exit 0
+# Check job status
+JOB_STATUS=$(kubectl get job $JOB_NAME -n $NAMESPACE -o jsonpath='{.status.conditions[?(@.type=="Complete")].status}' 2>/dev/null || echo "")
+
+if [ "$JOB_STATUS" = "True" ]; then
+	echo -e "${GREEN}✅ Security scan completed successfully!${NC}"
+	echo ""
+	echo -e "${BLUE}Reports saved to: $PROJECT_ROOT/.security-reports${NC}"
+	echo ""
+
+	# Show summary if it exists
+	LATEST_SUMMARY=$(ls -t "$PROJECT_ROOT/.security-reports"/summary-*.md 2>/dev/null | head -1 || echo "")
+	if [ -n "$LATEST_SUMMARY" ]; then
+		echo -e "${BLUE}Summary Report:${NC}"
+		echo ""
+		cat "$LATEST_SUMMARY"
+	fi
+
+	exit 0
 else
-    echo -e "${RED}❌ Security scan failed${NC}"
-    echo ""
-    echo -e "${YELLOW}Job status: $JOB_STATUS${NC}"
-    echo ""
-    echo -e "${BLUE}To debug, run:${NC}"
-    echo "  kubectl describe job $JOB_NAME -n $NAMESPACE"
-    echo "  kubectl logs $POD_NAME -n $NAMESPACE"
-    echo ""
-    exit 1
+	echo -e "${RED}❌ Security scan failed${NC}"
+	echo ""
+	echo -e "${YELLOW}Job status: $JOB_STATUS${NC}"
+	echo ""
+	echo -e "${BLUE}To debug, run:${NC}"
+	echo "  kubectl describe job $JOB_NAME -n $NAMESPACE"
+	echo "  kubectl logs $POD_NAME -n $NAMESPACE"
+	echo ""
+	exit 1
 fi
