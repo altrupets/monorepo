@@ -25,7 +25,7 @@
         dev-mcp-start dev-mcp-stop dev-mcp-status \
         dev-security-scan dev-security-deps dev-security-sast dev-security-secrets \
         dev-security-container dev-security-iac dev-security-fix \
-        docs-validate-mermaid \
+        precommit-install \
         qa-terraform-deploy qa-terraform-destroy qa-verify \
         qa-gateway-deploy qa-postgres-deploy \
         stage-terraform-deploy stage-terraform-destroy stage-verify \
@@ -163,9 +163,6 @@ help: ## Show this help message
 	@echo "  $(YELLOW)dev-security-container$(NC)      Scan container images"
 	@echo "  $(YELLOW)dev-security-iac$(NC)            Scan Infrastructure as Code"
 	@echo "  $(YELLOW)dev-security-fix$(NC)            Auto-fix vulnerabilities"
-	@echo ""
-	@echo "$(GREEN)Docs:$(NC)"
-	@echo "  $(YELLOW)docs-validate-mermaid$(NC)    Validate Mermaid diagrams in docs"
 	@echo ""
 	@echo "$(GREEN)QA (OVHCloud):$(NC)"
 	@echo "  $(YELLOW)qa-terraform-deploy$(NC)         Deploy complete QA environment"
@@ -546,12 +543,21 @@ dev-security-fix: dev-security-build ## Auto-fix vulnerabilities where possible
 	@$(SCRIPTS_DIR)/run-security-scan-minikube.sh fix
 
 # ==========================================
-# Docs Validation
+# Pre-commit Hooks
 # ==========================================
 
-docs-validate-mermaid: ## Validate Mermaid diagrams in docs
-	@echo "$(BLUE)Validating Mermaid diagrams...$(NC)"
-	@$(SCRIPTS_DIR)/validate-mermaid.sh
+precommit-install: ## Install pre-commit hooks (Mermaid validation, etc.)
+	@echo "$(BLUE)Installing pre-commit hooks...$(NC)"
+	@pip install pre-commit -q 2>/dev/null || true
+	@pre-commit install
+	@pre-commit install --hook-type pre-push
+	@echo "$(GREEN)✓ Pre-commit hooks installed$(NC)"
+	@echo "$(BLUE)Hooks enabled:$(NC)"
+	@echo "  - Mermaid diagram validation (blocks emojis in diagrams)"
+	@echo "  - YAML/JSON validation"
+	@echo "  - Merge conflict detection"
+	@echo ""
+	@echo "$(YELLOW)To update hooks: pre-commit autoupdate$(NC)"
 
 # ==========================================
 # QA Environment (OVHCloud)
