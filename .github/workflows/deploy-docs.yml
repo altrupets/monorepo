@@ -36,12 +36,14 @@ jobs:
 
       - name: Install dependencies
         run: |
+          python -m pip install --upgrade pip
           pip install -r docs/requirements.txt
+          pip show mkdocs | grep Version
 
       - name: Build documentation
         run: |
           cd docs && mkdocs build
-          
+
       - name: List generated files
         run: |
           ls -la site/ || ls -la docs/site/ || echo "No site directory found"
