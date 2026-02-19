@@ -21,20 +21,23 @@ theme:
   name: material
   language: es
   palette:
-    # Esquema de color claro
+    # Esquema de color claro - AltruPets Branding
     - scheme: default
-      primary: teal
-      accent: teal
+      primary: custom
+      accent: custom
       toggle:
         icon: material/brightness-7
         name: Cambiar a modo oscuro
-    # Esquema de color oscuro  
+    # Esquema de color oscuro - AltruPets Branding
     - scheme: slate
-      primary: teal
-      accent: teal
+      primary: custom
+      accent: custom
       toggle:
         icon: material/brightness-4
         name: Cambiar a modo claro
+  font:
+    text: Poppins
+    code: Roboto Mono
   features:
     - navigation.tabs
     - navigation.tabs.sticky
