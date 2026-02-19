@@ -11,18 +11,18 @@ flowchart TB
             NGINX["NGINX Gateway<br/>API"]
             SSL["SSL Termination"]
         end
-        
+
         subgraph Apps["Application Layer"]
             Backend1["Backend<br/>NestJS"]
             Backend2["Backend<br/>NestJS"]
             Backend3["Backend<br/>NestJS"]
         end
-        
+
         subgraph Data["Data Layer"]
             PG[(PostgreSQL<br/>Managed)]
             Valkey[(Valkey<br/>Cache)]
         end
-        
+
         NGINX --> SSL
         SSL --> Backend1
         SSL --> Backend2
@@ -66,28 +66,28 @@ graph TD
     k8s["k8s/"]
     base["base/"]
     overlays["overlays/"]
-    
+
     base --> backend["backend/"]
     base --> websuper["web-superusers/"]
     base --> webb2g["web-b2g/"]
-    
+
     backend --> dep["deployment.yaml"]
     backend --> svc["service.yaml"]
     backend --> cm["configmap.yaml"]
     backend --> kust["kustomization.yaml"]
-    
+
     overlays --> dev["dev/"]
     dev --> devbe["backend/"]
     dev --> devweb["web-superusers/"]
     dev --> devb2g["web-b2g/"]
-    
+
     devbe --> kustbe["kustomization.yaml"]
     devbe --> nsbe["namespace.yaml"]
     devbe --> patch["patch-deployment.yaml"]
-    
+
     devweb --> kustweb["kustomization.yaml"]
     devb2g --> kustb2g["kustomization.yaml"]
-    
+
     k8s --> base
     k8s --> overlays
 ```

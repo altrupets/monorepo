@@ -138,14 +138,14 @@ flowchart TB
             Adoptions["adoptions/"]
             Donations["donations/"]
         end
-        
+
         subgraph Shared["Shared"]
             Guards["Guards"]
             Decorators["Decorators"]
             Interceptors["Interceptors"]
         end
     end
-    
+
     Modules --> Shared
 ```
 
@@ -158,12 +158,12 @@ flowchart TB
             Server1["src/server/<br/>Express.js"]
             Pkg1["package.json<br/>Solo Express deps"]
         end
-        
+
         subgraph B2G["b2g/"]
             Server2["src/server/<br/>Express.js"]
             Pkg2["package.json<br/>Solo Express deps"]
         end
-        
+
         subgraph Shared["shared/"]
             Utils["Utilidades"]
         end
@@ -181,14 +181,14 @@ flowchart LR
         PCI["PCI Tokenization<br/>Para Pagos"]
         SSL["SSL/TLS<br/>Todos Endpoints"]
     end
-    
+
     subgraph Roles["Roles"]
         Super["SUPER_USER<br/>Admin Total"]
         Gov["GOVERNMENT_ADMIN<br/>Portal Gobierno"]
         Rescuer["RESCUER<br/>Rescatista"]
         Adopter["ADOPTER<br/>Adoptante"]
     end
-    
+
     Security --> Roles
 ```
 

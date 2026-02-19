@@ -12,12 +12,12 @@ El **Security Scanner** es un contenedor Docker dedicado que contiene todas las 
 graph LR
     A[Backend Container] --> B[Node.js + App]
     C[Security Scanner] --> D[Security Tools]
-    
+
     style A fill:#e1f5e1
     style C fill:#fff3cd
     style B fill:#d4edda
     style D fill:#f8d7da
-    
+
     linkStyle 0,1 stroke-width:2px,fill:none,stroke:gray
 ```
 
@@ -291,7 +291,7 @@ graph TD
     checkov[checkov.json]
     checkovk[checkov-k8s.json]
     summary[summary-YYYYMMDD-HHMMSS.md]
-    
+
     reports --> npm
     reports --> dart
     reports --> eslint
@@ -303,7 +303,7 @@ graph TD
     reports --> checkov
     reports --> checkovk
     reports --> summary
-    
+
     style reports fill:#f8f9fa,stroke:#333
 ```
 
@@ -348,19 +348,19 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      
+
       - name: Build Security Scanner
         run: |
           docker build -t security-scanner:latest \
             -f infrastructure/docker/security-scanner/Dockerfile .
-      
+
       - name: Run Security Scan
         run: |
           docker run --rm \
             -v ${{ github.workspace }}:/workspace \
             -v ${{ github.workspace }}/.security-reports:/reports \
             security-scanner:latest all
-      
+
       - name: Upload Reports
         uses: actions/upload-artifact@v4
         with:
@@ -432,20 +432,20 @@ Usar archivos de configuración para suprimir:
        ```bash
        make dev-security-scan
        ```
-    
+
     2. **Revisar reportes regularmente**
        ```bash
        cat .security-reports/summary-*.md
        ```
-    
+
     3. **Priorizar vulnerabilidades CRITICAL y HIGH**
-    
+
     4. **Mantener herramientas actualizadas**
        ```bash
        docker build --no-cache -t security-scanner:latest \
          -f infrastructure/docker/security-scanner/Dockerfile .
        ```
-    
+
     5. **Integrar en CI/CD pipeline**
 
 ## Referencias

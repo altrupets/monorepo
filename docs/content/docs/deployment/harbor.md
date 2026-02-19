@@ -129,7 +129,7 @@ flowchart TB
     subgraph Dev["1. Development"]
         IDE["dart analyze<br/>eslint"]
     end
-    
+
     subgraph CI["2. Pre-commit / CI"]
         Scan["make dev-security-scan"]
         Trivy["Trivy<br/>filesystem"]
@@ -138,7 +138,7 @@ flowchart TB
         Trufflehog["trufflehog<br/>secrets"]
         Bandit["bandit<br/>Python SAST"]
         Safety["safety<br/>Python deps"]
-        
+
         Scan --> Trivy
         Scan --> Tfsec
         Scan --> Checkov
@@ -146,18 +146,18 @@ flowchart TB
         Scan --> Bandit
         Scan --> Safety
     end
-    
+
     subgraph Registry["3. Container Registry (Harbor)"]
         Harbor["Harbor Trivy<br/>automatic on push"]
         Block["Block critical<br/>vulnerabilities"]
-        
+
         Harbor --> Block
     end
-    
+
     subgraph Runtime["4. Runtime (Production)"]
         K8s["Kubernetes<br/>security policies"]
     end
-    
+
     Dev --> CI
     CI --> Registry
     Registry --> Runtime
