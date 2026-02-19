@@ -16,7 +16,7 @@
         dev-argocd-deploy dev-argocd-destroy dev-argocd-status dev-argocd-password \
         dev-gateway-deploy dev-gateway-start dev-gateway-stop \
         dev-postgres-deploy dev-postgres-destroy dev-postgres-logs dev-postgres-port-forward \
-        dev-backend-build dev-backend-start \
+        dev-backend-build dev-images-build dev-backend-start \
         dev-superusers-start dev-superusers-stop dev-superusers-deploy dev-superusers-destroy \
         dev-b2g-start dev-b2g-stop dev-b2g-deploy dev-b2g-destroy \
         dev-infisical-sync dev-infisical-sync-cli \
@@ -61,19 +61,20 @@ help: ## Show this help message
 	@echo "$(BLUE)╚════════════════════════════════════════════════════════════════╝$(NC)"
 	@echo ""
 	@echo "$(GREEN)Quick Start (Full Setup):$(NC)"
-	@echo "  $(YELLOW)One-liner:$(NC)"
-	@echo "  make setup && make dev-minikube-deploy && make dev-gateway-deploy && make dev-backend-build && make dev-superusers-deploy && make dev-b2g-deploy && make dev-security-build && make dev-security-scan && make dev-gateway-start"
+	@echo "  $(YELLOW)Manual (sin ArgoCD):$(NC)"
+	@echo "  make setup && make dev-minikube-deploy && make dev-terraform-deploy && make dev-images-build && make dev-superusers-deploy && make dev-b2g-deploy && make dev-gateway-start"
 	@echo ""
-	@echo "  $(YELLOW)Step by step:$(NC)"
+	@echo "  $(YELLOW)Con ArgoCD (GitOps):$(NC)"
+	@echo "  make setup && make dev-minikube-deploy && make dev-terraform-deploy && make dev-images-build && make dev-argocd-deploy && make dev-gateway-start"
+	@echo ""
+	@echo "  $(YELLOW)Step by step (Manual):$(NC)"
 	@echo "  1. make setup                    $(BLUE)# First time setup$(NC)"
 	@echo "  2. make dev-minikube-deploy      $(BLUE)# Create minikube cluster$(NC)"
-	@echo "  3. make dev-gateway-deploy       $(BLUE)# Deploy Gateway API (instala CRDs)$(NC)"
-	@echo "  4. make dev-backend-build        $(BLUE)# Build backend image$(NC)"
+	@echo "  3. make dev-terraform-deploy     $(BLUE)# Deploy PostgreSQL + Gateway API$(NC)"
+	@echo "  4. make dev-images-build         $(BLUE)# Build all images (backend + web apps)$(NC)"
 	@echo "  5. make dev-superusers-deploy    $(BLUE)# Deploy CRUD Superusers$(NC)"
 	@echo "  6. make dev-b2g-deploy           $(BLUE)# Deploy B2G$(NC)"
-	@echo "  7. make dev-security-build       $(BLUE)# Build security scanner$(NC)"
-	@echo "  8. make dev-security-scan        $(BLUE)# Run security scans$(NC)"
-	@echo "  9. make dev-gateway-start        $(BLUE)# Start port-forward (localhost:3001)$(NC)"
+	@echo "  7. make dev-gateway-start        $(BLUE)# Start port-forward (localhost:3001)$(NC)"
 	@echo ""
 	@echo "  $(YELLOW)Después del setup:$(NC)"
 	@echo "  make dev-mobile-launch           $(BLUE)# Launch Flutter app (Android/Desktop)$(NC)"
@@ -107,6 +108,7 @@ help: ## Show this help message
 	@echo ""
 	@echo "$(GREEN)DEV - Backend:$(NC)"
 	@echo "  $(YELLOW)dev-backend-build$(NC)           Build backend image"
+	@echo "  $(YELLOW)dev-images-build$(NC)            Build all images (backend + web apps)"
 	@echo "  $(YELLOW)dev-backend-start$(NC)           Start backend in dev mode"
 	@echo "  $(YELLOW)dev-backend-test$(NC)            Run unit tests"
 	@echo "  $(YELLOW)dev-backend-test-e2e$(NC)        Run e2e tests (needs DB port-forward)"
@@ -262,7 +264,7 @@ dev-gateway-start: ## Start port-forward to Gateway
 	@echo "$(BLUE)Starting Gateway port-forward...$(NC)"
 	@$(SCRIPTS_DIR)/dev-validate.sh || true
 	@pkill -f "kubectl port-forward.*gateway" 2>/dev/null || true
-	@kubectl port-forward -n nginx-gateway svc/gateway-nodeport 3001:80 > /dev/null 2>&1 &
+	@kubectl port-forward -n altrupets-dev svc/dev-gateway-nginx 3001:80 > /dev/null 2>&1 &
 	@sleep 2
 	@echo "$(GREEN)✓ Gateway at http://localhost:3001$(NC)"
 	@echo ""
@@ -310,6 +312,13 @@ dev-backend-build: ## Build backend image
 	@kubectl rollout restart deployment/backend -n altrupets-dev 2>/dev/null || true
 	@kubectl rollout status deployment/backend -n altrupets-dev --timeout=120s 2>/dev/null || true
 	@echo "$(GREEN)✓ Backend image built$(NC)"
+
+dev-images-build: ## Build all images (backend + web apps)
+	@echo "$(BLUE)Building all images...$(NC)"
+	@$(SCRIPTS_DIR)/build-backend-image-minikube.sh
+	@$(SCRIPTS_DIR)/build-web-images-minikube.sh superusers
+	@$(SCRIPTS_DIR)/build-web-images-minikube.sh b2g
+	@echo "$(GREEN)✓ All images built$(NC)"
 
 dev-backend-start: ## Start backend in dev mode
 	@./launch_backend_dev.sh
