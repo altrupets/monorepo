@@ -124,35 +124,46 @@ El proyecto tiene dos herramientas de escaneo de vulnerabilidades que son **comp
 
 **Flujo de seguridad recomendado:**
 
-```
-┌─────────────────────────────────────────────────────────────────────┐
-│                    Defense in Depth Strategy                         │
-├─────────────────────────────────────────────────────────────────────┤
-│                                                                      │
-│  1. Development                                                      │
-│     └─► dart analyze, eslint (IDE)                                  │
-│                                                                      │
-│  2. Pre-commit / CI                                                  │
-│     └─► make dev-security-scan (Security Scanner)                   │
-│         - Trivy: filesystem scan                                     │
-│         - tfsec: Terraform security                                  │
-│         - checkov: IaC compliance                                    │
-│         - trufflehog: secret detection                               │
-│         - bandit: Python SAST                                        │
-│         - safety: Python deps                                        │
-│                                                                      │
-│  3. Container Registry (Harbor)                                      │
-│     └─► Harbor Trivy (automatic on push)                            │
-│         - Image vulnerability scan                                   │
-│         - Block critical vulnerabilities (configurable)             │
-│                                                                      │
-│  4. Runtime (Production)                                             │
-│     └─► Kubernetes security policies                                │
-│                                                                      │
-└─────────────────────────────────────────────────────────────────────┘
+```mermaid
+flowchart TB
+    subgraph Dev["1. Development"]
+        IDE["dart analyze<br/>eslint"]
+    end
+    
+    subgraph CI["2. Pre-commit / CI"]
+        Scan["make dev-security-scan"]
+        Trivy["Trivy<br/>filesystem"]
+        Tfsec["tfsec<br/>Terraform"]
+        Checkov["checkov<br/>IaC"]
+        Trufflehog["trufflehog<br/>secrets"]
+        Bandit["bandit<br/>Python SAST"]
+        Safety["safety<br/>Python deps"]
+        
+        Scan --> Trivy
+        Scan --> Tfsec
+        Scan --> Checkov
+        Scan --> Trufflehog
+        Scan --> Bandit
+        Scan --> Safety
+    end
+    
+    subgraph Registry["3. Container Registry (Harbor)"]
+        Harbor["Harbor Trivy<br/>automatic on push"]
+        Block["Block critical<br/>vulnerabilities"]
+        
+        Harbor --> Block
+    end
+    
+    subgraph Runtime["4. Runtime (Production)"]
+        K8s["Kubernetes<br/>security policies"]
+    end
+    
+    Dev --> CI
+    CI --> Registry
+    Registry --> Runtime
 ```
 
-**Beneficio:** Vulnerabilidades detectadas en paso 2 nunca llegan al paso 3.
+> **Beneficio:** Vulnerabilidades detectadas en paso 2 nunca llegan al paso 3.
 
 ## Comparación con Alternativas
 
