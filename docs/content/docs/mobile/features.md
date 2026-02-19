@@ -5,26 +5,26 @@ Documentación detallada de cada feature de la aplicación AltruPets Mobile.
 ## Mapa de Features
 
 ```mermaid
-graph TB
-    Auth[🔐 Auth<br/>Login/Registro]
-    Home[🏠 Home<br/>Dashboard]
-    Profile[👤 Profile<br/>Perfil Usuario]
-    Orgs[🏢 Organizations<br/>Organizaciones]
-    Rescues[🐾 Rescues<br/>Rescates]
-    Settings[⚙️ Settings<br/>Configuración]
-    Onboarding[📝 Onboarding<br/>Registro Inicial]
-    
+flowchart TB
+    Auth[Auth<br/>Login/Register]
+    Home[Home<br/>Dashboard]
+    Profile[Profile<br/>User Profile]
+    Orgs[Organizations<br/>Orgs]
+    Rescues[Rescues<br/>Rescues]
+    Settings[Settings<br/>Config]
+    Onboarding[Onboarding<br/>Initial Reg]
+
     Auth --> Home
     Onboarding --> Home
     Home --> Profile
     Home --> Orgs
     Home --> Rescues
     Home --> Settings
-    
-    Profile -.->|usa| Auth
-    Orgs -.->|usa| Auth
-    Rescues -.->|usa| Auth
-    
+
+    Profile -.->|uses| Auth
+    Orgs -.->|uses| Auth
+    Rescues -.->|uses| Auth
+
     style Auth fill:#e1f5ff
     style Home fill:#fff4e1
     style Profile fill:#f0e1ff
@@ -39,31 +39,31 @@ graph TB
 Cada feature sigue la estructura de Clean Architecture:
 
 ```mermaid
-graph TB
-    subgraph Feature["Feature Module"]
-        subgraph Domain["domain/"]
-            Entities["entities/<br/>Freezed models"]
-            RepoInt["repositories/<br/>Interfaces"]
+flowchart TB
+    subgraph Feature[Feature Module]
+        subgraph Domain[domain/]
+            Entities[entities<br/>Freezed models]
+            RepoInt[repositories<br/>Interfaces]
         end
-        
-        subgraph Data["data/"]
-            Models["models/<br/>DTOs"]
-            RepoImpl["repositories/<br/>Implementations"]
+
+        subgraph Data[data/]
+            Models[models<br/>DTOs]
+            RepoImpl[repositories<br/>Implementations]
         end
-        
-        subgraph Presentation["presentation/"]
-            Pages["pages/<br/>Screens"]
-            Providers["providers/<br/>StateNotifiers"]
-            Widgets["widgets/<br/>UI Components"]
+
+        subgraph Presentation[presentation/]
+            Pages[pages<br/>Screens]
+            Providers[providers<br/>StateNotifiers]
+            Widgets[widgets<br/>UI Components]
         end
     end
-    
+
     Pages --> Providers
     Providers --> RepoInt
     RepoImpl -.->|implements| RepoInt
     RepoImpl --> Models
     Models -.->|toEntity| Entities
-    
+
     style Domain fill:#e1f5ff
     style Data fill:#fff4e1
     style Presentation fill:#f0e1ff
@@ -330,33 +330,33 @@ El sistema de sincronización offline permite que los cambios se guarden localme
 
 ```mermaid
 sequenceDiagram
-    participant UI as Edit Profile Page
+    participant UI as Pagina Editar Perfil
     participant P as ProfileProvider
     participant R as ProfileRepository
-    participant Q as SyncQueue
+    participant Q as ColaSincronizacion
     participant C as Cache
-    participant API as GraphQL API
-    
-    UI->>P: updateProfile(data)
-    P->>C: Save to cache
-    C-->>P: Cached
-    
-    alt Online
-        P->>API: Mutation
-        API-->>P: Success
-        P->>C: Update cache
-    else Offline
-        P->>Q: Add to queue
-        Q-->>P: Queued
-        Note over Q: Espera conexión
+    participant API as API GraphQL
+
+    UI->>P: updateProfile(datos)
+    P->>C: Guardar en cache
+    C-->>P: Guardado
+
+    alt En linea
+        P->>API: Mutacion
+        API-->>P: Exito
+        P->>C: Actualizar cache
+    else Sin conexion
+        P->>Q: Agregar a cola
+        Q-->>P: Encolado
+        Note over Q: Espera conexion
     end
-    
-    P-->>UI: Update UI
-    
-    Note over Q,API: Cuando hay conexión
-    Q->>API: Sync pending changes
-    API-->>Q: Success
-    Q->>C: Update cache
+
+    P-->>UI: Actualizar UI
+
+    Note over Q,API: Cuando hay conexion
+    Q->>API: Sincronizar cambios
+    API-->>Q: Exito
+    Q->>C: Actualizar cache
 ```
 
 Uso en código:
@@ -416,30 +416,30 @@ El sistema de geolocalización permite ubicar rescates con precisión.
 
 ```mermaid
 sequenceDiagram
-    participant UI as Create Rescue Page
+    participant UI as Pagina Crear Rescate
     participant GP as GeolocationProvider
     participant GS as GeolocationService
-    participant Perm as Permissions
-    participant GPS as GPS Device
-    
+    participant Perm as Permisos
+    participant GPS as Dispositivo GPS
+
     UI->>GP: getCurrentPosition()
-    GP->>Perm: Check permissions
-    
-    alt Permissions granted
-        Perm-->>GP: Granted
+    GP->>Perm: Verificar permisos
+
+    alt Permisos concedidos
+        Perm-->>GP: Concedidos
         GP->>GS: getPosition()
-        GS->>GPS: Request location
-        GPS-->>GS: Position(lat, lng)
-        GS-->>GP: Position
-        GP-->>UI: Position
-    else Permissions denied
-        Perm-->>GP: Denied
-        GP->>UI: Request permissions
+        GS->>GPS: Solicitar ubicacion
+        GPS-->>GS: Posicion(lat, lng)
+        GS-->>GP: Posicion
+        GP-->>UI: Posicion
+    else Permisos denegados
+        Perm-->>GP: Denegados
+        GP->>UI: Solicitar permisos
         UI->>Perm: requestPermissions()
-        Perm-->>UI: Result
+        Perm-->>UI: Resultado
     end
-    
-    UI->>UI: Show map with marker
+
+    UI->>UI: Mostrar mapa con marcador
 ```
 
 Uso en código:
@@ -487,21 +487,21 @@ El sistema de temas permite cambiar entre modo claro, oscuro o seguir el sistema
 
 ```mermaid
 sequenceDiagram
-    participant UI as Settings Page
+    participant UI as Pagina Configuracion
     participant TP as ThemeProvider
     participant TN as ThemeNotifier
     participant Prefs as SharedPreferences
     participant App as MaterialApp
-    
-    UI->>TP: Read current theme
+
+    UI->>TP: Leer tema actual
     TP-->>UI: ThemeMode.dark
-    
+
     UI->>TN: setThemeMode(light)
-    TN->>Prefs: Save preference
-    Prefs-->>TN: Saved
-    TN->>TP: Update state
-    TP->>App: Rebuild with new theme
-    App-->>UI: UI updates
+    TN->>Prefs: Guardar preferencia
+    Prefs-->>TN: Guardado
+    TN->>TP: Actualizar estado
+    TP->>App: Rebuild con nuevo tema
+    App-->>UI: UI actualiza
 ```
 
 Uso en código:
@@ -531,14 +531,14 @@ Flujo de registro paso a paso para nuevos usuarios.
 ### Flujo de Onboarding
 
 ```mermaid
-stateDiagram-v2
+state-v2
     [*] --> RoleSelection: Iniciar
     RoleSelection --> PersonalInfo: Seleccionar rol
     PersonalInfo --> Location: Completar info
-    Location --> Verification: Seleccionar ubicación
+    Location --> Verification: Seleccionar ubicacion
     Verification --> Complete: Verificar
     Complete --> [*]: Registro exitoso
-    
+
     RoleSelection --> RoleSelection: Cambiar rol
     PersonalInfo --> RoleSelection: Volver
     Location --> PersonalInfo: Volver
@@ -680,15 +680,15 @@ class MiPage extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final state = ref.watch(miProvider);
-    
+
     if (state.isLoading) {
       return const Center(child: CircularProgressIndicator());
     }
-    
+
     if (state.error != null) {
       return Center(child: Text(state.error!));
     }
-    
+
     return ListView.builder(
       itemCount: state.items.length,
       itemBuilder: (context, index) => ListTile(

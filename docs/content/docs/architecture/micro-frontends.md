@@ -6,63 +6,59 @@ AltruPets utiliza una arquitectura de **micro-frontends** donde cada aplicación
 
 ```mermaid
 flowchart TB
-    subgraph Clients["👥 Clientes"]
-        Browser["🖥️ Navegador<br/>(Usuarios)"]
-        Mobile["📱 Flutter App<br/>(Mobile)"]
-        API["🔌 API Clients<br/>(Integraciones)"]
+    subgraph Clients[Clientes]
+        Browser[Browser<br/>Usuarios]
+        Mobile[Flutter App<br/>Mobile]
+        API[API Clients<br/>Integraciones]
     end
 
-    subgraph Gateway["🚪 Gateway Layer"]
-        NGINX["NGINX Gateway API<br/>(HTTPRoutes)"]
-        Routes["/admin/* → web-superusers:3002<br/>/b2g/* → web-b2g:3003<br/>/graphql → backend:3001"]
+    subgraph Gateway[Gateway Layer]
+        NGINX[NGINX Gateway API<br/>HTTPRoutes]
+        Routes[Route /admin -> web-superusers:3002<br/>Route /b2g -> web-b2g:3003<br/>Route /graphql -> backend:3001]
     end
 
-    subgraph MicroFrontends["🎨 Micro-Frontends"]
-        subgraph Superusers["📋 CRUD Superusers"]
-            Express1["Express.js<br/>(puerto 3002)"]
-            Vue1["Vue 3 + Inertia<br/>(CDN)"]
-            Express1 --> Vue1
-        end
-        
-        subgraph B2G["🏛️ B2G Government"]
-            Express2["Express.js<br/>(puerto 3003)"]
-            Vue2["Vue 3 + Inertia<br/>(CDN)"]
-            Express2 --> Vue2
-        end
+    subgraph Superusers[CRUD Superusers]
+        Express1[Express.js<br/>puerto 3002]
+        Vue1[Vue 3 + Inertia<br/>CDN]
+        Express1 --> Vue1
     end
 
-    subgraph Backend["⚙️ Backend API"]
-        NestJS["NestJS + GraphQL<br/>(puerto 3001)"]
-        Modules["Auth | Users | Pets<br/>Rescues | Adoptions | Donations"]
+    subgraph B2G[B2G Government]
+        Express2[Express.js<br/>puerto 3003]
+        Vue2[Vue 3 + Inertia<br/>CDN]
+        Express2 --> Vue2
+    end
+
+    subgraph Backend[Backend API]
+        NestJS[NestJS + GraphQL<br/>puerto 3001]
+        Modules[Auth | Users | Pets<br/>Rescues | Adoptions | Donations]
         NestJS --> Modules
     end
 
-    subgraph Data["💾 Data Layer"]
-        Postgres[("PostgreSQL")]
-        Valkey[("Valkey<br/>Cache")]
+    subgraph Data[Data Layer]
+        Postgres[(PostgreSQL)]
+        Valkey[(Valkey<br/>Cache)]
     end
 
     Browser --> NGINX
     Mobile --> NGINX
     API --> NGINX
     NGINX --> Routes
-    Routes --> Superusers
-    Routes --> B2G
+    Routes --> Express1
+    Routes --> Express2
     Routes --> NestJS
     NestJS --> Postgres
     NestJS --> Valkey
-    Superusers -.->|HTTP fetch| NestJS
-    B2G -.->|HTTP fetch| NestJS
 ```
 
 ## Flujo de Request
 
 ```mermaid
 sequenceDiagram
-    participant U as 👤 Usuario
-    participant G as 🚪 Gateway
-    participant MF as 🎨 Micro-Frontend
-    participant B as ⚙️ Backend
+    participant U as Usuario
+    participant G as Gateway
+    participant MF as Micro-Frontend
+    participant B as Backend
 
     Note over U,B: Flujo de Login
     U->>G: GET /admin/login
@@ -70,7 +66,7 @@ sequenceDiagram
     MF->>MF: renderPage()
     MF-->>G: HTML + Vue CDN
     G-->>U: HTML Response
-    
+
     U->>G: POST /admin/login
     G->>MF: proxy_pass
     MF->>B: POST /login
@@ -106,25 +102,28 @@ sequenceDiagram
 ## Ventajas de esta Arquitectura
 
 ```mermaid
-mindmap
-  root((Micro-Frontends))
-    Separación
-      Apps independientes
-      Deploy independiente
-      Escalado independiente
-    Sin Build Step
-      Vue desde CDN
-      Sin Vite/Webpack
-      Dockerfiles simples
-      Desarrollo rápido
-    Seguridad
-      Auth por app
-      Roles específicos
-      Backend como fuente de verdad
-    Developer Experience
-      Hot reload con tsx watch
-      Un comando para dev
-      Logs centralizados
+flowchart TB
+    root[Micro-Frontends] --> sep[Separacion]
+    root --> nobuild[Sin Build Step]
+    root --> security[Seguridad]
+    root --> dx[Developer Experience]
+
+    sep --> app1[Apps Independientes]
+    sep --> deploy1[Deploy Independiente]
+    sep --> scale[Escalado Independiente]
+
+    nobuild --> vue[Vue desde CDN]
+    nobuild --> novite[Sin Vite/Webpack]
+    nobuild --> simple[Dockerfiles Simples]
+    nobuild --> fast[Desarrollo Rapido]
+
+    security --> auth[Auth por App]
+    security --> roles[Roles Especificos]
+    security --> truth[Backend como Fuente]
+
+    dx --> hot[Hot Reload con tsx]
+    dx --> one[Un Comando Dev]
+    dx --> logs[Logs Centralizados]
 ```
 
 ## Despliegue en Kubernetes
@@ -136,26 +135,26 @@ flowchart LR
             WS["web-superusers<br/>:3002<br/>SUPER_USER"]
             WB["web-b2g<br/>:3003<br/>GOV_ADMIN"]
         end
-        
+
         subgraph API["API"]
             BK["backend<br/>:3001<br/>GraphQL"]
         end
-        
+
         subgraph GW["Gateway"]
             NG["dev-gateway-nginx<br/>HTTPRoutes"]
         end
     end
-    
+
     subgraph Images["Container Images"]
         I1["localhost/altrupets-web-crud-superusers:dev"]
         I2["localhost/altrupets-web-b2g:dev"]
         I3["localhost/altrupets-backend:dev"]
     end
-    
+
     I1 --> WS
     I2 --> WB
     I3 --> BK
-    
+
     NG --> WS
     NG --> WB
     NG --> BK
@@ -164,28 +163,26 @@ flowchart LR
 ## Estructura de Código
 
 ```mermaid
-graph TB
-    subgraph Monorepo["📁 Monorepo"]
-        subgraph Apps["apps/"]
-            Mobile["mobile/<br/>Flutter App"]
-            subgraph Web["web/"]
-                Super["crud-superusers/<br/>Express + Vue CDN"]
-                B2G["b2g/<br/>Express + Vue CDN"]
-                Shared["shared/<br/>Utilidades"]
-            end
-            Backend["backend/<br/>NestJS + GraphQL"]
-        end
-        
-        subgraph Infra["infrastructure/"]
-            TF["terraform/<br/>IaC"]
-            Scripts["scripts/<br/>Build & Deploy"]
-        end
-        
-        subgraph K8s["k8s/"]
-            Base["base/<br/>Manifests"]
-            Overlays["overlays/<br/>dev|qa|stage|prod"]
-        end
+flowchart TB
+    subgraph Monorepo[Monorepo]
+        Mobile[mobile<br/>Flutter App]
+
+        Super[crud-superusers<br/>Express + Vue CDN]
+        B2G[b2g<br/>Express + Vue CDN]
+        Shared[shared<br/>Utilidades]
+
+        Backend[backend<br/>NestJS + GraphQL]
+
+        TF[terraform<br/>IaC]
+        Scripts[scripts<br/>Build & Deploy]
+
+        Base[base<br/>Manifests]
+        Overlays[overlays<br/>dev|qa|stage|prod]
     end
+
+    Mobile -.-> Backend
+    Super -.-> Backend
+    B2G -.-> Backend
 ```
 
 ## Comandos de Desarrollo
