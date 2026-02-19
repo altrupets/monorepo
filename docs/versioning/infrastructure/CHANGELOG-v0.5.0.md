@@ -29,7 +29,24 @@
 - **Template-based manifest**: Migrado de HCL inline a `jsondecode(templatefile())` para mayor flexibilidad
 - **Nuevo template**: `infrastructure/terraform/modules/kubernetes/gateway-api/templates/gateway.json.tpl`
 
+#### Gateway Port-forward
+- **Servicio correcto**: `dev-gateway-start` ahora apunta a `altrupets-dev/dev-gateway-nginx` (antes `nginx-gateway/gateway-nodeport`)
+
 ### Changed
+
+#### Kustomize Overlays Unification
+- **Targets `-tf-deploy` usan overlays**: Manual y GitOps ahora usan los mismos paths
+  - `dev-backend-tf-deploy` → `k8s/overlays/dev/backend`
+  - `dev-superusers-tf-deploy` → `k8s/overlays/dev/web-superusers`
+  - `dev-b2g-tf-deploy` → `k8s/overlays/dev/web-b2g`
+- **Consistencia garantizada**: Ambos flujos aplican el mismo namespace y patches
+
+#### ArgoCD Applications
+- **repoURL corregido**: Actualizado de `your-org/altrupets-monorepo` a `altrupets/monorepo`
+- **Archivos afectados**:
+  - `k8s/argocd/applications/backend-dev.yaml`
+  - `k8s/argocd/applications/web-superusers-dev.yaml`
+  - `k8s/argocd/applications/web-b2g-dev.yaml`
 
 #### deploy-gateway-api.sh
 - **Dev environment support**: Ahora soporta ambiente `dev` (antes solo QA/Staging)
@@ -37,6 +54,32 @@
 - **Environment variable**: `FORCE_RECREATE` para control programático
 
 ### Technical Details
+
+#### Kustomize Path Structure
+```
+k8s/
+├── base/                          # Manifiestos base (sin namespace)
+│   ├── backend/
+│   ├── web-superusers/
+│   └── web-b2g/
+│
+├── overlays/
+│   └── dev/
+│       ├── backend/
+│       │   ├── kustomization.yaml   # namespace + patches
+│       │   ├── namespace.yaml
+│       │   └── patch-deployment.yaml
+│       ├── web-superusers/
+│       │   └── kustomization.yaml   # namespace
+│       └── web-b2g/
+│           └── kustomization.yaml   # namespace
+│
+└── argocd/
+    └── applications/
+        ├── backend-dev.yaml         # path: k8s/overlays/dev/backend
+        ├── web-superusers-dev.yaml  # path: k8s/overlays/dev/web-superusers
+        └── web-b2g-dev.yaml         # path: k8s/overlays/dev/web-b2g
+```
 
 #### MCP Servers Configuration
 ```json
@@ -72,14 +115,31 @@
 
 | Archivo | Cambio |
 |---------|--------|
-| `Makefile` | Agregados targets `dev-mcp-*` y lógica de recreación en `dev-gateway-deploy` |
+| `Makefile` | Targets `-tf-deploy` usan overlays, nuevos targets `dev-mcp-*` |
+| `k8s/argocd/applications/*.yaml` | repoURL corregido a `altrupets/monorepo` |
 | `infrastructure/terraform/modules/kubernetes/gateway-api/main.tf` | Migrado a template JSON |
 | `infrastructure/terraform/modules/kubernetes/gateway-api/templates/gateway.json.tpl` | Nuevo template |
 | `infrastructure/scripts/deploy-gateway-api.sh` | Soporte para dev y force-recreate |
 | `mcp.json` | Configuración de MCP servers |
+
+### Deployment Flows
+
+#### Manual (sin ArgoCD)
+```bash
+make setup && make dev-minikube-deploy && make dev-terraform-deploy && \
+make dev-images-build && make dev-backend-tf-deploy && \
+make dev-superusers-tf-deploy && make dev-b2g-tf-deploy && make dev-gateway-start
+```
+
+#### GitOps (con ArgoCD)
+```bash
+make setup && make dev-minikube-deploy && make dev-terraform-deploy && \
+make dev-images-build && make dev-argocd-deploy && make dev-gateway-start
+```
 
 ### References
 
 - [Kubernetes Gateway API](https://gateway-api.sigs.k8s.io/)
 - [Context7 MCP](https://github.com/upstash/context7-mcp)
 - [Terraform templatefile function](https://developer.hashicorp.com/terraform/language/functions/templatefile)
+- [Kustomize Overlays](https://kubectl.docs.kubernetes.io/guides/introduction/kustomize/)
