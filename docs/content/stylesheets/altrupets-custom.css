@@ -1,14 +1,773 @@
-/* AltruPets Custom Styles */
+/* ============================================
+   AltruPets Custom Fonts
+   ============================================ */
 
-:root {
-  --md-primary-fg-color: #00897B;
-  --md-accent-fg-color: #00897B;
+/* Poppins Font Family */
+@font-face {
+  font-family: 'Poppins';
+  src: url('../assets/fonts/poppins/Poppins-Thin.ttf') format('truetype');
+  font-weight: 100;
+  font-style: normal;
+  font-display: swap;
 }
 
+@font-face {
+  font-family: 'Poppins';
+  src: url('../assets/fonts/poppins/Poppins-ThinItalic.ttf') format('truetype');
+  font-weight: 100;
+  font-style: italic;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Poppins';
+  src: url('../assets/fonts/poppins/Poppins-ExtraLight.ttf') format('truetype');
+  font-weight: 200;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Poppins';
+  src: url('../assets/fonts/poppins/Poppins-ExtraLightItalic.ttf') format('truetype');
+  font-weight: 200;
+  font-style: italic;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Poppins';
+  src: url('../assets/fonts/poppins/Poppins-Light.ttf') format('truetype');
+  font-weight: 300;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Poppins';
+  src: url('../assets/fonts/poppins/Poppins-LightItalic.ttf') format('truetype');
+  font-weight: 300;
+  font-style: italic;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Poppins';
+  src: url('../assets/fonts/poppins/Poppins-Regular.ttf') format('truetype');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Poppins';
+  src: url('../assets/fonts/poppins/Poppins-Italic.ttf') format('truetype');
+  font-weight: 400;
+  font-style: italic;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Poppins';
+  src: url('../assets/fonts/poppins/Poppins-Medium.ttf') format('truetype');
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Poppins';
+  src: url('../assets/fonts/poppins/Poppins-MediumItalic.ttf') format('truetype');
+  font-weight: 500;
+  font-style: italic;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Poppins';
+  src: url('../assets/fonts/poppins/Poppins-SemiBold.ttf') format('truetype');
+  font-weight: 600;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Poppins';
+  src: url('../assets/fonts/poppins/Poppins-SemiBoldItalic.ttf') format('truetype');
+  font-weight: 600;
+  font-style: italic;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Poppins';
+  src: url('../assets/fonts/poppins/Poppins-Bold.ttf') format('truetype');
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Poppins';
+  src: url('../assets/fonts/poppins/Poppins-BoldItalic.ttf') format('truetype');
+  font-weight: 700;
+  font-style: italic;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Poppins';
+  src: url('../assets/fonts/poppins/Poppins-ExtraBold.ttf') format('truetype');
+  font-weight: 800;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Poppins';
+  src: url('../assets/fonts/poppins/Poppins-ExtraBoldItalic.ttf') format('truetype');
+  font-weight: 800;
+  font-style: italic;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Poppins';
+  src: url('../assets/fonts/poppins/Poppins-Black.ttf') format('truetype');
+  font-weight: 900;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Poppins';
+  src: url('../assets/fonts/poppins/Poppins-BlackItalic.ttf') format('truetype');
+  font-weight: 900;
+  font-style: italic;
+  font-display: swap;
+}
+
+/* Lemon Milk Font Family */
+@font-face {
+  font-family: 'Lemon Milk';
+  src: url('../assets/fonts/lemon_milk/LemonMilkLight-owxMq.otf') format('opentype');
+  font-weight: 300;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Lemon Milk';
+  src: url('../assets/fonts/lemon_milk/LemonMilkLightItalic-7BjPE.otf') format('opentype');
+  font-weight: 300;
+  font-style: italic;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Lemon Milk';
+  src: url('../assets/fonts/lemon_milk/LemonMilkRegular-X3XE2.otf') format('opentype');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Lemon Milk';
+  src: url('../assets/fonts/lemon_milk/LemonMilkRegularItalic-L3AEy.otf') format('opentype');
+  font-weight: 400;
+  font-style: italic;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Lemon Milk';
+  src: url('../assets/fonts/lemon_milk/LemonMilkMedium-mLZYV.otf') format('opentype');
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Lemon Milk';
+  src: url('../assets/fonts/lemon_milk/LemonMilkMediumItalic-d95nl.otf') format('opentype');
+  font-weight: 500;
+  font-style: italic;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Lemon Milk';
+  src: url('../assets/fonts/lemon_milk/LemonMilkBold-gx2B3.otf') format('opentype');
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Lemon Milk';
+  src: url('../assets/fonts/lemon_milk/LemonMilkBoldItalic-PKZ3P.otf') format('opentype');
+  font-weight: 700;
+  font-style: italic;
+  font-display: swap;
+}
+
+/* ============================================
+   AltruPets Design System - Brand Colors
+   Based on style-dictionary/tokens.json
+   ============================================ */
+
+:root {
+  /* Brand Colors */
+  --altrupets-primary: #094F72;
+  --altrupets-secondary: #EA840B;
+  --altrupets-accent: #1370A6;
+  --altrupets-warning: #F4AE22;
+  --altrupets-error: #E54C12;
+  --altrupets-success: #2E7D32;
+  
+  /* Primary Palette */
+  --altrupets-primary-10: #001E2F;
+  --altrupets-primary-20: #00344E;
+  --altrupets-primary-30: #004B6F;
+  --altrupets-primary-40: #006491;
+  --altrupets-primary-50: #007FB6;
+  --altrupets-primary-60: #3699D2;
+  --altrupets-primary-70: #58B4EE;
+  --altrupets-primary-80: #8ACEFF;
+  --altrupets-primary-90: #C9E6FF;
+  --altrupets-primary-95: #E6F2FF;
+  
+  /* Secondary Palette */
+  --altrupets-secondary-10: #2E1500;
+  --altrupets-secondary-20: #4C2700;
+  --altrupets-secondary-30: #6D3A00;
+  --altrupets-secondary-40: #8F4E00;
+  --altrupets-secondary-50: #B36300;
+  --altrupets-secondary-60: #D87800;
+  --altrupets-secondary-70: #FB911F;
+  --altrupets-secondary-80: #FFB77A;
+  --altrupets-secondary-90: #FFDCC2;
+  
+  /* Neutral Palette */
+  --altrupets-neutral-10: #191C1E;
+  --altrupets-neutral-20: #2E3133;
+  --altrupets-neutral-30: #454749;
+  --altrupets-neutral-50: #75777A;
+  --altrupets-neutral-80: #C5C6C9;
+  --altrupets-neutral-90: #E2E2E5;
+  --altrupets-neutral-95: #F0F0F3;
+  
+  /* Material for MkDocs Theme Colors */
+  --md-primary-fg-color: var(--altrupets-primary);
+  --md-primary-fg-color--light: var(--altrupets-primary-60);
+  --md-primary-fg-color--dark: var(--altrupets-primary-30);
+  --md-primary-bg-color: var(--altrupets-primary-95);
+  --md-primary-bg-color--light: var(--altrupets-primary-90);
+  
+  --md-accent-fg-color: var(--altrupets-accent);
+  --md-accent-fg-color--transparent: rgba(19, 112, 166, 0.1);
+  --md-accent-bg-color: var(--altrupets-primary-95);
+  --md-accent-bg-color--light: var(--altrupets-primary-90);
+  
+  /* Typography */
+  --md-text-font: "Poppins", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --md-code-font: "Roboto Mono", "Courier New", monospace;
+}
+
+/* Dark mode colors */
+[data-md-color-scheme="slate"] {
+  --md-primary-fg-color: var(--altrupets-primary-60);
+  --md-primary-fg-color--light: var(--altrupets-primary-70);
+  --md-primary-fg-color--dark: var(--altrupets-primary-40);
+  --md-primary-bg-color: var(--altrupets-primary-20);
+  --md-primary-bg-color--light: var(--altrupets-primary-30);
+  
+  --md-accent-fg-color: var(--altrupets-accent);
+  --md-accent-fg-color--transparent: rgba(19, 112, 166, 0.1);
+}
+
+/* ============================================
+   Header & Navigation
+   ============================================ */
+
 .md-header {
-  background-color: #00897B;
+  background-color: var(--altrupets-primary);
+  background: linear-gradient(135deg, var(--altrupets-primary) 0%, var(--altrupets-primary-40) 100%);
+  box-shadow: 0 2px 8px rgba(9, 79, 114, 0.2);
+}
+
+.md-header__title {
+  font-family: "Lemon Milk", var(--md-text-font);
+  font-weight: 600;
+  letter-spacing: 0.5px;
 }
 
 .md-tabs {
-  background-color: #00796B;
+  background-color: var(--altrupets-primary-30);
+  background: linear-gradient(180deg, var(--altrupets-primary-30) 0%, var(--altrupets-primary-20) 100%);
 }
+
+.md-tabs__link {
+  font-weight: 500;
+  transition: all 0.2s ease;
+}
+
+.md-tabs__link:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+.md-tabs__link--active {
+  background-color: rgba(255, 255, 255, 0.15);
+  border-bottom: 2px solid var(--altrupets-secondary);
+}
+
+/* ============================================
+   Sidebar Navigation
+   ============================================ */
+
+.md-nav__link--active {
+  color: var(--altrupets-primary);
+  font-weight: 600;
+}
+
+.md-nav__link:hover {
+  color: var(--altrupets-accent);
+}
+
+.md-nav__item--nested > .md-nav__link {
+  font-weight: 600;
+  color: var(--altrupets-primary-30);
+}
+
+/* ============================================
+   Content Styling
+   ============================================ */
+
+/* Links */
+.md-content a {
+  color: var(--altrupets-accent);
+  text-decoration: none;
+  border-bottom: 1px solid transparent;
+  transition: all 0.2s ease;
+}
+
+.md-content a:hover {
+  color: var(--altrupets-primary);
+  border-bottom-color: var(--altrupets-primary);
+}
+
+/* Headings */
+.md-typeset h1 {
+  color: var(--altrupets-primary);
+  font-family: "Lemon Milk", var(--md-text-font);
+  font-weight: 700;
+  border-bottom: 3px solid var(--altrupets-secondary);
+  padding-bottom: 0.5rem;
+}
+
+.md-typeset h2 {
+  color: var(--altrupets-primary-30);
+  font-family: "Lemon Milk", var(--md-text-font);
+  font-weight: 600;
+  border-bottom: 2px solid var(--altrupets-primary-90);
+  padding-bottom: 0.3rem;
+}
+
+.md-typeset h3 {
+  color: var(--altrupets-primary-40);
+  font-weight: 600;
+}
+
+/* Code blocks */
+.md-typeset code {
+  background-color: var(--altrupets-primary-95);
+  color: var(--altrupets-primary-30);
+  border: 1px solid var(--altrupets-primary-90);
+  padding: 0.1em 0.4em;
+  border-radius: 4px;
+}
+
+.md-typeset pre > code {
+  background-color: var(--altrupets-neutral-95);
+  border: 1px solid var(--altrupets-neutral-90);
+}
+
+[data-md-color-scheme="slate"] .md-typeset code {
+  background-color: var(--altrupets-primary-20);
+  color: var(--altrupets-primary-80);
+  border-color: var(--altrupets-primary-30);
+}
+
+/* Tables */
+.md-typeset table:not([class]) {
+  border: 2px solid var(--altrupets-primary-90);
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.md-typeset table:not([class]) th {
+  background-color: var(--altrupets-primary);
+  color: white;
+  font-weight: 600;
+  padding: 1rem;
+}
+
+.md-typeset table:not([class]) tr:hover {
+  background-color: var(--altrupets-primary-95);
+}
+
+/* Admonitions */
+.md-typeset .admonition {
+  border-left: 4px solid var(--altrupets-accent);
+  border-radius: 4px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.md-typeset .admonition.note {
+  border-left-color: var(--altrupets-accent);
+}
+
+.md-typeset .admonition.warning {
+  border-left-color: var(--altrupets-warning);
+}
+
+.md-typeset .admonition.danger {
+  border-left-color: var(--altrupets-error);
+}
+
+.md-typeset .admonition.success {
+  border-left-color: var(--altrupets-success);
+}
+
+/* Buttons */
+.md-button {
+  background-color: var(--altrupets-primary);
+  color: white;
+  border-radius: 8px;
+  padding: 0.6em 1.2em;
+  font-weight: 600;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 4px rgba(9, 79, 114, 0.2);
+}
+
+.md-button:hover {
+  background-color: var(--altrupets-primary-40);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(9, 79, 114, 0.3);
+}
+
+.md-button--primary {
+  background-color: var(--altrupets-secondary);
+}
+
+.md-button--primary:hover {
+  background-color: var(--altrupets-secondary-60);
+}
+
+/* Search */
+.md-search__input {
+  background-color: rgba(255, 255, 255, 0.15);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 8px;
+}
+
+.md-search__input:focus {
+  background-color: white;
+  border-color: var(--altrupets-accent);
+}
+
+/* Footer */
+.md-footer {
+  background-color: var(--altrupets-primary-20);
+  color: var(--altrupets-neutral-90);
+}
+
+.md-footer-meta {
+  background-color: var(--altrupets-primary-10);
+}
+
+/* ============================================
+   Mermaid Fullscreen Styles
+   ============================================ */
+
+/* Wrapper para cada diagrama Mermaid */
+.mermaid-wrapper {
+  position: relative;
+  margin: 1.5em 0;
+  border: 2px solid var(--altrupets-primary-90);
+  border-radius: 8px;
+  padding: 1em;
+  background-color: var(--altrupets-primary-95);
+  box-shadow: 0 2px 4px rgba(9, 79, 114, 0.1);
+}
+
+/* Botón de pantalla completa */
+.mermaid-fullscreen-btn {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  background-color: var(--altrupets-primary);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  padding: 8px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+  z-index: 10;
+  box-shadow: 0 2px 4px rgba(9, 79, 114, 0.3);
+}
+
+.mermaid-fullscreen-btn:hover {
+  background-color: var(--altrupets-accent);
+  transform: scale(1.1);
+  box-shadow: 0 4px 8px rgba(19, 112, 166, 0.4);
+}
+
+.mermaid-fullscreen-btn:active {
+  transform: scale(0.95);
+}
+
+/* Modal de pantalla completa */
+.mermaid-fullscreen-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(9, 79, 114, 0.95);
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* Contenido del modal */
+.mermaid-fullscreen-content {
+  background-color: var(--md-default-bg-color);
+  border-radius: 12px;
+  width: 95%;
+  height: 95%;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+  animation: slideUp 0.3s ease;
+  border: 2px solid var(--altrupets-primary-60);
+}
+
+@keyframes slideUp {
+  from {
+    transform: translateY(50px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+/* Header del modal */
+.mermaid-fullscreen-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem 1.5rem;
+  border-bottom: 2px solid var(--altrupets-primary-90);
+  background: linear-gradient(135deg, var(--altrupets-primary) 0%, var(--altrupets-primary-40) 100%);
+  border-radius: 12px 12px 0 0;
+  color: white;
+}
+
+.mermaid-fullscreen-header h3 {
+  margin: 0;
+  font-size: 1.2rem;
+  font-family: "Lemon Milk", var(--md-text-font);
+  font-weight: 600;
+  color: white;
+}
+
+/* Botón de cerrar */
+.mermaid-fullscreen-close {
+  background: rgba(255, 255, 255, 0.2);
+  border: none;
+  color: white;
+  cursor: pointer;
+  padding: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 8px;
+  transition: all 0.2s ease;
+}
+
+.mermaid-fullscreen-close:hover {
+  background-color: var(--altrupets-error);
+  transform: scale(1.1);
+}
+
+/* Body del modal */
+.mermaid-fullscreen-body {
+  flex: 1;
+  overflow: auto;
+  padding: 2rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: var(--md-default-bg-color);
+}
+
+.mermaid-fullscreen-body .mermaid {
+  max-width: 100%;
+  max-height: 100%;
+  margin: 0 auto;
+}
+
+/* Footer del modal con controles de zoom */
+.mermaid-fullscreen-footer {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 1rem;
+  border-top: 2px solid var(--altrupets-primary-90);
+  background-color: var(--altrupets-primary-95);
+  border-radius: 0 0 12px 12px;
+}
+
+.mermaid-fullscreen-footer button {
+  background-color: var(--altrupets-primary);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  padding: 8px 12px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 4px rgba(9, 79, 114, 0.2);
+}
+
+.mermaid-fullscreen-footer button:hover {
+  background-color: var(--altrupets-accent);
+  transform: scale(1.05);
+  box-shadow: 0 4px 8px rgba(19, 112, 166, 0.3);
+}
+
+.mermaid-fullscreen-footer button:active {
+  transform: scale(0.95);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .mermaid-fullscreen-content {
+    width: 100%;
+    height: 100%;
+    border-radius: 0;
+  }
+  
+  .mermaid-fullscreen-header,
+  .mermaid-fullscreen-footer {
+    border-radius: 0;
+  }
+  
+  .mermaid-fullscreen-body {
+    padding: 1rem;
+  }
+  
+  .mermaid-fullscreen-btn {
+    padding: 6px;
+  }
+}
+
+/* Dark mode adjustments */
+[data-md-color-scheme="slate"] .mermaid-wrapper {
+  background-color: var(--altrupets-primary-20);
+  border-color: var(--altrupets-primary-30);
+}
+
+[data-md-color-scheme="slate"] .mermaid-fullscreen-modal {
+  background-color: rgba(0, 30, 47, 0.95);
+}
+
+[data-md-color-scheme="slate"] .mermaid-fullscreen-header {
+  background: linear-gradient(135deg, var(--altrupets-primary-30) 0%, var(--altrupets-primary-20) 100%);
+}
+
+[data-md-color-scheme="slate"] .mermaid-fullscreen-footer {
+  background-color: var(--altrupets-primary-20);
+  border-top-color: var(--altrupets-primary-30);
+}
+
+/* ============================================
+   Emoji & Icons
+   ============================================ */
+
+.md-typeset .twemoji {
+  vertical-align: text-bottom;
+}
+
+/* ============================================
+   Animations
+   ============================================ */
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.7;
+  }
+}
+
+.md-nav__link--active::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  width: 3px;
+  height: 100%;
+  background-color: var(--altrupets-secondary);
+  animation: pulse 2s ease-in-out infinite;
+}
+
+/* ============================================
+   Custom Utilities
+   ============================================ */
+
+.text-primary {
+  color: var(--altrupets-primary) !important;
+}
+
+.text-secondary {
+  color: var(--altrupets-secondary) !important;
+}
+
+.text-accent {
+  color: var(--altrupets-accent) !important;
+}
+
+.bg-primary {
+  background-color: var(--altrupets-primary) !important;
+}
+
+.bg-secondary {
+  background-color: var(--altrupets-secondary) !important;
+}
+
+.border-primary {
+  border-color: var(--altrupets-primary) !important;
+}
+
