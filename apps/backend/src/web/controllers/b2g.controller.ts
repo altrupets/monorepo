@@ -16,7 +16,7 @@ export class B2gController {
   @Get()
   @Roles(...CAPTURE_VIEWER_ROLES)
   async index(@Res() res: Response) {
-    // @ts-ignore - inertia is added by nestjs-inertia middleware
+    // @ts-ignore - inertia is added by @lapc506/nestjs-inertia middleware
     return res.inertia.render('B2G/Dashboard', {
       title: 'Panel B2G - Gobierno Local',
     });
@@ -25,7 +25,7 @@ export class B2gController {
   @Get('captures')
   @Roles(...CAPTURE_VIEWER_ROLES)
   async captures(@Res() res: Response) {
-    // @ts-ignore - inertia is added by nestjs-inertia middleware
+    // @ts-ignore - inertia is added by @lapc506/nestjs-inertia middleware
     return res.inertia.render('B2G/Captures/Index', {
       title: 'Solicitudes de Captura',
     });
@@ -34,7 +34,7 @@ export class B2gController {
   @Get('captures/:id')
   @Roles(...CAPTURE_VIEWER_ROLES)
   async captureDetail(@Res() res: Response) {
-    // @ts-ignore - inertia is added by nestjs-inertia middleware
+    // @ts-ignore - inertia is added by @lapc506/nestjs-inertia middleware
     return res.inertia.render('B2G/Captures/Detail', {
       title: 'Detalle de Solicitud',
     });

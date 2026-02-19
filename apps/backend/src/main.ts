@@ -5,7 +5,7 @@ import { NestExpressApplication } from '@nestjs/platform-express';
 import { AppModule } from './app.module';
 import { AuthService } from './auth/auth.service';
 import cookieParser from 'cookie-parser';
-import { inertiaMiddleware } from 'nestjs-inertia';
+import { inertiaMiddleware } from '@lapc506/nestjs-inertia';
 import { join } from 'path';
 
 async function bootstrap() {
