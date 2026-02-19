@@ -1,10 +1,10 @@
-# 🚀 Script de Lanzamiento (launch_debug.sh)
+# 🚀 Comandos de Lanzamiento (make dev-mobile-*)
 
-Guía completa del script automatizado para ejecutar AltruPets Mobile con verificación de backend y configuración automática.
+Guía completa de los comandos automatizados para ejecutar AltruPets Mobile con verificación de backend y configuración automática.
 
 ## Descripción General
 
-`launch_debug.sh` es un script Bash que automatiza el flujo completo de desarrollo de la aplicación móvil, incluyendo:
+Los comandos `make dev-mobile-*` automatizan el flujo completo de desarrollo de la aplicación móvil, invocando el script `apps/mobile/launch_flutter_debug.sh` con las opciones correctas:
 
 - ✅ Verificación automática del backend en Kubernetes
 - 🔄 Recuperación automática de errores comunes
@@ -16,13 +16,17 @@ Guía completa del script automatizado para ejecutar AltruPets Mobile con verifi
 
 ```bash
 # Desde la raíz del monorepo
-./launch_debug.sh [OPCIONES]
+make dev-mobile-launch          # Menú interactivo
+make dev-mobile-launch-desktop  # Linux desktop
+make dev-mobile-launch-emulator # Android emulator
+make dev-mobile-launch-device   # Android device
+make dev-mobile-widgetbook      # Widgetbook UI catalog
 ```
 
 ## Sintaxis
 
 ```bash
-./launch_debug.sh [PLATAFORMA] [OPCIONES_GLOBALES]
+make dev-mobile-<target>
 ```
 
 ## Plataformas Soportadas
@@ -30,8 +34,7 @@ Guía completa del script automatizado para ejecutar AltruPets Mobile con verifi
 ### Desktop (Pruebas Rápidas)
 
 ```bash
-./launch_debug.sh -l
-./launch_debug.sh --linux
+make dev-mobile-launch-desktop
 ```
 
 Lanza la app en el escritorio nativo (Linux/macOS/Windows). Ideal para:
@@ -42,8 +45,7 @@ Lanza la app en el escritorio nativo (Linux/macOS/Windows). Ideal para:
 ### Android Emulator
 
 ```bash
-./launch_debug.sh -e
-./launch_debug.sh --emulator
+make dev-mobile-launch-emulator
 ```
 
 Lanza en el emulador Android activo. Si no hay ninguno activo, intenta lanzar el primero disponible.
@@ -56,8 +58,7 @@ Lanza en el emulador Android activo. Si no hay ninguno activo, intenta lanzar el
 ### Android Device (Físico)
 
 ```bash
-./launch_debug.sh -d
-./launch_debug.sh --device
+make dev-mobile-launch-device
 ```
 
 Lanza en un dispositivo Android físico conectado por USB.
@@ -70,25 +71,32 @@ Lanza en un dispositivo Android físico conectado por USB.
 ### Widgetbook (Catálogo de Widgets)
 
 ```bash
-./launch_debug.sh -w
-./launch_debug.sh --widgetbook
+make dev-mobile-widgetbook
 ```
 
-Abre el catálogo de widgets en Chrome (o desktop si Chrome no está disponible).
+Abre el catálogo de widgets en Linux desktop.
 
 **Características:**
 - Generación automática con `build_runner`
 - Ideal para desarrollo de Design System
 - No requiere backend activo
 
-## Opciones Globales
+## Opciones Avanzadas del Script
+
+Si necesitas opciones avanzadas, puedes invocar el script directamente desde `apps/mobile/`:
+
+```bash
+cd apps/mobile
+./launch_flutter_debug.sh [OPCIONES]
+```
 
 ### --dirty
 
 Salta el paso de `flutter clean` en Android.
 
 ```bash
-./launch_debug.sh -e --dirty
+cd apps/mobile
+./launch_flutter_debug.sh -d --dirty
 ```
 
 **Cuándo usar:**
@@ -106,7 +114,8 @@ Salta el paso de `flutter clean` en Android.
 Desactiva la verificación de readiness del backend en Kubernetes.
 
 ```bash
-./launch_debug.sh -l --no-backend-check
+cd apps/mobile
+./launch_flutter_debug.sh --linux --no-backend-check
 ```
 
 **Cuándo usar:**
@@ -119,7 +128,8 @@ Desactiva la verificación de readiness del backend en Kubernetes.
 Desactiva el build automático de la imagen del backend si hay `ImagePullBackOff`.
 
 ```bash
-./launch_debug.sh -e --no-backend-auto-build
+cd apps/mobile
+./launch_flutter_debug.sh --emulator --no-backend-auto-build
 ```
 
 **Cuándo usar:**
@@ -132,7 +142,8 @@ Desactiva el build automático de la imagen del backend si hay `ImagePullBackOff
 Configura el número de intentos de recuperación del backend (default: 5).
 
 ```bash
-./launch_debug.sh -e --backend-retries 10
+cd apps/mobile
+./launch_flutter_debug.sh --emulator --backend-retries 10
 ```
 
 **Cuándo usar:**
@@ -145,7 +156,8 @@ Configura el número de intentos de recuperación del backend (default: 5).
 Flujo GitOps: build local + refresh/sync de ArgoCD (sin `rollout restart` manual).
 
 ```bash
-./launch_debug.sh -e --backend-redeploy-argo
+cd apps/mobile
+./launch_flutter_debug.sh --emulator --backend-redeploy-argo
 ```
 
 **Cuándo usar:**
@@ -158,7 +170,8 @@ Flujo GitOps: build local + refresh/sync de ArgoCD (sin `rollout restart` manual
 Flujo imperativo: ejecuta `kubectl rollout restart deployment/backend`.
 
 ```bash
-./launch_debug.sh -e --backend-rollout-restart
+cd apps/mobile
+./launch_flutter_debug.sh --emulator --backend-rollout-restart
 ```
 
 **Cuándo usar:**
@@ -171,7 +184,8 @@ Flujo imperativo: ejecuta `kubectl rollout restart deployment/backend`.
 Desactiva la eliminación automática de pods backend en `CrashLoopBackOff`.
 
 ```bash
-./launch_debug.sh -e --no-backend-prune
+cd apps/mobile
+./launch_flutter_debug.sh --emulator --no-backend-prune
 ```
 
 **Cuándo usar:**
@@ -184,7 +198,8 @@ Desactiva la eliminación automática de pods backend en `CrashLoopBackOff`.
 Desactiva la apertura automática de una ventana con logs del backend (solo Linux).
 
 ```bash
-./launch_debug.sh -l --no-backend-logs-window
+cd apps/mobile
+./launch_flutter_debug.sh --linux --no-backend-logs-window
 ```
 
 **Cuándo usar:**
@@ -197,7 +212,7 @@ Desactiva la apertura automática de una ventana con logs del backend (solo Linu
 Desactiva la configuración de `adb reverse` en modo `--device`.
 
 ```bash
-./launch_debug.sh -d --no-adb-reverse
+./launch_flutter_debug.sh -d --no-adb-reverse
 ```
 
 **Cuándo usar:**
@@ -210,7 +225,8 @@ Desactiva la configuración de `adb reverse` en modo `--device`.
 Si ejecutas el script sin argumentos, se muestra un menú interactivo:
 
 ```bash
-./launch_debug.sh
+cd apps/mobile
+./launch_flutter_debug.sh
 
 📱 AltruPets — Selecciona destino:
   1) 🖥️  Linux desktop (prueba rápida)
@@ -296,43 +312,47 @@ flutter run -d <device-id>
 ### Desarrollo Rápido en Desktop
 
 ```bash
-./launch_debug.sh -l
+make dev-mobile-launch-desktop
 ```
 
 ### Android con Build Limpio
 
 ```bash
-./launch_debug.sh -e
+make dev-mobile-launch-emulator
 ```
 
 ### Android Incremental (Rápido)
 
 ```bash
-./launch_debug.sh -d --dirty
+cd apps/mobile
+./launch_flutter_debug.sh -d --dirty
 ```
 
 ### Desarrollo Offline
 
 ```bash
-./launch_debug.sh -l --no-backend-check
+cd apps/mobile
+./launch_flutter_debug.sh --linux --no-backend-check
 ```
 
 ### Con Recuperación Agresiva del Backend
 
 ```bash
-./launch_debug.sh -e --backend-retries 10 --backend-rollout-restart
+cd apps/mobile
+./launch_flutter_debug.sh --emulator --backend-retries 10 --backend-rollout-restart
 ```
 
 ### Debugging del Backend
 
 ```bash
-./launch_debug.sh -l --no-backend-prune --backend-retries 1
+cd apps/mobile
+./launch_flutter_debug.sh --linux --no-backend-prune --backend-retries 1
 ```
 
 ### Widgetbook sin Backend
 
 ```bash
-./launch_debug.sh -w
+make dev-mobile-widgetbook
 # Backend check se salta automáticamente para Widgetbook
 ```
 
@@ -367,7 +387,8 @@ kubectl -n altrupets-dev logs -f deploy/backend
 make dev-backend-build
 
 # O saltar verificación
-./launch_debug.sh -l --no-backend-check
+cd apps/mobile
+./launch_flutter_debug.sh --linux --no-backend-check
 ```
 
 ### "No se detectó dispositivo o emulador Android"
@@ -395,7 +416,7 @@ adb devices
 1. Habilita "Depuración USB" en el dispositivo
 2. Acepta el diálogo de autorización
 3. Verifica: `adb devices`
-4. O usa: `./launch_debug.sh -d --no-adb-reverse`
+4. O usa directamente: `cd apps/mobile && ./launch_flutter_debug.sh -d --no-adb-reverse`
 
 ### "No se pudo abrir terminal adicional para logs"
 
@@ -407,7 +428,8 @@ adb devices
 kubectl -n altrupets-dev logs -f deploy/backend --tail=200
 
 # O desactiva la ventana
-./launch_debug.sh -l --no-backend-logs-window
+cd apps/mobile
+./launch_flutter_debug.sh --linux --no-backend-logs-window
 ```
 
 ### Logs no se guardan
@@ -433,7 +455,7 @@ make dev-backend-build
 make dev-argocd-deploy
 
 # Lanzar app
-./launch_debug.sh -e
+make dev-mobile-launch-emulator
 
 # Si cambias backend
 make dev-backend-build

@@ -19,7 +19,7 @@
         dev-backend-build dev-backend-start \
         dev-superusers-start dev-superusers-stop dev-superusers-deploy dev-superusers-destroy \
         dev-b2g-start dev-b2g-stop dev-b2g-deploy dev-b2g-destroy \
-        dev-superuser-seed \
+        dev-infisical-sync dev-infisical-sync-cli \
         dev-security-scan dev-security-deps dev-security-sast dev-security-secrets \
         dev-security-container dev-security-iac dev-security-fix \
         qa-terraform-deploy qa-terraform-destroy qa-verify \
@@ -60,13 +60,23 @@ help: ## Show this help message
 	@echo "$(BLUE)╚════════════════════════════════════════════════════════════════╝$(NC)"
 	@echo ""
 	@echo "$(GREEN)Quick Start (Full Setup):$(NC)"
-	@echo "  make setup                    $(BLUE)# First time setup$(NC)"
-	@echo "  make dev-minikube-deploy      $(BLUE)# 1. Create minikube cluster$(NC)"
-	@echo "  make dev-gateway-deploy       $(BLUE)# 2. Deploy Gateway API (instala CRDs)$(NC)"
-	@echo "  make dev-backend-build        $(BLUE)# 3. Build backend image$(NC)"
-	@echo "  make dev-superusers-deploy    $(BLUE)# 4. Deploy CRUD Superusers$(NC)"
-	@echo "  make dev-b2g-deploy           $(BLUE)# 5. Deploy B2G$(NC)"
-	@echo "  make dev-gateway-start        $(BLUE)# 6. Start port-forward (localhost:3001)$(NC)"
+	@echo "  $(YELLOW)One-liner:$(NC)"
+	@echo "  make setup && make dev-minikube-deploy && make dev-gateway-deploy && make dev-backend-build && make dev-superusers-deploy && make dev-b2g-deploy && make dev-security-build && make dev-security-scan && make dev-gateway-start"
+	@echo ""
+	@echo "  $(YELLOW)Step by step:$(NC)"
+	@echo "  1. make setup                    $(BLUE)# First time setup$(NC)"
+	@echo "  2. make dev-minikube-deploy      $(BLUE)# Create minikube cluster$(NC)"
+	@echo "  3. make dev-gateway-deploy       $(BLUE)# Deploy Gateway API (instala CRDs)$(NC)"
+	@echo "  4. make dev-backend-build        $(BLUE)# Build backend image$(NC)"
+	@echo "  5. make dev-superusers-deploy    $(BLUE)# Deploy CRUD Superusers$(NC)"
+	@echo "  6. make dev-b2g-deploy           $(BLUE)# Deploy B2G$(NC)"
+	@echo "  7. make dev-security-build       $(BLUE)# Build security scanner$(NC)"
+	@echo "  8. make dev-security-scan        $(BLUE)# Run security scans$(NC)"
+	@echo "  9. make dev-gateway-start        $(BLUE)# Start port-forward (localhost:3001)$(NC)"
+	@echo ""
+	@echo "  $(YELLOW)Después del setup:$(NC)"
+	@echo "  make dev-mobile-launch           $(BLUE)# Launch Flutter app (Android/Desktop)$(NC)"
+	@echo "  # O directamente: cd apps/mobile && ./launch_flutter_debug.sh"
 	@echo ""
 	@echo "$(GREEN)DEV - Minikube:$(NC)"
 	@echo "  $(YELLOW)dev-minikube-deploy$(NC)         Create minikube cluster"
@@ -100,6 +110,13 @@ help: ## Show this help message
 	@echo "  $(YELLOW)dev-backend-test$(NC)            Run unit tests"
 	@echo "  $(YELLOW)dev-backend-test-e2e$(NC)        Run e2e tests (needs DB port-forward)"
 	@echo ""
+	@echo "$(GREEN)DEV - Mobile (Flutter):$(NC)"
+	@echo "  $(YELLOW)dev-mobile-launch$(NC)           Launch Flutter app (interactive menu)"
+	@echo "  $(YELLOW)dev-mobile-launch-desktop$(NC)   Launch on Linux desktop"
+	@echo "  $(YELLOW)dev-mobile-launch-emulator$(NC)  Launch on Android emulator"
+	@echo "  $(YELLOW)dev-mobile-launch-device$(NC)    Launch on Android device"
+	@echo "  $(YELLOW)dev-mobile-widgetbook$(NC)       Launch Widgetbook (UI catalog)"
+	@echo ""
 	@echo "$(GREEN)DEV - Web Apps (managed by ArgoCD, manual fallback):$(NC)"
 	@echo "  $(YELLOW)dev-superusers-start$(NC)        Start CRUD Superusers locally (dev)"
 	@echo "  $(YELLOW)dev-superusers-stop$(NC)         Stop CRUD Superusers"
@@ -112,7 +129,8 @@ help: ## Show this help message
 	@echo "  $(YELLOW)dev-b2g-destroy$(NC)             Remove manually"
 	@echo ""
 	@echo "$(GREEN)DEV - Utilities:$(NC)"
-	@echo "  $(YELLOW)dev-superuser-seed$(NC)          Create SUPER_USER in minikube"
+	@echo "  $(YELLOW)dev-infisical-sync$(NC)         Sync secrets from Infisical"
+	@echo "  $(YELLOW)dev-infisical-sync-cli$(NC)     Sync secrets via CLI (no operator)"
 	@echo ""
 	@echo "$(GREEN)DEV - DevSecOps:$(NC)"
 	@echo "  $(YELLOW)dev-security-scan$(NC)           Run all security scans"
@@ -348,33 +366,44 @@ dev-b2g-destroy: ## Remove B2G from minikube
 # DEV - Utilities
 # ==========================================
 
-dev-superuser-seed: ## Create SUPER_USER in minikube
-	@$(SCRIPTS_DIR)/seed-superuser-minikube.sh
+dev-infisical-sync: ## Sync secrets from Infisical to Kubernetes
+	@$(SCRIPTS_DIR)/infisical-sync.sh
+
+dev-infisical-sync-cli: ## Sync secrets using Infisical CLI (no operator needed)
+	@$(SCRIPTS_DIR)/infisical-sync.sh --cli
 
 # ==========================================
 # DEV - DevSecOps
 # ==========================================
 
-dev-security-scan: ## Run all security scans
-	@bash $(SCRIPTS_DIR)/dev-devsecops-scan.sh all
+dev-security-build: ## Build security scanner image in Minikube
+	@echo "$(BLUE)Building security scanner image in Minikube...$(NC)"
+	@eval $$(minikube docker-env) && \
+		docker build -t altrupets/security-scanner:latest \
+		-f infrastructure/docker/security-scanner/Dockerfile .
+	@echo "$(GREEN)✓ Security scanner image built in Minikube$(NC)"
 
-dev-security-deps: ## Scan dependencies for vulnerabilities
-	@bash $(SCRIPTS_DIR)/dev-devsecops-scan.sh deps
+dev-security-scan: dev-security-build ## Run all security scans (Kubernetes Job in Minikube)
+	@echo "$(BLUE)Running security scans in Minikube...$(NC)"
+	@$(SCRIPTS_DIR)/run-security-scan-minikube.sh all
 
-dev-security-sast: ## Static Application Security Testing
-	@bash $(SCRIPTS_DIR)/dev-devsecops-scan.sh sast
+dev-security-deps: dev-security-build ## Scan dependencies for vulnerabilities
+	@$(SCRIPTS_DIR)/run-security-scan-minikube.sh deps
 
-dev-security-secrets: ## Scan for secrets in code
-	@bash $(SCRIPTS_DIR)/dev-devsecops-scan.sh secrets
+dev-security-sast: dev-security-build ## Static Application Security Testing
+	@$(SCRIPTS_DIR)/run-security-scan-minikube.sh sast
 
-dev-security-container: ## Scan container images
-	@bash $(SCRIPTS_DIR)/dev-devsecops-scan.sh container
+dev-security-secrets: dev-security-build ## Scan for secrets in code
+	@$(SCRIPTS_DIR)/run-security-scan-minikube.sh secrets
 
-dev-security-iac: ## Scan Infrastructure as Code
-	@bash $(SCRIPTS_DIR)/dev-devsecops-scan.sh iac
+dev-security-container: dev-security-build ## Scan container images
+	@$(SCRIPTS_DIR)/run-security-scan-minikube.sh container
 
-dev-security-fix: ## Auto-fix vulnerabilities where possible
-	@bash $(SCRIPTS_DIR)/dev-devsecops-scan.sh fix
+dev-security-iac: dev-security-build ## Scan Infrastructure as Code
+	@$(SCRIPTS_DIR)/run-security-scan-minikube.sh iac
+
+dev-security-fix: dev-security-build ## Auto-fix vulnerabilities where possible
+	@$(SCRIPTS_DIR)/run-security-scan-minikube.sh fix
 
 # ==========================================
 # QA Environment (OVHCloud)
@@ -451,3 +480,23 @@ ci-all-test: ## Run all tests
 	@echo "$(GREEN)✓ Tests passed$(NC)"
 
 .DEFAULT_GOAL := help
+
+
+# ==========================================
+# DEV - Mobile (Flutter)
+# ==========================================
+
+dev-mobile-launch: ## Launch Flutter app (interactive menu)
+	@cd apps/mobile && ./launch_flutter_debug.sh
+
+dev-mobile-launch-desktop: ## Launch Flutter on Linux desktop
+	@cd apps/mobile && ./launch_flutter_debug.sh -l
+
+dev-mobile-launch-emulator: ## Launch Flutter on Android emulator
+	@cd apps/mobile && ./launch_flutter_debug.sh -e
+
+dev-mobile-launch-device: ## Launch Flutter on Android device
+	@cd apps/mobile && ./launch_flutter_debug.sh -d
+
+dev-mobile-widgetbook: ## Launch Widgetbook (UI catalog)
+	@cd apps/mobile && ./launch_flutter_debug.sh -w

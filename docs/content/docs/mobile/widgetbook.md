@@ -51,9 +51,7 @@ Visualización completa del Design System:
 
 ```bash
 # Desde la raíz del monorepo
-./launch_debug.sh -w
-# o
-./launch_debug.sh --widgetbook
+make dev-mobile-widgetbook
 ```
 
 El script automáticamente:
@@ -181,7 +179,7 @@ Esto genera `main.directories.g.dart` que registra automáticamente todos los us
 
 ### 5. QA Visual con Diseñador
 
-1. **Abrir Widgetbook**: `./launch_debug.sh -w`
+1. **Abrir Widgetbook**: `make dev-mobile-widgetbook`
 2. **Navegar al componente** en el árbol de la izquierda
 3. **Probar variaciones** usando los knobs (controles)
 4. **Cambiar tema** (Light/Dark) con el addon de tema

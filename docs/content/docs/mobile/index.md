@@ -169,7 +169,7 @@ flutter run
 | Documento | Descripción |
 |-----------|-------------|
 | [Getting Started](getting-started.md) | Instalación, configuración, flujo de desarrollo |
-| [Launch Script](launch-script.md) | Guía completa del script `launch_debug.sh` |
+| [Launch Script](launch-script.md) | Guía completa de los comandos `make dev-mobile-*` |
 | [Widgetbook (QA UI)](widgetbook.md) | Catálogo de componentes y flujo de QA de diseño |
 | [Arquitectura](architecture.md) | Clean Architecture, Riverpod patterns, manejo de errores |
 | [Features](features.md) | Detalle de cada funcionalidad |

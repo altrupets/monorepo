@@ -87,10 +87,36 @@ module "gateway_api" {
   gateway_name          = "dev-gateway"
   deploy_example_routes = false
 
+  # TLS/HTTPS Configuration (requires cert-manager module)
+  enable_https                 = false  # Set to true after cert-manager is deployed
+  tls_certificate_secret_name  = "altrupets-app-tls"
+  tls_certificate_namespace    = "altrupets-dev"
+  https_nodeport_port          = 30443
+
   # Helm Configuration (used if deployment_method is "helm" or "helm-kustomize")
   helm_release_name = "gateway-api-dev"
   helm_values       = {}
 }
+
+# ============================================
+# Cert-Manager Module (disabled by default)
+# ============================================
+# Uncomment this module to enable TLS/HTTPS
+#
+# module "cert_manager" {
+#   source = "../../modules/kubernetes/cert-manager"
+#
+#   environment           = "dev"
+#   namespace             = "altrupets-dev"
+#   domain_name           = "altrupets.app"
+#   include_apex_domain   = true
+#   acme_email            = "altrupets.workspace@gmail.com"
+#   cloudflare_api_token  = var.cloudflare_api_token
+#   cert_manager_version  = "v1.14.0"
+# }
+#
+# After enabling cert-manager, update gateway_api module:
+# enable_https = true
 
 output "postgres_service_endpoint" {
   description = "PostgreSQL service endpoint for backend connection"

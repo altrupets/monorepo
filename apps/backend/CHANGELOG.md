@@ -9,6 +9,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 - Initial stable release of AltruPets Backend
+- **Security Scanner** - Dedicated Docker image for DevSecOps scanning
+  - Separate container with Trivy, Checkov, tfsec, Trufflehog
+  - Runs as Kubernetes Jobs/CronJobs
+  - See `infrastructure/docker/security-scanner/CHANGELOG.md` for details
 - GraphQL API with Apollo Server 5.x
 - REST API endpoints for admin and B2G panels
 - JWT authentication with passport-jwt
@@ -45,6 +49,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Kubernetes deployments for backend, web-superusers, web-b2g
 - PostgreSQL StatefulSet
 - Gateway API with HTTPRoutes
+- **cert-manager** module for Let's Encrypt TLS certificates
+  - DNS-01 challenge via Cloudflare
+  - Staging and Production ClusterIssuers
+  - Terraform module at `infrastructure/terraform/modules/kubernetes/cert-manager`
+- **Infisical** integration for secrets management
+  - CLI sync script at `infrastructure/scripts/infisical-sync.sh`
+  - Removed legacy `seed-superuser-minikube.sh` script
+- **TLS/HTTPS** support in Gateway API module
+  - Configurable HTTPS listener
+  - NodePort service for both HTTP and HTTPS
 
 ### Known Issues
 - `@types/express` v5.x may have incomplete type definitions for some Express 5 features
@@ -127,11 +141,40 @@ make dev-backend-test-e2e
 - [x] Security audit: `npm audit` (0 vulnerabilities)
 - [x] Unit tests passing (1/1)
 - [x] E2E tests passing (1/1)
-- [ ] Verify all GraphQL queries/mutations
-- [ ] Test authentication flow end-to-end
-- [ ] Review database migration scripts
-- [ ] Update API documentation
+- [x] Verify all GraphQL queries/mutations
+- [x] Test authentication flow end-to-end
+- [x] Review database migration scripts (3 migrations, all with up/down)
+- [x] Update API documentation (`apps/backend/API.md`)
+- [x] Infisical secrets sync (`infrastructure/scripts/infisical-sync.sh`)
+- [x] cert-manager Terraform module
+- [x] Gateway API TLS/HTTPS support
 - [ ] Create release tag
+
+---
+
+## Infrastructure as Code
+
+### Terraform Modules
+
+| Module | Path | Description |
+|--------|------|-------------|
+| cert-manager | `infrastructure/terraform/modules/kubernetes/cert-manager` | Let's Encrypt TLS certificates |
+| gateway-api | `infrastructure/terraform/modules/kubernetes/gateway-api` | NGINX Gateway Fabric with HTTPS support |
+| postgres-minikube | `infrastructure/terraform/modules/database/postgres-minikube` | PostgreSQL StatefulSet |
+
+### K8s Manifests
+
+| File | Description |
+|------|-------------|
+| `infrastructure/k8s/cert-manager/cluster-issuer.yaml` | Let's Encrypt staging + prod issuers |
+| `infrastructure/k8s/cert-manager/certificate.yaml` | Certificate for `*.altrupets.app` |
+
+### Scripts
+
+| Script | Description |
+|--------|-------------|
+| `infrastructure/scripts/infisical-sync.sh` | Sync secrets from Infisical to Kubernetes |
+| `infrastructure/scripts/infisical-sync.sh --cli` | Sync using CLI (no operator required) |
 
 ---
 

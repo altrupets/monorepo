@@ -1351,14 +1351,25 @@ flutter_app:
 
 ```yaml
 microservices:
-  runtime: "Node.js 18 LTS"
-  framework: "NestJS + TypeScript"
+  runtime: "Node.js 20 LTS"
+  framework: "NestJS 11 + TypeScript"
+  api:
+    graphql: "Apollo Server 5.x"
+    rest: "Express 5.2.1"
+  
   databases:
     - "PostgreSQL 15 (Multi-AZ para críticos)"
     - "PostGIS (Geolocation Service)"
     - "MongoDB (Notification Service)"
     - "Redis (Distributed Cache)"
     - "ClickHouse (Analytics)"
+
+  auth:
+    jwt: "passport-jwt"
+    hashing: "bcrypt (12 rounds)"
+    
+  frontend_integration:
+    inertia: "@lapc506/nestjs-inertia@1.0.0"
 
   cost_optimizations:
     - "Graviton2 processors"
@@ -1368,6 +1379,39 @@ microservices:
     - "Database right-sizing"
 ```
 
+#### Backend API v1.0.0
+
+| Endpoint | Method | Description |
+|----------|--------|-------------|
+| `/graphql` | POST | GraphQL API endpoint |
+| `/health` | GET | Health check endpoint |
+| `/admin/*` | GET | Admin panel (Inertia) |
+| `/b2g/*` | GET | B2G panel (Inertia) |
+| `/login` | GET/POST | Web login |
+| `/logout` | POST | Web logout |
+
+**GraphQL Operations:**
+
+| Type | Operation | Auth |
+|------|-----------|------|
+| Query | `users`, `user(id)`, `currentUser`, `profile` | JWT |
+| Query | `searchOrganizations`, `getCaptureRequests` | Varies |
+| Mutation | `register`, `login` | Public |
+| Mutation | `createUser`, `updateUser`, `deleteUser` | Admin |
+| Mutation | `updateUserProfile`, `createCaptureRequest` | JWT |
+
+**Key Dependencies:**
+
+| Package | Version |
+|---------|---------|
+| @nestjs/common | ^11.0.1 |
+| express | ^5.2.1 |
+| @lapc506/nestjs-inertia | ^1.0.0 |
+| @apollo/server | ^5.2.0 |
+| typeorm | ^0.3.19 |
+
+> See [`apps/backend/API.md`](apps/backend/API.md) for full API documentation.
+
 ### Infraestructura Cloud-Native
 
 ```yaml
@@ -1375,6 +1419,10 @@ infrastructure:
   orchestration: "Kubernetes 1.28+"
   service_mesh: "Istio"
   api_gateway: "NGINX Gateway Fabric + Istio"
+  tls:
+    provider: "cert-manager"
+    issuer: "Let's Encrypt"
+    challenge: "DNS-01 (Cloudflare)"
   monitoring: "Prometheus + Grafana"
   logging: "ELK Stack"
   tracing: "Jaeger"
@@ -1391,6 +1439,33 @@ infrastructure:
     - "Resource Quotas"
     - "Network Policies"
 ```
+
+#### TLS/HTTPS Configuration
+
+```yaml
+tls_configuration:
+  cert_manager:
+    version: "v1.14.0"
+    install: "Helm chart from charts.jetstack.io"
+    
+  lets_encrypt:
+    staging: "https://acme-staging-v02.api.letsencrypt.org/directory"
+    production: "https://acme-v02.api.letsencrypt.org/directory"
+    
+  dns_challenge:
+    provider: "Cloudflare"
+    required_variables:
+      - "CLOUDFLARE_API_TOKEN"
+      - "CLOUDFLARE_ZONE_ID"
+      
+  certificates:
+    domains:
+      - "altrupets.app"
+      - "*.altrupets.app"
+    secret_name: "altrupets-app-tls"
+```
+
+> See [`infrastructure/terraform/modules/kubernetes/cert-manager/`](infrastructure/terraform/modules/kubernetes/cert-manager/) for Terraform module.
 
 ## 🚀 Despliegue y Operaciones
 
@@ -1939,6 +2014,32 @@ make dev                  # Deploy con make (recomendado)
 - **Waste Reduction**: Auto-shutdown de recursos no utilizados
 
 ## 📋 Changelog
+
+### [2025-02-19] - Backend v1.0.0 + TLS/HTTPS
+
+#### ✨ Nuevas Características
+- **Backend v1.0.0**: API estable con Express 5.2.1 y NestJS 11
+- **TLS/HTTPS**: Let's Encrypt con DNS-01 challenge via Cloudflare
+- **cert-manager**: Módulo Terraform para gestión automática de certificados
+- **Infisical Sync**: Script para sincronizar secrets desde Infisical CLI
+
+#### 🔄 Cambios Importantes
+- **Express 5.x**: Migración desde Express 4.x (restaurado `app.router`)
+- **@lapc506/nestjs-inertia**: Fork propio con fixes para NestJS 11 + Express 5
+  - Publicado en: https://www.npmjs.com/package/@lapc506/nestjs-inertia
+  - Fix: entrypoint `dist/src/index.js` (original tenía `dist/index.js`)
+  - Fix: peer dependencies para NestJS 11.x
+
+#### 🏗️ Infraestructura
+- Módulo Terraform `cert-manager` para Let's Encrypt
+- Gateway API con soporte HTTPS (variable `enable_https`)
+- ClusterIssuers para staging y producción
+
+#### 🔧 Scripts
+- `infisical-sync.sh`: Sincroniza secrets desde Infisical a Kubernetes
+- `infisical-sync.sh --cli`: Modo CLI (sin operator)
+
+Ver detalles en [`apps/backend/CHANGELOG.md`](apps/backend/CHANGELOG.md)
 
 ### [2025-02-16] - Infraestructura Gateway API v1.0.0
 

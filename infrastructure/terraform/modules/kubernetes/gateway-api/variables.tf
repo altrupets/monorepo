@@ -213,3 +213,31 @@ variable "preserve_crds_on_destroy" {
   type        = bool
   default     = true
 }
+
+# ============================================
+# TLS/HTTPS Configuration
+# ============================================
+
+variable "enable_https" {
+  description = "Enable HTTPS listener on the Gateway"
+  type        = bool
+  default     = false
+}
+
+variable "tls_certificate_secret_name" {
+  description = "Name of the Kubernetes secret containing the TLS certificate"
+  type        = string
+  default     = ""
+}
+
+variable "tls_certificate_namespace" {
+  description = "Namespace of the TLS certificate secret (defaults to var.namespace)"
+  type        = string
+  default     = ""
+}
+
+variable "https_nodeport_port" {
+  description = "NodePort port for HTTPS access (30000-32767)"
+  type        = number
+  default     = 30443
+}

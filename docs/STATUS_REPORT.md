@@ -527,7 +527,7 @@ Ver **PLAN_DE_ACCION.md** para roadmap detallado.
 - **Scripts:**
   - `Makefile` - Comandos de automatización
   - `infrastructure/scripts/` - Scripts de deploy
-  - `launch_debug.sh` - Launcher de Flutter
+  - `apps/mobile/launch_flutter_debug.sh` - Launcher de Flutter
 
 ---
 

@@ -51,7 +51,7 @@
   - `infrastructure/terraform/environments/dev/variables.tf`
   - `infrastructure/terraform/environments/dev/terraform.tfvars.example`
   - `infrastructure/terraform/README.md`
-  - `launch_debug.sh`
+  - `apps/mobile/launch_flutter_debug.sh`
 
 ### Removed
 
@@ -61,7 +61,7 @@
 - Removed `postgres-dev-secret` references from:
   - `infrastructure/infisical/infisical-secrets.yaml`
   - `infrastructure/scripts/dev-validate.sh`
-  - `launch_debug.sh`
+  - `apps/mobile/launch_flutter_debug.sh`
 
 ### Fixed
 
@@ -75,7 +75,7 @@
 #### Script Updates
 - Updated `setup-argocd-dev.sh` to read secrets from Infisical-managed `backend-secret`
 - Updated `dev-validate.sh` to skip secret sync when Infisical is managing secrets
-- Simplified `launch_debug.sh` secret synchronization logic
+- Simplified `apps/mobile/launch_flutter_debug.sh` secret synchronization logic
 
 ### Configuration Files
 
@@ -92,7 +92,7 @@
 - `infrastructure/scripts/setup-argocd-dev.sh` - Infisical integration
 - `infrastructure/scripts/dev-validate.sh` - Infisical detection
 - `k8s/base/backend/configmap.yaml` - Updated DB_HOST
-- `launch_debug.sh` - Simplified secret handling
+- `apps/mobile/launch_flutter_debug.sh` - Simplified secret handling
 
 ### Breaking Changes
 
