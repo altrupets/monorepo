@@ -7,11 +7,11 @@ repos:
     hooks:
       - id: mermaid-syntax
         name: Validate Mermaid diagrams
-        entry: bash scripts/validate-mermaid.sh
-        language: script
+        entry: /usr/bin/bash
+        args: ["scripts/validate-mermaid.sh"]
+        language: system
         types: [markdown]
         pass_filenames: false
-        stages: [pre-commit, pre-push]
 
   # Check for large files
   - repo: https://github.com/pre-commit/pre-commit-hooks
