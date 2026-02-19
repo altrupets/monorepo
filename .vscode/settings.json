@@ -1,4 +1,24 @@
 {
     "java.compile.nullAnalysis.mode": "automatic",
-    "kiroAgent.configureMCP": "Enabled"
+    "kiroAgent.configureMCP": "Enabled",
+    "yaml.schemas": {
+        "kubernetes": "k8s/**/*.yaml"
+    },
+    "yaml.validate": false,
+    "yaml.style": {
+        "schema": null
+    },
+    "files.associations": {
+        "**/mkdocs.yml": "yaml",
+        "**/.pre-commit-config.yaml": "yaml"
+    },
+    "redhat.telemetry.enabled": false,
+    "[yaml]": {
+        "editor.formatOnSave": false,
+        "editor.quickSuggestions": {
+            "other": false,
+            "comments": false,
+            "strings": false
+        }
+    }
 }
