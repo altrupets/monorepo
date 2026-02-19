@@ -295,18 +295,12 @@
   background-color: var(--altrupets-primary);
   background: linear-gradient(135deg, var(--altrupets-primary) 0%, var(--altrupets-primary-40) 100%);
   box-shadow: 0 2px 8px rgba(9, 79, 114, 0.2);
-  color: #ffffff !important;
 }
 
 .md-header__title {
   font-family: "Lemon Milk", var(--md-text-font);
   font-weight: 600;
   letter-spacing: 0.5px;
-  color: #ffffff !important;
-}
-
-.md-header__topic {
-  color: #ffffff !important;
 }
 
 .md-tabs {
