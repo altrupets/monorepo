@@ -2,9 +2,74 @@
 
 Documentación detallada de cada feature de la aplicación AltruPets Mobile.
 
+## Mapa de Features
+
+```mermaid
+graph TB
+    Auth[🔐 Auth<br/>Login/Registro]
+    Home[🏠 Home<br/>Dashboard]
+    Profile[👤 Profile<br/>Perfil Usuario]
+    Orgs[🏢 Organizations<br/>Organizaciones]
+    Rescues[🐾 Rescues<br/>Rescates]
+    Settings[⚙️ Settings<br/>Configuración]
+    Onboarding[📝 Onboarding<br/>Registro Inicial]
+    
+    Auth --> Home
+    Onboarding --> Home
+    Home --> Profile
+    Home --> Orgs
+    Home --> Rescues
+    Home --> Settings
+    
+    Profile -.->|usa| Auth
+    Orgs -.->|usa| Auth
+    Rescues -.->|usa| Auth
+    
+    style Auth fill:#e1f5ff
+    style Home fill:#fff4e1
+    style Profile fill:#f0e1ff
+    style Orgs fill:#e1ffe1
+    style Rescues fill:#ffe1e1
+    style Settings fill:#f5f5f5
+    style Onboarding fill:#ffe1f5
+```
+
 ## Estructura de un Feature
 
 Cada feature sigue la estructura de Clean Architecture:
+
+```mermaid
+graph TB
+    subgraph Feature["Feature Module"]
+        subgraph Domain["domain/"]
+            Entities["entities/<br/>Freezed models"]
+            RepoInt["repositories/<br/>Interfaces"]
+        end
+        
+        subgraph Data["data/"]
+            Models["models/<br/>DTOs"]
+            RepoImpl["repositories/<br/>Implementations"]
+        end
+        
+        subgraph Presentation["presentation/"]
+            Pages["pages/<br/>Screens"]
+            Providers["providers/<br/>StateNotifiers"]
+            Widgets["widgets/<br/>UI Components"]
+        end
+    end
+    
+    Pages --> Providers
+    Providers --> RepoInt
+    RepoImpl -.->|implements| RepoInt
+    RepoImpl --> Models
+    Models -.->|toEntity| Entities
+    
+    style Domain fill:#e1f5ff
+    style Data fill:#fff4e1
+    style Presentation fill:#f0e1ff
+```
+
+Estructura de carpetas:
 
 ```
 features/<feature_name>/
@@ -261,6 +326,41 @@ features/profile/
 
 ### Sincronización Offline
 
+El sistema de sincronización offline permite que los cambios se guarden localmente y se sincronicen cuando hay conexión.
+
+```mermaid
+sequenceDiagram
+    participant UI as Edit Profile Page
+    participant P as ProfileProvider
+    participant R as ProfileRepository
+    participant Q as SyncQueue
+    participant C as Cache
+    participant API as GraphQL API
+    
+    UI->>P: updateProfile(data)
+    P->>C: Save to cache
+    C-->>P: Cached
+    
+    alt Online
+        P->>API: Mutation
+        API-->>P: Success
+        P->>C: Update cache
+    else Offline
+        P->>Q: Add to queue
+        Q-->>P: Queued
+        Note over Q: Espera conexión
+    end
+    
+    P-->>UI: Update UI
+    
+    Note over Q,API: Cuando hay conexión
+    Q->>API: Sync pending changes
+    API-->>Q: Success
+    Q->>C: Update cache
+```
+
+Uso en código:
+
 ```dart
 // Ver estado de sincronización
 final syncStatus = ref.watch(syncStatusProvider);
@@ -312,6 +412,38 @@ features/rescues/
 
 ### Geolocalización
 
+El sistema de geolocalización permite ubicar rescates con precisión.
+
+```mermaid
+sequenceDiagram
+    participant UI as Create Rescue Page
+    participant GP as GeolocationProvider
+    participant GS as GeolocationService
+    participant Perm as Permissions
+    participant GPS as GPS Device
+    
+    UI->>GP: getCurrentPosition()
+    GP->>Perm: Check permissions
+    
+    alt Permissions granted
+        Perm-->>GP: Granted
+        GP->>GS: getPosition()
+        GS->>GPS: Request location
+        GPS-->>GS: Position(lat, lng)
+        GS-->>GP: Position
+        GP-->>UI: Position
+    else Permissions denied
+        Perm-->>GP: Denied
+        GP->>UI: Request permissions
+        UI->>Perm: requestPermissions()
+        Perm-->>UI: Result
+    end
+    
+    UI->>UI: Show map with marker
+```
+
+Uso en código:
+
 ```dart
 // Obtener ubicación actual
 final position = await ref.read(geolocationProvider.notifier).getCurrentPosition();
@@ -351,6 +483,29 @@ features/settings/
 
 ### Cambiar Tema
 
+El sistema de temas permite cambiar entre modo claro, oscuro o seguir el sistema.
+
+```mermaid
+sequenceDiagram
+    participant UI as Settings Page
+    participant TP as ThemeProvider
+    participant TN as ThemeNotifier
+    participant Prefs as SharedPreferences
+    participant App as MaterialApp
+    
+    UI->>TP: Read current theme
+    TP-->>UI: ThemeMode.dark
+    
+    UI->>TN: setThemeMode(light)
+    TN->>Prefs: Save preference
+    Prefs-->>TN: Saved
+    TN->>TP: Update state
+    TP->>App: Rebuild with new theme
+    App-->>UI: UI updates
+```
+
+Uso en código:
+
 ```dart
 // Leer tema actual
 final themeMode = ref.watch(themeModeProvider);
@@ -372,6 +527,23 @@ Flujo de registro paso a paso para nuevos usuarios.
 - **Información básica**: Nombre, email, teléfono
 - **Ubicación**: País, provincia, cantón, distrito
 - **Verificación**: Email o teléfono
+
+### Flujo de Onboarding
+
+```mermaid
+stateDiagram-v2
+    [*] --> RoleSelection: Iniciar
+    RoleSelection --> PersonalInfo: Seleccionar rol
+    PersonalInfo --> Location: Completar info
+    Location --> Verification: Seleccionar ubicación
+    Verification --> Complete: Verificar
+    Complete --> [*]: Registro exitoso
+    
+    RoleSelection --> RoleSelection: Cambiar rol
+    PersonalInfo --> RoleSelection: Volver
+    Location --> PersonalInfo: Volver
+    Verification --> Location: Volver
+```
 
 ### Estructura
 
