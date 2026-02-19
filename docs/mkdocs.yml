@@ -160,6 +160,7 @@ nav:
     - Testing: docs/development/testing.md
   - 🚀 Despliegue:
     - Kubernetes: docs/deployment/kubernetes.md
+    - Harbor Registry: docs/deployment/harbor.md
     - CI/CD: docs/deployment/cicd.md
     - Secrets (Infisical): docs/deployment/secrets.md
     - TLS/HTTPS: docs/deployment/tls.md

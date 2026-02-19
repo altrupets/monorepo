@@ -4,6 +4,26 @@
 
 ### Added
 
+#### Harbor Registry (Local)
+- **Harbor deployment via Helm**: Registry privado para DEV
+  - `dev-harbor-deploy`: Despliega Harbor en Minikube (NodePort 30003)
+  - `dev-harbor-destroy`: Elimina Harbor
+- **Características incluidas**:
+  - Docker Registry privado
+  - Helm Chart repository
+  - Trivy vulnerability scanning
+  - RBAC integrado
+- **Script de instalación**: `infrastructure/scripts/setup-harbor.sh`
+- **Documentación**: `docs/content/docs/deployment/harbor.md`
+
+#### ArgoCD GitOps Improvements
+- **Nuevos targets para GitOps**:
+  - `dev-argocd-push-and-deploy`: Push automático + deploy (recomendado)
+  - `dev-argocd-sync-local`: Sync desde filesystem local (fallback, auto-instala ArgoCD)
+  - `dev-argocd-setup-local-repo`: Configurar file:// repo (emergencia)
+- **ArgoCD CLI auto-instalación**: `infrastructure/scripts/install-argocd-cli.sh`
+- **Local repo setup**: `infrastructure/scripts/setup-argocd-local-repo.sh`
+
 #### MCP Server Management
 - **Makefile targets** para gestión de MCP servers:
   - `dev-mcp-start`: Inicia todos los MCP servers (context7, dart, graphql, mobile, stitch)
@@ -31,6 +51,9 @@
 
 #### Gateway Port-forward
 - **Servicio correcto**: `dev-gateway-start` ahora apunta a `altrupets-dev/dev-gateway-nginx` (antes `nginx-gateway/gateway-nodeport`)
+
+#### Flutter Lint
+- **avoid_print**: Cambiado `print()` por `debugPrint()` en error_interceptor.dart
 
 ### Changed
 
@@ -115,11 +138,15 @@ k8s/
 
 | Archivo | Cambio |
 |---------|--------|
-| `Makefile` | Targets `-tf-deploy` usan overlays, nuevos targets `dev-mcp-*` |
+| `Makefile` | Targets `-tf-deploy` usan overlays, `dev-argocd-*`, `dev-harbor-*`, `dev-mcp-*` |
 | `k8s/argocd/applications/*.yaml` | repoURL corregido a `altrupets/monorepo` |
 | `infrastructure/terraform/modules/kubernetes/gateway-api/main.tf` | Migrado a template JSON |
 | `infrastructure/terraform/modules/kubernetes/gateway-api/templates/gateway.json.tpl` | Nuevo template |
+| `infrastructure/scripts/setup-harbor.sh` | Instalar Harbor via Helm |
+| `infrastructure/scripts/install-argocd-cli.sh` | Instalar ArgoCD CLI |
+| `infrastructure/scripts/setup-argocd-local-repo.sh` | Configurar file:// repo |
 | `infrastructure/scripts/deploy-gateway-api.sh` | Soporte para dev y force-recreate |
+| `docs/content/docs/deployment/harbor.md` | Documentación de Harbor |
 | `mcp.json` | Configuración de MCP servers |
 
 ### Deployment Flows
@@ -131,10 +158,17 @@ make dev-images-build && make dev-backend-tf-deploy && \
 make dev-superusers-tf-deploy && make dev-b2g-tf-deploy && make dev-gateway-start
 ```
 
-#### GitOps (con ArgoCD)
+#### GitOps (push automático)
 ```bash
 make setup && make dev-minikube-deploy && make dev-terraform-deploy && \
-make dev-images-build && make dev-argocd-deploy && make dev-gateway-start
+make dev-images-build && make dev-argocd-push-and-deploy && make dev-gateway-start
+```
+
+#### Con Harbor Registry
+```bash
+make setup && make dev-minikube-deploy && make dev-terraform-deploy && \
+make dev-harbor-deploy && make dev-images-build && \
+make dev-argocd-push-and-deploy && make dev-gateway-start
 ```
 
 ### References
@@ -143,3 +177,5 @@ make dev-images-build && make dev-argocd-deploy && make dev-gateway-start
 - [Context7 MCP](https://github.com/upstash/context7-mcp)
 - [Terraform templatefile function](https://developer.hashicorp.com/terraform/language/functions/templatefile)
 - [Kustomize Overlays](https://kubectl.docs.kubernetes.io/guides/introduction/kustomize/)
+- [Harbor Registry](https://goharbor.io/)
+- [ArgoCD GitOps](https://argo-cd.readthedocs.io/)
