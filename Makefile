@@ -1,6 +1,6 @@
 # Altrupets Monorepo - Automation Makefile
 # ==========================================
-# 
+#
 # Naming Convention: env-recurso-verbo
 # Examples:
 #   make dev-terraform-deploy    # Deploy terraform resources in dev
@@ -201,8 +201,8 @@ setup: ## Setup local development environment
 	@command -v tofu >/dev/null 2>&1 || echo "$(YELLOW)⚠ tofu not found$(NC)"
 	@command -v minikube >/dev/null 2>&1 || echo "$(YELLOW)⚠ minikube not found$(NC)"
 	@echo "$(BLUE)Setting up pre-commit hooks...$(NC)"
-	@pip install pre-commit -q 2>/dev/null || true
-	@pre-commit install 2>/dev/null || true
+	@python3 -m pip install pre-commit -q 2>/dev/null || pip3 install pre-commit -q 2>/dev/null || echo "$(YELLOW)⚠ Could not install pre-commit, run manually: pip3 install pre-commit$(NC)"
+	@pre-commit install 2>/dev/null || echo "$(YELLOW)⚠ Could not install git hooks$(NC)"
 	@pre-commit install --hook-type pre-push 2>/dev/null || true
 	@echo "$(GREEN)✓ Pre-commit hooks installed$(NC)"
 	@echo "$(GREEN)✓ Setup complete$(NC)"
