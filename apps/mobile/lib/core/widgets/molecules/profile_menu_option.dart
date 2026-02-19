@@ -27,7 +27,9 @@ class ProfileMenuOption extends StatelessWidget {
           color: isDark ? const Color(0xFF1E1E1E) : Colors.white,
           borderRadius: BorderRadius.circular(20),
           border: Border.all(
-            color: isDark ? Colors.white.withValues(alpha: 0.05) : Colors.grey.shade100,
+            color: isDark
+                ? Colors.white.withValues(alpha: 0.05)
+                : Colors.grey.shade100,
           ),
           boxShadow: [
             if (!isDark)
@@ -48,11 +50,7 @@ class ProfileMenuOption extends StatelessWidget {
                 color: iconColor.withValues(alpha: 0.1),
                 shape: BoxShape.circle,
               ),
-              child: Icon(
-                icon,
-                color: iconColor,
-                size: 28,
-              ),
+              child: Icon(icon, color: iconColor, size: 28),
             ),
             const SizedBox(height: 12),
             Text(
@@ -68,7 +66,8 @@ class ProfileMenuOption extends StatelessWidget {
     );
   }
 }
+
 extension on Container {
-  // Simple helper to match the web 'size' property if needed, 
+  // Simple helper to match the web 'size' property if needed,
   // but Flutter uses width/height.
 }

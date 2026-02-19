@@ -25,31 +25,30 @@ class AppInputCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    
+
     return TextFormField(
       controller: controller,
       initialValue: controller == null ? initialValue : null,
       enabled: enabled,
-      readOnly: isDropdown, // To prevent typing if it's strictly a dropdown trigger
+      readOnly:
+          isDropdown, // To prevent typing if it's strictly a dropdown trigger
       onTap: onTap,
       keyboardType: keyboardType,
       style: theme.textTheme.bodyMedium?.copyWith(
         fontWeight: FontWeight.w500,
-        color: enabled ? theme.colorScheme.onSurface : theme.colorScheme.onSurface.withValues(alpha: 0.38),
+        color: enabled
+            ? theme.colorScheme.onSurface
+            : theme.colorScheme.onSurface.withValues(alpha: 0.38),
       ),
       decoration: InputDecoration(
         labelText: label,
         hintText: hint,
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-        ),
+        border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
-          borderSide: BorderSide(
-            color: theme.colorScheme.outline,
-          ),
+          borderSide: BorderSide(color: theme.colorScheme.outline),
         ),
-        suffixIcon: isDropdown 
+        suffixIcon: isDropdown
             ? Icon(
                 Icons.keyboard_arrow_down_rounded,
                 color: theme.colorScheme.onSurfaceVariant,

@@ -24,9 +24,9 @@ class SettingsPage extends ConsumerWidget {
               ),
             ),
             const SizedBox(height: 20),
-            Card(
+            const Card(
               child: Column(
-                children: const [
+                children: [
                   ListTile(
                     leading: Icon(Icons.person_outline_rounded),
                     title: Text('Cuenta'),
@@ -50,10 +50,9 @@ class SettingsPage extends ConsumerWidget {
                   if (!context.mounted) {
                     return;
                   }
-                  ref.read(navigationProvider).navigateAndRemoveAll(
-                        context,
-                        const LoginPage(),
-                      );
+                  ref
+                      .read(navigationProvider)
+                      .navigateAndRemoveAll(context, const LoginPage());
                 },
                 icon: const Icon(Icons.logout_rounded),
                 label: const Text('Cerrar Sesión'),

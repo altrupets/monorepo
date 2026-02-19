@@ -7,7 +7,6 @@ import 'package:altrupets/core/theme/app_typography.dart';
 class AppTheme {
   AppTheme._();
 
-
   /// Tema claro
   static ThemeData lightTheme() {
     return ThemeData(
@@ -24,7 +23,7 @@ class AppTheme {
         error: AppColors.error,
         surface: AppColors.surface,
       ),
-      
+
       // Motion - Global Transitions
       pageTransitionsTheme: PageTransitionsTheme(
         builders: {

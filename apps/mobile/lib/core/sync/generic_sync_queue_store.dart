@@ -8,6 +8,17 @@ enum SyncEntityType { profile, organization, rescue, donation }
 
 /// Item genérico para la cola de sincronización
 class GenericSyncQueueItem {
+  factory GenericSyncQueueItem.fromMap(Map<String, dynamic> map) {
+    return GenericSyncQueueItem(
+      id: map['id'] as int,
+      entityType: map['entity_type'] as String,
+      entityId: map['entity_id'] as String,
+      operation: map['operation'] as String,
+      payload: jsonDecode(map['payload'] as String) as Map<String, dynamic>,
+      createdAtEpochMs: map['created_at_epoch_ms'] as int,
+      retryCount: map['retry_count'] as int? ?? 0,
+    );
+  }
   const GenericSyncQueueItem({
     required this.id,
     required this.entityType,
@@ -36,18 +47,6 @@ class GenericSyncQueueItem {
       'created_at_epoch_ms': createdAtEpochMs,
       'retry_count': retryCount,
     };
-  }
-
-  factory GenericSyncQueueItem.fromMap(Map<String, dynamic> map) {
-    return GenericSyncQueueItem(
-      id: map['id'] as int,
-      entityType: map['entity_type'] as String,
-      entityId: map['entity_id'] as String,
-      operation: map['operation'] as String,
-      payload: jsonDecode(map['payload'] as String) as Map<String, dynamic>,
-      createdAtEpochMs: map['created_at_epoch_ms'] as int,
-      retryCount: map['retry_count'] as int? ?? 0,
-    );
   }
 }
 

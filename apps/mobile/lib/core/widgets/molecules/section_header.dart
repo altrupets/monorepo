@@ -20,10 +20,10 @@ class SectionHeader extends StatelessWidget {
         Text(
           title,
           style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                fontWeight: FontWeight.bold,
-                letterSpacing: 1.5,
-                color: color,
-              ),
+            fontWeight: FontWeight.bold,
+            letterSpacing: 1.5,
+            color: color,
+          ),
         ),
       ],
     );

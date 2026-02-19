@@ -82,8 +82,6 @@ class MainNavigationBar extends StatelessWidget {
   }
 
   Widget _buildCenterHome(BuildContext context) {
-    return HomeNavigationButton(
-      onTap: () => onTap(2),
-    );
+    return HomeNavigationButton(onTap: () => onTap(2));
   }
 }

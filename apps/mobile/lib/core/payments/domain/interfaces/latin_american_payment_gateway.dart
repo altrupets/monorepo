@@ -1,10 +1,10 @@
-import '../entities/card_token.dart';
-import '../entities/payment_gateway_configuration.dart';
-import '../entities/payment_result.dart';
-import '../entities/refund_result.dart';
-import '../enums/country.dart';
-import '../enums/currency.dart';
-import '../enums/payment_method_type.dart';
+import 'package:altrupets/core/payments/domain/entities/card_token.dart';
+import 'package:altrupets/core/payments/domain/entities/payment_gateway_configuration.dart';
+import 'package:altrupets/core/payments/domain/entities/payment_result.dart';
+import 'package:altrupets/core/payments/domain/entities/refund_result.dart';
+import 'package:altrupets/core/payments/domain/enums/country.dart';
+import 'package:altrupets/core/payments/domain/enums/currency.dart';
+import 'package:altrupets/core/payments/domain/enums/payment_method_type.dart';
 
 /// Core interface for all Latin American payment gateways
 ///
@@ -105,11 +105,10 @@ abstract class LatinAmericanPaymentGateway {
 
 /// Exception thrown by payment operations
 class PaymentException implements Exception {
+  PaymentException(this.message, {this.code, this.originalError});
   final String message;
   final String? code;
   final dynamic originalError;
-
-  PaymentException(this.message, {this.code, this.originalError});
 
   @override
   String toString() =>

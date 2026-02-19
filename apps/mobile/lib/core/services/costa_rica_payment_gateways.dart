@@ -56,14 +56,13 @@ abstract class CostaRicaPaymentGateway {
 
 /// Implementación de ONVO Pay
 class OnvoPayGateway implements CostaRicaPaymentGateway {
-  final String apiKey;
-  final bool sandbox;
-  final String _baseUrl;
-
   OnvoPayGateway({required this.apiKey, this.sandbox = true})
     : _baseUrl = sandbox
           ? 'https://api-sandbox.onvopay.com'
           : 'https://api.onvopay.com';
+  final String apiKey;
+  final bool sandbox;
+  final String _baseUrl;
 
   @override
   String get name => 'ONVO Pay';
@@ -248,10 +247,7 @@ class OnvoPayGateway implements CostaRicaPaymentGateway {
     String? reason,
   }) async {
     try {
-      final body = <String, dynamic>{
-        if (amount != null) 'amount': amount,
-        if (reason != null) 'reason': reason,
-      };
+      final body = <String, dynamic>{'amount': ?amount, 'reason': ?reason};
 
       final response = await http.post(
         Uri.parse('$_baseUrl/v1/charges/$transactionId/refund'),
@@ -281,11 +277,6 @@ class OnvoPayGateway implements CostaRicaPaymentGateway {
 
 /// Implementación de Tilopay
 class TilopayGateway implements CostaRicaPaymentGateway {
-  final String apiKey;
-  final String apiSecret;
-  final bool sandbox;
-  final String _baseUrl;
-
   TilopayGateway({
     required this.apiKey,
     required this.apiSecret,
@@ -293,6 +284,10 @@ class TilopayGateway implements CostaRicaPaymentGateway {
   }) : _baseUrl = sandbox
            ? 'https://app-tilopay.com/api/v2'
            : 'https://app.tilopay.com/api/v2';
+  final String apiKey;
+  final String apiSecret;
+  final bool sandbox;
+  final String _baseUrl;
 
   @override
   String get name => 'Tilopay';
@@ -478,8 +473,8 @@ class TilopayGateway implements CostaRicaPaymentGateway {
         headers: _headers,
         body: jsonEncode({
           'transaction_id': transactionId,
-          if (amount != null) 'amount': amount,
-          if (reason != null) 'reason': reason,
+          'amount': ?amount,
+          'reason': ?reason,
         }),
       );
 
@@ -530,15 +525,6 @@ enum PaymentGatewayType { onvoPay, tilopay }
 
 /// Modelo de resultado de tokenización
 class CardTokenizationResult {
-  final bool success;
-  final String? token;
-  final String? last4;
-  final String? brand;
-  final String? expiryMonth;
-  final String? expiryYear;
-  final String? cardHolderName;
-  final String? errorMessage;
-
   CardTokenizationResult._({
     required this.success,
     this.token,
@@ -572,19 +558,18 @@ class CardTokenizationResult {
   factory CardTokenizationResult.error({required String message}) {
     return CardTokenizationResult._(success: false, errorMessage: message);
   }
+  final bool success;
+  final String? token;
+  final String? last4;
+  final String? brand;
+  final String? expiryMonth;
+  final String? expiryYear;
+  final String? cardHolderName;
+  final String? errorMessage;
 }
 
 /// Modelo de resultado de pago
 class PaymentResult {
-  final bool success;
-  final String? transactionId;
-  final String? status;
-  final int? amount;
-  final String? currency;
-  final String? receiptUrl;
-  final String? errorMessage;
-  final String? errorCode;
-
   PaymentResult._({
     required this.success,
     this.transactionId,
@@ -620,18 +605,18 @@ class PaymentResult {
       errorCode: code,
     );
   }
+  final bool success;
+  final String? transactionId;
+  final String? status;
+  final int? amount;
+  final String? currency;
+  final String? receiptUrl;
+  final String? errorMessage;
+  final String? errorCode;
 }
 
 /// Modelo de resultado de pago SINPE
 class SinpePaymentResult {
-  final bool success;
-  final String? transactionId;
-  final String? status;
-  final String? phoneNumber;
-  final int? amount;
-  final DateTime? expiresAt;
-  final String? errorMessage;
-
   SinpePaymentResult._({
     required this.success,
     this.transactionId,
@@ -662,6 +647,13 @@ class SinpePaymentResult {
   factory SinpePaymentResult.error({required String message}) {
     return SinpePaymentResult._(success: false, errorMessage: message);
   }
+  final bool success;
+  final String? transactionId;
+  final String? status;
+  final String? phoneNumber;
+  final int? amount;
+  final DateTime? expiresAt;
+  final String? errorMessage;
 
   bool get isPending => status == 'pending';
   bool get isCompleted => status == 'completed';
@@ -670,12 +662,6 @@ class SinpePaymentResult {
 
 /// Modelo de resultado de reembolso
 class RefundResult {
-  final bool success;
-  final String? refundId;
-  final int? amount;
-  final String? status;
-  final String? errorMessage;
-
   RefundResult._({
     required this.success,
     this.refundId,
@@ -700,4 +686,9 @@ class RefundResult {
   factory RefundResult.error({required String message}) {
     return RefundResult._(success: false, errorMessage: message);
   }
+  final bool success;
+  final String? refundId;
+  final int? amount;
+  final String? status;
+  final String? errorMessage;
 }

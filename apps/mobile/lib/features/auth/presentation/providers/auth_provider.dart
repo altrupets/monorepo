@@ -23,17 +23,18 @@ class AuthState with _$AuthState {
   }) = _AuthState;
 }
 
-class AuthNotifier extends StateNotifier<AuthState> {
-  AuthNotifier(this._repository) : super(const AuthState());
+class AuthNotifier extends Notifier<AuthState> {
+  @override
+  AuthState build() {
+    return const AuthState();
+  }
 
-  final AuthRepositoryInterface _repository;
+  late final AuthRepositoryInterface _repository = ref.read(
+    authRepositoryProvider,
+  );
 
   Future<void> register(RegisterInput input) async {
-    state = state.copyWith(
-      isLoading: true,
-      error: null,
-      user: null,
-    );
+    state = state.copyWith(isLoading: true, error: null, user: null);
 
     final result = await _repository.register(input);
 
@@ -46,11 +47,7 @@ class AuthNotifier extends StateNotifier<AuthState> {
         );
       },
       (user) {
-        state = state.copyWith(
-          isLoading: false,
-          user: user,
-          error: null,
-        );
+        state = state.copyWith(isLoading: false, user: user, error: null);
       },
     );
   }
@@ -74,11 +71,7 @@ class AuthNotifier extends StateNotifier<AuthState> {
         );
       },
       (payload) {
-        state = state.copyWith(
-          isLoading: false,
-          payload: payload,
-          error: null,
-        );
+        state = state.copyWith(isLoading: false, payload: payload, error: null);
       },
     );
   }
@@ -90,36 +83,24 @@ class AuthNotifier extends StateNotifier<AuthState> {
 
     result.fold(
       (failure) {
-        state = state.copyWith(
-          isLoading: false,
-          error: failure.message,
-        );
+        state = state.copyWith(isLoading: false, error: failure.message);
       },
       (user) {
-        state = state.copyWith(
-          isLoading: false,
-          user: user,
-          error: null,
-        );
+        state = state.copyWith(isLoading: false, user: user, error: null);
       },
     );
   }
 
   Future<void> logout() async {
     final result = await _repository.logout();
-    result.fold(
-      (_) {},
-      (_) {},
-    );
-    // Siempre limpiamos el estado local de auth al cerrar sesión.
+    result.fold((_) {}, (_) {});
     state = const AuthState();
   }
 }
 
-final authProvider = StateNotifierProvider<AuthNotifier, AuthState>((ref) {
-  final repository = ref.watch(authRepositoryProvider);
-  return AuthNotifier(repository);
-});
+final authProvider = NotifierProvider<AuthNotifier, AuthState>(
+  AuthNotifier.new,
+);
 
 final isAuthenticatedProvider = FutureProvider<bool>((ref) async {
   final hasActiveSession = await GraphQLClientService.hasActiveSession();
@@ -130,10 +111,7 @@ final isAuthenticatedProvider = FutureProvider<bool>((ref) async {
   final repository = ref.read(authRepositoryProvider);
   final currentUserResult = await repository.getCurrentUser();
 
-  final isValid = currentUserResult.fold(
-    (_) => false,
-    (_) => true,
-  );
+  final isValid = currentUserResult.fold((_) => false, (_) => true);
 
   if (!isValid) {
     await GraphQLClientService.clearToken();

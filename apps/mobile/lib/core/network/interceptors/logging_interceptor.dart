@@ -2,7 +2,7 @@ import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 
 /// Logging interceptor for HTTP requests and responses
-/// 
+///
 /// Logs all HTTP requests and responses in a structured format
 /// for debugging and monitoring purposes. Only logs in debug mode.
 class LoggingInterceptor extends Interceptor {
@@ -27,7 +27,10 @@ class LoggingInterceptor extends Interceptor {
   }
 
   @override
-  void onResponse(Response response, ResponseInterceptorHandler handler) {
+  void onResponse(
+    Response<dynamic> response,
+    ResponseInterceptorHandler handler,
+  ) {
     if (kDebugMode) {
       debugPrint('═══════════════════════════════════════════════════════════');
       debugPrint('🟢 HTTP RESPONSE');

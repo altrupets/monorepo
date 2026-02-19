@@ -19,7 +19,7 @@ class AppNavItem extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
-    
+
     final color = isSelected
         ? theme.colorScheme.secondary
         : (isDark ? Colors.grey.shade500 : Colors.grey.shade400);
@@ -33,11 +33,7 @@ class AppNavItem extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(
-              icon,
-              color: color,
-              size: 24,
-            ),
+            Icon(icon, color: color, size: 24),
             const SizedBox(height: 4),
             Text(
               label,

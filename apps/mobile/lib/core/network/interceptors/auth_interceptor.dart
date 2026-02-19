@@ -2,16 +2,15 @@ import 'package:dio/dio.dart';
 import 'package:altrupets/core/storage/secure_storage_service.dart';
 
 /// Authentication interceptor for HTTP requests
-/// 
+///
 /// Automatically injects JWT token into request headers from secure storage
 class AuthInterceptor extends Interceptor {
+  AuthInterceptor(this._secureStorage);
   final SecureStorageService _secureStorage;
-  
+
   static const String _authorizationHeader = 'Authorization';
   static const String _bearerPrefix = 'Bearer ';
   static const String _keyAccessToken = 'auth_access_token';
-
-  AuthInterceptor(this._secureStorage);
 
   @override
   Future<void> onRequest(
@@ -21,7 +20,7 @@ class AuthInterceptor extends Interceptor {
     try {
       // Get token from secure storage
       final token = await _secureStorage.read(key: _keyAccessToken);
-      
+
       // Inject token if available
       if (token != null && token.isNotEmpty) {
         options.headers[_authorizationHeader] = '$_bearerPrefix$token';
@@ -40,7 +39,7 @@ class AuthInterceptor extends Interceptor {
     ErrorInterceptorHandler handler,
   ) async {
     final response = err.response;
-    
+
     // Handle 401 Unauthorized - token expired or invalid
     // Backend should implement refresh token endpoint
     if (response?.statusCode == 401) {
@@ -48,7 +47,7 @@ class AuthInterceptor extends Interceptor {
       // For now, just clear the invalid token
       await _secureStorage.delete(key: _keyAccessToken);
     }
-    
+
     // Handle 403 Forbidden - insufficient permissions
     // The UI should handle this by showing appropriate error message
 

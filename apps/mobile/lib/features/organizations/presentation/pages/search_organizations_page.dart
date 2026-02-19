@@ -66,9 +66,7 @@ class _SearchOrganizationsPageState
     final state = ref.watch(organizationsProvider);
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Buscar Organizaciones'),
-      ),
+      appBar: AppBar(title: const Text('Buscar Organizaciones')),
       body: Column(
         children: [
           // Search filters
@@ -96,7 +94,7 @@ class _SearchOrganizationsPageState
                   children: [
                     Expanded(
                       child: DropdownButtonFormField<OrganizationType>(
-                        value: _selectedType,
+                        initialValue: _selectedType,
                         decoration: const InputDecoration(
                           labelText: 'Tipo',
                           isDense: true,
@@ -122,7 +120,7 @@ class _SearchOrganizationsPageState
                     const SizedBox(width: 16),
                     Expanded(
                       child: DropdownButtonFormField<OrganizationStatus>(
-                        value: _selectedStatus,
+                        initialValue: _selectedStatus,
                         decoration: const InputDecoration(
                           labelText: 'Estado',
                           isDense: true,
@@ -163,43 +161,41 @@ class _SearchOrganizationsPageState
             child: state.isLoading
                 ? const Center(child: CircularProgressIndicator())
                 : state.error != null
-                    ? Center(
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            const Icon(Icons.error, size: 48, color: Colors.red),
-                            const SizedBox(height: 16),
-                            Text(state.error!),
-                            const SizedBox(height: 16),
-                            ElevatedButton(
-                              onPressed: _performSearch,
-                              child: const Text('Reintentar'),
-                            ),
-                          ],
+                ? Center(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        const Icon(Icons.error, size: 48, color: Colors.red),
+                        const SizedBox(height: 16),
+                        Text(state.error!),
+                        const SizedBox(height: 16),
+                        ElevatedButton(
+                          onPressed: _performSearch,
+                          child: const Text('Reintentar'),
                         ),
-                      )
-                    : state.organizations.isEmpty
-                        ? const Center(
-                            child: Text('No se encontraron organizaciones'),
-                          )
-                        : ListView.builder(
-                            itemCount: state.organizations.length,
-                            itemBuilder: (context, index) {
-                              final org = state.organizations[index];
-                              return _OrganizationCard(
-                                organization: org,
-                                onTap: () {
-                                  Navigator.of(context).push(
-                                    MaterialPageRoute(
-                                      builder: (_) => OrganizationDetailPage(
-                                        organizationId: org.id,
-                                      ),
-                                    ),
-                                  );
-                                },
-                              );
-                            },
-                          ),
+                      ],
+                    ),
+                  )
+                : state.organizations.isEmpty
+                ? const Center(child: Text('No se encontraron organizaciones'))
+                : ListView.builder(
+                    itemCount: state.organizations.length,
+                    itemBuilder: (context, index) {
+                      final org = state.organizations[index];
+                      return _OrganizationCard(
+                        organization: org,
+                        onTap: () {
+                          Navigator.of(context).push<dynamic>(
+                            MaterialPageRoute<dynamic>(
+                              builder: (_) => OrganizationDetailPage(
+                                organizationId: org.id,
+                              ),
+                            ),
+                          );
+                        },
+                      );
+                    },
+                  ),
           ),
         ],
       ),
@@ -238,22 +234,16 @@ class _SearchOrganizationsPageState
 }
 
 class _OrganizationCard extends StatelessWidget {
+  const _OrganizationCard({required this.organization, required this.onTap});
   final Organization organization;
   final VoidCallback onTap;
-
-  const _OrganizationCard({
-    required this.organization,
-    required this.onTap,
-  });
 
   @override
   Widget build(BuildContext context) {
     return Card(
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       child: ListTile(
-        leading: CircleAvatar(
-          child: Text(organization.name[0].toUpperCase()),
-        ),
+        leading: CircleAvatar(child: Text(organization.name[0].toUpperCase())),
         title: Text(organization.name),
         subtitle: Column(
           crossAxisAlignment: CrossAxisAlignment.start,

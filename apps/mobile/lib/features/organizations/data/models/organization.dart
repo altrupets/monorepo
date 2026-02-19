@@ -35,6 +35,13 @@ class Organization with _$Organization {
     required String id,
     required String name,
     required OrganizationType type,
+    required OrganizationStatus status,
+    required int memberCount,
+    required int maxCapacity,
+    required bool isActive,
+    required bool isVerified,
+    required DateTime createdAt,
+    required DateTime updatedAt,
     String? legalId,
     String? description,
     String? email,
@@ -45,14 +52,7 @@ class Organization with _$Organization {
     String? province,
     String? canton,
     String? district,
-    required OrganizationStatus status,
     String? legalRepresentativeId,
-    required int memberCount,
-    required int maxCapacity,
-    required bool isActive,
-    required bool isVerified,
-    required DateTime createdAt,
-    required DateTime updatedAt,
   }) = _Organization;
 
   factory Organization.fromJson(Map<String, dynamic> json) =>

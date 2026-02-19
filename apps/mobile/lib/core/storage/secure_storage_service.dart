@@ -4,10 +4,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 /// Secure storage service for sensitive data
 /// Wraps flutter_secure_storage with a clean interface
 class SecureStorageService {
-  final FlutterSecureStorage _storage;
-
   SecureStorageService({FlutterSecureStorage? storage})
-      : _storage = storage ?? const FlutterSecureStorage();
+    : _storage = storage ?? const FlutterSecureStorage();
+  final FlutterSecureStorage _storage;
 
   /// Read a value from secure storage
   Future<String?> read({required String key}) async {

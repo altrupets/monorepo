@@ -1,16 +1,16 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 
-import '../../../domain/entities/card_token.dart';
-import '../../../domain/entities/payment_gateway_configuration.dart';
-import '../../../domain/entities/payment_result.dart';
-import '../../../domain/entities/refund_result.dart';
-import '../../../domain/entities/money.dart';
-import '../../../domain/enums/country.dart';
-import '../../../domain/enums/currency.dart';
-import '../../../domain/enums/payment_method_type.dart';
-import '../../../domain/enums/payment_status.dart';
-import '../../../domain/interfaces/latin_american_payment_gateway.dart';
+import 'package:altrupets/core/payments/domain/entities/card_token.dart';
+import 'package:altrupets/core/payments/domain/entities/payment_gateway_configuration.dart';
+import 'package:altrupets/core/payments/domain/entities/payment_result.dart';
+import 'package:altrupets/core/payments/domain/entities/refund_result.dart';
+import 'package:altrupets/core/payments/domain/entities/money.dart';
+import 'package:altrupets/core/payments/domain/enums/country.dart';
+import 'package:altrupets/core/payments/domain/enums/currency.dart';
+import 'package:altrupets/core/payments/domain/enums/payment_method_type.dart';
+import 'package:altrupets/core/payments/domain/enums/payment_status.dart';
+import 'package:altrupets/core/payments/domain/interfaces/latin_american_payment_gateway.dart';
 
 /// OpenPay Payment Gateway Implementation (Mexico)
 ///
@@ -26,10 +26,6 @@ import '../../../domain/interfaces/latin_american_payment_gateway.dart';
 /// - OXXO cash payments (barcode generation)
 /// - Webhook support
 class OpenpayPaymentGateway implements LatinAmericanPaymentGateway {
-  final PaymentGatewayConfiguration _config;
-  late final String _baseUrl;
-  late final String _merchantId;
-
   OpenpayPaymentGateway(this._config) {
     _merchantId =
         (_config.extraConfig?['merchantId'] as String?) ??
@@ -39,6 +35,9 @@ class OpenpayPaymentGateway implements LatinAmericanPaymentGateway {
         ? 'https://sandbox-api.openpay.mx/v1'
         : 'https://api.openpay.mx/v1';
   }
+  final PaymentGatewayConfiguration _config;
+  late final String _baseUrl;
+  late final String _merchantId;
 
   @override
   String get id => 'openpay';
@@ -181,6 +180,7 @@ class OpenpayPaymentGateway implements LatinAmericanPaymentGateway {
       if (response.statusCode == 201 || response.statusCode == 200) {
         final txnData = data;
 
+        // ignore: unused_local_variable - reserved for future use
         String? paymentUrl;
         String? receiptUrl;
 
@@ -231,7 +231,7 @@ class OpenpayPaymentGateway implements LatinAmericanPaymentGateway {
       'currency': currency.code.toUpperCase(),
       'description': description,
       'order_id': orderId ?? 'order_${DateTime.now().millisecondsSinceEpoch}',
-      if (customer != null) 'customer': customer,
+      'customer': ?customer,
     };
 
     switch (method) {
@@ -397,7 +397,7 @@ class OpenpayPaymentGateway implements LatinAmericanPaymentGateway {
   Future<bool> healthCheck() async {
     try {
       final response = await http.get(
-        Uri.parse('$_merchantUrl'),
+        Uri.parse(_merchantUrl),
         headers: _headers,
       );
       return response.statusCode != 503 && response.statusCode != 502;

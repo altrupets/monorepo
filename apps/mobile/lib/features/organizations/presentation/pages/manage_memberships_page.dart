@@ -4,14 +4,13 @@ import 'package:altrupets/features/organizations/data/models/organization_member
 import 'package:altrupets/features/organizations/presentation/providers/organizations_provider.dart';
 
 class ManageMembershipsPage extends ConsumerStatefulWidget {
-  final String organizationId;
-  final String organizationName;
-
   const ManageMembershipsPage({
-    super.key,
     required this.organizationId,
     required this.organizationName,
+    super.key,
   });
+  final String organizationId;
+  final String organizationName;
 
   @override
   ConsumerState<ManageMembershipsPage> createState() =>
@@ -63,10 +62,9 @@ class _ManageMembershipsPageState extends ConsumerState<ManageMembershipsPage> {
 
     if (role == null) return;
 
-    await ref.read(organizationsProvider.notifier).approveMembership(
-          membershipId: membership.id,
-          role: role,
-        );
+    await ref
+        .read(organizationsProvider.notifier)
+        .approveMembership(membershipId: membership.id, role: role);
 
     if (!mounted) return;
 
@@ -74,10 +72,7 @@ class _ManageMembershipsPageState extends ConsumerState<ManageMembershipsPage> {
 
     if (state.error != null) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(state.error!),
-          backgroundColor: Colors.red,
-        ),
+        SnackBar(content: Text(state.error!), backgroundColor: Colors.red),
       );
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -126,7 +121,9 @@ class _ManageMembershipsPageState extends ConsumerState<ManageMembershipsPage> {
 
     if (confirmed != true) return;
 
-    await ref.read(organizationsProvider.notifier).rejectMembership(
+    await ref
+        .read(organizationsProvider.notifier)
+        .rejectMembership(
           membershipId: membership.id,
           rejectionReason: reasonController.text.trim().isEmpty
               ? null
@@ -139,10 +136,7 @@ class _ManageMembershipsPageState extends ConsumerState<ManageMembershipsPage> {
 
     if (state.error != null) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(state.error!),
-          backgroundColor: Colors.red,
-        ),
+        SnackBar(content: Text(state.error!), backgroundColor: Colors.red),
       );
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -188,10 +182,9 @@ class _ManageMembershipsPageState extends ConsumerState<ManageMembershipsPage> {
 
     if (role == null || role == membership.role) return;
 
-    await ref.read(organizationsProvider.notifier).assignRole(
-          membershipId: membership.id,
-          role: role,
-        );
+    await ref
+        .read(organizationsProvider.notifier)
+        .assignRole(membershipId: membership.id, role: role);
 
     if (!mounted) return;
 
@@ -199,10 +192,7 @@ class _ManageMembershipsPageState extends ConsumerState<ManageMembershipsPage> {
 
     if (state.error != null) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(state.error!),
-          backgroundColor: Colors.red,
-        ),
+        SnackBar(content: Text(state.error!), backgroundColor: Colors.red),
       );
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -219,47 +209,43 @@ class _ManageMembershipsPageState extends ConsumerState<ManageMembershipsPage> {
     final state = ref.watch(organizationsProvider);
 
     return Scaffold(
-      appBar: AppBar(
-        title: Text('Membresías - ${widget.organizationName}'),
-      ),
+      appBar: AppBar(title: Text('Membresías - ${widget.organizationName}')),
       body: state.isLoading
           ? const Center(child: CircularProgressIndicator())
           : state.error != null
-              ? Center(
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      const Icon(Icons.error, size: 48, color: Colors.red),
-                      const SizedBox(height: 16),
-                      Text(state.error!),
-                      const SizedBox(height: 16),
-                      ElevatedButton(
-                        onPressed: () {
-                          ref
-                              .read(organizationsProvider.notifier)
-                              .getOrganizationMemberships(widget.organizationId);
-                        },
-                        child: const Text('Reintentar'),
-                      ),
-                    ],
+          ? Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const Icon(Icons.error, size: 48, color: Colors.red),
+                  const SizedBox(height: 16),
+                  Text(state.error!),
+                  const SizedBox(height: 16),
+                  ElevatedButton(
+                    onPressed: () {
+                      ref
+                          .read(organizationsProvider.notifier)
+                          .getOrganizationMemberships(widget.organizationId);
+                    },
+                    child: const Text('Reintentar'),
                   ),
-                )
-              : state.memberships.isEmpty
-                  ? const Center(
-                      child: Text('No hay membresías registradas'),
-                    )
-                  : ListView.builder(
-                      itemCount: state.memberships.length,
-                      itemBuilder: (context, index) {
-                        final membership = state.memberships[index];
-                        return _MembershipCard(
-                          membership: membership,
-                          onApprove: () => _approveMembership(membership),
-                          onReject: () => _rejectMembership(membership),
-                          onAssignRole: () => _assignRole(membership),
-                        );
-                      },
-                    ),
+                ],
+              ),
+            )
+          : state.memberships.isEmpty
+          ? const Center(child: Text('No hay membresías registradas'))
+          : ListView.builder(
+              itemCount: state.memberships.length,
+              itemBuilder: (context, index) {
+                final membership = state.memberships[index];
+                return _MembershipCard(
+                  membership: membership,
+                  onApprove: () => _approveMembership(membership),
+                  onReject: () => _rejectMembership(membership),
+                  onAssignRole: () => _assignRole(membership),
+                );
+              },
+            ),
     );
   }
 
@@ -287,17 +273,16 @@ class _ManageMembershipsPageState extends ConsumerState<ManageMembershipsPage> {
 }
 
 class _MembershipCard extends StatelessWidget {
-  final OrganizationMembership membership;
-  final VoidCallback onApprove;
-  final VoidCallback onReject;
-  final VoidCallback onAssignRole;
-
   const _MembershipCard({
     required this.membership,
     required this.onApprove,
     required this.onReject,
     required this.onAssignRole,
   });
+  final OrganizationMembership membership;
+  final VoidCallback onApprove;
+  final VoidCallback onReject;
+  final VoidCallback onAssignRole;
 
   @override
   Widget build(BuildContext context) {

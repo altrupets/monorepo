@@ -1,5 +1,34 @@
 # Changelog - Version 0.2.0
 
+## [0.2.1] - 2026-02-18
+
+### Security
+
+**Node.js Dependencies - 101→0 vulnerabilidades**
+
+Paquetes actualizados:
+- `@nestjs/terminus`: 9.1.2 → 11.1.1
+- `@nestjs/cli`: 1.8.0 → 11.0.16
+- `@nestjs/schematics`: 11.0.0 → 11.0.9
+- `jest`: 19.0.2 → 29.7.0
+- `ts-jest`: 19.0.14 → 29.4.6
+- `@types/jest`: 30.0.0 → 29.5.14
+- `eslint`: 4.0.0 → 8.57.0
+- `nodemon`: → 3.1.11
+
+Overrides agregados en `apps/backend/package.json`:
+- `nestjs-inertia`: Forzadas versiones seguras de dependencias transitivas
+- `multer`: ^2.0.2 (resuelve 4 CVEs de DoS)
+- `ajv`: ^8.18.0
+- `minimatch`: ^10.2.1
+- `busboy`: ^1.6.0
+- `dicer`: ^0.3.1
+- `express`, `body-parser`, `cookie`, `path-to-regexp`, `qs`, `send`, `serve-static`
+
+**Resultado:** 0 vulnerabilidades en npm audit
+
+---
+
 ## [0.2.0] - 2026-02-16
 
 ### Added

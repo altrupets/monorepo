@@ -74,8 +74,12 @@ class UserModel with _$UserModel {
   const factory UserModel({
     required String id,
     required String username,
-    String? email,
     required List<UserRole> roles,
+    required bool isActive,
+    required bool isVerified,
+    required DateTime createdAt,
+    required DateTime updatedAt,
+    String? email,
     String? firstName,
     String? lastName,
     String? phone,
@@ -88,11 +92,7 @@ class UserModel with _$UserModel {
     String? organizationId,
     double? latitude,
     double? longitude,
-    required bool isActive,
-    required bool isVerified,
     String? avatarBase64,
-    required DateTime createdAt,
-    required DateTime updatedAt,
   }) = _UserModel;
 
   factory UserModel.fromJson(Map<String, dynamic> json) =>
@@ -114,9 +114,8 @@ class UserLoginRequest with _$UserLoginRequest {
 /// User login response - maps to backend AuthPayload
 @freezed
 class UserLoginResponse with _$UserLoginResponse {
-  const factory UserLoginResponse({
-    required String accessToken,
-  }) = _UserLoginResponse;
+  const factory UserLoginResponse({required String accessToken}) =
+      _UserLoginResponse;
 
   factory UserLoginResponse.fromJson(Map<String, dynamic> json) =>
       _$UserLoginResponseFromJson(json);

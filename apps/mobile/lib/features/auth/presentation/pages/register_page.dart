@@ -20,18 +20,18 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
   final _lastNameController = TextEditingController();
   final _phoneController = TextEditingController();
   final _identificationController = TextEditingController();
-  
+
   // Campos de ubicación
   final _countryController = TextEditingController();
   final _provinceController = TextEditingController();
   final _cantonController = TextEditingController();
   final _districtController = TextEditingController();
-  
+
   // Campos para donantes
   final _occupationController = TextEditingController();
   final _incomeSourceController = TextEditingController();
-  
-  List<String> _selectedRoles = ['WATCHER']; // Rol por defecto
+
+  final List<String> _selectedRoles = ['WATCHER']; // Rol por defecto
   bool _obscurePassword = true;
   bool _obscureConfirmPassword = true;
   int _currentStep = 0;
@@ -123,10 +123,7 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
 
     if (authState.error != null) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(authState.error!),
-          backgroundColor: Colors.red,
-        ),
+        SnackBar(content: Text(authState.error!), backgroundColor: Colors.red),
       );
     } else if (authState.user != null) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -135,9 +132,9 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
           backgroundColor: Colors.green,
         ),
       );
-      
+
       // Navegar a login después de un breve delay
-      await Future.delayed(const Duration(seconds: 2));
+      await Future<void>.delayed(const Duration(seconds: 2));
       if (mounted) {
         Navigator.of(context).pop(); // Volver a login
       }
@@ -146,12 +143,11 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
 
   @override
   Widget build(BuildContext context) {
-    final authState = ref.watch(authProvider);
+    // authState se usa para escuchar cambios en el provider
+    ref.watch(authProvider);
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Registro de Usuario'),
-      ),
+      appBar: AppBar(title: const Text('Registro de Usuario')),
       body: Form(
         key: _formKey,
         child: Stepper(
@@ -200,7 +196,9 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
                     keyboardType: TextInputType.emailAddress,
                     validator: (value) {
                       if (value != null && value.trim().isNotEmpty) {
-                        final emailRegex = RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$');
+                        final emailRegex = RegExp(
+                          r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$',
+                        );
                         if (!emailRegex.hasMatch(value.trim())) {
                           return 'Correo electrónico inválido';
                         }
@@ -216,7 +214,9 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
                       hintText: 'Mínimo 8 caracteres',
                       suffixIcon: IconButton(
                         icon: Icon(
-                          _obscurePassword ? Icons.visibility : Icons.visibility_off,
+                          _obscurePassword
+                              ? Icons.visibility
+                              : Icons.visibility_off,
                         ),
                         onPressed: () {
                           setState(() => _obscurePassword = !_obscurePassword);
@@ -247,7 +247,8 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
                         ),
                         onPressed: () {
                           setState(
-                            () => _obscureConfirmPassword = !_obscureConfirmPassword,
+                            () => _obscureConfirmPassword =
+                                !_obscureConfirmPassword,
                           );
                         },
                       ),
@@ -267,7 +268,7 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
               ),
               isActive: _currentStep >= 0,
             ),
-            
+
             // Paso 2: Datos personales
             Step(
               title: const Text('Datos Personales'),
@@ -309,7 +310,7 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
               ),
               isActive: _currentStep >= 1,
             ),
-            
+
             // Paso 3: Ubicación
             Step(
               title: const Text('Ubicación'),
@@ -350,7 +351,7 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
               ),
               isActive: _currentStep >= 2,
             ),
-            
+
             // Paso 4: Roles y datos adicionales
             Step(
               title: const Text('Roles'),
@@ -364,7 +365,9 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
                   const SizedBox(height: 8),
                   CheckboxListTile(
                     title: const Text('Centinela (Watcher)'),
-                    subtitle: const Text('Reportar animales en situación de riesgo'),
+                    subtitle: const Text(
+                      'Reportar animales en situación de riesgo',
+                    ),
                     value: _selectedRoles.contains('WATCHER'),
                     onChanged: (value) {
                       setState(() {

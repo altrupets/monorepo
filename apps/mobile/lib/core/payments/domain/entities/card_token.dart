@@ -1,5 +1,25 @@
 /// Represents a tokenized card (PCI compliant)
 class CardToken {
+  const CardToken({
+    required this.id,
+    required this.last4,
+    required this.brand,
+    required this.expiryMonth,
+    required this.expiryYear,
+    required this.cardHolderName,
+  });
+
+  factory CardToken.fromJson(Map<String, dynamic> json) {
+    return CardToken(
+      id: json['id'] as String,
+      last4: json['last4'] as String,
+      brand: json['brand'] as String,
+      expiryMonth: json['expiryMonth'] as String,
+      expiryYear: json['expiryYear'] as String,
+      cardHolderName: json['cardHolderName'] as String,
+    );
+  }
+
   /// Token ID from the gateway
   final String id;
 
@@ -18,15 +38,6 @@ class CardToken {
   /// Cardholder name
   final String cardHolderName;
 
-  const CardToken({
-    required this.id,
-    required this.last4,
-    required this.brand,
-    required this.expiryMonth,
-    required this.expiryYear,
-    required this.cardHolderName,
-  });
-
   /// Masked card number for display
   String get maskedNumber => '**** **** **** $last4';
 
@@ -41,17 +52,6 @@ class CardToken {
     'expiryYear': expiryYear,
     'cardHolderName': cardHolderName,
   };
-
-  factory CardToken.fromJson(Map<String, dynamic> json) {
-    return CardToken(
-      id: json['id'] as String,
-      last4: json['last4'] as String,
-      brand: json['brand'] as String,
-      expiryMonth: json['expiryMonth'] as String,
-      expiryYear: json['expiryYear'] as String,
-      cardHolderName: json['cardHolderName'] as String,
-    );
-  }
 
   @override
   String toString() => 'CardToken($display)';

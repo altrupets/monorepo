@@ -691,7 +691,7 @@ class _EditPersonalInformationPageState
   }
 
   void _showAddCardModal() {
-    showModalBottomSheet(
+    showModalBottomSheet<dynamic>(
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,

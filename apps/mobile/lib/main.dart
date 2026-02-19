@@ -96,7 +96,7 @@ class AltruPetsApp extends ConsumerWidget {
             isAuthenticated ? const HomePage() : const LoginPage(),
         loading: () =>
             const Scaffold(body: Center(child: CircularProgressIndicator())),
-        error: (_, __) => const LoginPage(),
+        error: (_, _) => const LoginPage(),
       ),
     );
   }

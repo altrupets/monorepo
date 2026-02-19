@@ -1,12 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../../domain/services/registration_service.dart';
-import '../../../../core/providers/registration_provider.dart';
-import '../../../../core/auth/roles/user_role.dart';
-import '../../../../core/widgets/molecules/app_input_card.dart';
-import '../../../../core/widgets/molecules/section_header.dart';
-import '../../../../core/widgets/organisms/sticky_action_footer.dart';
-import '../../../../core/widgets/atoms/app_role_badge.dart';
+import 'package:altrupets/core/providers/registration_provider.dart';
+import 'package:altrupets/core/auth/roles/user_role.dart';
+import 'package:altrupets/core/widgets/molecules/app_input_card.dart';
+import 'package:altrupets/core/widgets/molecules/section_header.dart';
+import 'package:altrupets/core/widgets/organisms/sticky_action_footer.dart';
 
 /// Individual user registration page
 /// Collects personal data and desired roles
@@ -192,7 +190,9 @@ class _RegisterIndividualPageState
                                 : Icons.visibility_off_rounded,
                           ),
                           onPressed: () {
-                            setState(() => _obscurePassword = !_obscurePassword);
+                            setState(
+                              () => _obscurePassword = !_obscurePassword,
+                            );
                           },
                         ),
                         contentPadding: const EdgeInsets.all(16),
@@ -235,8 +235,10 @@ class _RegisterIndividualPageState
                                 : Icons.visibility_off_rounded,
                           ),
                           onPressed: () {
-                            setState(() => _obscureConfirmPassword =
-                                !_obscureConfirmPassword);
+                            setState(
+                              () => _obscureConfirmPassword =
+                                  !_obscureConfirmPassword,
+                            );
                           },
                         ),
                         contentPadding: const EdgeInsets.all(16),
@@ -389,8 +391,8 @@ class _RegisterIndividualPageState
             mainAxisSize: MainAxisSize.min,
             children: [
               if (isSelected)
-                Padding(
-                  padding: const EdgeInsets.only(right: 6),
+                const Padding(
+                  padding: EdgeInsets.only(right: 6),
                   child: Icon(
                     Icons.check_circle_rounded,
                     size: 16,
@@ -401,7 +403,9 @@ class _RegisterIndividualPageState
                 label,
                 style: theme.textTheme.bodyMedium?.copyWith(
                   fontWeight: FontWeight.bold,
-                  color: isSelected ? Colors.white : theme.colorScheme.onSurface,
+                  color: isSelected
+                      ? Colors.white
+                      : theme.colorScheme.onSurface,
                 ),
               ),
             ],

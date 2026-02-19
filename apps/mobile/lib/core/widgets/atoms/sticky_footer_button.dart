@@ -3,10 +3,7 @@ import 'package:altrupets/core/theme/app_colors.dart';
 import 'package:altrupets/core/theme/app_typography.dart';
 import 'package:google_fonts/google_fonts.dart';
 
-enum StickyFooterButtonType {
-  primary,
-  secondary,
-}
+enum StickyFooterButtonType { primary, secondary }
 
 class StickyFooterButton extends StatelessWidget {
   const StickyFooterButton({
@@ -30,14 +27,14 @@ class StickyFooterButton extends StatelessWidget {
     final isDark = theme.brightness == Brightness.dark;
 
     // Define colors based on type
-    final backgroundColor = _isPrimary 
-        ? (isDark ? AppColorsDark.success : AppColors.success) 
+    final backgroundColor = _isPrimary
+        ? (isDark ? AppColorsDark.success : AppColors.success)
         : (isDark ? AppColorsDark.error : AppColors.error);
-        
+
     final foregroundColor = _isPrimary
         ? (isDark ? AppColorsDark.onSuccess : AppColors.onSuccess)
         : (isDark ? AppColorsDark.onError : AppColors.onError);
-        
+
     // Both now have solid backgrounds, so border can be transparent or match background
     const borderColor = Colors.transparent;
 
@@ -52,23 +49,17 @@ class StickyFooterButton extends StatelessWidget {
           padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 8),
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(12),
-            border: Border.all(
-              color: borderColor,
-              width: 1,
-            ),
+            border: Border.all(color: borderColor, width: 1),
           ),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               if (icon != null) ...[
-                Icon(
-                  icon,
-                  size: 20,
-                  color: foregroundColor,
-                ),
+                Icon(icon, size: 20, color: foregroundColor),
                 const SizedBox(width: 4), // Reduced gap
               ],
-              Flexible( // Added Flexible to handle text overflow gracefully
+              Flexible(
+                // Added Flexible to handle text overflow gracefully
                 child: Text(
                   label,
                   maxLines: 1,

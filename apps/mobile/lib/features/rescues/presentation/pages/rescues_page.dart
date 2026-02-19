@@ -16,7 +16,10 @@ class RescuesPage extends StatelessWidget {
         child: CustomScrollView(
           slivers: [
             SliverPadding(
-              padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 16.0),
+              padding: const EdgeInsets.symmetric(
+                horizontal: 24.0,
+                vertical: 16.0,
+              ),
               sliver: SliverToBoxAdapter(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -29,7 +32,8 @@ class RescuesPage extends StatelessWidget {
                             onPressed: onBack,
                             icon: const Icon(Icons.arrow_back_ios_new_rounded),
                             style: IconButton.styleFrom(
-                              backgroundColor: theme.colorScheme.surfaceContainer,
+                              backgroundColor:
+                                  theme.colorScheme.surfaceContainer,
                               padding: const EdgeInsets.all(12),
                             ),
                           ),
@@ -50,7 +54,9 @@ class RescuesPage extends StatelessWidget {
                               Text(
                                 'Gestiona tus actividades de rescate',
                                 style: theme.textTheme.bodyMedium?.copyWith(
-                                  color: theme.colorScheme.onSurface.withValues(alpha: 0.7),
+                                  color: theme.colorScheme.onSurface.withValues(
+                                    alpha: 0.7,
+                                  ),
                                 ),
                               ),
                             ],
@@ -61,7 +67,9 @@ class RescuesPage extends StatelessWidget {
                     const SizedBox(height: 32),
                     LayoutBuilder(
                       builder: (context, constraints) {
-                        final columns = (constraints.maxWidth / 300).floor().clamp(1, 3);
+                        final columns = (constraints.maxWidth / 300)
+                            .floor()
+                            .clamp(1, 3);
                         return GridView.count(
                           crossAxisCount: columns,
                           shrinkWrap: true,
@@ -73,31 +81,46 @@ class RescuesPage extends StatelessWidget {
                             AppServiceCard(
                               title: 'Informar de un\nanimal vulnerable',
                               icon: Icons.campaign_rounded,
-                              gradientColors: const [Color(0xFF9333EA), Color(0xFF9333EA)],
+                              gradientColors: const [
+                                Color(0xFF9333EA),
+                                Color(0xFF9333EA),
+                              ],
                               onTap: () {},
                             ),
                             AppServiceCard(
                               title: 'Captar a un\nanimal vulnerable',
                               icon: Icons.directions_car_rounded,
-                              gradientColors: const [Color(0xFFDC2626), Color(0xFFDC2626)],
+                              gradientColors: const [
+                                Color(0xFFDC2626),
+                                Color(0xFFDC2626),
+                              ],
                               onTap: () {},
                             ),
                             AppServiceCard(
                               title: 'Aceptar nuevo animal\nen mi casa cuna',
                               icon: Icons.night_shelter_rounded,
-                              gradientColors: const [Color(0xFF3B82F6), Color(0xFF3B82F6)],
+                              gradientColors: const [
+                                Color(0xFF3B82F6),
+                                Color(0xFF3B82F6),
+                              ],
                               onTap: () {},
                             ),
                             AppServiceCard(
                               title: 'Dar seguimiento a\nrescates activos',
                               icon: Icons.manage_search_rounded,
-                              gradientColors: const [Color(0xFF0D9488), Color(0xFF0D9488)],
+                              gradientColors: const [
+                                Color(0xFF0D9488),
+                                Color(0xFF0D9488),
+                              ],
                               onTap: () {},
                             ),
                             AppServiceCard(
                               title: 'Entregar en\nadopción',
                               icon: Icons.volunteer_activism_rounded,
-                              gradientColors: const [Color(0xFF65A30D), Color(0xFF65A30D)],
+                              gradientColors: const [
+                                Color(0xFF65A30D),
+                                Color(0xFF65A30D),
+                              ],
                               onTap: () {},
                             ),
                             AppServiceCard(

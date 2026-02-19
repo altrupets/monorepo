@@ -1,14 +1,14 @@
-import '../domain/enums/country.dart';
-import '../domain/enums/payment_method_type.dart';
-import '../domain/entities/payment_gateway_configuration.dart';
-import '../domain/interfaces/latin_american_payment_gateway.dart';
-import '../data/gateways/costa_rica/onvo_pay_payment_gateway.dart';
-import '../data/gateways/costa_rica/tilopay_payment_gateway.dart';
-import '../data/gateways/colombia/wompi_payment_gateway.dart';
-import '../data/gateways/mexico/openpay_payment_gateway.dart';
-import '../data/gateways/mexico/conekta_payment_gateway.dart';
-import '../data/gateways/brazil/mercado_pago_payment_gateway.dart';
-import 'payment_gateway_registry.dart';
+import 'package:altrupets/core/payments/domain/enums/country.dart';
+import 'package:altrupets/core/payments/domain/enums/payment_method_type.dart';
+import 'package:altrupets/core/payments/domain/entities/payment_gateway_configuration.dart';
+import 'package:altrupets/core/payments/domain/interfaces/latin_american_payment_gateway.dart';
+import 'package:altrupets/core/payments/data/gateways/costa_rica/onvo_pay_payment_gateway.dart';
+import 'package:altrupets/core/payments/data/gateways/costa_rica/tilopay_payment_gateway.dart';
+import 'package:altrupets/core/payments/data/gateways/colombia/wompi_payment_gateway.dart';
+import 'package:altrupets/core/payments/data/gateways/mexico/openpay_payment_gateway.dart';
+import 'package:altrupets/core/payments/data/gateways/mexico/conekta_payment_gateway.dart';
+import 'package:altrupets/core/payments/data/gateways/brazil/mercado_pago_payment_gateway.dart';
+import 'package:altrupets/core/payments/services/payment_gateway_registry.dart';
 
 /// Types of supported payment gateways
 enum PaymentGatewayType {

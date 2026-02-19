@@ -71,14 +71,14 @@ class AuthRepository implements AuthRepositoryInterface {
   @override
   Future<Either<Failure, User>> register(RegisterInput input) async {
     try {
-      debugPrint('[AuthRepository] 📝 Iniciando registro de usuario: ${input.username}');
+      debugPrint(
+        '[AuthRepository] 📝 Iniciando registro de usuario: ${input.username}',
+      );
 
       final result = await _client.mutate(
         MutationOptions(
           document: gql(_registerMutation),
-          variables: {
-            'registerInput': input.toJson(),
-          },
+          variables: {'registerInput': input.toJson()},
         ),
       );
 
@@ -101,11 +101,13 @@ class AuthRepository implements AuthRepositoryInterface {
 
       final data = result.data?['register'] as Map<String, dynamic>?;
       if (data == null) {
-        return Left(ServerFailure('Invalid response from server'));
+        return const Left(ServerFailure('Invalid response from server'));
       }
 
       final user = User.fromJson(data);
-      debugPrint('[AuthRepository] ✅ Usuario registrado exitosamente: ${user.username}');
+      debugPrint(
+        '[AuthRepository] ✅ Usuario registrado exitosamente: ${user.username}',
+      );
 
       return Right(user);
     } catch (e) {
@@ -146,7 +148,7 @@ class AuthRepository implements AuthRepositoryInterface {
 
       final data = result.data?['login'] as Map<String, dynamic>?;
       if (data == null) {
-        return Left(ServerFailure('Invalid response from server'));
+        return const Left(ServerFailure('Invalid response from server'));
       }
 
       final payload = AuthPayload.fromJson(data);

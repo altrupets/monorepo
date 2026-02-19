@@ -1,5 +1,5 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
-import 'user_model.dart';
+import 'package:altrupets/core/models/user_model.dart';
 
 part 'organization_model.freezed.dart';
 part 'organization_model.g.dart';

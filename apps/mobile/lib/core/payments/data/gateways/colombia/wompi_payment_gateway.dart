@@ -1,16 +1,16 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 
-import '../../../domain/entities/card_token.dart';
-import '../../../domain/entities/payment_gateway_configuration.dart';
-import '../../../domain/entities/payment_result.dart';
-import '../../../domain/entities/refund_result.dart';
-import '../../../domain/entities/money.dart';
-import '../../../domain/enums/country.dart';
-import '../../../domain/enums/currency.dart';
-import '../../../domain/enums/payment_method_type.dart';
-import '../../../domain/enums/payment_status.dart';
-import '../../../domain/interfaces/latin_american_payment_gateway.dart';
+import 'package:altrupets/core/payments/domain/entities/card_token.dart';
+import 'package:altrupets/core/payments/domain/entities/payment_gateway_configuration.dart';
+import 'package:altrupets/core/payments/domain/entities/payment_result.dart';
+import 'package:altrupets/core/payments/domain/entities/refund_result.dart';
+import 'package:altrupets/core/payments/domain/entities/money.dart';
+import 'package:altrupets/core/payments/domain/enums/country.dart';
+import 'package:altrupets/core/payments/domain/enums/currency.dart';
+import 'package:altrupets/core/payments/domain/enums/payment_method_type.dart';
+import 'package:altrupets/core/payments/domain/enums/payment_status.dart';
+import 'package:altrupets/core/payments/domain/interfaces/latin_american_payment_gateway.dart';
 
 /// Wompi Environment
 enum WompiEnvironment { test, production }
@@ -29,14 +29,6 @@ enum WompiEnvironment { test, production }
 /// - Support for webhooks
 /// - Multiple payment methods per country
 class WompiPaymentGateway implements LatinAmericanPaymentGateway {
-  final PaymentGatewayConfiguration _config;
-  late final String _baseUrl;
-  late final String _integrityKey;
-  late final String _businessPrefix;
-
-  // Acceptance token (must be obtained before making payments)
-  String? _acceptanceToken;
-
   WompiPaymentGateway(this._config) {
     _baseUrl = _config.sandbox
         ? 'https://sandbox.wompi.co/v1'
@@ -44,6 +36,14 @@ class WompiPaymentGateway implements LatinAmericanPaymentGateway {
     _integrityKey = (_config.extraConfig?['integrityKey'] as String?) ?? '';
     _businessPrefix = (_config.extraConfig?['businessPrefix'] as String?) ?? '';
   }
+  final PaymentGatewayConfiguration _config;
+  late final String _baseUrl;
+  // ignore: unused_field - reserved for future integrity check
+  late final String _integrityKey;
+  late final String _businessPrefix;
+
+  // Acceptance token (must be obtained before making payments)
+  String? _acceptanceToken;
 
   @override
   String get id => 'wompi';
@@ -370,7 +370,7 @@ class WompiPaymentGateway implements LatinAmericanPaymentGateway {
         Uri.parse('$_baseUrl/transactions/$transactionId/refunds'),
         headers: _headers,
         body: jsonEncode({
-          if (amount != null) 'amount_in_cents': amount,
+          'amount_in_cents': ?amount,
           'reason': reason ?? 'Customer request',
         }),
       );

@@ -54,29 +54,26 @@ class SyncStatus {
 
 /// Notifier simple que gestiona el estado de sincronización
 /// MVP: Solo cuenta pendientes, sin lógica de conflictos compleja
-class SyncStatusNotifier extends StateNotifier<SyncStatus> {
-  SyncStatusNotifier()
-    : super(
-        const SyncStatus(
-          pendingCount: 0,
-          lastSyncEpochMs: null,
-          isSyncing: false,
-        ),
-      );
+class SyncStatusNotifier extends Notifier<SyncStatus> {
+  @override
+  SyncStatus build() {
+    return const SyncStatus(
+      pendingCount: 0,
+      lastSyncEpochMs: null,
+      isSyncing: false,
+    );
+  }
 
   /// Actualiza el conteo de cambios pendientes
   Future<void> refreshPendingCount() async {
     try {
-      // Contar cambios de perfil pendientes
       final profileUpdates = await ProfileUpdateQueueStore.all();
       final profileCount = profileUpdates.length;
 
-      // Contar cambios de otras entidades
       final genericCount = await GenericSyncQueueStore.getPendingCount();
 
       final totalCount = profileCount + genericCount;
 
-      // Actualizar shared preferences
       await AppPrefsStore.setPendingProfileUpdatesCount(profileCount);
 
       state = state.copyWith(pendingCount: totalCount);
@@ -103,10 +100,9 @@ class SyncStatusNotifier extends StateNotifier<SyncStatus> {
 }
 
 /// Provider del estado de sincronización
-final syncStatusProvider =
-    StateNotifierProvider<SyncStatusNotifier, SyncStatus>(
-      (ref) => SyncStatusNotifier(),
-    );
+final syncStatusProvider = NotifierProvider<SyncStatusNotifier, SyncStatus>(
+  SyncStatusNotifier.new,
+);
 
 /// Provider que expone solo el conteo de pendientes
 final pendingSyncCountProvider = Provider<int>((ref) {

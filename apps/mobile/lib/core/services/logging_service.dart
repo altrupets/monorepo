@@ -1,19 +1,20 @@
 import 'package:flutter/foundation.dart';
 
 /// Log levels for structured logging
-enum LogLevel {
-  debug,
-  info,
-  warning,
-  error,
-  critical,
-}
+enum LogLevel { debug, info, warning, error, critical }
 
 /// Structured logging service
-/// 
+///
 /// Implements REQ-FLT-020: Logging estructurado
 /// Provides centralized, structured logging following cloud-native principles
 class LoggingService {
+  LoggingService._internal();
+
+  /// Get singleton instance
+  factory LoggingService() {
+    return _instance;
+  }
+
   /// Singleton instance
   static final LoggingService _instance = LoggingService._internal();
 
@@ -22,13 +23,6 @@ class LoggingService {
 
   /// List of log observers
   final List<LogObserver> _observers = [];
-
-  LoggingService._internal();
-
-  /// Get singleton instance
-  factory LoggingService() {
-    return _instance;
-  }
 
   /// Set minimum log level
   void setMinLogLevel(LogLevel level) {
@@ -211,6 +205,15 @@ class LoggingService {
 
 /// Log entry
 class LogEntry {
+  LogEntry({
+    required this.level,
+    required this.message,
+    required this.timestamp,
+    this.tag,
+    this.context,
+    this.stackTrace,
+    this.exception,
+  });
   final LogLevel level;
   final String message;
   final String? tag;
@@ -218,16 +221,6 @@ class LogEntry {
   final StackTrace? stackTrace;
   final dynamic exception;
   final DateTime timestamp;
-
-  LogEntry({
-    required this.level,
-    required this.message,
-    this.tag,
-    this.context,
-    this.stackTrace,
-    this.exception,
-    required this.timestamp,
-  });
 
   @override
   String toString() {
@@ -275,14 +268,16 @@ class FileLogObserver implements LogObserver {
   /// Export logs as JSON
   String exportAsJson() {
     return _logs
-        .map((entry) => {
-              'level': entry.level.toString().split('.').last,
-              'message': entry.message,
-              'tag': entry.tag,
-              'context': entry.context,
-              'exception': entry.exception?.toString(),
-              'timestamp': entry.timestamp.toIso8601String(),
-            })
+        .map(
+          (entry) => {
+            'level': entry.level.toString().split('.').last,
+            'message': entry.message,
+            'tag': entry.tag,
+            'context': entry.context,
+            'exception': entry.exception?.toString(),
+            'timestamp': entry.timestamp.toIso8601String(),
+          },
+        )
         .toList()
         .toString();
   }

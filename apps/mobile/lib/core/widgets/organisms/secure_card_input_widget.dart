@@ -6,13 +6,13 @@ import 'package:flutter/services.dart';
 /// Los datos de la tarjeta nunca se almacenan en el dispositivo
 class SecureCardInputWidget extends StatefulWidget {
   const SecureCardInputWidget({
-    super.key,
     required this.onCardSubmitted,
+    super.key,
     this.initialCardLast4,
     this.showSaveOption = true,
   });
 
-  final Function(CardTokenizationResult) onCardSubmitted;
+  final void Function(CardTokenizationResult) onCardSubmitted;
   final String? initialCardLast4;
   final bool showSaveOption;
 
@@ -90,7 +90,7 @@ class _SecureCardInputWidgetState extends State<SecureCardInputWidget> {
       // );
 
       // Simulación de respuesta de tokenización
-      await Future.delayed(const Duration(seconds: 1));
+      await Future<void>.delayed(const Duration(seconds: 1));
 
       final result = CardTokenizationResult(
         token: 'tok_${DateTime.now().millisecondsSinceEpoch}',
@@ -402,14 +402,6 @@ class _SecureCardInputWidgetState extends State<SecureCardInputWidget> {
 
 /// Resultado de la tokenización de tarjeta
 class CardTokenizationResult {
-  final String token;
-  final String last4;
-  final String cardType;
-  final String expiryMonth;
-  final String expiryYear;
-  final String cardHolderName;
-  final bool saveForFuture;
-
   const CardTokenizationResult({
     required this.token,
     required this.last4,
@@ -419,6 +411,13 @@ class CardTokenizationResult {
     required this.cardHolderName,
     required this.saveForFuture,
   });
+  final String token;
+  final String last4;
+  final String cardType;
+  final String expiryMonth;
+  final String expiryYear;
+  final String cardHolderName;
+  final bool saveForFuture;
 
   Map<String, dynamic> toJson() => {
     'token': token,
@@ -462,18 +461,17 @@ class CardTokenizationService {
 
 /// Widget para mostrar tarjeta guardada
 class SavedCardWidget extends StatelessWidget {
+  const SavedCardWidget({
+    required this.last4,
+    required this.cardType,
+    super.key,
+    this.onDelete,
+    this.onTap,
+  });
   final String last4;
   final String cardType;
   final VoidCallback? onDelete;
   final VoidCallback? onTap;
-
-  const SavedCardWidget({
-    super.key,
-    required this.last4,
-    required this.cardType,
-    this.onDelete,
-    this.onTap,
-  });
 
   @override
   Widget build(BuildContext context) {

@@ -1,35 +1,8 @@
-import '../enums/payment_status.dart';
-import 'money.dart';
+import 'package:altrupets/core/payments/domain/enums/payment_status.dart';
+import 'package:altrupets/core/payments/domain/entities/money.dart';
 
 /// Result of a payment operation
 class PaymentResult {
-  /// Whether the operation was successful
-  final bool success;
-
-  /// Transaction ID from the gateway
-  final String? transactionId;
-
-  /// Current status of the payment
-  final PaymentStatus? status;
-
-  /// Amount charged
-  final Money? amount;
-
-  /// Receipt URL (if available)
-  final String? receiptUrl;
-
-  /// Timestamp of creation
-  final DateTime? createdAt;
-
-  /// Error message (if failed)
-  final String? errorMessage;
-
-  /// Error code (if failed)
-  final String? errorCode;
-
-  /// Raw response from gateway (for debugging)
-  final Map<String, dynamic>? rawResponse;
-
   const PaymentResult({
     required this.success,
     this.transactionId,
@@ -77,6 +50,33 @@ class PaymentResult {
       rawResponse: rawResponse,
     );
   }
+
+  /// Whether the operation was successful
+  final bool success;
+
+  /// Transaction ID from the gateway
+  final String? transactionId;
+
+  /// Current status of the payment
+  final PaymentStatus? status;
+
+  /// Amount charged
+  final Money? amount;
+
+  /// Receipt URL (if available)
+  final String? receiptUrl;
+
+  /// Timestamp of creation
+  final DateTime? createdAt;
+
+  /// Error message (if failed)
+  final String? errorMessage;
+
+  /// Error code (if failed)
+  final String? errorCode;
+
+  /// Raw response from gateway (for debugging)
+  final Map<String, dynamic>? rawResponse;
 
   /// Whether the payment requires additional user action
   bool get requiresAction =>

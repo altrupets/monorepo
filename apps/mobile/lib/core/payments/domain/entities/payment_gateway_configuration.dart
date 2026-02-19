@@ -1,5 +1,20 @@
 /// Configuration for any LATAM payment gateway
 class PaymentGatewayConfiguration {
+  const PaymentGatewayConfiguration({
+    this.publicKey,
+    this.privateKey,
+    this.apiSecret,
+    this.sandbox = true,
+    this.timeout = const Duration(seconds: 30),
+    this.extraConfig,
+  });
+
+  /// Factory for minimal configuration (tokenization only)
+  factory PaymentGatewayConfiguration.minimal({
+    required String publicKey,
+    bool sandbox = true,
+  }) => PaymentGatewayConfiguration(publicKey: publicKey, sandbox: sandbox);
+
   /// Public API Key (for client-side tokenization)
   final String? publicKey;
 
@@ -17,21 +32,6 @@ class PaymentGatewayConfiguration {
 
   /// Gateway-specific configuration
   final Map<String, dynamic>? extraConfig;
-
-  const PaymentGatewayConfiguration({
-    this.publicKey,
-    this.privateKey,
-    this.apiSecret,
-    this.sandbox = true,
-    this.timeout = const Duration(seconds: 30),
-    this.extraConfig,
-  });
-
-  /// Factory for minimal configuration (tokenization only)
-  factory PaymentGatewayConfiguration.minimal({
-    required String publicKey,
-    bool sandbox = true,
-  }) => PaymentGatewayConfiguration(publicKey: publicKey, sandbox: sandbox);
 
   /// Validate required fields
   void validate() {

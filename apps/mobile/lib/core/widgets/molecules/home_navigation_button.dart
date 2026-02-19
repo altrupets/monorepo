@@ -2,17 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:altrupets/core/widgets/atoms/app_circular_button.dart';
 
 class HomeNavigationButton extends StatelessWidget {
-  const HomeNavigationButton({
-    required this.onTap,
-    super.key,
-  });
+  const HomeNavigationButton({required this.onTap, super.key});
 
   final VoidCallback onTap;
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    
+
     return Transform.translate(
       offset: const Offset(0, -24),
       child: AppCircularButton(

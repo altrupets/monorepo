@@ -1,20 +1,19 @@
-import '../../../../core/network/http_client_service.dart';
-import '../../../../core/models/user_model.dart';
+import 'package:altrupets/core/network/http_client_service.dart';
+import 'package:altrupets/core/models/user_model.dart';
 
 /// Registration service - CLIENT of backend GraphQL API
 /// Handles user registration by calling backend mutations
 class RegistrationService {
-  final HttpClientService _httpClient;
-
   RegistrationService({required HttpClientService httpClient})
-      : _httpClient = httpClient;
+    : _httpClient = httpClient;
+  final HttpClientService _httpClient;
 
   /// Register individual user
   /// Calls backend GraphQL mutation 'register'
   Future<UserModel> registerIndividual({
     required String username,
-    String? email,
     required String password,
+    String? email,
     String? firstName,
     String? lastName,
     String? phone,
@@ -73,12 +72,12 @@ class RegistrationService {
         'query': mutation,
         'variables': {
           'username': username,
-          if (email != null) 'email': email,
+          'email': ?email,
           'password': password,
-          if (firstName != null) 'firstName': firstName,
-          if (lastName != null) 'lastName': lastName,
-          if (phone != null) 'phone': phone,
-          if (identification != null) 'identification': identification,
+          'firstName': ?firstName,
+          'lastName': ?lastName,
+          'phone': ?phone,
+          'identification': ?identification,
           if (roles != null)
             'roles': roles.map((r) => r.toGraphQLString()).toList(),
         },

@@ -8,14 +8,13 @@ import 'package:http/http.dart' as http;
 /// - Pagos con tarjeta
 /// - Reembolsos
 class OnvoPayService {
-  final String apiKey;
-  final String baseUrl;
-  final bool sandbox;
-
   OnvoPayService({required this.apiKey, this.sandbox = true})
     : baseUrl = sandbox
           ? 'https://api-sandbox.onvopay.com'
           : 'https://api.onvopay.com';
+  final String apiKey;
+  final String baseUrl;
+  final bool sandbox;
 
   Map<String, String> get _headers => {
     'Content-Type': 'application/json',
@@ -201,7 +200,7 @@ class OnvoPayService {
     try {
       final queryParams = <String, String>{
         'limit': limit.toString(),
-        if (status != null) 'status': status,
+        'status': ?status,
       };
 
       final uri = Uri.parse(
@@ -241,10 +240,7 @@ class OnvoPayService {
     String? reason,
   }) async {
     try {
-      final body = <String, dynamic>{
-        if (amount != null) 'amount': amount,
-        if (reason != null) 'reason': reason,
-      };
+      final body = <String, dynamic>{'amount': ?amount, 'reason': ?reason};
 
       final response = await http.post(
         Uri.parse('$baseUrl/v1/charges/$paymentId/refund'),
@@ -277,13 +273,6 @@ class OnvoPayService {
 
 /// Modelo de token de tarjeta ONVO
 class OnvoCardToken {
-  final String id;
-  final String last4;
-  final String brand;
-  final String expiryMonth;
-  final String expiryYear;
-  final String cardHolderName;
-
   OnvoCardToken({
     required this.id,
     required this.last4,
@@ -292,6 +281,12 @@ class OnvoCardToken {
     required this.expiryYear,
     required this.cardHolderName,
   });
+  final String id;
+  final String last4;
+  final String brand;
+  final String expiryMonth;
+  final String expiryYear;
+  final String cardHolderName;
 
   Map<String, dynamic> toJson() => {
     'id': id,
@@ -305,16 +300,6 @@ class OnvoCardToken {
 
 /// Resultado de pago ONVO
 class OnvoPaymentResult {
-  final bool success;
-  final String? paymentId;
-  final String? status;
-  final int? amount;
-  final String? currency;
-  final String? receiptUrl;
-  final DateTime? createdAt;
-  final String? errorMessage;
-  final String? errorCode;
-
   OnvoPaymentResult({
     required this.success,
     this.paymentId,
@@ -326,18 +311,19 @@ class OnvoPaymentResult {
     this.errorMessage,
     this.errorCode,
   });
+  final bool success;
+  final String? paymentId;
+  final String? status;
+  final int? amount;
+  final String? currency;
+  final String? receiptUrl;
+  final DateTime? createdAt;
+  final String? errorMessage;
+  final String? errorCode;
 }
 
 /// Resultado de transferencia SINPE
 class OnvoSinpeResult {
-  final bool success;
-  final String? transferId;
-  final String? status;
-  final String? phoneNumber;
-  final int? amount;
-  final DateTime? expiresAt;
-  final String? errorMessage;
-
   OnvoSinpeResult({
     required this.success,
     this.transferId,
@@ -347,6 +333,13 @@ class OnvoSinpeResult {
     this.expiresAt,
     this.errorMessage,
   });
+  final bool success;
+  final String? transferId;
+  final String? status;
+  final String? phoneNumber;
+  final int? amount;
+  final DateTime? expiresAt;
+  final String? errorMessage;
 
   bool get isPending => status == 'pending';
   bool get isCompleted => status == 'completed';
@@ -356,13 +349,6 @@ class OnvoSinpeResult {
 
 /// Resultado de reembolso
 class OnvoRefundResult {
-  final bool success;
-  final String? refundId;
-  final int? amount;
-  final String? status;
-  final DateTime? createdAt;
-  final String? errorMessage;
-
   OnvoRefundResult({
     required this.success,
     this.refundId,
@@ -371,14 +357,19 @@ class OnvoRefundResult {
     this.createdAt,
     this.errorMessage,
   });
+  final bool success;
+  final String? refundId;
+  final int? amount;
+  final String? status;
+  final DateTime? createdAt;
+  final String? errorMessage;
 }
 
 /// Excepción específica de ONVO Pay
 class OnvoPayException implements Exception {
+  OnvoPayException(this.message, {this.code});
   final String message;
   final String? code;
-
-  OnvoPayException(this.message, {this.code});
 
   @override
   String toString() =>

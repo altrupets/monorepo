@@ -6,10 +6,19 @@ import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 
 /// Retry interceptor with exponential backoff
-/// 
+///
 /// Implements REQ-REL-004: Reintentos con backoff exponencial
 /// Automatically retries failed requests with exponential backoff strategy
 class RetryInterceptor extends Interceptor {
+  RetryInterceptor({
+    this.maxRetries = 3,
+    this.initialDelayMs = 100,
+    this.maxDelayMs = 10000,
+    this.backoffMultiplier = 2.0,
+    this.retryableStatusCodes = const [408, 429, 500, 502, 503, 504],
+    this.retryableExceptionTypes = const [SocketException, TimeoutException],
+  });
+
   /// Maximum number of retry attempts
   final int maxRetries;
 
@@ -27,18 +36,6 @@ class RetryInterceptor extends Interceptor {
 
   /// List of exception types that should trigger a retry
   final List<Type> retryableExceptionTypes;
-
-  RetryInterceptor({
-    this.maxRetries = 3,
-    this.initialDelayMs = 100,
-    this.maxDelayMs = 10000,
-    this.backoffMultiplier = 2.0,
-    this.retryableStatusCodes = const [408, 429, 500, 502, 503, 504],
-    this.retryableExceptionTypes = const [
-      SocketException,
-      TimeoutException,
-    ],
-  });
 
   @override
   Future<void> onError(
@@ -75,7 +72,7 @@ class RetryInterceptor extends Interceptor {
     }
 
     // Wait before retrying
-    await Future.delayed(Duration(milliseconds: delay));
+    await Future<void>.delayed(Duration(milliseconds: delay));
 
     // Increment retry count
     _setRetryCount(err.requestOptions, retryCount + 1);
@@ -123,7 +120,9 @@ class RetryInterceptor extends Interceptor {
     final delay = exponentialDelay.clamp(0, maxDelayMs);
 
     // Add jitter to prevent thundering herd
-    final jitter = (delay * 0.1 * (2 * (DateTime.now().millisecond % 100) / 100 - 1)).toInt();
+    final jitter =
+        (delay * 0.1 * (2 * (DateTime.now().millisecond % 100) / 100 - 1))
+            .toInt();
     return (delay + jitter).clamp(0, maxDelayMs);
   }
 
@@ -139,12 +138,14 @@ class RetryInterceptor extends Interceptor {
 
   /// Retry the request
   Future<Response<dynamic>> _retry(RequestOptions options) async {
-    final dio = Dio(BaseOptions(
-      baseUrl: options.baseUrl,
-      connectTimeout: options.connectTimeout,
-      receiveTimeout: options.receiveTimeout,
-      sendTimeout: options.sendTimeout,
-    ));
+    final dio = Dio(
+      BaseOptions(
+        baseUrl: options.baseUrl,
+        connectTimeout: options.connectTimeout,
+        receiveTimeout: options.receiveTimeout,
+        sendTimeout: options.sendTimeout,
+      ),
+    );
 
     return dio.request<dynamic>(
       options.path,

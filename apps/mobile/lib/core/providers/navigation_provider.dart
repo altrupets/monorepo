@@ -30,10 +30,7 @@ class NavigationService {
   }
 
   void push(BuildContext context, Widget page) {
-    Navigator.push(
-      context,
-      AppPageRoute<void>(builder: (context) => page),
-    );
+    Navigator.push(context, AppPageRoute<void>(builder: (context) => page));
   }
 
   void navigateReplacement(BuildContext context, Widget page) {

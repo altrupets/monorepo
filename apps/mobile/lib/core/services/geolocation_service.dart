@@ -1,12 +1,17 @@
 import 'package:geolocator/geolocator.dart';
 import 'dart:convert';
-import '../models/user_model.dart';
-import '../network/http_client_service.dart';
-import '../storage/secure_storage_service.dart';
+import 'package:altrupets/core/models/user_model.dart';
+import 'package:altrupets/core/network/http_client_service.dart';
+import 'package:altrupets/core/storage/secure_storage_service.dart';
 
 /// Service for geolocation capture and management
 /// Acts as a CLIENT of backend - captures location and sends to backend
 class GeoLocationService {
+  GeoLocationService({
+    required HttpClientService httpClient,
+    required SecureStorageService secureStorage,
+  }) : _httpClient = httpClient,
+       _secureStorage = secureStorage;
   final HttpClientService _httpClient;
   final SecureStorageService _secureStorage;
 
@@ -17,17 +22,11 @@ class GeoLocationService {
   // Cache expiration: 1 hour
   static const Duration _cacheExpiration = Duration(hours: 1);
 
-  GeoLocationService({
-    required HttpClientService httpClient,
-    required SecureStorageService secureStorage,
-  })  : _httpClient = httpClient,
-        _secureStorage = secureStorage;
-
   /// Get current GPS location
   /// Returns Position with latitude, longitude, accuracy, etc.
   Future<Position> getCurrentLocation() async {
     // Check if location services are enabled
-    bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
+    final bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
     if (!serviceEnabled) {
       throw LocationServiceDisabledException(
         'Location services are disabled. Please enable location services.',
@@ -68,7 +67,9 @@ class GeoLocationService {
   Future<Position?> getLastKnownLocation() async {
     try {
       final locationJson = await _secureStorage.read(key: _lastLocationKey);
-      final timestampStr = await _secureStorage.read(key: _locationTimestampKey);
+      final timestampStr = await _secureStorage.read(
+        key: _locationTimestampKey,
+      );
 
       if (locationJson == null || timestampStr == null) {
         return null;
@@ -90,8 +91,10 @@ class GeoLocationService {
         heading: (locationData['heading'] as num).toDouble(),
         speed: (locationData['speed'] as num).toDouble(),
         speedAccuracy: (locationData['speedAccuracy'] as num).toDouble(),
-        altitudeAccuracy: (locationData['altitudeAccuracy'] as num?)?.toDouble() ?? 0.0,
-        headingAccuracy: (locationData['headingAccuracy'] as num?)?.toDouble() ?? 0.0,
+        altitudeAccuracy:
+            (locationData['altitudeAccuracy'] as num?)?.toDouble() ?? 0.0,
+        headingAccuracy:
+            (locationData['headingAccuracy'] as num?)?.toDouble() ?? 0.0,
       );
     } catch (e) {
       return null;
@@ -134,10 +137,7 @@ class GeoLocationService {
       '/graphql',
       data: {
         'query': mutation,
-        'variables': {
-          'latitude': latitude,
-          'longitude': longitude,
-        },
+        'variables': {'latitude': latitude, 'longitude': longitude},
       },
     );
 
@@ -220,8 +220,8 @@ class GeoLocationService {
 
 /// Exception thrown when location services are disabled
 class LocationServiceDisabledException implements Exception {
-  final String message;
   LocationServiceDisabledException(this.message);
+  final String message;
 
   @override
   String toString() => message;
@@ -229,8 +229,8 @@ class LocationServiceDisabledException implements Exception {
 
 /// Exception thrown when location permissions are denied
 class LocationPermissionDeniedException implements Exception {
-  final String message;
   LocationPermissionDeniedException(this.message);
+  final String message;
 
   @override
   String toString() => message;

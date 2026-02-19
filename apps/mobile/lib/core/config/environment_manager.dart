@@ -2,24 +2,22 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 /// Environment configuration
 class Environment {
-  final String name;
-  final String apiBaseUrl;
-  final int requestTimeoutSeconds;
-  final bool enableLogging;
-
   const Environment({
     required this.name,
     required this.apiBaseUrl,
     this.requestTimeoutSeconds = 30,
     this.enableLogging = true,
   });
+  final String name;
+  final String apiBaseUrl;
+  final int requestTimeoutSeconds;
+  final bool enableLogging;
 }
 
 /// Environment manager for managing app environments
 class EnvironmentManager {
-  final Environment currentEnvironment;
-
   EnvironmentManager({required this.currentEnvironment});
+  final Environment currentEnvironment;
 
   /// Development environment
   static const development = Environment(
@@ -49,7 +47,5 @@ class EnvironmentManager {
 /// Riverpod provider for EnvironmentManager
 /// Default to development environment
 final environmentManagerProvider = Provider<EnvironmentManager>((ref) {
-  return EnvironmentManager(
-    currentEnvironment: EnvironmentManager.development,
-  );
+  return EnvironmentManager(currentEnvironment: EnvironmentManager.development);
 });
