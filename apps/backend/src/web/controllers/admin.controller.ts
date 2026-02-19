@@ -16,7 +16,7 @@ export class AdminController {
   @Get()
   @Roles(...USER_ADMIN_ROLES)
   async index(@Res() res: Response) {
-    // @ts-ignore - inertia is added by nestjs-inertia middleware
+    // @ts-ignore - inertia is added by @lapc506/nestjs-inertia middleware
     return res.inertia.render('Admin/Dashboard', {
       title: 'Panel de Administración',
     });
@@ -25,7 +25,7 @@ export class AdminController {
   @Get('users')
   @Roles(...USER_ADMIN_ROLES)
   async users(@Res() res: Response) {
-    // @ts-ignore - inertia is added by nestjs-inertia middleware
+    // @ts-ignore - inertia is added by @lapc506/nestjs-inertia middleware
     return res.inertia.render('Admin/Users/Index', {
       title: 'Gestión de Usuarios',
     });
@@ -34,7 +34,7 @@ export class AdminController {
   @Get('users/:id')
   @Roles(...USER_ADMIN_ROLES)
   async userDetail(@Res() res: Response) {
-    // @ts-ignore - inertia is added by nestjs-inertia middleware
+    // @ts-ignore - inertia is added by @lapc506/nestjs-inertia middleware
     return res.inertia.render('Admin/Users/Detail', {
       title: 'Detalle de Usuario',
     });

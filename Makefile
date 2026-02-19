@@ -97,6 +97,8 @@ help: ## Show this help message
 	@echo "$(GREEN)DEV - Backend:$(NC)"
 	@echo "  $(YELLOW)dev-backend-build$(NC)           Build backend image"
 	@echo "  $(YELLOW)dev-backend-start$(NC)           Start backend in dev mode"
+	@echo "  $(YELLOW)dev-backend-test$(NC)            Run unit tests"
+	@echo "  $(YELLOW)dev-backend-test-e2e$(NC)        Run e2e tests (needs DB port-forward)"
 	@echo ""
 	@echo "$(GREEN)DEV - Web Apps (managed by ArgoCD, manual fallback):$(NC)"
 	@echo "  $(YELLOW)dev-superusers-start$(NC)        Start CRUD Superusers locally (dev)"
@@ -261,14 +263,22 @@ dev-postgres-destroy: ## Destroy PostgreSQL
 	@cd $(TF_DIR) && tofu destroy -target=module.postgres
 
 dev-postgres-logs: ## Show PostgreSQL logs
-	@kubectl logs -n default -l app=postgres --tail=100 -f
+	@kubectl logs -n altrupets-dev -l app=postgres --tail=100 -f
 
 dev-postgres-port-forward: ## Port-forward PostgreSQL
-	@kubectl port-forward -n default svc/postgres-dev-service 5432:5432
+	@pkill -f "kubectl port-forward.*5432" 2>/dev/null || true
+	@kubectl port-forward -n altrupets-dev svc/postgres-dev-service 5432:5432
 
 # ==========================================
 # DEV - Backend
 # ==========================================
+
+dev-backend-test: ## Run backend unit tests
+	@cd apps/backend && npm test
+
+dev-backend-test-e2e: ## Run backend e2e tests
+	@echo "$(BLUE)Running e2e tests...$(NC)"
+	@cd apps/backend && npm run test:e2e
 
 dev-backend-build: ## Build backend image
 	@echo "$(BLUE)Building backend image...$(NC)"

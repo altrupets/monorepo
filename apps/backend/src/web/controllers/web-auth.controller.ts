@@ -13,7 +13,7 @@ export class WebAuthController {
 
   @Get('login')
   async loginPage(@Res() res: Response) {
-    // @ts-ignore - inertia is added by nestjs-inertia middleware
+    // @ts-ignore - inertia is added by @lapc506/nestjs-inertia middleware
     return res.inertia.render('Auth/Login', {
       title: 'Iniciar Sesión',
     });
@@ -31,7 +31,7 @@ export class WebAuthController {
       );
 
       if (!user) {
-        // @ts-ignore - inertia is added by nestjs-inertia middleware
+        // @ts-ignore - inertia is added by @lapc506/nestjs-inertia middleware
         return res.inertia.render('Auth/Login', {
           title: 'Iniciar Sesión',
           errors: { login: 'Credenciales inválidas' },
@@ -59,7 +59,7 @@ export class WebAuthController {
 
       return res.redirect('/');
     } catch (error) {
-      // @ts-ignore - inertia is added by nestjs-inertia middleware
+      // @ts-ignore - inertia is added by @lapc506/nestjs-inertia middleware
       return res.inertia.render('Auth/Login', {
         title: 'Iniciar Sesión',
         errors: { login: 'Credenciales inválidas' },
