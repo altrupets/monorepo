@@ -1,5 +1,14 @@
 # 🛠️ Tecnologías
 
+## 🖥️ Web Apps (Micro-Frontends)
+
+| Tecnología | Uso |
+|-----------|-----|
+| **Express.js** | Servidor Node.js minimalista |
+| **Vue 3** | Framework UI (desde CDN) |
+| **Inertia.js** | SPA sin API adicional |
+| **TypeScript** | Type safety en servidor |
+
 ## 📱 Frontend (Mobile)
 
 | Tecnología | Uso |
