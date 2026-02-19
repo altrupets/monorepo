@@ -577,3 +577,50 @@
   border-color: var(--altrupets-primary) !important;
 }
 
+
+/* ============================================
+   Pan & Zoom Plugin Enhancements
+   ============================================ */
+
+/* Cursor states for pan & zoom */
+.mermaid.panzoom-enabled {
+  cursor: grab;
+}
+
+.mermaid.panzoom-enabled:active {
+  cursor: grabbing;
+}
+
+.mermaid.panzoom-zoomed {
+  cursor: move;
+}
+
+/* Smooth transitions for zoom */
+.mermaid svg {
+  transition: transform 0.1s ease-out;
+}
+
+/* Hint text for zoom functionality */
+.mermaid::after {
+  content: "💡 Click para hacer zoom, arrastra para mover";
+  display: block;
+  text-align: center;
+  font-size: 0.75rem;
+  color: var(--altrupets-neutral-50);
+  margin-top: 0.5rem;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+.mermaid:hover::after {
+  opacity: 1;
+}
+
+[data-md-color-scheme="slate"] .mermaid::after {
+  color: var(--altrupets-neutral-80);
+}
+
+/* Hide hint when zoomed */
+.mermaid.panzoom-zoomed::after {
+  display: none;
+}

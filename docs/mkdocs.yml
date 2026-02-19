@@ -66,25 +66,22 @@ theme:
 plugins:
   - search:
       lang: es
-  - glightbox:
-      touchNavigation: true
-      loop: false
-      effect: zoom
-      slide_effect: slide
-      width: 100%
-      height: auto
-      zoomable: true
-      draggable: true
-      skip_classes:
-        - skip-lightbox
-      auto_caption: false
-      caption_position: bottom
   - git-revision-date-localized:
       enable_creation_date: true
   - git-committers:
       repository: altrupets/altrupets-monorepo
   - minify:
       minify_html: true
+  - panzoom:
+      selectors:
+        - .mermaid
+      enable_zoom_on_click: true
+      enable_pan: true
+      enable_zoom: true
+      zoom_speed: 0.1
+      pan_speed: 10
+      min_zoom: 0.5
+      max_zoom: 3.0
 
 # =============================================================================
 # Configuración de Markdown

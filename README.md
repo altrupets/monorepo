@@ -1964,6 +1964,50 @@ make dev                  # Deploy con make (recomendado)
 
 Ver detalles completos en [`infrastructure/terraform/modules/kubernetes/gateway-api/CHANGELOG.md`](infrastructure/terraform/modules/kubernetes/gateway-api/CHANGELOG.md)
 
+## 📚 Documentación
+
+La documentación completa del proyecto está disponible en [GitHub Pages](https://altrupets.github.io/monorepo).
+
+### Características de la Documentación
+
+- **🎨 Branding AltruPets**: Diseño personalizado con paleta de colores oficial y tipografías Poppins y Lemon Milk
+- **📊 Diagramas Interactivos**: Todos los diagramas Mermaid incluyen funcionalidad de zoom/pan para mejor exploración
+- **🌓 Modo Oscuro**: Soporte completo para tema claro y oscuro
+- **🔍 Búsqueda Avanzada**: Motor de búsqueda integrado en español
+- **📱 Responsive**: Optimizada para desktop, tablet y móvil
+
+### Secciones Principales
+
+- **Mobile**: Arquitectura, features, Widgetbook, y guías de desarrollo Flutter
+- **Backend**: API GraphQL, autenticación, y servicios NestJS
+- **Infraestructura**: Kubernetes, Gateway API, Terraform/OpenTofu
+- **Paquetes**: Documentación de paquetes compartidos como `latam_payments`
+
+### Interacción con Diagramas
+
+Los diagramas Mermaid en la documentación son completamente interactivos:
+
+- **Click**: Hacer zoom in
+- **Arrastrar**: Mover el diagrama cuando está ampliado
+- **Scroll**: Zoom continuo con la rueda del mouse
+- **Hint visual**: Aparece al hacer hover sobre cualquier diagrama
+
+### Desarrollo Local
+
+```bash
+# Instalar dependencias
+pip install -r docs/requirements.txt
+
+# Servir documentación localmente
+cd docs && mkdocs serve
+
+# Acceder en http://localhost:8000
+```
+
+### Changelog de Documentación
+
+Ver [docs/CHANGELOG.md](docs/CHANGELOG.md) para historial completo de cambios en la documentación.
+
 ## 📄 Licencia
 
 Business Source License 1.1 - Ver archivo [LICENSE](https://github.com/altrupets/monorepo/blob/main/LICENSE) para detalles completos.
