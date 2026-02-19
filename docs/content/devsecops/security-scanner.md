@@ -10,13 +10,15 @@ El **Security Scanner** es un contenedor Docker dedicado que contiene todas las 
 
 ```mermaid
 graph LR
-    A[Backend Container] -->|Producción| B[Node.js + App]
-    C[Security Scanner] -->|CI/CD + K8s Jobs| D[Herramientas de Seguridad]
+    A[Backend Container] --> B[Node.js + App]
+    C[Security Scanner] --> D[Security Tools]
     
     style A fill:#e1f5e1
     style C fill:#fff3cd
     style B fill:#d4edda
     style D fill:#f8d7da
+    
+    linkStyle 0,1 stroke-width:2px,fill:none,stroke:gray
 ```
 
 ### ¿Por qué un contenedor separado?
@@ -275,19 +277,34 @@ make dev-security-fix
 
 Todos los reportes se guardan en:
 
-```
-.security-reports/
-├── npm-audit.json
-├── dart-analyze.txt
-├── eslint.json
-├── shellcheck.json
-├── trufflehog.json
-├── trivy-backend.json
-├── trivy-backend-config.json
-├── tfsec.json
-├── checkov.json
-├── checkov-k8s.json
-└── summary-YYYYMMDD-HHMMSS.md
+```mermaid
+graph TD
+    reports[".security-reports/"]
+    npm[npm-audit.json]
+    dart[dart-analyze.txt]
+    eslint[eslint.json]
+    shell[shellcheck.json]
+    truffle[trufflehog.json]
+    trivy[trivy-backend.json]
+    trivyc[trivy-backend-config.json]
+    tfsec[tfsec.json]
+    checkov[checkov.json]
+    checkovk[checkov-k8s.json]
+    summary[summary-YYYYMMDD-HHMMSS.md]
+    
+    reports --> npm
+    reports --> dart
+    reports --> eslint
+    reports --> shell
+    reports --> truffle
+    reports --> trivy
+    reports --> trivyc
+    reports --> tfsec
+    reports --> checkov
+    reports --> checkovk
+    reports --> summary
+    
+    style reports fill:#f8f9fa,stroke:#333
 ```
 
 ### Reporte Resumen
