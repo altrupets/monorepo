@@ -322,9 +322,9 @@ dev-images-build: ## Build all images (backend + web apps)
 	@$(SCRIPTS_DIR)/build-web-images-minikube.sh b2g
 	@echo "$(GREEN)✓ All images built$(NC)"
 
-dev-backend-tf-deploy: ## Deploy backend to minikube (terraform/kustomize)
+dev-backend-tf-deploy: ## Deploy backend to minikube (kustomize overlay)
 	@echo "$(BLUE)Deploying backend...$(NC)"
-	@kubectl apply -k k8s/base/backend --server-side -n altrupets-dev
+	@kubectl apply -k k8s/overlays/dev/backend --server-side
 	@kubectl rollout status deployment/backend -n altrupets-dev --timeout=120s
 	@echo "$(GREEN)✓ Backend deployed$(NC)"
 
@@ -348,9 +348,9 @@ dev-superusers-stop: ## Stop CRUD Superusers
 	@pkill -f "kubectl port-forward.*backend-service" 2>/dev/null || true
 	@echo "$(GREEN)✓ CRUD Superusers stopped$(NC)"
 
-dev-superusers-tf-deploy: ## Deploy CRUD Superusers to minikube (terraform/kustomize)
+dev-superusers-tf-deploy: ## Deploy CRUD Superusers to minikube (kustomize overlay)
 	@$(SCRIPTS_DIR)/build-web-images-minikube.sh superusers
-	@kubectl apply -k k8s/base/web-superusers --server-side -n altrupets-dev
+	@kubectl apply -k k8s/overlays/dev/web-superusers --server-side
 	@kubectl rollout status deployment/web-superusers -n altrupets-dev --timeout=60s
 	@echo "$(GREEN)✓ CRUD Superusers deployed$(NC)"
 
@@ -375,9 +375,9 @@ dev-b2g-stop: ## Stop B2G
 	@pkill -f "kubectl port-forward.*backend-service" 2>/dev/null || true
 	@echo "$(GREEN)✓ B2G stopped$(NC)"
 
-dev-b2g-tf-deploy: ## Deploy B2G to minikube (terraform/kustomize)
+dev-b2g-tf-deploy: ## Deploy B2G to minikube (kustomize overlay)
 	@$(SCRIPTS_DIR)/build-web-images-minikube.sh b2g
-	@kubectl apply -k k8s/base/web-b2g --server-side -n altrupets-dev
+	@kubectl apply -k k8s/overlays/dev/web-b2g --server-side
 	@kubectl rollout status deployment/web-b2g -n altrupets-dev --timeout=60s
 	@echo "$(GREEN)✓ B2G deployed$(NC)"
 

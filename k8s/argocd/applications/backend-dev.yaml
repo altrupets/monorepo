@@ -8,7 +8,7 @@ metadata:
 spec:
   project: altrupets-dev
   source:
-    repoURL: https://github.com/your-org/altrupets-monorepo.git
+    repoURL: https://github.com/altrupets/monorepo.git
     targetRevision: main
     path: k8s/overlays/dev/backend
   destination:
