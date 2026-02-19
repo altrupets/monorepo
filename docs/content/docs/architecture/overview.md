@@ -4,31 +4,31 @@
 
 ```mermaid
 flowchart TB
-    subgraph Clients["👥 Clientes"]
-        Browser["🖥️ Navegador"]
-        Mobile["📱 Flutter App"]
-        API["🔌 API Clients"]
+    subgraph Clients["Clients"]
+        Browser["Browser"]
+        Mobile["Flutter App"]
+        API["API Clients"]
     end
 
-    subgraph Gateway["🚪 Gateway Layer"]
+    subgraph Gateway["Gateway Layer"]
         NGINX["NGINX Gateway API<br/>HTTPRoutes"]
     end
 
-    subgraph Apps["🎨 Application Layer"]
+    subgraph Apps["Application Layer"]
         subgraph WebApps["Micro-Frontends"]
-            Admin["📋 CRUD Superusers<br/>Express + Vue<br/>:3002"]
-            B2G["🏛️ B2G Government<br/>Express + Vue<br/>:3003"]
+            Admin["CRUD Superusers<br/>Express + Vue<br/>:3002"]
+            B2G["B2G Government<br/>Express + Vue<br/>:3003"]
         end
-        Backend["⚙️ Backend API<br/>NestJS + GraphQL<br/>:3001"]
+        Backend["Backend API<br/>NestJS + GraphQL<br/>:3001"]
     end
 
-    subgraph Data["💾 Data Layer"]
+    subgraph Data["Data Layer"]
         Postgres[("PostgreSQL")]
         Valkey[("Valkey")]
         Storage[("S3/MinIO")]
     end
 
-    subgraph Infra["☁️ Infrastructure"]
+    subgraph Infra["Infrastructure"]
         K8s["Kubernetes<br/>(OVHCloud)"]
         TF["Terraform"]
         GH["GitHub Actions"]
