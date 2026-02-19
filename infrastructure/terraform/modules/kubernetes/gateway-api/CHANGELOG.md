@@ -7,6 +7,14 @@ y este proyecto adhiere a [Semantic Versioning](https://semver.org/lang/es/spec/
 
 ## [Unreleased]
 
+### Fixed - 2026-02-19
+
+#### Gateway Manifest Conditional Listeners
+- **Problema**: `kubernetes_manifest` no soporta arrays condicionales con diferente longitud
+- **Solución**: Migrado a `jsondecode(templatefile())` para listeners condicionales HTTP/HTTPS
+- **Nuevo archivo**: `templates/gateway.json.tpl` con template JSON dinámico
+- **Error resuelto**: "Inconsistent conditional result types" al cambiar `enable_https`
+
 ### Added - 2025-02-16
 
 #### Arquitectura Híbrida: NGINX Gateway + Istio Service Mesh + OpenTelemetry

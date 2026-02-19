@@ -20,6 +20,7 @@ ENVIRONMENT="${1:-}"
 AUTO_APPROVE="${AUTO_APPROVE:-false}"
 SKIP_GATEWAY="${SKIP_GATEWAY:-false}"
 SKIP_ISTIO="${SKIP_ISTIO:-false}"
+FORCE_RECREATE="${FORCE_RECREATE:-false}"
 PROJECT_ROOT="$(cd "$SCRIPT_DIR/../.." && pwd)"
 
 # ============================================
@@ -39,12 +40,14 @@ Options:
   --skip-gateway           Skip NGINX Gateway deployment
   --skip-istio             Skip Istio Service Mesh deployment
   --auto-approve           Auto-approve Terraform changes
+  --force-recreate         Force recreation of Gateway manifest
   -h, --help              Show this help message
 
 Environment Variables:
   AUTO_APPROVE            Auto-approve Terraform changes (true/false)
   SKIP_GATEWAY            Skip NGINX Gateway (true/false)
   SKIP_ISTIO              Skip Istio (true/false)
+  FORCE_RECREATE          Force Gateway recreation (true/false)
 
 Examples:
   $(basename "$0") qa
@@ -67,6 +70,10 @@ parse_args() {
 			;;
 		--auto-approve)
 			AUTO_APPROVE=true
+			shift
+			;;
+		--force-recreate)
+			FORCE_RECREATE=true
 			shift
 			;;
 		-h | --help)
@@ -99,14 +106,6 @@ validate_prerequisites() {
 
 	validate_environment "$ENVIRONMENT"
 
-	# DEV is handled separately
-	if [[ "$ENVIRONMENT" == "dev" ]]; then
-		log_error "Use 'make dev' or deploy manually for DEV environment"
-		log_info "This script is for QA and Staging only"
-		exit 1
-	fi
-
-	# PROD is not implemented yet
 	if [[ "$ENVIRONMENT" == "prod" ]]; then
 		log_warn "Production deployment not yet implemented"
 		log_info "PROD gateway configuration is TBD"
@@ -186,6 +185,10 @@ deploy_gateway_api() {
 	log_info "  NGINX Gateway: $nginx_enabled"
 	log_info "  Istio Service Mesh: $istio_enabled"
 
+	if [[ "$FORCE_RECREATE" == "true" ]]; then
+		log_warn "Force recreate enabled - Gateway manifest will be destroyed first"
+	fi
+
 	# Confirm deployment
 	if [[ "$AUTO_APPROVE" != "true" ]]; then
 		if ! confirm "Deploy Gateway API to $env?" "yes"; then
@@ -194,7 +197,7 @@ deploy_gateway_api() {
 	fi
 
 	# Initialize Terraform
-	log_step 1 3 "Initializing Terraform"
+	log_step 1 4 "Initializing Terraform"
 	cd "$tf_dir"
 	if ! tofu init; then
 		log_error "Terraform initialization failed"
@@ -206,20 +209,41 @@ deploy_gateway_api() {
 	get_tf_vars "$env" >"$tfvars_file"
 	log_debug "Created $tfvars_file"
 
-	# Plan
-	log_step 2 3 "Planning deployment"
-	if ! tofu plan; then
-		log_error "Terraform plan failed"
-		rm -f "$tfvars_file"
-		exit 1
+	# Check if gateway manifest needs recreation
+	log_step 2 4 "Checking Gateway manifest status"
+	local needs_recreate=false
+
+	if [[ "$FORCE_RECREATE" == "true" ]]; then
+		needs_recreate=true
+		log_warn "Force recreate requested"
+	else
+		if tofu plan -target='module.gateway_api.kubernetes_manifest.main_gateway[0]' -detailed-exitcode 2>/dev/null; then
+			log_success "Gateway manifest is in sync"
+		elif [ $? -eq 2 ]; then
+			if tofu plan -target='module.gateway_api.kubernetes_manifest.main_gateway[0]' 2>&1 | grep -qE "forces replacement|forces new resource|inconsistent"; then
+				needs_recreate=true
+				log_warn "Gateway manifest requires recreation"
+			fi
+		fi
 	fi
 
-	# Apply
-	log_step 3 3 "Applying changes"
+	# Destroy gateway manifest if needed
+	if [[ "$needs_recreate" == "true" ]]; then
+		log_step 3 4 "Destroying Gateway manifest for recreation"
+		if ! tofu destroy -target='module.gateway_api.kubernetes_manifest.main_gateway[0]' -auto-approve; then
+			log_error "Failed to destroy gateway manifest"
+			rm -f "$tfvars_file"
+			exit 1
+		fi
+		log_success "Gateway manifest destroyed"
+	fi
+
+	# Plan and Apply
+	log_step 4 4 "Applying changes"
 	local apply_args=""
 	[[ "$AUTO_APPROVE" == "true" ]] && apply_args="-auto-approve"
 
-	if ! tofu apply $apply_args; then
+	if ! tofu apply -target=module.gateway_api $apply_args; then
 		log_error "Terraform apply failed"
 		rm -f "$tfvars_file"
 		exit 1
