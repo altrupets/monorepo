@@ -20,6 +20,7 @@
         dev-superusers-start dev-superusers-stop dev-superusers-deploy dev-superusers-destroy \
         dev-b2g-start dev-b2g-stop dev-b2g-deploy dev-b2g-destroy \
         dev-infisical-sync dev-infisical-sync-cli \
+        dev-mcp-start dev-mcp-stop dev-mcp-status \
         dev-security-scan dev-security-deps dev-security-sast dev-security-secrets \
         dev-security-container dev-security-iac dev-security-fix \
         qa-terraform-deploy qa-terraform-destroy qa-verify \
@@ -131,6 +132,11 @@ help: ## Show this help message
 	@echo "$(GREEN)DEV - Utilities:$(NC)"
 	@echo "  $(YELLOW)dev-infisical-sync$(NC)         Sync secrets from Infisical"
 	@echo "  $(YELLOW)dev-infisical-sync-cli$(NC)     Sync secrets via CLI (no operator)"
+	@echo ""
+	@echo "$(GREEN)DEV - MCP Servers:$(NC)"
+	@echo "  $(YELLOW)dev-mcp-start$(NC)              Start all MCP servers (context7, dart, graphql, etc.)"
+	@echo "  $(YELLOW)dev-mcp-stop$(NC)               Stop all MCP servers"
+	@echo "  $(YELLOW)dev-mcp-status$(NC)             Check MCP servers status"
 	@echo ""
 	@echo "$(GREEN)DEV - DevSecOps:$(NC)"
 	@echo "  $(YELLOW)dev-security-scan$(NC)           Run all security scans"
@@ -250,7 +256,7 @@ dev-argocd-password: ## Get ArgoCD admin password
 # ==========================================
 
 dev-gateway-deploy: ## Deploy Gateway API only
-	@cd $(TF_DIR) && tofu init && tofu apply -target=module.gateway_api -auto-approve
+	@$(SCRIPTS_DIR)/deploy-gateway-api.sh dev --auto-approve
 
 dev-gateway-start: ## Start port-forward to Gateway
 	@echo "$(BLUE)Starting Gateway port-forward...$(NC)"
@@ -371,6 +377,70 @@ dev-infisical-sync: ## Sync secrets from Infisical to Kubernetes
 
 dev-infisical-sync-cli: ## Sync secrets using Infisical CLI (no operator needed)
 	@$(SCRIPTS_DIR)/infisical-sync.sh --cli
+
+# ==========================================
+# DEV - MCP Servers
+# ==========================================
+
+MCP_PID_DIR := /tmp/mcp-servers
+
+dev-mcp-start: ## Start all MCP servers (context7, dart, graphql, mobile, stitch)
+	@mkdir -p $(MCP_PID_DIR)
+	@echo "$(BLUE)Starting MCP servers...$(NC)"
+	@if [ -f $(MCP_PID_DIR)/context7.pid ] && kill -0 $$(cat $(MCP_PID_DIR)/context7.pid) 2>/dev/null; then \
+		echo "$(YELLOW)context7 already running (PID: $$(cat $(MCP_PID_DIR)/context7.pid))$(NC)"; \
+	else \
+		CONTEXT7_API_KEY=$$(jq -r '.mcpServers.context7.env.CONTEXT7_API_KEY' mcp.json) \
+			npx -y @upstash/context7-mcp & echo $$! > $(MCP_PID_DIR)/context7.pid; \
+		echo "$(GREEN)✓ context7 started$(NC)"; \
+	fi
+	@if [ -f $(MCP_PID_DIR)/dart.pid ] && kill -0 $$(cat $(MCP_PID_DIR)/dart.pid) 2>/dev/null; then \
+		echo "$(YELLOW)dart already running (PID: $$(cat $(MCP_PID_DIR)/dart.pid))$(NC)"; \
+	else \
+		dart mcp-server --force-roots-fallback & echo $$! > $(MCP_PID_DIR)/dart.pid; \
+		echo "$(GREEN)✓ dart started$(NC)"; \
+	fi
+	@if [ -f $(MCP_PID_DIR)/graphql.pid ] && kill -0 $$(cat $(MCP_PID_DIR)/graphql.pid) 2>/dev/null; then \
+		echo "$(YELLOW)graphql already running (PID: $$(cat $(MCP_PID_DIR)/graphql.pid))$(NC)"; \
+	else \
+		npx -y @apollographql/apollo-mcp-server & echo $$! > $(MCP_PID_DIR)/graphql.pid; \
+		echo "$(GREEN)✓ graphql started$(NC)"; \
+	fi
+	@if [ -f $(MCP_PID_DIR)/mobile.pid ] && kill -0 $$(cat $(MCP_PID_DIR)/mobile.pid) 2>/dev/null; then \
+		echo "$(YELLOW)mobile-mcp already running (PID: $$(cat $(MCP_PID_DIR)/mobile.pid))$(NC)"; \
+	else \
+		npx -y @mobilenext/mobile-mcp@latest & echo $$! > $(MCP_PID_DIR)/mobile.pid; \
+		echo "$(GREEN)✓ mobile-mcp started$(NC)"; \
+	fi
+	@if [ -f $(MCP_PID_DIR)/stitch.pid ] && kill -0 $$(cat $(MCP_PID_DIR)/stitch.pid) 2>/dev/null; then \
+		echo "$(YELLOW)stitch already running (PID: $$(cat $(MCP_PID_DIR)/stitch.pid))$(NC)"; \
+	else \
+		GOOGLE_CLOUD_PROJECT=$$(jq -r '.mcpServers.stitch.env.GOOGLE_CLOUD_PROJECT' mcp.json) \
+			npx -y stitch-mcp & echo $$! > $(MCP_PID_DIR)/stitch.pid; \
+		echo "$(GREEN)✓ stitch started$(NC)"; \
+	fi
+	@echo "$(GREEN)All MCP servers started. PIDs stored in $(MCP_PID_DIR)/$(NC)"
+
+dev-mcp-stop: ## Stop all MCP servers
+	@echo "$(BLUE)Stopping MCP servers...$(NC)"
+	@for server in context7 dart graphql mobile stitch; do \
+		if [ -f $(MCP_PID_DIR)/$$server.pid ]; then \
+			kill $$(cat $(MCP_PID_DIR)/$$server.pid) 2>/dev/null || true; \
+			rm -f $(MCP_PID_DIR)/$$server.pid; \
+			echo "$(GREEN)✓ $$server stopped$(NC)"; \
+		fi; \
+	done
+	@echo "$(GREEN)All MCP servers stopped$(NC)"
+
+dev-mcp-status: ## Check MCP servers status
+	@echo "$(BLUE)MCP Servers Status:$(NC)"
+	@for server in context7 dart graphql mobile stitch; do \
+		if [ -f $(MCP_PID_DIR)/$$server.pid ] && kill -0 $$(cat $(MCP_PID_DIR)/$$server.pid) 2>/dev/null; then \
+			echo "  $(GREEN)● $$server$(NC) running (PID: $$(cat $(MCP_PID_DIR)/$$server.pid))"; \
+		else \
+			echo "  $(RED)○ $$server$(NC) stopped"; \
+		fi; \
+	done
 
 # ==========================================
 # DEV - DevSecOps

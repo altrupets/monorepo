@@ -433,62 +433,14 @@ resource "kubernetes_manifest" "main_gateway" {
     kubernetes_namespace.app_namespace
   ]
   
-  manifest = {
-    apiVersion = "gateway.networking.k8s.io/v1"
-    kind       = "Gateway"
-    metadata = {
-      name      = var.gateway_name
-      namespace = var.namespace
-      annotations = {
-        "app.kubernetes.io/managed-by" = "terraform"
-      }
-    }
-    spec = {
-      gatewayClassName = var.enable_nginx_gateway ? var.nginx_gateway_class_name : var.istio_gateway_class_name
-      listeners = var.enable_https ? [
-        {
-          name     = "http"
-          protocol = "HTTP"
-          port     = 80
-          allowedRoutes = {
-            namespaces = {
-              from = "All"
-            }
-          }
-        },
-        {
-          name     = "https"
-          protocol = "HTTPS"
-          port     = 443
-          tls = {
-            mode = "Terminate"
-            certificateRefs = [
-              {
-                name      = var.tls_certificate_secret_name
-                namespace = var.tls_certificate_namespace != "" ? var.tls_certificate_namespace : var.namespace
-              }
-            ]
-          }
-          allowedRoutes = {
-            namespaces = {
-              from = "All"
-            }
-          }
-        }
-      ] : [
-        {
-          name     = "http"
-          protocol = "HTTP"
-          port     = 80
-          allowedRoutes = {
-            namespaces = {
-              from = "All"
-            }
-          }
-        }
-      ]
-    }
-  }
+  manifest = jsondecode(templatefile("${path.module}/templates/gateway.json.tpl", {
+    gateway_name       = var.gateway_name
+    namespace          = var.namespace
+    gateway_class_name = var.enable_nginx_gateway ? var.nginx_gateway_class_name : var.istio_gateway_class_name
+    enable_https       = var.enable_https
+    tls_secret_name    = var.tls_certificate_secret_name
+    tls_namespace      = var.tls_certificate_namespace != "" ? var.tls_certificate_namespace : var.namespace
+  }))
 }
 
 # ============================================

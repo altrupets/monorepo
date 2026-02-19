@@ -165,6 +165,9 @@ nav:
     - TLS/HTTPS: docs/deployment/tls.md
   - 🔒 DevSecOps:
     - Security Scanner: devsecops/security-scanner.md
+  - 🔌 MCP Servers:
+    - Visión general: docs/mcp/index.md
+    - Configuración: docs/mcp/setup.md
   - 📦 Paquetes:
     - latam_payments: docs/packages/latam-payments-package.md
     - Progreso: docs/packages/latam-payments-progress.md
