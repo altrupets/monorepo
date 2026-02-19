@@ -14,6 +14,8 @@
         dev-terraform-deploy dev-terraform-destroy \
         dev-minikube-deploy dev-minikube-clear dev-minikube-destroy \
         dev-argocd-deploy dev-argocd-destroy dev-argocd-status dev-argocd-password \
+        dev-argocd-push-and-deploy dev-argocd-sync-local dev-argocd-setup-local-repo \
+        dev-harbor-deploy dev-harbor-destroy \
         dev-gateway-deploy dev-gateway-start dev-gateway-stop \
         dev-postgres-deploy dev-postgres-destroy dev-postgres-logs dev-postgres-port-forward \
         dev-backend-build dev-backend-tf-deploy dev-images-build dev-backend-start \
@@ -64,8 +66,11 @@ help: ## Show this help message
 	@echo "  $(YELLOW)Manual (sin ArgoCD):$(NC)"
 	@echo "  make setup && make dev-minikube-deploy && make dev-terraform-deploy && make dev-images-build && make dev-backend-tf-deploy && make dev-superusers-tf-deploy && make dev-b2g-tf-deploy && make dev-gateway-start"
 	@echo ""
-	@echo "  $(YELLOW)Con ArgoCD (GitOps):$(NC)"
-	@echo "  make setup && make dev-minikube-deploy && make dev-terraform-deploy && make dev-images-build && make dev-argocd-deploy && make dev-gateway-start"
+	@echo "  $(YELLOW)GitOps/ArgoCD (push automático):$(NC)"
+	@echo "  make setup && make dev-minikube-deploy && make dev-terraform-deploy && make dev-images-build && make dev-argocd-push-and-deploy && make dev-gateway-start"
+	@echo ""
+	@echo "  $(YELLOW)GitOps/ArgoCD + Harbor Registry:$(NC)"
+	@echo "  make setup && make dev-minikube-deploy && make dev-terraform-deploy && make dev-harbor-deploy && make dev-images-build && make dev-argocd-push-and-deploy && make dev-gateway-start"
 	@echo ""
 	@echo "  $(YELLOW)Step by step (Manual):$(NC)"
 	@echo "  1. make setup                    $(BLUE)# First time setup$(NC)"
@@ -95,6 +100,13 @@ help: ## Show this help message
 	@echo "  $(YELLOW)dev-argocd-destroy$(NC)          Remove ArgoCD namespace"
 	@echo "  $(YELLOW)dev-argocd-status$(NC)           Show ArgoCD applications"
 	@echo "  $(YELLOW)dev-argocd-password$(NC)         Get ArgoCD admin password"
+	@echo "  $(YELLOW)dev-argocd-push-and-deploy$(NC)  Push changes + GitOps deploy"
+	@echo "  $(YELLOW)dev-argocd-sync-local$(NC)       Sync from local filesystem (no push)"
+	@echo "  $(YELLOW)dev-argocd-setup-local-repo$(NC) Configure file:// repo (emergency)"
+	@echo ""
+	@echo "$(GREEN)DEV - Harbor Registry:$(NC)"
+	@echo "  $(YELLOW)dev-harbor-deploy$(NC)           Deploy Harbor registry (https://localhost:30003)"
+	@echo "  $(YELLOW)dev-harbor-destroy$(NC)          Remove Harbor registry"
 	@echo ""
 	@echo "$(GREEN)DEV - Gateway:$(NC)"
 	@echo "  $(YELLOW)dev-gateway-deploy$(NC)          Deploy Gateway API"
@@ -254,6 +266,47 @@ dev-argocd-status: ## Show ArgoCD applications
 dev-argocd-password: ## Get ArgoCD admin password
 	@echo "$(BLUE)ArgoCD Admin Password:$(NC)"
 	@kubectl -n argocd get secret argocd-initial-admin-secret -o jsonpath='{.data.password}' 2>/dev/null | base64 -d && echo || echo "$(YELLOW)ArgoCD not installed$(NC)"
+
+dev-argocd-push-and-deploy: ## Push changes and deploy with ArgoCD (GitOps)
+	@$(SCRIPTS_DIR)/install-argocd-cli.sh || true
+	@echo "$(BLUE)Pushing changes to origin...$(NC)"
+	@git add -A && git commit -m "chore: dev deployment $(shell date +%Y%m%d-%H%M%S)" || echo "$(YELLOW)No changes to commit$(NC)"
+	@git push origin main
+	@echo "$(BLUE)Deploying ArgoCD applications...$(NC)"
+	@$(SCRIPTS_DIR)/setup-argocd-dev.sh "$(REPO_URL)"
+	@echo "$(BLUE)Syncing applications...$(NC)"
+	@argocd app sync altrupets-backend-dev --grpc-web 2>/dev/null || true
+	@argocd app sync altrupets-web-superusers-dev --grpc-web 2>/dev/null || true
+	@argocd app sync altrupets-web-b2g-dev --grpc-web 2>/dev/null || true
+	@echo "$(GREEN)✓ GitOps deployment complete$(NC)"
+
+dev-argocd-sync-local: ## Sync ArgoCD apps from local filesystem (no push, auto-install)
+	@$(SCRIPTS_DIR)/install-argocd-cli.sh || true
+	@if ! kubectl get namespace argocd >/dev/null 2>&1; then \
+		echo "$(YELLOW)ArgoCD not installed, installing...$(NC)"; \
+		$(SCRIPTS_DIR)/setup-argocd-dev.sh "$(REPO_URL)"; \
+	fi
+	@echo "$(BLUE)Syncing from local filesystem...$(NC)"
+	@argocd app sync altrupets-backend-dev --local ./k8s/overlays/dev/backend --grpc-web
+	@argocd app sync altrupets-web-superusers-dev --local ./k8s/overlays/dev/web-superusers --grpc-web
+	@argocd app sync altrupets-web-b2g-dev --local ./k8s/overlays/dev/web-b2g --grpc-web
+	@echo "$(GREEN)✓ Local sync complete$(NC)"
+
+dev-argocd-setup-local-repo: ## Configure ArgoCD with local file:// repo (emergency)
+	@$(SCRIPTS_DIR)/setup-argocd-local-repo.sh
+
+# ==========================================
+# DEV - Harbor Registry
+# ==========================================
+
+dev-harbor-deploy: ## Deploy Harbor registry (https://localhost:30003)
+	@$(SCRIPTS_DIR)/setup-harbor.sh
+
+dev-harbor-destroy: ## Remove Harbor registry
+	@echo "$(RED)Removing Harbor registry...$(NC)"
+	@helm uninstall harbor -n harbor 2>/dev/null || true
+	@kubectl delete namespace harbor --ignore-not-found=true
+	@echo "$(GREEN)✓ Harbor removed$(NC)"
 
 # ==========================================
 # DEV - Gateway
