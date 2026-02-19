@@ -2,29 +2,24 @@ FROM node:20-alpine AS builder
 
 WORKDIR /app
 
-# Copy monorepo structure to preserve relative paths
-COPY style-dictionary ./style-dictionary
-COPY apps/web/shared ./apps/web/shared
-COPY apps/web/b2g/package*.json ./apps/web/b2g/
-
-WORKDIR /app/apps/web/b2g
+COPY apps/web/b2g/package*.json ./
 RUN npm install
 
-# Copy source files
-COPY apps/web/b2g .
-RUN npm run build && npm prune --omit=dev
+COPY apps/web/b2g/tsconfig.server.json ./
+COPY apps/web/b2g/src/server ./src/server
+RUN npm run build
 
 FROM node:20-alpine
 
 WORKDIR /app
+
+COPY --from=builder /app/node_modules ./node_modules
+COPY --from=builder /app/dist ./dist
+
 ENV NODE_ENV=production
 ENV PORT=3003
 ENV BACKEND_URL=http://backend-service:3001
 
-COPY --from=builder /app/apps/web/b2g/node_modules ./node_modules
-COPY --from=builder /app/apps/web/b2g/dist ./dist
-COPY --from=builder /app/apps/web/b2g/package*.json ./
-
 EXPOSE 3003
 
-CMD ["node", "dist/server/index.js"]
+CMD ["node", "dist/index.js"]

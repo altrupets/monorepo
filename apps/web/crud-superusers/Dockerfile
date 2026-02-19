@@ -2,29 +2,24 @@ FROM node:20-alpine AS builder
 
 WORKDIR /app
 
-# Copy monorepo structure to preserve relative paths
-COPY style-dictionary ./style-dictionary
-COPY apps/web/shared ./apps/web/shared
-COPY apps/web/crud-superusers/package*.json ./apps/web/crud-superusers/
-
-WORKDIR /app/apps/web/crud-superusers
+COPY apps/web/crud-superusers/package*.json ./
 RUN npm install
 
-# Copy source files
-COPY apps/web/crud-superusers .
-RUN npm run build && npm prune --omit=dev
+COPY apps/web/crud-superusers/tsconfig.server.json ./
+COPY apps/web/crud-superusers/src/server ./src/server
+RUN npm run build
 
 FROM node:20-alpine
 
 WORKDIR /app
+
+COPY --from=builder /app/node_modules ./node_modules
+COPY --from=builder /app/dist ./dist
+
 ENV NODE_ENV=production
 ENV PORT=3002
 ENV BACKEND_URL=http://backend-service:3001
 
-COPY --from=builder /app/apps/web/crud-superusers/node_modules ./node_modules
-COPY --from=builder /app/apps/web/crud-superusers/dist ./dist
-COPY --from=builder /app/apps/web/crud-superusers/package*.json ./
-
 EXPOSE 3002
 
-CMD ["node", "dist/server/index.js"]
+CMD ["node", "dist/index.js"]

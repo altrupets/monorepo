@@ -16,7 +16,7 @@ spec:
     spec:
       containers:
         - name: web-superusers
-          image: altrupets-web-superusers:dev
+          image: localhost/altrupets-web-crud-superusers:dev
           imagePullPolicy: IfNotPresent
           ports:
             - name: http

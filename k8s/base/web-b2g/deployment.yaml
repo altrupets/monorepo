@@ -16,7 +16,7 @@ spec:
     spec:
       containers:
         - name: web-b2g
-          image: altrupets-web-b2g:dev
+          image: localhost/altrupets-web-b2g:dev
           imagePullPolicy: IfNotPresent
           ports:
             - name: http
