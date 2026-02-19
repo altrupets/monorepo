@@ -66,13 +66,14 @@ theme:
 plugins:
   - search:
       lang: es
+  - mermaid2:
+      version: 10.6.1
   - git-revision-date-localized:
       enable_creation_date: true
   - git-committers:
       repository: altrupets/altrupets-monorepo
   - minify:
       minify_html: true
-  - panzoom
 
 # =============================================================================
 # Configuración de Markdown
@@ -114,7 +115,7 @@ markdown_extensions:
       custom_fences:
         - name: mermaid
           class: mermaid
-          format: !!python/name:pymdownx.superfences.fence_div_format
+          format: !!python/name:mermaid2.fence_mermaid_custom
   - pymdownx.tabbed:
       alternate_style: true
       combine_header_slug: true

@@ -7,6 +7,25 @@ y este proyecto adhiere a [Semantic Versioning](https://semver.org/lang/es/).
 
 ## [Unreleased]
 
+### Changed - 2025-02-18
+
+#### 🔄 Cambio a Renderizado Estático de Diagramas Mermaid
+
+- Reemplazado `mkdocs-panzoom-plugin` por `mkdocs-mermaid2-plugin`
+- Los diagramas Mermaid ahora se renderizan como imágenes estáticas durante el build
+- Solución más confiable que no depende de JavaScript en el navegador
+- Garantiza que los diagramas se visualicen correctamente en todos los navegadores
+- Configuración simplificada con Mermaid v10.6.1
+
+**Razón del cambio:** El renderizado dinámico con JavaScript presentaba problemas
+de compatibilidad. El renderizado estático garantiza que los diagramas siempre
+se visualicen correctamente.
+
+**Archivos modificados:**
+- `docs/requirements.txt` - Reemplazado panzoom por mermaid2-plugin
+- `docs/mkdocs.yml` - Configuración del plugin mermaid2
+- `docs/content/stylesheets/altrupets-custom.css` - Estilos mantenidos para diagramas
+
 ### Added - 2025-02-18
 
 #### 🔍 Funcionalidad de Zoom/Pan para Diagramas Mermaid
