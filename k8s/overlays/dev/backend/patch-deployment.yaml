@@ -8,7 +8,7 @@ spec:
     spec:
       containers:
         - name: backend
-          image: altrupets-backend:dev
+          image: localhost/altrupets-backend:dev
           imagePullPolicy: Never
           env:
             - name: NODE_ENV

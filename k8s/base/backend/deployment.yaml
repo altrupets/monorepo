@@ -16,7 +16,7 @@ spec:
     spec:
       containers:
         - name: backend
-          image: altrupets-backend:dev
+          image: localhost/altrupets-backend:dev
           imagePullPolicy: IfNotPresent
           ports:
             - name: http
