@@ -1,3 +1,6 @@
+import 'dart:io';
+
+import 'package:altrupets/core/config/environment_manager.dart';
 import 'package:altrupets/core/network/circuit_breaker.dart';
 import 'package:altrupets/core/network/exceptions/network_exceptions.dart';
 import 'package:altrupets/core/network/http_client_service.dart';
@@ -27,10 +30,7 @@ void main() {
     group('Initialization', () {
       test('should initialize with correct base URL and timeouts', () {
         expect(httpClientService.dio.options.baseUrl, isNotEmpty);
-        expect(
-          httpClientService.dio.options.connectTimeout,
-          isNotNull,
-        );
+        expect(httpClientService.dio.options.connectTimeout, isNotNull);
       });
 
       test('should have all required interceptors', () {
@@ -45,8 +45,9 @@ void main() {
 
     group('Circuit Breaker', () {
       test('should block requests when circuit is open', () async {
-        final breaker = httpClientService.circuitBreakerManager
-            .getBreaker('/test/endpoint');
+        final breaker = httpClientService.circuitBreakerManager.getBreaker(
+          '/test/endpoint',
+        );
 
         // Simulate failures to open circuit
         for (int i = 0; i < 5; i++) {
@@ -57,8 +58,9 @@ void main() {
       });
 
       test('should recover after timeout in half-open state', () async {
-        final breaker = httpClientService.circuitBreakerManager
-            .getBreaker('/test/endpoint');
+        final breaker = httpClientService.circuitBreakerManager.getBreaker(
+          '/test/endpoint',
+        );
 
         // Open the circuit
         for (int i = 0; i < 5; i++) {
@@ -74,22 +76,25 @@ void main() {
         expect(breaker.isHalfOpen, isTrue);
       });
 
-      test('should close circuit after successful requests in half-open state',
-          () async {
-        final breaker = httpClientService.circuitBreakerManager
-            .getBreaker('/test/endpoint');
+      test(
+        'should close circuit after successful requests in half-open state',
+        () async {
+          final breaker = httpClientService.circuitBreakerManager.getBreaker(
+            '/test/endpoint',
+          );
 
-        // Open the circuit
-        for (int i = 0; i < 5; i++) {
-          breaker.recordFailure();
-        }
+          // Open the circuit
+          for (int i = 0; i < 5; i++) {
+            breaker.recordFailure();
+          }
 
-        // Manually transition to half-open for testing
-        breaker.recordSuccess();
-        breaker.recordSuccess();
+          // Manually transition to half-open for testing
+          breaker.recordSuccess();
+          breaker.recordSuccess();
 
-        expect(breaker.isClosed, isTrue);
-      });
+          expect(breaker.isClosed, isTrue);
+        },
+      );
     });
 
     group('Error Handling', () {
@@ -191,10 +196,7 @@ void main() {
         );
 
         // Timeout should be retried
-        expect(
-          retryInterceptor.retryableStatusCodes.contains(408),
-          isTrue,
-        );
+        expect(retryInterceptor.retryableStatusCodes.contains(408), isTrue);
       });
     });
 
@@ -317,10 +319,7 @@ void main() {
     late CircuitBreakerManager manager;
 
     setUp(() {
-      manager = CircuitBreakerManager(
-        failureThreshold: 3,
-        successThreshold: 2,
-      );
+      manager = CircuitBreakerManager(failureThreshold: 3, successThreshold: 2);
     });
 
     test('should create breaker for new endpoint', () {
@@ -371,13 +370,26 @@ void main() {
 }
 
 // Mock classes
-class MockEnvironmentManager extends Mock {
+class MockEnvironmentManager extends Mock implements EnvironmentManager {
   @override
-  dynamic noSuchMethod(Invocation invocation) {
+  dynamic noSuchMethod(
+    Invocation invocation, {
+    Object? returnValue,
+    Object? returnValueForMissingStub,
+  }) {
     if (invocation.memberName == #currentEnvironment) {
-      return MockEnvironment();
+      return const Environment(
+        name: 'test',
+        apiBaseUrl: 'https://api.example.com',
+        requestTimeoutSeconds: 30,
+        enableLogging: false,
+      );
     }
-    return super.noSuchMethod(invocation);
+    return super.noSuchMethod(
+      invocation,
+      returnValue: returnValue,
+      returnValueForMissingStub: returnValueForMissingStub,
+    );
   }
 }
 
@@ -387,4 +399,5 @@ class MockEnvironment {
 }
 
 class ErrorInterceptor extends Interceptor {}
+
 class LoggingInterceptor extends Interceptor {}
