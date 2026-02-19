@@ -68,6 +68,10 @@ plugins:
       lang: es
   - mermaid2:
       version: 10.6.1
+      zoom: true
+      theme: base
+      mermaid2_includes:
+        gantt: true
   - git-revision-date-localized:
       enable_creation_date: true
   - git-committers:
@@ -111,11 +115,6 @@ markdown_extensions:
       repo: altrupets-monorepo
   - pymdownx.mark
   - pymdownx.smartsymbols
-  - pymdownx.superfences:
-      custom_fences:
-        - name: mermaid
-          class: mermaid
-          format: !!python/name:mermaid2.fence_mermaid_custom
   - pymdownx.tabbed:
       alternate_style: true
       combine_header_slug: true
