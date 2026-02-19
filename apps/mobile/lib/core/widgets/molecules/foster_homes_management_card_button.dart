@@ -24,9 +24,7 @@ class FosterHomesManagementCardButton extends StatelessWidget {
         decoration: BoxDecoration(
           color: isDark ? const Color(0xFF1C1C1E) : Colors.white,
           borderRadius: BorderRadius.circular(14),
-          border: Border.all(
-            color: Colors.white.withValues(alpha: 0.1),
-          ),
+          border: Border.all(color: Colors.white.withValues(alpha: 0.1)),
           boxShadow: [
             if (!isDark)
               BoxShadow(
@@ -39,10 +37,7 @@ class FosterHomesManagementCardButton extends StatelessWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Text(
-              emoji,
-              style: const TextStyle(fontSize: 28),
-            ),
+            Text(emoji, style: const TextStyle(fontSize: 28)),
             const SizedBox(height: 10),
             FittedBox(
               fit: BoxFit.scaleDown,

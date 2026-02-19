@@ -33,38 +33,46 @@ class _HomePageState extends ConsumerState<HomePage> {
     debugPrint('[HomePage] 🏠 initState llamado');
 
     _pages = [
-      const Center(key: ValueKey(0), child: Text('Comunidad', style: TextStyle(color: Colors.white))),
-      const Center(key: ValueKey(1), child: Text('Mensajes', style: TextStyle(color: Colors.white))),
+      const Center(
+        key: ValueKey(0),
+        child: Text('Comunidad', style: TextStyle(color: Colors.white)),
+      ),
+      const Center(
+        key: ValueKey(1),
+        child: Text('Mensajes', style: TextStyle(color: Colors.white)),
+      ),
       _HomeContent(
         key: const ValueKey(2),
         onRescuesTap: () => _onPageChanged(5),
         greetingName: null,
       ),
-      ProfilePage(
-        key: const ValueKey(3),
-        onBack: () => _onPageChanged(2),
-      ),
+      ProfilePage(key: const ValueKey(3), onBack: () => _onPageChanged(2)),
       const SettingsPage(key: ValueKey(4)),
-      RescuesPage(
-        key: const ValueKey(5),
-        onBack: () => _onPageChanged(2),
-      ),
+      RescuesPage(key: const ValueKey(5), onBack: () => _onPageChanged(2)),
     ];
 
     // Race condition fix: Solo invalidar si no viene de login exitoso
     // El login ya invalida y precarga el provider
     Future.microtask(() async {
       final currentUserAsync = ref.read(currentUserProvider);
-      debugPrint('[HomePage] ⏳ initState - currentUserProvider state: ${currentUserAsync.toString()}');
+      debugPrint(
+        '[HomePage] ⏳ initState - currentUserProvider state: ${currentUserAsync.toString()}',
+      );
 
       // Solo recargar si está en estado inicial (no está cargando ni tiene valor)
       if (currentUserAsync is! AsyncLoading && currentUserAsync is! AsyncData) {
-        debugPrint('[HomePage] 🔄 Invalidando currentUserProvider desde initState...');
+        debugPrint(
+          '[HomePage] 🔄 Invalidando currentUserProvider desde initState...',
+        );
         ref.invalidate(currentUserProvider);
         final user = await ref.read(currentUserProvider.future);
-        debugPrint('[HomePage] ✅ currentUserProvider resuelto: ${user != null ? user.username : 'NULL'}');
+        debugPrint(
+          '[HomePage] ✅ currentUserProvider resuelto: ${user != null ? user.username : 'NULL'}',
+        );
       } else {
-        debugPrint('[HomePage] ⏭️ Saltando recarga - provider ya en estado: ${currentUserAsync.runtimeType}');
+        debugPrint(
+          '[HomePage] ⏭️ Saltando recarga - provider ya en estado: ${currentUserAsync.runtimeType}',
+        );
       }
     });
   }
@@ -74,14 +82,16 @@ class _HomePageState extends ConsumerState<HomePage> {
     final theme = Theme.of(context);
     final displayIndex = _currentIndex > 4 ? 5 : _currentIndex;
     final currentUserAsync = ref.watch(currentUserProvider);
-    final user = currentUserAsync.valueOrNull;
+    final user = currentUserAsync.whenData((u) => u).value;
     final fullName = [
       user?.firstName?.trim() ?? '',
       user?.lastName?.trim() ?? '',
     ].where((value) => value.isNotEmpty).join(' ');
     final greetingName = fullName.isNotEmpty ? fullName : user?.username;
 
-    debugPrint('[HomePage] 🔨 BUILD - currentUserAsync: ${currentUserAsync.runtimeType}, user: ${user?.username ?? 'NULL'}, greetingName: $greetingName');
+    debugPrint(
+      '[HomePage] 🔨 BUILD - currentUserAsync: ${currentUserAsync.runtimeType}, user: ${user?.username ?? 'NULL'}, greetingName: $greetingName',
+    );
 
     final updatedPages = [
       _pages[0],
@@ -100,7 +110,7 @@ class _HomePageState extends ConsumerState<HomePage> {
       canPop: _currentIndex == 2, // Only allow system pop if on Home tab
       onPopInvokedWithResult: (didPop, result) {
         if (didPop) return;
-        
+
         // If not on Home tab, go back to Home tab (index 2)
         if (_currentIndex != 2) {
           setState(() {
@@ -159,12 +169,19 @@ class _HomeContent extends StatelessWidget {
           ),
           Expanded(
             child: ListView(
-              padding: const EdgeInsets.only(left: 24.0, right: 24.0, top: 16.0),
+              padding: const EdgeInsets.only(
+                left: 24.0,
+                right: 24.0,
+                top: 16.0,
+              ),
               physics: const BouncingScrollPhysics(),
               children: [
                 LayoutBuilder(
                   builder: (context, constraints) {
-                    final columns = (constraints.maxWidth / 300).floor().clamp(1, 3);
+                    final columns = (constraints.maxWidth / 300).floor().clamp(
+                      1,
+                      3,
+                    );
                     return GridView.count(
                       crossAxisCount: columns,
                       shrinkWrap: true,

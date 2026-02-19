@@ -8,18 +8,14 @@ import 'package:altrupets/core/storage/secure_storage_service.dart';
 
 /// Exception thrown by AuthService operations
 class AuthServiceException implements Exception {
+  AuthServiceException(this.message, {this.code, this.originalError});
   final String message;
   final String? code;
   final dynamic originalError;
 
-  AuthServiceException(
-    this.message, {
-    this.code,
-    this.originalError,
-  });
-
   @override
-  String toString() => 'AuthServiceException: $message${code != null ? ' (code: $code)' : ''}';
+  String toString() =>
+      'AuthServiceException: $message${code != null ? ' (code: $code)' : ''}';
 }
 
 /// Sealed class representing authentication state
@@ -39,27 +35,24 @@ class AuthServiceLoading extends AuthServiceState {
 
 /// User is authenticated with valid token
 class AuthServiceAuthenticated extends AuthServiceState {
-  final UserModel user;
-  final String accessToken;
-
   const AuthServiceAuthenticated({
     required this.user,
     required this.accessToken,
   });
+  final UserModel user;
+  final String accessToken;
 }
 
 /// Authentication error occurred
 class AuthServiceError extends AuthServiceState {
-  final AuthServiceException exception;
-
   const AuthServiceError(this.exception);
+  final AuthServiceException exception;
 }
 
 /// Account is locked due to too many failed attempts (client-side only)
 class AuthServiceAccountLocked extends AuthServiceState {
-  final DateTime lockoutUntil;
-
   const AuthServiceAccountLocked(this.lockoutUntil);
+  final DateTime lockoutUntil;
 
   Duration get lockoutRemaining {
     final now = DateTime.now();
@@ -83,6 +76,13 @@ class AuthServiceAccountLocked extends AuthServiceState {
 /// - JWT token generation
 /// - User management
 class AuthService {
+  AuthService({
+    required SecureStorageService secureStorage,
+    required GraphQLClient graphQLClient,
+  }) : _secureStorage = secureStorage,
+       _graphQLClient = graphQLClient {
+    _initializeState();
+  }
   final SecureStorageService _secureStorage;
   final GraphQLClient _graphQLClient;
 
@@ -100,14 +100,6 @@ class AuthService {
   final StreamController<AuthServiceState> _stateController =
       StreamController<AuthServiceState>.broadcast();
   AuthServiceState _currentState = const AuthServiceUnauthenticated();
-
-  AuthService({
-    required SecureStorageService secureStorage,
-    required GraphQLClient graphQLClient,
-  })  : _secureStorage = secureStorage,
-        _graphQLClient = graphQLClient {
-    _initializeState();
-  }
 
   /// Current authentication state
   AuthServiceState get state => _currentState;
@@ -145,10 +137,7 @@ class AuthService {
         final isValid = await _verifyToken(accessToken);
         if (isValid) {
           _updateState(
-            AuthServiceAuthenticated(
-              user: userData,
-              accessToken: accessToken,
-            ),
+            AuthServiceAuthenticated(user: userData, accessToken: accessToken),
           );
           developer.log('Session restored successfully', name: 'AuthService');
         } else {
@@ -232,10 +221,7 @@ class AuthService {
         MutationOptions(
           document: gql(mutation),
           variables: {
-            'loginInput': {
-              'username': username,
-              'password': password,
-            },
+            'loginInput': {'username': username, 'password': password},
           },
         ),
       );
@@ -255,28 +241,18 @@ class AuthService {
       final user = await _fetchUserProfile();
 
       // Store tokens and user data
-      await _storeAuthData(
-        accessToken: accessToken,
-        user: user,
-      );
+      await _storeAuthData(accessToken: accessToken, user: user);
 
       // Clear failed attempts on successful login
       await _clearFailedAttempts();
 
       _updateState(
-        AuthServiceAuthenticated(
-          user: user,
-          accessToken: accessToken,
-        ),
+        AuthServiceAuthenticated(user: user, accessToken: accessToken),
       );
 
       developer.log('Login successful', name: 'AuthService');
     } catch (e) {
-      developer.log(
-        'Login failed',
-        name: 'AuthService',
-        error: e,
-      );
+      developer.log('Login failed', name: 'AuthService', error: e);
 
       if (e is AuthServiceException) {
         _updateState(AuthServiceError(e));
@@ -324,10 +300,7 @@ class AuthService {
     ''';
 
     final result = await _graphQLClient.query(
-      QueryOptions(
-        document: gql(query),
-        fetchPolicy: FetchPolicy.networkOnly,
-      ),
+      QueryOptions(document: gql(query), fetchPolicy: FetchPolicy.networkOnly),
     );
 
     if (result.hasException) {
@@ -372,7 +345,10 @@ class AuthService {
     required UserModel user,
   }) async {
     await _secureStorage.write(key: _keyAccessToken, value: accessToken);
-    await _secureStorage.write(key: _keyUserData, value: jsonEncode(user.toJson()));
+    await _secureStorage.write(
+      key: _keyUserData,
+      value: jsonEncode(user.toJson()),
+    );
   }
 
   /// Clear all authentication data
@@ -387,17 +363,20 @@ class AuthService {
     final attempts = int.tryParse(attemptsStr ?? '0') ?? 0;
     final newAttempts = attempts + 1;
 
-    await _secureStorage.write(key: _keyFailedAttempts, value: newAttempts.toString());
+    await _secureStorage.write(
+      key: _keyFailedAttempts,
+      value: newAttempts.toString(),
+    );
 
     if (newAttempts >= _maxFailedAttempts) {
       final lockoutUntil = DateTime.now().add(_lockoutDuration);
-      await _secureStorage.write(key: _keyLockoutUntil, value: lockoutUntil.toIso8601String());
+      await _secureStorage.write(
+        key: _keyLockoutUntil,
+        value: lockoutUntil.toIso8601String(),
+      );
       _updateState(AuthServiceAccountLocked(lockoutUntil));
 
-      developer.log(
-        'Account locked until $lockoutUntil',
-        name: 'AuthService',
-      );
+      developer.log('Account locked until $lockoutUntil', name: 'AuthService');
     }
   }
 

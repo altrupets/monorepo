@@ -3,8 +3,8 @@ import 'package:altrupets/core/widgets/atoms/app_circular_button.dart';
 
 class HomeWelcomeHeader extends StatelessWidget {
   const HomeWelcomeHeader({
-    this.greetingName,
     required this.onNotificationTap,
+    this.greetingName,
     super.key,
   });
 
@@ -32,15 +32,15 @@ class HomeWelcomeHeader extends StatelessWidget {
                       ? 'Bienvenido'
                       : 'Hola, ${greetingName!.trim()}!',
                   style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                        color: Colors.white,
-                        fontWeight: FontWeight.bold,
-                      ),
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
                 Text(
                   '¿Cómo podemos ayudarte hoy?',
                   style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                        color: Colors.white.withValues(alpha: 0.6),
-                      ),
+                    color: Colors.white.withValues(alpha: 0.6),
+                  ),
                 ),
               ],
             ),

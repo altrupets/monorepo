@@ -20,7 +20,7 @@ class ProfileMainHeader extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    
+
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.only(top: 40, bottom: 24, left: 24, right: 24),
@@ -42,10 +42,7 @@ class ProfileMainHeader extends StatelessWidget {
             padding: const EdgeInsets.all(3),
             decoration: BoxDecoration(
               shape: BoxShape.circle,
-              border: Border.all(
-                color: const Color(0xFFEC5B13),
-                width: 2,
-              ),
+              border: Border.all(color: const Color(0xFFEC5B13), width: 2),
             ),
             child: CircleAvatar(
               radius: 64,

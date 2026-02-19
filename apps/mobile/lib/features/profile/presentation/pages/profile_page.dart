@@ -23,7 +23,7 @@ class ProfilePage extends ConsumerWidget {
     final theme = Theme.of(context);
     final currentUserAsync = ref.watch(currentUserProvider);
 
-    final user = currentUserAsync.valueOrNull;
+    final user = currentUserAsync.whenData((u) => u).value;
     final fullName = [
       user?.firstName?.trim() ?? '',
       user?.lastName?.trim() ?? '',
@@ -63,11 +63,11 @@ class ProfilePage extends ConsumerWidget {
             child: Column(
               children: [
                 // Sync status badge in header area
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 24),
+                const Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 24),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.end,
-                    children: [const SyncBadge(compact: true)],
+                    children: [SyncBadge(compact: true)],
                   ),
                 ),
                 ProfileMainHeader(

@@ -11,7 +11,7 @@ class AppColors {
   static Color get accent => _tokens.brand.accent;
   static Color get warning => _tokens.brand.warning;
   static Color get error => _tokens.brand.error;
-  
+
   // Mapped from Tonal Palettes (Light)
   static Color get primaryContainer => _tokens.palette.primary[90]!;
   static Color get onPrimary => _tokens.palette.primary[100]!;
@@ -31,31 +31,49 @@ class AppColors {
   static Color get onErrorContainer => _tokens.palette.error[10]!;
 
   // Success Colors
-  static Color get success => _tokens.palette.success[40] ?? const Color(0xFF2E7D32);
-  static Color get successContainer => _tokens.palette.success[90] ?? const Color(0xFFC8E6C9);
-  static Color get onSuccess => _tokens.palette.success[100] ?? const Color(0xFFFFFFFF);
-  static Color get onSuccessContainer => _tokens.palette.success[10] ?? const Color(0xFF1B5E20);
+  static Color get success =>
+      _tokens.palette.success[40] ?? const Color(0xFF2E7D32);
+  static Color get successContainer =>
+      _tokens.palette.success[90] ?? const Color(0xFFC8E6C9);
+  static Color get onSuccess =>
+      _tokens.palette.success[100] ?? const Color(0xFFFFFFFF);
+  static Color get onSuccessContainer =>
+      _tokens.palette.success[10] ?? const Color(0xFF1B5E20);
 
   // Surface & Background (Using Neutral if available, fallback to Primary)
-  static Color get background => _tokens.palette.neutral[98] ?? _tokens.palette.primary[99]!;
-  static Color get onBackground => _tokens.palette.neutral[10] ?? _tokens.palette.primary[10]!;
-  static Color get surface => _tokens.palette.neutral[98] ?? _tokens.palette.primary[99]!;
-  static Color get onSurface => _tokens.palette.neutral[10] ?? _tokens.palette.primary[10]!;
+  static Color get background =>
+      _tokens.palette.neutral[98] ?? _tokens.palette.primary[99]!;
+  static Color get onBackground =>
+      _tokens.palette.neutral[10] ?? _tokens.palette.primary[10]!;
+  static Color get surface =>
+      _tokens.palette.neutral[98] ?? _tokens.palette.primary[99]!;
+  static Color get onSurface =>
+      _tokens.palette.neutral[10] ?? _tokens.palette.primary[10]!;
 
-  static Color get surfaceContainerHighest => _tokens.palette.neutral[90] ?? _tokens.palette.primary[90]!;
-  static Color get surfaceContainer => _tokens.palette.neutral[94] ?? _tokens.palette.primary[94] ?? _tokens.palette.primary[90]!;
-  
-  static Color get outline => _tokens.palette.neutralVariant[50] ?? _tokens.palette.primary[50]!;
-  static Color get outlineVariant => _tokens.palette.neutralVariant[80] ?? _tokens.palette.primary[80]!;
+  static Color get surfaceContainerHighest =>
+      _tokens.palette.neutral[90] ?? _tokens.palette.primary[90]!;
+  static Color get surfaceContainer =>
+      _tokens.palette.neutral[94] ??
+      _tokens.palette.primary[94] ??
+      _tokens.palette.primary[90]!;
+
+  static Color get outline =>
+      _tokens.palette.neutralVariant[50] ?? _tokens.palette.primary[50]!;
+  static Color get outlineVariant =>
+      _tokens.palette.neutralVariant[80] ?? _tokens.palette.primary[80]!;
 
   // Inverse Colors
-  static Color get inverseSurface => _tokens.palette.neutral[20] ?? _tokens.palette.primary[20]!;
-  static Color get inverseOnSurface => _tokens.palette.neutral[95] ?? _tokens.palette.primary[95]!;
+  static Color get inverseSurface =>
+      _tokens.palette.neutral[20] ?? _tokens.palette.primary[20]!;
+  static Color get inverseOnSurface =>
+      _tokens.palette.neutral[95] ?? _tokens.palette.primary[95]!;
   static Color get inversePrimary => _tokens.palette.primary[80]!;
 
   // Shadow & Scrim
-  static Color get shadow => _tokens.palette.neutral[0] ?? const Color(0xFF000000);
-  static Color get scrim => _tokens.palette.neutral[0] ?? const Color(0xFF000000);
+  static Color get shadow =>
+      _tokens.palette.neutral[0] ?? const Color(0xFF000000);
+  static Color get scrim =>
+      _tokens.palette.neutral[0] ?? const Color(0xFF000000);
 }
 
 class AppColorsDark {
@@ -92,23 +110,43 @@ class AppColorsDark {
   static Color get onSuccessContainer => _tokens.palette.success[90]!;
 
   // Surface & Background (Dark)
-  static Color get background => _tokens.palette.neutral[6] ?? _tokens.palette.primary[6] ?? const Color(0xFF111416);
-  static Color get onBackground => _tokens.palette.neutral[90] ?? _tokens.palette.primary[90]!;
-  static Color get surface => _tokens.palette.neutral[6] ?? _tokens.palette.primary[6] ?? const Color(0xFF111416);
-  static Color get onSurface => _tokens.palette.neutral[90] ?? _tokens.palette.primary[90]!;
+  static Color get background =>
+      _tokens.palette.neutral[6] ??
+      _tokens.palette.primary[6] ??
+      const Color(0xFF111416);
+  static Color get onBackground =>
+      _tokens.palette.neutral[90] ?? _tokens.palette.primary[90]!;
+  static Color get surface =>
+      _tokens.palette.neutral[6] ??
+      _tokens.palette.primary[6] ??
+      const Color(0xFF111416);
+  static Color get onSurface =>
+      _tokens.palette.neutral[90] ?? _tokens.palette.primary[90]!;
 
-  static Color get surfaceContainerHighest => _tokens.palette.neutral[22] ?? _tokens.palette.primary[22] ?? _tokens.palette.primary[20]!;
-  static Color get surfaceContainer => _tokens.palette.neutral[12] ?? _tokens.palette.primary[12] ?? _tokens.palette.primary[10]!;
-  
-  static Color get outline => _tokens.palette.neutralVariant[60] ?? _tokens.palette.primary[60]!;
-  static Color get outlineVariant => _tokens.palette.neutralVariant[30] ?? _tokens.palette.primary[30]!;
+  static Color get surfaceContainerHighest =>
+      _tokens.palette.neutral[22] ??
+      _tokens.palette.primary[22] ??
+      _tokens.palette.primary[20]!;
+  static Color get surfaceContainer =>
+      _tokens.palette.neutral[12] ??
+      _tokens.palette.primary[12] ??
+      _tokens.palette.primary[10]!;
+
+  static Color get outline =>
+      _tokens.palette.neutralVariant[60] ?? _tokens.palette.primary[60]!;
+  static Color get outlineVariant =>
+      _tokens.palette.neutralVariant[30] ?? _tokens.palette.primary[30]!;
 
   // Inverse Colors
-  static Color get inverseSurface => _tokens.palette.neutral[90] ?? _tokens.palette.primary[90]!;
-  static Color get inverseOnSurface => _tokens.palette.neutral[20] ?? _tokens.palette.primary[20]!;
+  static Color get inverseSurface =>
+      _tokens.palette.neutral[90] ?? _tokens.palette.primary[90]!;
+  static Color get inverseOnSurface =>
+      _tokens.palette.neutral[20] ?? _tokens.palette.primary[20]!;
   static Color get inversePrimary => _tokens.brand.primary;
 
   // Shadow & Scrim
-  static Color get shadow => _tokens.palette.neutral[0] ?? const Color(0xFF000000);
-  static Color get scrim => _tokens.palette.neutral[0] ?? const Color(0xFF000000);
+  static Color get shadow =>
+      _tokens.palette.neutral[0] ?? const Color(0xFF000000);
+  static Color get scrim =>
+      _tokens.palette.neutral[0] ?? const Color(0xFF000000);
 }

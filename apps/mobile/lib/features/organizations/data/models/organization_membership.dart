@@ -31,12 +31,12 @@ class OrganizationMembership with _$OrganizationMembership {
     required String userId,
     required MembershipStatus status,
     required OrganizationRole role,
+    required DateTime createdAt,
+    required DateTime updatedAt,
     String? requestMessage,
     String? rejectionReason,
     String? approvedBy,
     DateTime? approvedAt,
-    required DateTime createdAt,
-    required DateTime updatedAt,
   }) = _OrganizationMembership;
 
   factory OrganizationMembership.fromJson(Map<String, dynamic> json) =>

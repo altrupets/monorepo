@@ -1,19 +1,19 @@
-import '../enums/currency.dart';
+import 'package:altrupets/core/payments/domain/enums/currency.dart';
 
 /// Represents a monetary amount with currency
 class Money {
-  /// Amount in smallest currency unit (cents)
-  final int amount;
-
-  /// Currency of the amount
-  final Currency currency;
-
   const Money(this.amount, this.currency);
 
   /// Create from decimal amount
   factory Money.fromDecimal(double decimal, Currency currency) {
     return Money(currency.fromDecimal(decimal), currency);
   }
+
+  /// Amount in smallest currency unit (cents)
+  final int amount;
+
+  /// Currency of the amount
+  final Currency currency;
 
   /// Convert to decimal representation
   double get decimal => currency.toDecimal(amount);

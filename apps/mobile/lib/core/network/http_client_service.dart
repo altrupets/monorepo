@@ -4,17 +4,17 @@ import 'dart:io';
 import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../config/environment_manager.dart';
-import '../services/logging_service.dart';
-import 'circuit_breaker.dart';
-import 'exceptions/network_exceptions.dart';
-import 'interceptors/auth_interceptor.dart';
-import 'interceptors/error_interceptor.dart';
-import 'interceptors/logging_interceptor.dart';
-import 'interceptors/retry_interceptor.dart';
+import 'package:altrupets/core/config/environment_manager.dart';
+import 'package:altrupets/core/services/logging_service.dart';
+import 'package:altrupets/core/network/circuit_breaker.dart';
+import 'package:altrupets/core/network/exceptions/network_exceptions.dart';
+import 'package:altrupets/core/network/interceptors/auth_interceptor.dart';
+import 'package:altrupets/core/network/interceptors/error_interceptor.dart';
+import 'package:altrupets/core/network/interceptors/logging_interceptor.dart';
+import 'package:altrupets/core/network/interceptors/retry_interceptor.dart';
 
 /// HTTP Client Service for making API requests
-/// 
+///
 /// Provides a centralized HTTP client with:
 /// - Automatic token injection via AuthInterceptor
 /// - Centralized error handling via ErrorInterceptor
@@ -24,16 +24,14 @@ import 'interceptors/retry_interceptor.dart';
 /// - Configurable timeouts and retries
 /// - Structured logging (REQ-FLT-020)
 class HttpClientService {
-  late final Dio _dio;
-  late final CircuitBreakerManager _circuitBreakerManager;
-  final EnvironmentManager _environmentManager;
-
-  HttpClientService({
-    required EnvironmentManager environmentManager,
-  }) : _environmentManager = environmentManager {
+  HttpClientService({required EnvironmentManager environmentManager})
+    : _environmentManager = environmentManager {
     _circuitBreakerManager = CircuitBreakerManager();
     _initializeDio();
   }
+  late final Dio _dio;
+  late final CircuitBreakerManager _circuitBreakerManager;
+  final EnvironmentManager _environmentManager;
 
   void _initializeDio() {
     final environment = _environmentManager.currentEnvironment;
@@ -83,10 +81,7 @@ class HttpClientService {
   void addAuthInterceptor(AuthInterceptor authInterceptor) {
     // Insert auth interceptor after logging but before retry
     _dio.interceptors.insert(1, authInterceptor);
-    logger.info(
-      'Auth interceptor added',
-      tag: 'HttpClientService',
-    );
+    logger.info('Auth interceptor added', tag: 'HttpClientService');
   }
 
   /// Make a GET request
@@ -403,7 +398,10 @@ class HttpClientService {
       case DioExceptionType.sendTimeout:
       case DioExceptionType.receiveTimeout:
         return NetworkTimeoutException(
-          timeout: Duration(seconds: _environmentManager.currentEnvironment.requestTimeoutSeconds),
+          timeout: Duration(
+            seconds:
+                _environmentManager.currentEnvironment.requestTimeoutSeconds,
+          ),
           originalException: e,
         );
 
@@ -491,10 +489,7 @@ class HttpClientService {
   /// Close the HTTP client and clean up resources
   void close() {
     _dio.close();
-    logger.info(
-      'HTTP Client closed',
-      tag: 'HttpClientService',
-    );
+    logger.info('HTTP Client closed', tag: 'HttpClientService');
   }
 }
 

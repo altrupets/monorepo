@@ -74,9 +74,15 @@ class ColorPalette {
       accent: _parseTonalPalette(json['accent'] as Map<String, dynamic>),
       warning: _parseTonalPalette(json['warning'] as Map<String, dynamic>),
       error: _parseTonalPalette(json['error'] as Map<String, dynamic>),
-      success: _parseTonalPalette((json['success'] ?? <String, dynamic>{}) as Map<String, dynamic>),
-      neutral: _parseTonalPalette((json['neutral'] ?? json['primary']) as Map<String, dynamic>),
-      neutralVariant: _parseTonalPalette((json['neutralVariant'] ?? json['primary']) as Map<String, dynamic>),
+      success: _parseTonalPalette(
+        (json['success'] ?? <String, dynamic>{}) as Map<String, dynamic>,
+      ),
+      neutral: _parseTonalPalette(
+        (json['neutral'] ?? json['primary']) as Map<String, dynamic>,
+      ),
+      neutralVariant: _parseTonalPalette(
+        (json['neutralVariant'] ?? json['primary']) as Map<String, dynamic>,
+      ),
     );
   }
 
@@ -114,7 +120,8 @@ class TypographyTokens {
     return TypographyTokens(
       primaryFamily: family['primary']['value'] as String,
       headerFamily: family['header']['value'] as String,
-      tertiaryFamily: (family['tertiary'] ?? family['primary'])['value'] as String,
+      tertiaryFamily:
+          (family['tertiary'] ?? family['primary'])['value'] as String,
     );
   }
 
@@ -124,11 +131,7 @@ class TypographyTokens {
 }
 
 class MotionTokens {
-  MotionTokens({
-    required this.short,
-    required this.medium,
-    required this.long,
-  });
+  MotionTokens({required this.short, required this.medium, required this.long});
 
   factory MotionTokens.fromJson(Map<String, dynamic> json) {
     final duration = json['duration'] as Map<String, dynamic>;

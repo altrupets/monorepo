@@ -130,10 +130,7 @@ class _RegisterOrganizationPageState
 
     if (state.error != null) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(state.error!),
-          backgroundColor: Colors.red,
-        ),
+        SnackBar(content: Text(state.error!), backgroundColor: Colors.red),
       );
     } else if (state.selectedOrganization != null) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -143,7 +140,7 @@ class _RegisterOrganizationPageState
         ),
       );
 
-      await Future.delayed(const Duration(seconds: 2));
+      await Future<void>.delayed(const Duration(seconds: 2));
       if (mounted) {
         Navigator.of(context).pop();
       }
@@ -152,12 +149,11 @@ class _RegisterOrganizationPageState
 
   @override
   Widget build(BuildContext context) {
-    final state = ref.watch(organizationsProvider);
+    // state se usa para escuchar cambios en el provider
+    ref.watch(organizationsProvider);
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Registrar Organización'),
-      ),
+      appBar: AppBar(title: const Text('Registrar Organización')),
       body: Form(
         key: _formKey,
         child: Stepper(
@@ -194,7 +190,7 @@ class _RegisterOrganizationPageState
                   ),
                   const SizedBox(height: 16),
                   DropdownButtonFormField<OrganizationType>(
-                    value: _selectedType,
+                    initialValue: _selectedType,
                     decoration: const InputDecoration(
                       labelText: 'Tipo de Organización *',
                     ),

@@ -8,14 +8,14 @@ import 'package:altrupets/core/services/onvo_pay_service.dart';
 /// - SINPE Móvil (transferencias bancarias)
 class OnvoPayInputWidget extends StatefulWidget {
   const OnvoPayInputWidget({
-    super.key,
     required this.onPaymentMethodAdded,
     required this.apiKey,
+    super.key,
     this.sandbox = true,
     this.showSinpeOption = true,
   });
 
-  final Function(OnvoPaymentMethod) onPaymentMethodAdded;
+  final void Function(OnvoPaymentMethod) onPaymentMethodAdded;
   final String apiKey;
   final bool sandbox;
   final bool showSinpeOption;
@@ -538,17 +538,16 @@ class _OnvoPayInputWidgetState extends State<OnvoPayInputWidget> {
 
 /// Botón de selección de método de pago
 class _PaymentMethodButton extends StatelessWidget {
-  final IconData icon;
-  final String label;
-  final bool isSelected;
-  final VoidCallback onTap;
-
   const _PaymentMethodButton({
     required this.icon,
     required this.label,
     required this.isSelected,
     required this.onTap,
   });
+  final IconData icon;
+  final String label;
+  final bool isSelected;
+  final VoidCallback onTap;
 
   @override
   Widget build(BuildContext context) {
@@ -593,6 +592,17 @@ enum OnvoPaymentType { card, sinpe }
 
 /// Modelo de método de pago ONVO
 class OnvoPaymentMethod {
+  OnvoPaymentMethod({
+    required this.type,
+    required this.saveForFuture,
+    this.cardToken,
+    this.last4,
+    this.cardBrand,
+    this.cardHolderName,
+    this.expiryMonth,
+    this.expiryYear,
+    this.sinpePhoneNumber,
+  });
   final OnvoPaymentType type;
   final String? cardToken;
   final String? last4;
@@ -602,18 +612,6 @@ class OnvoPaymentMethod {
   final String? expiryYear;
   final String? sinpePhoneNumber;
   final bool saveForFuture;
-
-  OnvoPaymentMethod({
-    required this.type,
-    this.cardToken,
-    this.last4,
-    this.cardBrand,
-    this.cardHolderName,
-    this.expiryMonth,
-    this.expiryYear,
-    this.sinpePhoneNumber,
-    required this.saveForFuture,
-  });
 
   bool get isCard => type == OnvoPaymentType.card;
   bool get isSinpe => type == OnvoPaymentType.sinpe;
@@ -633,16 +631,15 @@ class OnvoPaymentMethod {
 
 /// Widget para mostrar método de pago guardado
 class OnvoSavedMethodWidget extends StatelessWidget {
-  final OnvoPaymentMethod method;
-  final VoidCallback? onDelete;
-  final VoidCallback? onTap;
-
   const OnvoSavedMethodWidget({
-    super.key,
     required this.method,
+    super.key,
     this.onDelete,
     this.onTap,
   });
+  final OnvoPaymentMethod method;
+  final VoidCallback? onDelete;
+  final VoidCallback? onTap;
 
   @override
   Widget build(BuildContext context) {

@@ -28,20 +28,28 @@ enum AppThemeMode {
 }
 
 /// Notifier para gestión del tema con Riverpod
-class ThemeNotifier extends StateNotifier<ThemeMode> {
-  ThemeNotifier(this._prefs) : super(ThemeMode.dark) {
-    _loadSavedTheme();
+class ThemeNotifier extends Notifier<ThemeMode> {
+  @override
+  ThemeMode build() {
+    return ThemeMode.dark;
   }
 
   static const String _themeModeKey = 'app_theme_mode';
-  final SharedPreferences _prefs;
+  SharedPreferences? _prefs;
+
+  /// Inicializar con SharedPreferences
+  void init(SharedPreferences prefs) {
+    _prefs = prefs;
+    _loadSavedTheme();
+  }
 
   /// Exponer el estado de forma pública para el provider
   ThemeMode get themeMode => state;
 
   /// Cargar tema guardado
   void _loadSavedTheme() {
-    final savedTheme = _prefs.getString(_themeModeKey);
+    if (_prefs == null) return;
+    final savedTheme = _prefs!.getString(_themeModeKey);
     if (savedTheme != null) {
       state = _themeModeFromString(savedTheme);
     }
@@ -50,7 +58,7 @@ class ThemeNotifier extends StateNotifier<ThemeMode> {
   /// Cambiar tema y guardarlo
   Future<void> setThemeMode(AppThemeMode mode) async {
     final themeMode = mode.themeMode;
-    await _prefs.setString(_themeModeKey, mode.name);
+    await _prefs?.setString(_themeModeKey, mode.name);
     state = themeMode;
   }
 
@@ -79,22 +87,12 @@ class ThemeNotifier extends StateNotifier<ThemeMode> {
   }
 }
 
-/// Provider que crea el ThemeNotifier cuando SharedPreferences está disponible
-final themeNotifierInstanceProvider = FutureProvider<ThemeNotifier>((
-  ref,
-) async {
-  final prefs = await ref.watch(sharedPreferencesProvider.future);
-  return ThemeNotifier(prefs);
-});
+/// Provider que crea el ThemeNotifier
+final themeNotifierProvider = NotifierProvider<ThemeNotifier, ThemeMode>(
+  ThemeNotifier.new,
+);
 
 /// Provider del ThemeMode actual (conveniencia)
-/// Maneja el caso donde SharedPreferences aún no está disponible
 final themeModeProvider = Provider<ThemeMode>((ref) {
-  final notifierAsync = ref.watch(themeNotifierInstanceProvider);
-
-  return notifierAsync.when(
-    data: (notifier) => notifier.themeMode,
-    loading: () => ThemeMode.dark, // Default mientras carga
-    error: (_, _) => ThemeMode.dark, // Default en caso de error
-  );
+  return ref.watch(themeNotifierProvider);
 });

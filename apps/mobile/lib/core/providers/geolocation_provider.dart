@@ -1,7 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../services/geolocation_service.dart';
-import '../network/http_client_service.dart';
-import '../storage/secure_storage_service.dart';
+import 'package:altrupets/core/services/geolocation_service.dart';
+import 'package:altrupets/core/network/http_client_service.dart';
+import 'package:altrupets/core/storage/secure_storage_service.dart';
 
 /// Provider for GeoLocationService
 final geoLocationServiceProvider = Provider<GeoLocationService>((ref) {

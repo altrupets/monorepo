@@ -5,12 +5,8 @@ import 'package:altrupets/features/organizations/presentation/providers/organiza
 import 'package:altrupets/features/organizations/presentation/pages/manage_memberships_page.dart';
 
 class OrganizationDetailPage extends ConsumerStatefulWidget {
+  const OrganizationDetailPage({required this.organizationId, super.key});
   final String organizationId;
-
-  const OrganizationDetailPage({
-    super.key,
-    required this.organizationId,
-  });
 
   @override
   ConsumerState<OrganizationDetailPage> createState() =>
@@ -74,7 +70,9 @@ class _OrganizationDetailPageState
 
     if (message == null) return;
 
-    await ref.read(organizationsProvider.notifier).requestMembership(
+    await ref
+        .read(organizationsProvider.notifier)
+        .requestMembership(
           organizationId: widget.organizationId,
           requestMessage: message.isEmpty ? null : message,
         );
@@ -85,10 +83,7 @@ class _OrganizationDetailPageState
 
     if (state.error != null) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(state.error!),
-          backgroundColor: Colors.red,
-        ),
+        SnackBar(content: Text(state.error!), backgroundColor: Colors.red),
       );
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -113,8 +108,8 @@ class _OrganizationDetailPageState
             IconButton(
               icon: const Icon(Icons.people),
               onPressed: () {
-                Navigator.of(context).push(
-                  MaterialPageRoute(
+                Navigator.of(context).push<dynamic>(
+                  MaterialPageRoute<dynamic>(
                     builder: (_) => ManageMembershipsPage(
                       organizationId: org.id,
                       organizationName: org.name,
@@ -129,221 +124,215 @@ class _OrganizationDetailPageState
       body: state.isLoading
           ? const Center(child: CircularProgressIndicator())
           : state.error != null
-              ? Center(
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      const Icon(Icons.error, size: 48, color: Colors.red),
-                      const SizedBox(height: 16),
-                      Text(state.error!),
-                      const SizedBox(height: 16),
-                      ElevatedButton(
-                        onPressed: () {
-                          ref
-                              .read(organizationsProvider.notifier)
-                              .getOrganization(widget.organizationId);
-                        },
-                        child: const Text('Reintentar'),
-                      ),
-                    ],
+          ? Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const Icon(Icons.error, size: 48, color: Colors.red),
+                  const SizedBox(height: 16),
+                  Text(state.error!),
+                  const SizedBox(height: 16),
+                  ElevatedButton(
+                    onPressed: () {
+                      ref
+                          .read(organizationsProvider.notifier)
+                          .getOrganization(widget.organizationId);
+                    },
+                    child: const Text('Reintentar'),
                   ),
-                )
-              : org == null
-                  ? const Center(child: Text('Organización no encontrada'))
-                  : SingleChildScrollView(
-                      padding: const EdgeInsets.all(16),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          // Header
-                          Center(
-                            child: CircleAvatar(
-                              radius: 48,
-                              child: Text(
-                                org.name[0].toUpperCase(),
-                                style: const TextStyle(fontSize: 32),
-                              ),
-                            ),
-                          ),
-                          const SizedBox(height: 16),
-                          Center(
-                            child: Text(
-                              org.name,
-                              style: Theme.of(context).textTheme.headlineSmall,
-                              textAlign: TextAlign.center,
-                            ),
-                          ),
-                          const SizedBox(height: 8),
-                          Center(
-                            child: Chip(
-                              label: Text(_getOrganizationTypeLabel(org.type)),
-                            ),
-                          ),
-                          const SizedBox(height: 8),
-                          Center(
-                            child: Row(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                Icon(
-                                  _getStatusIcon(org.status),
-                                  size: 20,
-                                  color: _getStatusColor(org.status),
-                                ),
-                                const SizedBox(width: 8),
-                                Text(
-                                  _getOrganizationStatusLabel(org.status),
-                                  style: TextStyle(
-                                    color: _getStatusColor(org.status),
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                          const SizedBox(height: 24),
-
-                          // Description
-                          if (org.description != null) ...[
-                            const Text(
-                              'Descripción',
-                              style: TextStyle(
-                                fontSize: 18,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                            const SizedBox(height: 8),
-                            Text(org.description!),
-                            const SizedBox(height: 24),
-                          ],
-
-                          // Contact Info
-                          const Text(
-                            'Información de Contacto',
-                            style: TextStyle(
-                              fontSize: 18,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                          const SizedBox(height: 8),
-                          if (org.email != null)
-                            _InfoRow(
-                              icon: Icons.email,
-                              label: 'Email',
-                              value: org.email!,
-                            ),
-                          if (org.phone != null)
-                            _InfoRow(
-                              icon: Icons.phone,
-                              label: 'Teléfono',
-                              value: org.phone!,
-                            ),
-                          if (org.website != null)
-                            _InfoRow(
-                              icon: Icons.language,
-                              label: 'Sitio Web',
-                              value: org.website!,
-                            ),
-                          if (org.address != null)
-                            _InfoRow(
-                              icon: Icons.location_on,
-                              label: 'Dirección',
-                              value: org.address!,
-                            ),
-                          const SizedBox(height: 24),
-
-                          // Location
-                          if (org.country != null ||
-                              org.province != null ||
-                              org.canton != null) ...[
-                            const Text(
-                              'Ubicación',
-                              style: TextStyle(
-                                fontSize: 18,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                            const SizedBox(height: 8),
-                            if (org.country != null)
-                              _InfoRow(
-                                icon: Icons.flag,
-                                label: 'País',
-                                value: org.country!,
-                              ),
-                            if (org.province != null)
-                              _InfoRow(
-                                icon: Icons.map,
-                                label: 'Provincia',
-                                value: org.province!,
-                              ),
-                            if (org.canton != null)
-                              _InfoRow(
-                                icon: Icons.location_city,
-                                label: 'Cantón',
-                                value: org.canton!,
-                              ),
-                            if (org.district != null)
-                              _InfoRow(
-                                icon: Icons.place,
-                                label: 'Distrito',
-                                value: org.district!,
-                              ),
-                            const SizedBox(height: 24),
-                          ],
-
-                          // Stats
-                          const Text(
-                            'Estadísticas',
-                            style: TextStyle(
-                              fontSize: 18,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                          const SizedBox(height: 8),
-                          _InfoRow(
-                            icon: Icons.people,
-                            label: 'Miembros',
-                            value: '${org.memberCount}',
-                          ),
-                          _InfoRow(
-                            icon: Icons.pets,
-                            label: 'Capacidad Máxima',
-                            value: '${org.maxCapacity} animales',
-                          ),
-                          const SizedBox(height: 24),
-
-                          // Legal Info
-                          if (org.legalId != null) ...[
-                            const Text(
-                              'Información Legal',
-                              style: TextStyle(
-                                fontSize: 18,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                            const SizedBox(height: 8),
-                            _InfoRow(
-                              icon: Icons.badge,
-                              label: 'Cédula Jurídica',
-                              value: org.legalId!,
-                            ),
-                            const SizedBox(height: 24),
-                          ],
-
-                          // Action Button
-                          SizedBox(
-                            width: double.infinity,
-                            child: ElevatedButton.icon(
-                              onPressed: () => _requestMembership(org),
-                              icon: const Icon(Icons.person_add),
-                              label: const Text('Solicitar Membresía'),
-                              style: ElevatedButton.styleFrom(
-                                padding: const EdgeInsets.all(16),
-                              ),
-                            ),
-                          ),
-                        ],
+                ],
+              ),
+            )
+          : org == null
+          ? const Center(child: Text('Organización no encontrada'))
+          : SingleChildScrollView(
+              padding: const EdgeInsets.all(16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // Header
+                  Center(
+                    child: CircleAvatar(
+                      radius: 48,
+                      child: Text(
+                        org.name[0].toUpperCase(),
+                        style: const TextStyle(fontSize: 32),
                       ),
                     ),
+                  ),
+                  const SizedBox(height: 16),
+                  Center(
+                    child: Text(
+                      org.name,
+                      style: Theme.of(context).textTheme.headlineSmall,
+                      textAlign: TextAlign.center,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  Center(
+                    child: Chip(
+                      label: Text(_getOrganizationTypeLabel(org.type)),
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  Center(
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(
+                          _getStatusIcon(org.status),
+                          size: 20,
+                          color: _getStatusColor(org.status),
+                        ),
+                        const SizedBox(width: 8),
+                        Text(
+                          _getOrganizationStatusLabel(org.status),
+                          style: TextStyle(
+                            color: _getStatusColor(org.status),
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 24),
+
+                  // Description
+                  if (org.description != null) ...[
+                    const Text(
+                      'Descripción',
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    Text(org.description!),
+                    const SizedBox(height: 24),
+                  ],
+
+                  // Contact Info
+                  const Text(
+                    'Información de Contacto',
+                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                  ),
+                  const SizedBox(height: 8),
+                  if (org.email != null)
+                    _InfoRow(
+                      icon: Icons.email,
+                      label: 'Email',
+                      value: org.email!,
+                    ),
+                  if (org.phone != null)
+                    _InfoRow(
+                      icon: Icons.phone,
+                      label: 'Teléfono',
+                      value: org.phone!,
+                    ),
+                  if (org.website != null)
+                    _InfoRow(
+                      icon: Icons.language,
+                      label: 'Sitio Web',
+                      value: org.website!,
+                    ),
+                  if (org.address != null)
+                    _InfoRow(
+                      icon: Icons.location_on,
+                      label: 'Dirección',
+                      value: org.address!,
+                    ),
+                  const SizedBox(height: 24),
+
+                  // Location
+                  if (org.country != null ||
+                      org.province != null ||
+                      org.canton != null) ...[
+                    const Text(
+                      'Ubicación',
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    if (org.country != null)
+                      _InfoRow(
+                        icon: Icons.flag,
+                        label: 'País',
+                        value: org.country!,
+                      ),
+                    if (org.province != null)
+                      _InfoRow(
+                        icon: Icons.map,
+                        label: 'Provincia',
+                        value: org.province!,
+                      ),
+                    if (org.canton != null)
+                      _InfoRow(
+                        icon: Icons.location_city,
+                        label: 'Cantón',
+                        value: org.canton!,
+                      ),
+                    if (org.district != null)
+                      _InfoRow(
+                        icon: Icons.place,
+                        label: 'Distrito',
+                        value: org.district!,
+                      ),
+                    const SizedBox(height: 24),
+                  ],
+
+                  // Stats
+                  const Text(
+                    'Estadísticas',
+                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                  ),
+                  const SizedBox(height: 8),
+                  _InfoRow(
+                    icon: Icons.people,
+                    label: 'Miembros',
+                    value: '${org.memberCount}',
+                  ),
+                  _InfoRow(
+                    icon: Icons.pets,
+                    label: 'Capacidad Máxima',
+                    value: '${org.maxCapacity} animales',
+                  ),
+                  const SizedBox(height: 24),
+
+                  // Legal Info
+                  if (org.legalId != null) ...[
+                    const Text(
+                      'Información Legal',
+                      style: TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    _InfoRow(
+                      icon: Icons.badge,
+                      label: 'Cédula Jurídica',
+                      value: org.legalId!,
+                    ),
+                    const SizedBox(height: 24),
+                  ],
+
+                  // Action Button
+                  SizedBox(
+                    width: double.infinity,
+                    child: ElevatedButton.icon(
+                      onPressed: () => _requestMembership(org),
+                      icon: const Icon(Icons.person_add),
+                      label: const Text('Solicitar Membresía'),
+                      style: ElevatedButton.styleFrom(
+                        padding: const EdgeInsets.all(16),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
     );
   }
 
@@ -405,15 +394,14 @@ class _OrganizationDetailPageState
 }
 
 class _InfoRow extends StatelessWidget {
-  final IconData icon;
-  final String label;
-  final String value;
-
   const _InfoRow({
     required this.icon,
     required this.label,
     required this.value,
   });
+  final IconData icon;
+  final String label;
+  final String value;
 
   @override
   Widget build(BuildContext context) {
@@ -430,15 +418,9 @@ class _InfoRow extends StatelessWidget {
               children: [
                 Text(
                   label,
-                  style: TextStyle(
-                    fontSize: 12,
-                    color: Colors.grey[600],
-                  ),
+                  style: TextStyle(fontSize: 12, color: Colors.grey[600]),
                 ),
-                Text(
-                  value,
-                  style: const TextStyle(fontSize: 14),
-                ),
+                Text(value, style: const TextStyle(fontSize: 14)),
               ],
             ),
           ),

@@ -1,9 +1,9 @@
 import 'package:dio/dio.dart';
 
-import '../exceptions/network_exceptions.dart';
+import 'package:altrupets/core/network/exceptions/network_exceptions.dart';
 
 /// Error interceptor for HTTP requests
-/// 
+///
 /// Handles error responses and converts them to appropriate exceptions
 /// Provides centralized error handling and logging
 class ErrorInterceptor extends Interceptor {
@@ -38,7 +38,7 @@ class ErrorInterceptor extends Interceptor {
       case DioExceptionType.sendTimeout:
       case DioExceptionType.receiveTimeout:
         return NetworkTimeoutException(
-          timeout: Duration(seconds: 30), // Default timeout
+          timeout: const Duration(seconds: 30), // Default timeout
           originalException: err,
         );
 

@@ -179,14 +179,14 @@ class OrganizationsRepository {
     RegisterOrganizationInput input,
   ) async {
     try {
-      debugPrint('[OrganizationsRepository] 📝 Registrando organización: ${input.name}');
+      debugPrint(
+        '[OrganizationsRepository] 📝 Registrando organización: ${input.name}',
+      );
 
       final result = await _client.mutate(
         MutationOptions(
           document: gql(_registerOrganizationMutation),
-          variables: {
-            'registerOrganizationInput': input.toJson(),
-          },
+          variables: {'registerOrganizationInput': input.toJson()},
         ),
       );
 
@@ -196,10 +196,14 @@ class OrganizationsRepository {
 
         if (exception.graphqlErrors.isNotEmpty) {
           errorMessage = exception.graphqlErrors.first.message;
-          debugPrint('[OrganizationsRepository] ❌ Error GraphQL: $errorMessage');
+          debugPrint(
+            '[OrganizationsRepository] ❌ Error GraphQL: $errorMessage',
+          );
         } else if (exception.linkException != null) {
           errorMessage = exception.linkException.toString();
-          debugPrint('[OrganizationsRepository] ❌ Error de conexión: $errorMessage');
+          debugPrint(
+            '[OrganizationsRepository] ❌ Error de conexión: $errorMessage',
+          );
         } else {
           errorMessage = 'Error desconocido en la conexión';
         }
@@ -207,13 +211,16 @@ class OrganizationsRepository {
         return Left(ServerFailure(errorMessage));
       }
 
-      final data = result.data?['registerOrganization'] as Map<String, dynamic>?;
+      final data =
+          result.data?['registerOrganization'] as Map<String, dynamic>?;
       if (data == null) {
-        return Left(ServerFailure('Invalid response from server'));
+        return const Left(ServerFailure('Invalid response from server'));
       }
 
       final organization = Organization.fromJson(data);
-      debugPrint('[OrganizationsRepository] ✅ Organización registrada: ${organization.name}');
+      debugPrint(
+        '[OrganizationsRepository] ✅ Organización registrada: ${organization.name}',
+      );
 
       return Right(organization);
     } catch (e) {
@@ -231,9 +238,7 @@ class OrganizationsRepository {
       final result = await _client.query(
         QueryOptions(
           document: gql(_searchOrganizationsQuery),
-          variables: {
-            'searchOrganizationsInput': input.toJson(),
-          },
+          variables: {'searchOrganizationsInput': input.toJson()},
           fetchPolicy: FetchPolicy.networkOnly,
         ),
       );
@@ -262,7 +267,9 @@ class OrganizationsRepository {
           .map((json) => Organization.fromJson(json as Map<String, dynamic>))
           .toList();
 
-      debugPrint('[OrganizationsRepository] ✅ ${organizations.length} organizaciones encontradas');
+      debugPrint(
+        '[OrganizationsRepository] ✅ ${organizations.length} organizaciones encontradas',
+      );
 
       return Right(organizations);
     } catch (e) {
@@ -300,11 +307,13 @@ class OrganizationsRepository {
 
       final data = result.data?['organization'] as Map<String, dynamic>?;
       if (data == null) {
-        return Left(ServerFailure('Organization not found'));
+        return const Left(ServerFailure('Organization not found'));
       }
 
       final organization = Organization.fromJson(data);
-      debugPrint('[OrganizationsRepository] ✅ Organización obtenida: ${organization.name}');
+      debugPrint(
+        '[OrganizationsRepository] ✅ Organización obtenida: ${organization.name}',
+      );
 
       return Right(organization);
     } catch (e) {
@@ -326,7 +335,7 @@ class OrganizationsRepository {
           variables: {
             'requestMembershipInput': {
               'organizationId': organizationId,
-              if (requestMessage != null) 'requestMessage': requestMessage,
+              'requestMessage': ?requestMessage,
             },
           },
         ),
@@ -349,7 +358,7 @@ class OrganizationsRepository {
 
       final data = result.data?['requestMembership'] as Map<String, dynamic>?;
       if (data == null) {
-        return Left(ServerFailure('Invalid response from server'));
+        return const Left(ServerFailure('Invalid response from server'));
       }
 
       final membership = OrganizationMembership.fromJson(data);
@@ -398,7 +407,7 @@ class OrganizationsRepository {
 
       final data = result.data?['approveMembership'] as Map<String, dynamic>?;
       if (data == null) {
-        return Left(ServerFailure('Invalid response from server'));
+        return const Left(ServerFailure('Invalid response from server'));
       }
 
       final membership = OrganizationMembership.fromJson(data);
@@ -424,7 +433,7 @@ class OrganizationsRepository {
           variables: {
             'rejectMembershipInput': {
               'membershipId': membershipId,
-              if (rejectionReason != null) 'rejectionReason': rejectionReason,
+              'rejectionReason': ?rejectionReason,
             },
           },
         ),
@@ -447,7 +456,7 @@ class OrganizationsRepository {
 
       final data = result.data?['rejectMembership'] as Map<String, dynamic>?;
       if (data == null) {
-        return Left(ServerFailure('Invalid response from server'));
+        return const Left(ServerFailure('Invalid response from server'));
       }
 
       final membership = OrganizationMembership.fromJson(data);
@@ -496,7 +505,7 @@ class OrganizationsRepository {
 
       final data = result.data?['assignRole'] as Map<String, dynamic>?;
       if (data == null) {
-        return Left(ServerFailure('Invalid response from server'));
+        return const Left(ServerFailure('Invalid response from server'));
       }
 
       final membership = OrganizationMembership.fromJson(data);
@@ -509,9 +518,8 @@ class OrganizationsRepository {
     }
   }
 
-  Future<Either<Failure, List<OrganizationMembership>>> getOrganizationMemberships(
-    String organizationId,
-  ) async {
+  Future<Either<Failure, List<OrganizationMembership>>>
+  getOrganizationMemberships(String organizationId) async {
     try {
       debugPrint('[OrganizationsRepository] 🔍 Obteniendo membresías...');
 
@@ -544,10 +552,15 @@ class OrganizationsRepository {
       }
 
       final memberships = data
-          .map((json) => OrganizationMembership.fromJson(json as Map<String, dynamic>))
+          .map(
+            (json) =>
+                OrganizationMembership.fromJson(json as Map<String, dynamic>),
+          )
           .toList();
 
-      debugPrint('[OrganizationsRepository] ✅ ${memberships.length} membresías encontradas');
+      debugPrint(
+        '[OrganizationsRepository] ✅ ${memberships.length} membresías encontradas',
+      );
 
       return Right(memberships);
     } catch (e) {
@@ -556,7 +569,8 @@ class OrganizationsRepository {
     }
   }
 
-  Future<Either<Failure, List<OrganizationMembership>>> getMyMemberships() async {
+  Future<Either<Failure, List<OrganizationMembership>>>
+  getMyMemberships() async {
     try {
       debugPrint('[OrganizationsRepository] 🔍 Obteniendo mis membresías...');
 
@@ -588,10 +602,15 @@ class OrganizationsRepository {
       }
 
       final memberships = data
-          .map((json) => OrganizationMembership.fromJson(json as Map<String, dynamic>))
+          .map(
+            (json) =>
+                OrganizationMembership.fromJson(json as Map<String, dynamic>),
+          )
           .toList();
 
-      debugPrint('[OrganizationsRepository] ✅ ${memberships.length} membresías encontradas');
+      debugPrint(
+        '[OrganizationsRepository] ✅ ${memberships.length} membresías encontradas',
+      );
 
       return Right(memberships);
     } catch (e) {

@@ -45,11 +45,15 @@ class _LoginPageState extends ConsumerState<LoginPage> {
 
     // Escuchar cambios en el estado de auth
     ref.listen<AuthState>(authProvider, (previous, next) async {
-      debugPrint('[LoginPage] 👂 AuthState cambió: isLoading=${next.isLoading}, error=${next.error != null}, payload=${next.payload != null}');
+      debugPrint(
+        '[LoginPage] 👂 AuthState cambió: isLoading=${next.isLoading}, error=${next.error != null}, payload=${next.payload != null}',
+      );
 
       final loginCompleted = previous?.isLoading == true && !next.isLoading;
       if (loginCompleted && next.payload != null) {
-        debugPrint('[LoginPage] ✅ Login completado - invalidando currentUserProvider...');
+        debugPrint(
+          '[LoginPage] ✅ Login completado - invalidando currentUserProvider...',
+        );
 
         // Login exitoso: precargar perfil y navegar a home
         ref.invalidate(currentUserProvider);
@@ -58,7 +62,9 @@ class _LoginPageState extends ConsumerState<LoginPage> {
 
         final user = await ref.read(currentUserProvider.future);
 
-        debugPrint('[LoginPage] ✅ currentUserProvider resuelto: ${user != null ? user.username : 'NULL'}');
+        debugPrint(
+          '[LoginPage] ✅ currentUserProvider resuelto: ${user != null ? user.username : 'NULL'}',
+        );
 
         final navigation = ref.read(navigationProvider);
         navigation.navigateAndRemoveAll(context, const HomePage());
@@ -185,8 +191,8 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                 // Botón de registro
                 TextButton(
                   onPressed: () {
-                    Navigator.of(context).push(
-                      MaterialPageRoute(
+                    Navigator.of(context).push<dynamic>(
+                      MaterialPageRoute<dynamic>(
                         builder: (context) => const RegisterPage(),
                       ),
                     );

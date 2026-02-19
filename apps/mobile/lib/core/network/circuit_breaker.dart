@@ -1,5 +1,3 @@
-import 'dart:async';
-
 import 'package:flutter/foundation.dart';
 
 /// Circuit breaker states
@@ -15,10 +13,17 @@ enum CircuitBreakerState {
 }
 
 /// Circuit breaker implementation
-/// 
+///
 /// Implements REQ-REL-002: Circuit Breaker ante fallas
 /// Prevents cascading failures by stopping requests to failing services
 class CircuitBreaker {
+  CircuitBreaker({
+    this.failureThreshold = 5,
+    this.successThreshold = 2,
+    this.timeout = const Duration(seconds: 30),
+    this.onStateChange,
+  });
+
   /// Current state of the circuit breaker
   CircuitBreakerState _state = CircuitBreakerState.closed;
 
@@ -41,15 +46,11 @@ class CircuitBreaker {
   final Duration timeout;
 
   /// Callback when state changes
-  final Function(CircuitBreakerState oldState, CircuitBreakerState newState)?
-      onStateChange;
-
-  CircuitBreaker({
-    this.failureThreshold = 5,
-    this.successThreshold = 2,
-    this.timeout = const Duration(seconds: 30),
-    this.onStateChange,
-  });
+  final void Function(
+    CircuitBreakerState oldState,
+    CircuitBreakerState newState,
+  )?
+  onStateChange;
 
   /// Get current state
   CircuitBreakerState get state => _state;
@@ -179,6 +180,12 @@ class CircuitBreaker {
 
 /// Circuit breaker manager for multiple endpoints
 class CircuitBreakerManager {
+  CircuitBreakerManager({
+    this.failureThreshold = 5,
+    this.successThreshold = 2,
+    this.timeout = const Duration(seconds: 30),
+  });
+
   /// Map of endpoint to circuit breaker
   final Map<String, CircuitBreaker> _breakers = {};
 
@@ -186,12 +193,6 @@ class CircuitBreakerManager {
   final int failureThreshold;
   final int successThreshold;
   final Duration timeout;
-
-  CircuitBreakerManager({
-    this.failureThreshold = 5,
-    this.successThreshold = 2,
-    this.timeout = const Duration(seconds: 30),
-  });
 
   /// Get or create circuit breaker for endpoint
   CircuitBreaker getBreaker(String endpoint) {
@@ -230,8 +231,7 @@ class CircuitBreakerManager {
   /// Get status of all circuit breakers
   Map<String, String> getStatus() {
     return {
-      for (final entry in _breakers.entries)
-        entry.key: entry.value.getStatus(),
+      for (final entry in _breakers.entries) entry.key: entry.value.getStatus(),
     };
   }
 }

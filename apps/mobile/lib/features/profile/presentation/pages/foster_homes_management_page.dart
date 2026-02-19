@@ -36,9 +36,9 @@ class FosterHomesManagementPage extends ConsumerWidget {
               name: 'Hogar de Doña María',
               location: 'Heredia, Costa Rica',
             ),
-            
+
             const SizedBox(height: 32),
-            
+
             // Section 1: Activos
             const SectionHeader(
               title: 'GESTIONAR ACTIVOS',
@@ -53,20 +53,56 @@ class FosterHomesManagementPage extends ConsumerWidget {
               crossAxisSpacing: 12,
               childAspectRatio: 1.3,
               children: [
-                FosterHomesManagementCardButton(emoji: '🥩', label: 'Alimentos', onTap: () {}),
-                FosterHomesManagementCardButton(emoji: '💊', label: 'Botiquín', onTap: () {}),
-                FosterHomesManagementCardButton(emoji: '🏠', label: 'Mobiliario', onTap: () {}),
-                FosterHomesManagementCardButton(emoji: '🧹', label: 'Limpieza y Aseo', onTap: () {}),
-                FosterHomesManagementCardButton(emoji: '🧼', label: 'Higiene Animal', onTap: () {}),
-                FosterHomesManagementCardButton(emoji: '🛏', label: 'Ropa de Cama', onTap: () {}),
-                FosterHomesManagementCardButton(emoji: '🥣', label: 'Utensilios', onTap: () {}),
-                FosterHomesManagementCardButton(emoji: '🎾', label: 'Juguetes', onTap: () {}),
-                FosterHomesManagementCardButton(emoji: '🚗', label: 'Transporte', onTap: () {}),
+                FosterHomesManagementCardButton(
+                  emoji: '🥩',
+                  label: 'Alimentos',
+                  onTap: () {},
+                ),
+                FosterHomesManagementCardButton(
+                  emoji: '💊',
+                  label: 'Botiquín',
+                  onTap: () {},
+                ),
+                FosterHomesManagementCardButton(
+                  emoji: '🏠',
+                  label: 'Mobiliario',
+                  onTap: () {},
+                ),
+                FosterHomesManagementCardButton(
+                  emoji: '🧹',
+                  label: 'Limpieza y Aseo',
+                  onTap: () {},
+                ),
+                FosterHomesManagementCardButton(
+                  emoji: '🧼',
+                  label: 'Higiene Animal',
+                  onTap: () {},
+                ),
+                FosterHomesManagementCardButton(
+                  emoji: '🛏',
+                  label: 'Ropa de Cama',
+                  onTap: () {},
+                ),
+                FosterHomesManagementCardButton(
+                  emoji: '🥣',
+                  label: 'Utensilios',
+                  onTap: () {},
+                ),
+                FosterHomesManagementCardButton(
+                  emoji: '🎾',
+                  label: 'Juguetes',
+                  onTap: () {},
+                ),
+                FosterHomesManagementCardButton(
+                  emoji: '🚗',
+                  label: 'Transporte',
+                  onTap: () {},
+                ),
               ],
             ),
-            
+
             const SizedBox(height: 32),
-            
+
             // Section 2: Pasivos
             const SectionHeader(
               title: 'GESTIONAR PASIVOS',
@@ -81,15 +117,39 @@ class FosterHomesManagementPage extends ConsumerWidget {
               crossAxisSpacing: 12,
               childAspectRatio: 1.3,
               children: [
-                FosterHomesManagementCardButton(emoji: '⚡', label: 'Servicios Públicos', onTap: () {}),
-                FosterHomesManagementCardButton(emoji: '🚛', label: 'Gastos de Logística', onTap: () {}),
-                FosterHomesManagementCardButton(emoji: '🛒', label: 'Compras de Activos', onTap: () {}),
-                FosterHomesManagementCardButton(emoji: '🏛️', label: 'Impuestos', onTap: () {}),
-                FosterHomesManagementCardButton(emoji: '🩺', label: 'Veterinaria', onTap: () {}),
-                FosterHomesManagementCardButton(emoji: '✂️', label: 'Estéticos', onTap: () {}),
+                FosterHomesManagementCardButton(
+                  emoji: '⚡',
+                  label: 'Servicios Públicos',
+                  onTap: () {},
+                ),
+                FosterHomesManagementCardButton(
+                  emoji: '🚛',
+                  label: 'Gastos de Logística',
+                  onTap: () {},
+                ),
+                FosterHomesManagementCardButton(
+                  emoji: '🛒',
+                  label: 'Compras de Activos',
+                  onTap: () {},
+                ),
+                FosterHomesManagementCardButton(
+                  emoji: '🏛️',
+                  label: 'Impuestos',
+                  onTap: () {},
+                ),
+                FosterHomesManagementCardButton(
+                  emoji: '🩺',
+                  label: 'Veterinaria',
+                  onTap: () {},
+                ),
+                FosterHomesManagementCardButton(
+                  emoji: '✂️',
+                  label: 'Estéticos',
+                  onTap: () {},
+                ),
               ],
             ),
-            
+
             const SizedBox(height: 40),
           ],
         ),

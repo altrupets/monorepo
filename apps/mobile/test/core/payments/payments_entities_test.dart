@@ -99,18 +99,18 @@ void main() {
 
   group('Money Entity', () {
     test('should create with correct values', () {
-      final money = Money(10050, Currency.mxn);
+      const money = Money(10050, Currency.mxn);
       expect(money.amount, 10050);
       expect(money.currency, Currency.mxn);
     });
 
     test('should format correctly', () {
-      final money = Money(10050, Currency.mxn);
+      const money = Money(10050, Currency.mxn);
       expect(money.display, '\$100.50');
     });
 
     test('should convert to decimal correctly', () {
-      final money = Money(10050, Currency.mxn);
+      const money = Money(10050, Currency.mxn);
       expect(money.decimal, 100.50);
     });
 
@@ -122,7 +122,7 @@ void main() {
 
   group('CardToken Entity', () {
     test('should create with correct values', () {
-      final token = CardToken(
+      const token = CardToken(
         id: 'tok_test_123',
         last4: '4242',
         brand: 'visa',
@@ -140,7 +140,7 @@ void main() {
     });
 
     test('should format masked number correctly', () {
-      final token = CardToken(
+      const token = CardToken(
         id: 'tok_1',
         last4: '4242',
         brand: 'visa',
@@ -153,7 +153,7 @@ void main() {
     });
 
     test('should format display correctly', () {
-      final token = CardToken(
+      const token = CardToken(
         id: 'tok_1',
         last4: '4242',
         brand: 'visa',
@@ -166,7 +166,7 @@ void main() {
     });
 
     test('should serialize to JSON correctly', () {
-      final token = CardToken(
+      const token = CardToken(
         id: 'tok_1',
         last4: '4242',
         brand: 'visa',
@@ -187,7 +187,7 @@ void main() {
       final result = PaymentResult.success(
         transactionId: 'txn_123',
         status: PaymentStatus.approved,
-        amount: Money(10000, Currency.mxn),
+        amount: const Money(10000, Currency.mxn),
       );
 
       expect(result.success, true);
@@ -212,7 +212,7 @@ void main() {
       final result = PaymentResult.success(
         transactionId: 'txn_123',
         status: PaymentStatus.pending,
-        amount: Money(10000, Currency.mxn),
+        amount: const Money(10000, Currency.mxn),
       );
 
       expect(result.requiresAction, true);
@@ -222,7 +222,7 @@ void main() {
       final completedResult = PaymentResult.success(
         transactionId: 'txn_123',
         status: PaymentStatus.completed,
-        amount: Money(10000, Currency.mxn),
+        amount: const Money(10000, Currency.mxn),
       );
 
       expect(completedResult.isComplete, true);
@@ -230,7 +230,7 @@ void main() {
       final rejectedResult = PaymentResult.success(
         transactionId: 'txn_123',
         status: PaymentStatus.rejected,
-        amount: Money(10000, Currency.mxn),
+        amount: const Money(10000, Currency.mxn),
       );
 
       expect(rejectedResult.isComplete, true);
@@ -238,7 +238,7 @@ void main() {
       final pendingResult = PaymentResult.success(
         transactionId: 'txn_123',
         status: PaymentStatus.pending,
-        amount: Money(10000, Currency.mxn),
+        amount: const Money(10000, Currency.mxn),
       );
 
       expect(pendingResult.isComplete, false);

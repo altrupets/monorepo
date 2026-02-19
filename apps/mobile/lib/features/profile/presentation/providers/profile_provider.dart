@@ -1,7 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:graphql/client.dart';
-import 'package:internet_connection_checker/internet_connection_checker.dart';
+import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:altrupets/core/graphql/graphql_client.dart';
 import 'package:altrupets/features/auth/domain/entities/user.dart';
 import 'package:altrupets/core/error/failures.dart';
@@ -57,7 +57,8 @@ final currentUserProvider = FutureProvider<User?>((ref) async {
   debugPrint('[currentUserProvider] 🔄 INICIANDO...');
 
   final client = GraphQLClientService.getClient();
-  final isConnected = await InternetConnectionChecker().hasConnection;
+  final connectivityResult = await Connectivity().checkConnectivity();
+  final isConnected = !connectivityResult.contains(ConnectivityResult.none);
 
   debugPrint('[currentUserProvider] 📡 Conexión a internet: $isConnected');
 
@@ -176,7 +177,8 @@ final updateUserProfileProvider =
     ) async {
       final client = GraphQLClientService.getClient();
       final input = params.toGraphQLInput();
-      final isConnected = await InternetConnectionChecker().hasConnection;
+      final connectivityResult = await Connectivity().checkConnectivity();
+      final isConnected = !connectivityResult.contains(ConnectivityResult.none);
 
       try {
         if (!isConnected) {
@@ -303,16 +305,6 @@ User _mergeUserWithInput(User base, Map<String, dynamic> input) {
 }
 
 class UpdateUserParams {
-  final String? firstName;
-  final String? lastName;
-  final String? phone;
-  final String? identification;
-  final String? country;
-  final String? province;
-  final String? canton;
-  final String? district;
-  final String? avatarBase64;
-
   UpdateUserParams({
     this.firstName,
     this.lastName,
@@ -324,6 +316,15 @@ class UpdateUserParams {
     this.district,
     this.avatarBase64,
   });
+  final String? firstName;
+  final String? lastName;
+  final String? phone;
+  final String? identification;
+  final String? country;
+  final String? province;
+  final String? canton;
+  final String? district;
+  final String? avatarBase64;
 
   Map<String, dynamic> toGraphQLInput() {
     return {

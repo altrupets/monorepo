@@ -31,21 +31,26 @@ abstract class Environment {
 
 /// Firebase configuration
 class FirebaseConfig {
-  final String projectId;
-  final String apiKey;
-  final String appId;
-  final String messagingSenderId;
-
   FirebaseConfig({
     required this.projectId,
     required this.apiKey,
     required this.appId,
     required this.messagingSenderId,
   });
+  final String projectId;
+  final String apiKey;
+  final String appId;
+  final String messagingSenderId;
 }
 
 /// Geolocation configuration
 class GeolocationConfig {
+  GeolocationConfig({
+    this.defaultSearchRadiusKm = 5.0,
+    this.maxSearchRadiusKm = 50.0,
+    this.minAccuracyMeters = 50.0,
+  });
+
   /// Default search radius for nearby rescuers in kilometers
   final double defaultSearchRadiusKm;
 
@@ -54,16 +59,16 @@ class GeolocationConfig {
 
   /// Minimum accuracy required for location in meters
   final double minAccuracyMeters;
-
-  GeolocationConfig({
-    this.defaultSearchRadiusKm = 5.0,
-    this.maxSearchRadiusKm = 50.0,
-    this.minAccuracyMeters = 50.0,
-  });
 }
 
 /// Storage configuration
 class StorageConfig {
+  StorageConfig({
+    this.maxCacheSizeMb = 100,
+    this.cacheExpirationHours = 24,
+    this.encryptSensitiveData = true,
+  });
+
   /// Maximum cache size in MB
   final int maxCacheSizeMb;
 
@@ -72,10 +77,4 @@ class StorageConfig {
 
   /// Whether to encrypt sensitive data
   final bool encryptSensitiveData;
-
-  StorageConfig({
-    this.maxCacheSizeMb = 100,
-    this.cacheExpirationHours = 24,
-    this.encryptSensitiveData = true,
-  });
 }

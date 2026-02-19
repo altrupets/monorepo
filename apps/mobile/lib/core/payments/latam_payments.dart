@@ -1,5 +1,5 @@
 /// Latin American Payment Gateways SDK
-library latam_payments;
+library;
 
 ///
 /// A comprehensive payment gateway SDK for Latin America supporting

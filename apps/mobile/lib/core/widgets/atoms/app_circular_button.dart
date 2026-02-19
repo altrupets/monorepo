@@ -30,16 +30,14 @@ class AppCircularButton extends StatelessWidget {
         width: size,
         height: size,
         decoration: BoxDecoration(
-          color: gradient == null ? (backgroundColor ?? Theme.of(context).colorScheme.secondary) : null,
+          color: gradient == null
+              ? (backgroundColor ?? Theme.of(context).colorScheme.secondary)
+              : null,
           gradient: gradient,
           shape: BoxShape.circle,
           boxShadow: boxShadow,
         ),
-        child: Icon(
-          icon,
-          color: iconColor,
-          size: iconSize,
-        ),
+        child: Icon(icon, color: iconColor, size: iconSize),
       ),
     );
   }

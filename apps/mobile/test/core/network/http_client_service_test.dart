@@ -1,15 +1,10 @@
-import 'dart:io';
-
 import 'package:altrupets/core/config/environment_manager.dart';
 import 'package:altrupets/core/network/circuit_breaker.dart';
-import 'package:altrupets/core/network/exceptions/network_exceptions.dart';
 import 'package:altrupets/core/network/http_client_service.dart';
 import 'package:altrupets/core/network/interceptors/retry_interceptor.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/mockito.dart';
-
-import '../../mocks/mock_environment_manager.dart';
 
 void main() {
   group('HttpClientService', () {
@@ -69,7 +64,7 @@ void main() {
         expect(breaker.isOpen, isTrue);
 
         // Wait for timeout
-        await Future.delayed(Duration(seconds: 31));
+        await Future<void>.delayed(const Duration(seconds: 31));
 
         // Should transition to half-open
         breaker.recordFailure();
@@ -99,12 +94,6 @@ void main() {
 
     group('Error Handling', () {
       test('should throw NetworkConnectionException on connection error', () {
-        final exception = DioException(
-          requestOptions: RequestOptions(path: '/test'),
-          type: DioExceptionType.connectionError,
-          error: SocketException('Connection refused'),
-        );
-
         expect(
           () => httpClientService.dio.interceptors
               .whereType<ErrorInterceptor>()
@@ -163,15 +152,6 @@ void main() {
             .whereType<RetryInterceptor>()
             .first;
 
-        final exception = DioException(
-          requestOptions: RequestOptions(path: '/test'),
-          type: DioExceptionType.badResponse,
-          response: Response(
-            requestOptions: RequestOptions(path: '/test'),
-            statusCode: 404,
-          ),
-        );
-
         // 404 should not be retried
         expect(retryInterceptor.retryableStatusCodes.contains(404), isFalse);
       });
@@ -189,11 +169,6 @@ void main() {
         final retryInterceptor = httpClientService.dio.interceptors
             .whereType<RetryInterceptor>()
             .first;
-
-        final exception = DioException(
-          requestOptions: RequestOptions(path: '/test'),
-          type: DioExceptionType.receiveTimeout,
-        );
 
         // Timeout should be retried
         expect(retryInterceptor.retryableStatusCodes.contains(408), isTrue);
@@ -219,7 +194,7 @@ void main() {
       circuitBreaker = CircuitBreaker(
         failureThreshold: 3,
         successThreshold: 2,
-        timeout: Duration(seconds: 1),
+        timeout: const Duration(seconds: 1),
       );
     });
 
@@ -259,7 +234,7 @@ void main() {
       expect(circuitBreaker.isOpen, isTrue);
 
       // Wait for timeout
-      await Future.delayed(Duration(seconds: 2));
+      await Future<void>.delayed(const Duration(seconds: 2));
 
       // Attempt a request (should transition to half-open)
       circuitBreaker.recordFailure();
@@ -289,7 +264,7 @@ void main() {
       expect(circuitBreaker.isOpen, isTrue);
 
       // Wait for timeout
-      await Future.delayed(Duration(seconds: 2));
+      await Future<void>.delayed(const Duration(seconds: 2));
 
       // Attempt a request (should transition to half-open)
       circuitBreaker.recordFailure();

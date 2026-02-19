@@ -1,16 +1,16 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 
-import '../../../domain/entities/card_token.dart';
-import '../../../domain/entities/payment_gateway_configuration.dart';
-import '../../../domain/entities/payment_result.dart';
-import '../../../domain/entities/refund_result.dart';
-import '../../../domain/entities/money.dart';
-import '../../../domain/enums/country.dart';
-import '../../../domain/enums/currency.dart';
-import '../../../domain/enums/payment_method_type.dart';
-import '../../../domain/enums/payment_status.dart';
-import '../../../domain/interfaces/latin_american_payment_gateway.dart';
+import 'package:altrupets/core/payments/domain/entities/card_token.dart';
+import 'package:altrupets/core/payments/domain/entities/payment_gateway_configuration.dart';
+import 'package:altrupets/core/payments/domain/entities/payment_result.dart';
+import 'package:altrupets/core/payments/domain/entities/refund_result.dart';
+import 'package:altrupets/core/payments/domain/entities/money.dart';
+import 'package:altrupets/core/payments/domain/enums/country.dart';
+import 'package:altrupets/core/payments/domain/enums/currency.dart';
+import 'package:altrupets/core/payments/domain/enums/payment_method_type.dart';
+import 'package:altrupets/core/payments/domain/enums/payment_status.dart';
+import 'package:altrupets/core/payments/domain/interfaces/latin_american_payment_gateway.dart';
 
 /// ONVO Pay Payment Gateway Implementation
 ///
@@ -18,14 +18,13 @@ import '../../../domain/interfaces/latin_american_payment_gateway.dart';
 ///
 /// API Documentation: https://docs.onvopay.com
 class OnvoPayPaymentGateway implements LatinAmericanPaymentGateway {
-  final PaymentGatewayConfiguration _config;
-  late final String _baseUrl;
-
   OnvoPayPaymentGateway(this._config) {
     _baseUrl = _config.sandbox
         ? 'https://api-sandbox.onvopay.com'
         : 'https://api.onvopay.com';
   }
+  final PaymentGatewayConfiguration _config;
+  late final String _baseUrl;
 
   @override
   String get id => 'onvo_pay';
@@ -250,10 +249,7 @@ class OnvoPayPaymentGateway implements LatinAmericanPaymentGateway {
     String? reason,
   }) async {
     try {
-      final body = <String, dynamic>{
-        if (amount != null) 'amount': amount,
-        if (reason != null) 'reason': reason,
-      };
+      final body = <String, dynamic>{'amount': ?amount, 'reason': ?reason};
 
       final response = await http.post(
         Uri.parse('$_baseUrl/v1/charges/$transactionId/refund'),

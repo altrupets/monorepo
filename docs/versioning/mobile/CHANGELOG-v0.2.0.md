@@ -1,5 +1,25 @@
 # Changelog - Mobile Version 0.2.0
 
+## [0.2.1] - 2026-02-18
+
+### Security
+
+**Flutter/Dart**
+- Fixed unused imports:
+  - `lib/core/error/error_logging_observer.dart` - removed unused `flutter/foundation.dart`
+  - `lib/features/organizations/presentation/providers/organizations_provider.dart` - removed 3 unused imports
+- Fixed null comparison: `lib/features/profile/presentation/pages/profile_page.dart`
+- Added missing dependency: `connectivity_plus` to `pubspec.yaml`
+- Formatted 142 files with Dart formatter
+
+**Archivos modificados:**
+- `lib/core/error/error_logging_observer.dart`
+- `lib/features/organizations/presentation/providers/organizations_provider.dart`
+- `lib/features/profile/presentation/pages/profile_page.dart`
+- `pubspec.yaml`
+
+---
+
 ## [0.2.0] - 2026-02-16
 
 ### Added

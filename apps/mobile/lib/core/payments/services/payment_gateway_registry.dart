@@ -1,5 +1,5 @@
-import '../domain/enums/country.dart';
-import 'payment_gateway_factory.dart';
+import 'package:altrupets/core/payments/domain/enums/country.dart';
+import 'package:altrupets/core/payments/services/payment_gateway_factory.dart';
 
 /// Registry of available payment gateways by country
 ///

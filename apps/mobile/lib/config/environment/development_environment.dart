@@ -1,4 +1,4 @@
-import 'environment.dart';
+import 'package:altrupets/config/environment/environment.dart';
 
 /// Development environment configuration
 /// Used for local development with mock/staging backend
