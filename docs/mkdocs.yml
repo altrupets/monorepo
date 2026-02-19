@@ -12,7 +12,7 @@ edit_uri: edit/main/docs/
 
 # Directorio de documentos
 docs_dir: content
-site_dir: ../site
+site_dir: site
 
 # =============================================================================
 # Configuración del Tema Material
@@ -124,6 +124,11 @@ markdown_extensions:
   - pymdownx.tasklist:
       custom_checkbox: true
   - pymdownx.tilde
+  - pymdownx.superfences:
+      custom_fences:
+        - name: mermaid
+          class: mermaid
+          format: !!python/name:pymdownx.superfences.fence_code_format
 
 # =============================================================================
 # Configuración de Páginas
@@ -198,3 +203,4 @@ extra_css:
 
 extra_javascript:
   - javascripts/altrupets-custom.js
+  - javascripts/mermaid.mjs
