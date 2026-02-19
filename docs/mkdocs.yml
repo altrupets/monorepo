@@ -131,8 +131,10 @@ nav:
     - Configuración: docs/getting-started/setup.md
   - 📱 Mobile:
     - Visión general: docs/mobile/index.md
-    - Arquitectura: docs/mobile/architecture.md
     - Getting Started: docs/mobile/getting-started.md
+    - Launch Script: docs/mobile/launch-script.md
+    - Widgetbook (QA UI): docs/mobile/widgetbook.md
+    - Arquitectura: docs/mobile/architecture.md
     - Features: docs/mobile/features.md
     - Core: docs/mobile/core.md
     - Design System: docs/mobile/design-system.md
