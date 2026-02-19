@@ -16,9 +16,9 @@
         dev-argocd-deploy dev-argocd-destroy dev-argocd-status dev-argocd-password \
         dev-gateway-deploy dev-gateway-start dev-gateway-stop \
         dev-postgres-deploy dev-postgres-destroy dev-postgres-logs dev-postgres-port-forward \
-        dev-backend-build dev-backend-deploy dev-images-build dev-all-deploy dev-backend-start \
-        dev-superusers-start dev-superusers-stop dev-superusers-deploy dev-superusers-destroy \
-        dev-b2g-start dev-b2g-stop dev-b2g-deploy dev-b2g-destroy \
+        dev-backend-build dev-backend-tf-deploy dev-images-build dev-backend-start \
+        dev-superusers-start dev-superusers-stop dev-superusers-tf-deploy dev-superusers-destroy \
+        dev-b2g-start dev-b2g-stop dev-b2g-tf-deploy dev-b2g-destroy \
         dev-infisical-sync dev-infisical-sync-cli \
         dev-mcp-start dev-mcp-stop dev-mcp-status \
         dev-security-scan dev-security-deps dev-security-sast dev-security-secrets \
@@ -62,7 +62,7 @@ help: ## Show this help message
 	@echo ""
 	@echo "$(GREEN)Quick Start (Full Setup):$(NC)"
 	@echo "  $(YELLOW)Manual (sin ArgoCD):$(NC)"
-	@echo "  make setup && make dev-minikube-deploy && make dev-terraform-deploy && make dev-images-build && make dev-all-deploy && make dev-gateway-start"
+	@echo "  make setup && make dev-minikube-deploy && make dev-terraform-deploy && make dev-images-build && make dev-backend-tf-deploy && make dev-superusers-tf-deploy && make dev-b2g-tf-deploy && make dev-gateway-start"
 	@echo ""
 	@echo "  $(YELLOW)Con ArgoCD (GitOps):$(NC)"
 	@echo "  make setup && make dev-minikube-deploy && make dev-terraform-deploy && make dev-images-build && make dev-argocd-deploy && make dev-gateway-start"
@@ -72,8 +72,10 @@ help: ## Show this help message
 	@echo "  2. make dev-minikube-deploy      $(BLUE)# Create minikube cluster$(NC)"
 	@echo "  3. make dev-terraform-deploy     $(BLUE)# Deploy PostgreSQL + Gateway API$(NC)"
 	@echo "  4. make dev-images-build         $(BLUE)# Build all images (backend + web apps)$(NC)"
-	@echo "  5. make dev-all-deploy           $(BLUE)# Deploy all apps (backend + web apps)$(NC)"
-	@echo "  6. make dev-gateway-start        $(BLUE)# Start port-forward (localhost:3001)$(NC)"
+	@echo "  5. make dev-backend-tf-deploy    $(BLUE)# Deploy backend$(NC)"
+	@echo "  6. make dev-superusers-tf-deploy $(BLUE)# Deploy CRUD Superusers$(NC)"
+	@echo "  7. make dev-b2g-tf-deploy        $(BLUE)# Deploy B2G$(NC)"
+	@echo "  8. make dev-gateway-start        $(BLUE)# Start port-forward (localhost:3001)$(NC)"
 	@echo ""
 	@echo "  $(YELLOW)Después del setup:$(NC)"
 	@echo "  make dev-mobile-launch           $(BLUE)# Launch Flutter app (Android/Desktop)$(NC)"
@@ -107,9 +109,8 @@ help: ## Show this help message
 	@echo ""
 	@echo "$(GREEN)DEV - Backend:$(NC)"
 	@echo "  $(YELLOW)dev-backend-build$(NC)           Build backend image"
-	@echo "  $(YELLOW)dev-backend-deploy$(NC)          Deploy backend to minikube"
+	@echo "  $(YELLOW)dev-backend-tf-deploy$(NC)       Deploy backend to minikube (terraform/kustomize)"
 	@echo "  $(YELLOW)dev-images-build$(NC)            Build all images (backend + web apps)"
-	@echo "  $(YELLOW)dev-all-deploy$(NC)              Deploy all apps (backend + web apps)"
 	@echo "  $(YELLOW)dev-backend-start$(NC)           Start backend in dev mode"
 	@echo "  $(YELLOW)dev-backend-test$(NC)            Run unit tests"
 	@echo "  $(YELLOW)dev-backend-test-e2e$(NC)        Run e2e tests (needs DB port-forward)"
@@ -124,12 +125,12 @@ help: ## Show this help message
 	@echo "$(GREEN)DEV - Web Apps (managed by ArgoCD, manual fallback):$(NC)"
 	@echo "  $(YELLOW)dev-superusers-start$(NC)        Start CRUD Superusers locally (dev)"
 	@echo "  $(YELLOW)dev-superusers-stop$(NC)         Stop CRUD Superusers"
-	@echo "  $(YELLOW)dev-superusers-deploy$(NC)       Deploy manually (fallback)"
+	@echo "  $(YELLOW)dev-superusers-tf-deploy$(NC)    Deploy manually (terraform/kustomize)"
 	@echo "  $(YELLOW)dev-superusers-destroy$(NC)      Remove manually"
 	@echo ""
 	@echo "  $(YELLOW)dev-b2g-start$(NC)               Start B2G locally (dev)"
 	@echo "  $(YELLOW)dev-b2g-stop$(NC)                Stop B2G"
-	@echo "  $(YELLOW)dev-b2g-deploy$(NC)              Deploy manually (fallback)"
+	@echo "  $(YELLOW)dev-b2g-tf-deploy$(NC)           Deploy manually (terraform/kustomize)"
 	@echo "  $(YELLOW)dev-b2g-destroy$(NC)             Remove manually"
 	@echo ""
 	@echo "$(GREEN)DEV - Utilities:$(NC)"
@@ -321,14 +322,11 @@ dev-images-build: ## Build all images (backend + web apps)
 	@$(SCRIPTS_DIR)/build-web-images-minikube.sh b2g
 	@echo "$(GREEN)✓ All images built$(NC)"
 
-dev-backend-deploy: ## Deploy backend to minikube
+dev-backend-tf-deploy: ## Deploy backend to minikube (terraform/kustomize)
 	@echo "$(BLUE)Deploying backend...$(NC)"
 	@kubectl apply -k k8s/base/backend --server-side -n altrupets-dev
 	@kubectl rollout status deployment/backend -n altrupets-dev --timeout=120s
 	@echo "$(GREEN)✓ Backend deployed$(NC)"
-
-dev-all-deploy: dev-backend-deploy dev-superusers-deploy dev-b2g-deploy ## Deploy all apps (backend + web apps)
-	@echo "$(GREEN)✓ All apps deployed$(NC)"
 
 dev-backend-start: ## Start backend in dev mode
 	@./launch_backend_dev.sh
@@ -350,7 +348,7 @@ dev-superusers-stop: ## Stop CRUD Superusers
 	@pkill -f "kubectl port-forward.*backend-service" 2>/dev/null || true
 	@echo "$(GREEN)✓ CRUD Superusers stopped$(NC)"
 
-dev-superusers-deploy: ## Deploy CRUD Superusers to minikube
+dev-superusers-tf-deploy: ## Deploy CRUD Superusers to minikube (terraform/kustomize)
 	@$(SCRIPTS_DIR)/build-web-images-minikube.sh superusers
 	@kubectl apply -k k8s/base/web-superusers --server-side -n altrupets-dev
 	@kubectl rollout status deployment/web-superusers -n altrupets-dev --timeout=60s
@@ -377,7 +375,7 @@ dev-b2g-stop: ## Stop B2G
 	@pkill -f "kubectl port-forward.*backend-service" 2>/dev/null || true
 	@echo "$(GREEN)✓ B2G stopped$(NC)"
 
-dev-b2g-deploy: ## Deploy B2G to minikube
+dev-b2g-tf-deploy: ## Deploy B2G to minikube (terraform/kustomize)
 	@$(SCRIPTS_DIR)/build-web-images-minikube.sh b2g
 	@kubectl apply -k k8s/base/web-b2g --server-side -n altrupets-dev
 	@kubectl rollout status deployment/web-b2g -n altrupets-dev --timeout=60s
