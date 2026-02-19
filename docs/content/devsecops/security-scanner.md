@@ -10,15 +10,13 @@ El **Security Scanner** es un contenedor Docker dedicado que contiene todas las 
 
 ```mermaid
 graph LR
-    A[Backend Container] --> B[Node.js + App]
+    A[Backend Container] --> B["Node.js + App"]
     C[Security Scanner] --> D[Security Tools]
 
     style A fill:#e1f5e1
-    style C fill:#fff3cd
     style B fill:#d4edda
+    style C fill:#fff3cd
     style D fill:#f8d7da
-
-    linkStyle 0,1 stroke-width:2px,fill:none,stroke:gray
 ```
 
 ### ¿Por qué un contenedor separado?
