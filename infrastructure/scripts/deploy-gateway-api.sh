@@ -1,8 +1,8 @@
 #!/bin/bash
 #
-# Deploy Gateway API infrastructure for QA and Staging environments
+# Deploy Gateway API infrastructure for dev, QA and Staging environments
 # Usage: ./deploy-gateway-api.sh <environment>
-# Environments: qa, staging
+# Environments: dev, qa, staging
 #
 
 set -euo pipefail
@@ -16,7 +16,7 @@ source "$SCRIPT_DIR/lib/env-config.sh"
 # Configuration
 # ============================================
 
-ENVIRONMENT="${1:-}"
+ENVIRONMENT=""
 AUTO_APPROVE="${AUTO_APPROVE:-false}"
 SKIP_GATEWAY="${SKIP_GATEWAY:-false}"
 SKIP_ISTIO="${SKIP_ISTIO:-false}"
@@ -34,7 +34,7 @@ Usage: $(basename "$0") <environment> [options]
 Deploy Gateway API infrastructure (NGINX Gateway + Istio Service Mesh)
 
 Arguments:
-  environment              Target environment: qa, staging
+  environment              Target environment: dev, qa, staging
 
 Options:
   --skip-gateway           Skip NGINX Gateway deployment
@@ -50,9 +50,9 @@ Environment Variables:
   FORCE_RECREATE          Force Gateway recreation (true/false)
 
 Examples:
-  $(basename "$0") qa
-  $(basename "$0") staging --auto-approve
-  $(basename "$0") qa --skip-istio
+  $(basename "$0") dev
+  $(basename "$0") qa --auto-approve
+  $(basename "$0") staging --skip-istio
 
 EOF
 }
