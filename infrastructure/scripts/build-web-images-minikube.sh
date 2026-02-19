@@ -15,9 +15,9 @@ build_app() {
 	local app="$1"
 	local app_dir="$PROJECT_ROOT/apps/web/$app"
 	local dockerfile="$app_dir/Dockerfile"
-	local image_tag="altrupets-web-$app:dev"
+	local image_tag="localhost/altrupets-web-$app:dev"
 
-	echo -e "${BLUE}🐳 Building $app image for Minikube: ${image_tag}${NC}"
+	echo -e "${BLUE}🐳 Building $app image: ${image_tag}${NC}"
 
 	if [ ! -d "$app_dir" ]; then
 		echo -e "${RED}❌ App directory not found: $app_dir${NC}"
@@ -26,13 +26,24 @@ build_app() {
 
 	cd "$PROJECT_ROOT"
 
-	if ! minikube image build -t "${image_tag}" -f "$dockerfile" . 2>&1; then
+	if ! podman build -t "${image_tag}" -f "$dockerfile" . 2>&1; then
 		echo -e "${RED}❌ Failed to build $app image${NC}"
 		exit 1
 	fi
 
-	echo -e "${GREEN}✅ Image built: ${image_tag}${NC}"
+	echo -e "${BLUE}📦 Loading image into minikube...${NC}"
+	if ! podman save "${image_tag}" | minikube image load -; then
+		echo -e "${RED}❌ Failed to load image into minikube${NC}"
+		exit 1
+	fi
+
+	echo -e "${GREEN}✅ Image built and loaded: ${image_tag}${NC}"
 }
+
+if ! command -v podman >/dev/null 2>&1; then
+	echo -e "${RED}❌ podman is not installed${NC}"
+	exit 1
+fi
 
 if ! command -v minikube >/dev/null 2>&1; then
 	echo -e "${RED}❌ minikube is not installed${NC}"
