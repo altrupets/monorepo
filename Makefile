@@ -25,7 +25,6 @@
         dev-mcp-start dev-mcp-stop dev-mcp-status \
         dev-security-scan dev-security-deps dev-security-sast dev-security-secrets \
         dev-security-container dev-security-iac dev-security-fix \
-        precommit-install \
         qa-terraform-deploy qa-terraform-destroy qa-verify \
         qa-gateway-deploy qa-postgres-deploy \
         stage-terraform-deploy stage-terraform-destroy stage-verify \
@@ -201,6 +200,11 @@ setup: ## Setup local development environment
 	@command -v kubectl >/dev/null 2>&1 || echo "$(YELLOW)⚠ kubectl not found$(NC)"
 	@command -v tofu >/dev/null 2>&1 || echo "$(YELLOW)⚠ tofu not found$(NC)"
 	@command -v minikube >/dev/null 2>&1 || echo "$(YELLOW)⚠ minikube not found$(NC)"
+	@echo "$(BLUE)Setting up pre-commit hooks...$(NC)"
+	@pip install pre-commit -q 2>/dev/null || true
+	@pre-commit install 2>/dev/null || true
+	@pre-commit install --hook-type pre-push 2>/dev/null || true
+	@echo "$(GREEN)✓ Pre-commit hooks installed$(NC)"
 	@echo "$(GREEN)✓ Setup complete$(NC)"
 
 # ==========================================
@@ -541,23 +545,6 @@ dev-security-iac: dev-security-build ## Scan Infrastructure as Code
 
 dev-security-fix: dev-security-build ## Auto-fix vulnerabilities where possible
 	@$(SCRIPTS_DIR)/run-security-scan-minikube.sh fix
-
-# ==========================================
-# Pre-commit Hooks
-# ==========================================
-
-precommit-install: ## Install pre-commit hooks (Mermaid validation, etc.)
-	@echo "$(BLUE)Installing pre-commit hooks...$(NC)"
-	@pip install pre-commit -q 2>/dev/null || true
-	@pre-commit install
-	@pre-commit install --hook-type pre-push
-	@echo "$(GREEN)✓ Pre-commit hooks installed$(NC)"
-	@echo "$(BLUE)Hooks enabled:$(NC)"
-	@echo "  - Mermaid diagram validation (blocks emojis in diagrams)"
-	@echo "  - YAML/JSON validation"
-	@echo "  - Merge conflict detection"
-	@echo ""
-	@echo "$(YELLOW)To update hooks: pre-commit autoupdate$(NC)"
 
 # ==========================================
 # QA Environment (OVHCloud)
