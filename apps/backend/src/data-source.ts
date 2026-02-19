@@ -16,5 +16,6 @@ export default new DataSource({
   database: configService.get<string>('DB_NAME') || `altrupets_${configService.get<string>('ENV_NAME', 'dev')}_database`,
   entities: [join(__dirname, '**', '*.entity.{ts,js}')],
   migrations: [join(__dirname, 'migrations', '*{.ts,.js}')],
-  synchronize: false,
+  migrationsRun: false,
+  synchronize: true,
 });

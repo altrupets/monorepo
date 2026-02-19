@@ -74,6 +74,149 @@ flutter gen-l10n
 
 Esto genera `lib/l10n/app_localizations.dart` desde los archivos `.arb`.
 
+## Flujo de Desarrollo Completo (DEV)
+
+AltruPets usa un flujo de desarrollo basado en Kubernetes local (Minikube) con ArgoCD para GitOps. El `Makefile` en la raíz del monorepo automatiza todo el proceso.
+
+### Setup Inicial (Primera Vez)
+
+```bash
+# 1. Setup del entorno
+make setup
+
+# 2. Crear cluster Minikube
+make dev-minikube-deploy
+
+# 3. Desplegar Gateway API (instala CRDs)
+make dev-gateway-deploy
+
+# 4. Construir imagen del backend
+make dev-backend-build
+
+# 5. Desplegar ArgoCD + todas las apps
+make dev-argocd-deploy
+
+# 6. Iniciar port-forward del Gateway
+make dev-gateway-start
+```
+
+### Comandos Útiles del Makefile
+
+**Minikube:**
+```bash
+make dev-minikube-deploy          # Crear cluster
+make dev-minikube-clear           # Limpiar namespaces estancados
+make dev-minikube-destroy         # Eliminar cluster
+```
+
+**Backend:**
+```bash
+make dev-backend-build            # Rebuild imagen + rollout restart
+make dev-backend-start            # Iniciar backend en modo dev
+```
+
+**Gateway:**
+```bash
+make dev-gateway-start            # Port-forward a localhost:3001
+make dev-gateway-stop             # Detener port-forward
+```
+
+**ArgoCD:**
+```bash
+make dev-argocd-deploy            # Instalar ArgoCD + apps
+make dev-argocd-status            # Ver estado de aplicaciones
+make dev-argocd-password          # Obtener password de admin
+make dev-argocd-destroy           # Eliminar ArgoCD
+```
+
+**PostgreSQL:**
+```bash
+make dev-postgres-deploy          # Desplegar PostgreSQL
+make dev-postgres-logs            # Ver logs
+make dev-postgres-port-forward    # Port-forward a localhost:5432
+```
+
+**Aplicaciones Web:**
+```bash
+make dev-superusers-start         # CRUD Superusers local
+make dev-superusers-deploy        # Deploy a Kubernetes
+make dev-b2g-start                # B2G local
+make dev-b2g-deploy               # Deploy a Kubernetes
+```
+
+**Utilidades:**
+```bash
+make dev-superuser-seed           # Crear usuario SUPER_USER
+make help                         # Ver todos los comandos
+```
+
+### Flujo de Trabajo Típico
+
+```bash
+# 1. Iniciar el día
+make dev-minikube-deploy          # Si no está corriendo
+make dev-gateway-start            # Port-forward del backend
+
+# 2. Desarrollar en mobile
+cd apps/mobile
+./launch_debug.sh -l              # Desktop para pruebas rápidas
+# o
+./launch_debug.sh -e              # Emulador Android
+
+# 3. Si cambias el backend
+make dev-backend-build            # Rebuild + redeploy automático
+
+# 4. Ver logs del backend
+kubectl -n altrupets-dev logs -f deploy/backend --tail=100
+
+# 5. Al terminar (opcional)
+make dev-gateway-stop             # Detener port-forward
+```
+
+### Endpoints Disponibles
+
+Cuando el Gateway está activo (`make dev-gateway-start`):
+
+| Endpoint | Descripción |
+|----------|-------------|
+| `http://localhost:3001/graphql` | API GraphQL del backend |
+| `http://localhost:3001/admin/login` | CRUD Superusers |
+| `http://localhost:3001/b2g/login` | B2G (Business to Good) |
+
+### Troubleshooting del Entorno
+
+**Backend no está Ready:**
+```bash
+# Ver estado
+kubectl -n altrupets-dev get pods
+
+# Ver logs
+kubectl -n altrupets-dev logs -f deploy/backend
+
+# Rebuild forzado
+make dev-backend-build
+
+# Limpiar pods estancados
+make dev-minikube-clear
+```
+
+**Port-forward no funciona:**
+```bash
+# Detener todos los port-forwards
+make dev-gateway-stop
+
+# Reiniciar
+make dev-gateway-start
+```
+
+**Minikube lento o sin recursos:**
+```bash
+# Recrear con más recursos (edita Makefile o script)
+make dev-minikube-destroy
+# Edita: minikube start --cpus=8 --memory=16384
+make dev-minikube-deploy
+```
+
 ## Configuración del Backend
 
 ### URL del Backend
@@ -116,6 +259,91 @@ API_URL=https://api.altrupets.com
 
 ## Ejecutar la Aplicación
 
+### Script de Lanzamiento Automatizado
+
+AltruPets incluye un script `launch_debug.sh` que automatiza el flujo completo de desarrollo:
+
+```bash
+# Desde la raíz del monorepo
+./launch_debug.sh [OPCIÓN]
+```
+
+#### Opciones Disponibles
+
+**Desktop (Pruebas Rápidas):**
+```bash
+./launch_debug.sh -l, --linux       # Linux desktop
+```
+
+**Android:**
+```bash
+./launch_debug.sh -e, --emulator    # Emulador Android
+./launch_debug.sh -d, --device      # Dispositivo físico Android
+```
+
+**Widgetbook (Catálogo de Widgets):**
+```bash
+./launch_debug.sh -w, --widgetbook  # Abre Widgetbook en Chrome
+```
+
+**Opciones Globales:**
+```bash
+--dirty                          # Saltar 'flutter clean' (útil en Android)
+--no-backend-check               # No verificar backend en Kubernetes
+--no-backend-auto-build          # No build automático si hay ImagePullBackOff
+--backend-retries N              # Intentos de recuperación backend (default: 5)
+--backend-redeploy-argo          # Flujo GitOps: build + refresh/sync ArgoCD
+--backend-rollout-restart        # Flujo imperativo: rollout restart
+--no-backend-prune               # No eliminar pods backend en CrashLoopBackOff
+--no-backend-logs-window         # No abrir ventana con logs del backend
+--no-adb-reverse                 # No configurar adb reverse en --device
+```
+
+#### Menú Interactivo
+
+Si ejecutas el script sin argumentos, se muestra un menú interactivo:
+
+```bash
+./launch_debug.sh
+
+# 📱 AltruPets — Selecciona destino:
+#   1) 🖥️  Linux desktop (prueba rápida)
+#   2) 📱 Emulador Android
+#   3) 📲 Dispositivo Android físico
+#   4) 📖 Widgetbook (catálogo de widgets)
+# Opción [1-4]:
+```
+
+#### Características del Script
+
+El script `launch_debug.sh` realiza automáticamente:
+
+1. **Verificación de Backend**: Comprueba que el backend en Kubernetes esté Ready
+2. **Recuperación Automática**: Intenta resolver problemas comunes (ImagePullBackOff, pods estancados)
+3. **Port-Forward Automático**: Configura túneles para acceder al backend desde la app
+4. **adb reverse** (Android): Configura túnel `localhost:3001` en dispositivos físicos
+5. **Logs Centralizados**: Guarda logs en `logs/mobile/<device>/launch-<timestamp>.log`
+6. **Ventana de Logs Backend**: Abre terminal separada con logs del backend (Linux)
+
+#### Ejemplos de Uso
+
+```bash
+# Desarrollo rápido en desktop
+./launch_debug.sh -l
+
+# Android con build limpio
+./launch_debug.sh -e
+
+# Android sin limpiar caché (más rápido)
+./launch_debug.sh -d --dirty
+
+# Con recuperación automática del backend
+./launch_debug.sh -e --backend-retries 10
+
+# Sin verificar backend (desarrollo offline)
+./launch_debug.sh -l --no-backend-check
+```
+
 ### Listar Dispositivos Disponibles
 
 ```bash
@@ -128,7 +356,7 @@ flutter devices
 # Chrome (web)          • chrome             • web-javascript
 ```
 
-### Ejecutar en Modo Debug
+### Ejecutar Manualmente (Sin Script)
 
 ```bash
 # Dispositivo por defecto
@@ -289,14 +517,99 @@ devtools
 
 ## Troubleshooting
 
+### Problemas del Script launch_debug.sh
+
+#### Error: "Backend no disponible. Abortando launch"
+
+**Causa**: El backend en Kubernetes no está Ready.
+
+**Solución**:
+```bash
+# Ver estado del backend
+kubectl -n altrupets-dev get pods
+
+# Ver logs
+kubectl -n altrupets-dev logs -f deploy/backend --tail=50
+
+# Rebuild del backend
+make dev-backend-build
+
+# Si persiste, usar --no-backend-check
+./launch_debug.sh -l --no-backend-check
+```
+
+#### Error: "No se detectó dispositivo o emulador Android"
+
+**Causa**: No hay dispositivos Android conectados o emuladores activos.
+
+**Solución**:
+```bash
+# Listar emuladores disponibles
+flutter emulators
+
+# Lanzar emulador
+flutter emulators --launch <emulator-id>
+
+# Verificar dispositivos
+flutter devices
+adb devices
+```
+
+#### Error: "adb reverse failed"
+
+**Causa**: Dispositivo Android no autorizado o sin depuración USB.
+
+**Solución**:
+1. Habilita "Depuración USB" en el dispositivo
+2. Acepta el diálogo de autorización
+3. Verifica con `adb devices`
+4. O usa `--no-adb-reverse` y configura IP manualmente
+
+#### Backend en CrashLoopBackOff
+
+**Causa**: Error en la imagen del backend o secretos desincronizados.
+
+**Solución**:
+```bash
+# El script intenta recuperación automática, pero puedes forzar:
+make dev-backend-build
+
+# O con el script:
+./launch_debug.sh -l --backend-rollout-restart
+
+# Limpiar pods estancados
+make dev-minikube-clear
+```
+
+#### Logs no se guardan
+
+**Causa**: Permisos o directorio `logs/mobile/` no existe.
+
+**Solución**:
+```bash
+# Crear directorio manualmente
+mkdir -p logs/mobile/android-device
+mkdir -p logs/mobile/android-emulator
+mkdir -p logs/mobile/linux
+
+# Verificar permisos
+chmod -R 755 logs/
+```
+
 ### Error: "SocketException: Connection refused"
 
 **Causa**: El backend no está corriendo o la URL es incorrecta.
 
 **Solución**:
-1. Verifica que el backend esté corriendo en `localhost:4000`
-2. Si usas emulador Android, cambia a `10.0.2.2:4000`
-3. Si usas dispositivo físico, usa la IP de tu máquina
+1. Verifica que el backend esté corriendo:
+   ```bash
+   kubectl -n altrupets-dev get pods
+   make dev-gateway-start
+   ```
+2. Si usas emulador Android, cambia a `10.0.2.2:3001`
+3. Si usas dispositivo físico:
+   - Verifica `adb reverse`: `adb reverse --list`
+   - O usa la IP de tu máquina: `192.168.x.x:3001`
 
 ### Error: "Could not find generator 'freezed'"
 
@@ -337,3 +650,135 @@ cd ..
 
 **Solución**: Usa Hot Restart (`R`) o reinicia completamente con `flutter run`.
 
+### Port-forward se desconecta constantemente
+
+**Causa**: Minikube inestable o recursos insuficientes.
+
+**Solución**:
+```bash
+# Reiniciar port-forward
+make dev-gateway-stop
+make dev-gateway-start
+
+# O aumentar recursos de Minikube (edita Makefile)
+make dev-minikube-destroy
+# Edita: --cpus=8 --memory=16384
+make dev-minikube-deploy
+```
+
+### Widgetbook no abre en Chrome
+
+**Causa**: Chrome no está disponible como dispositivo Flutter.
+
+**Solución**:
+```bash
+# Verificar dispositivos
+flutter devices
+
+# Si Chrome no aparece, el script usa desktop automáticamente
+./launch_debug.sh -w
+
+# O ejecuta manualmente
+cd apps/widgetbook
+flutter run -d linux  # o macos/windows
+```
+
+
+
+## Logs y Debugging Avanzado
+
+### Logs Centralizados (launch_debug.sh)
+
+El script `launch_debug.sh` guarda automáticamente todos los logs en:
+
+```
+logs/mobile/
+├── android-device/
+│   └── launch-20250218-143022.log
+├── android-emulator/
+│   └── launch-20250218-140512.log
+└── linux/
+    └── launch-20250218-135401.log
+```
+
+**Ver logs en tiempo real:**
+```bash
+# Último log de Android device
+tail -f logs/mobile/android-device/launch-*.log
+
+# Buscar errores
+grep -i error logs/mobile/*/launch-*.log
+```
+
+### Ventana de Logs del Backend (Linux)
+
+En Linux, el script abre automáticamente una terminal separada con los logs del backend:
+
+```bash
+# Si no se abre automáticamente, ejecuta manualmente:
+kubectl -n altrupets-dev logs -f deploy/backend --tail=200
+
+# O desactiva la ventana:
+./launch_debug.sh -l --no-backend-logs-window
+```
+
+### Flutter DevTools
+
+```bash
+# Activar DevTools globalmente
+flutter pub global activate devtools
+
+# Ejecutar
+devtools
+
+# O desde flutter run:
+# Presiona 'v' para abrir DevTools en el navegador
+```
+
+### Debugging con VS Code
+
+Crea `.vscode/launch.json`:
+
+```json
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Flutter (Debug)",
+      "type": "dart",
+      "request": "launch",
+      "program": "lib/main.dart",
+      "args": ["--dart-define=ENV=dev"]
+    },
+    {
+      "name": "Flutter (Profile)",
+      "type": "dart",
+      "request": "launch",
+      "program": "lib/main.dart",
+      "flutterMode": "profile"
+    }
+  ]
+}
+```
+
+### Análisis de Performance
+
+```bash
+# Ejecutar en modo profile
+flutter run --profile
+
+# Capturar timeline
+flutter screenshot --type=skia --observatory-url=<url>
+
+# Ver en DevTools
+devtools --appSizeBase=<path-to-app-size-json>
+```
+
+## Recursos Adicionales
+
+- [Flutter Documentation](https://docs.flutter.dev/)
+- [Riverpod Documentation](https://riverpod.dev/)
+- [GraphQL Flutter](https://github.com/zino-hofmann/graphql-flutter)
+- [AltruPets Backend API](../backend/api.md)
+- [Design System](design-system.md)
+- [Architecture Guide](architecture.md)
