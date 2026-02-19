@@ -1,4 +1,5 @@
 import 'package:dio/dio.dart';
+import 'package:flutter/foundation.dart';
 
 import 'package:altrupets/core/network/exceptions/network_exceptions.dart';
 
@@ -109,9 +110,9 @@ class ErrorInterceptor extends Interceptor {
   void _logError(NetworkException exception) {
     // In production, this would send to error tracking service (Sentry, etc.)
     // For now, we'll just print to console in debug mode
-    print('❌ Network Error: ${exception.message}');
+    debugPrint('❌ Network Error: ${exception.message}');
     if (exception.originalException != null) {
-      print('   Original Exception: ${exception.originalException}');
+      debugPrint('   Original Exception: ${exception.originalException}');
     }
   }
 }
