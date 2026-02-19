@@ -67,7 +67,7 @@ plugins:
   - search:
       lang: es
   - mermaid2:
-      version: 10.6.1
+      version: 11.4.1
       zoom: true
       theme: base
       mermaid2_includes:
