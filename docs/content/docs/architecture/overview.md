@@ -2,49 +2,52 @@
 
 ## Arquitectura Completa
 
-```
-┌─────────────────────────────────────────────────────────────────────────────────────┐
-│                                    CLIENTES                                          │
-│                                                                                      │
-│   ┌──────────────────┐     ┌──────────────────┐     ┌──────────────────┐            │
-│   │   🖥️ Navegador    │     │   📱 Flutter App  │     │   🔌 API Clients  │            │
-│   │   (Web Users)     │     │   (Mobile)        │     │   (Integraciones) │            │
-│   └────────┬─────────┘     └────────┬─────────┘     └────────┬─────────┘            │
-└────────────┼─────────────────────────┼─────────────────────────┼─────────────────────┘
-             │                         │                         │
-             │ HTTP/HTTPS              │ GraphQL                 │ GraphQL
-             ▼                         ▼                         ▼
-┌─────────────────────────────────────────────────────────────────────────────────────┐
-│                              GATEWAY LAYER                                           │
-│                         NGINX Gateway API (Kubernetes)                               │
-│                                                                                      │
-│   HTTPRoutes:                                                                        │
-│   • /admin/*     ──► web-superusers (Express + Vue)                                 │
-│   • /b2g/*       ──► web-b2g (Express + Vue)                                        │
-│   • /graphql     ──► backend (NestJS + Apollo)                                      │
-└─────────────────────────────────────────────────────────────────────────────────────┘
-                                        │
-            ┌───────────────────────────┼───────────────────────────┐
-            │                           │                           │
-            ▼                           ▼                           ▼
-┌───────────────────────┐  ┌───────────────────────┐  ┌───────────────────────┐
-│  📋 CRUD SUPERUSERS   │  │  🏛️ B2G GOVERNMENT    │  │  ⚙️ BACKEND API       │
-│                       │  │                       │  │                       │
-│  Express.js + Vue 3   │  │  Express.js + Vue 3   │  │  NestJS + GraphQL     │
-│  (Inertia.js)         │  │  (Inertia.js)         │  │  (Apollo Server)      │
-│                       │  │                       │  │                       │
-│  🔐 SUPER_USER        │  │  🔐 GOVERNMENT_ADMIN  │  │  📊 Business Logic    │
-│                       │  │     SUPER_USER        │  │                       │
-│  Puerto: 3002         │  │  Puerto: 3003         │  │  Puerto: 3001         │
-└───────────────────────┘  └───────────────────────┘  └───────────┬───────────┘
-                                                                  │
-                                           ┌──────────────────────┼──────────────────────┐
-                                           │                      │                      │
-                                           ▼                      ▼                      ▼
-                                   ┌─────────────┐         ┌─────────────┐        ┌─────────────┐
-                                   │ PostgreSQL  │         │   Valkey    │        │   Storage   │
-                                   │  (Primary)  │         │   (Cache)   │        │   (S3/MinIO)│
-                                   └─────────────┘         └─────────────┘        └─────────────┘
+```mermaid
+flowchart TB
+    subgraph Clients["👥 Clientes"]
+        Browser["🖥️ Navegador"]
+        Mobile["📱 Flutter App"]
+        API["🔌 API Clients"]
+    end
+
+    subgraph Gateway["🚪 Gateway Layer"]
+        NGINX["NGINX Gateway API<br/>HTTPRoutes"]
+    end
+
+    subgraph Apps["🎨 Application Layer"]
+        subgraph WebApps["Micro-Frontends"]
+            Admin["📋 CRUD Superusers<br/>Express + Vue<br/>:3002"]
+            B2G["🏛️ B2G Government<br/>Express + Vue<br/>:3003"]
+        end
+        Backend["⚙️ Backend API<br/>NestJS + GraphQL<br/>:3001"]
+    end
+
+    subgraph Data["💾 Data Layer"]
+        Postgres[("PostgreSQL")]
+        Valkey[("Valkey")]
+        Storage[("S3/MinIO")]
+    end
+
+    subgraph Infra["☁️ Infrastructure"]
+        K8s["Kubernetes<br/>(OVHCloud)"]
+        TF["Terraform"]
+        GH["GitHub Actions"]
+    end
+
+    Browser --> NGINX
+    Mobile --> NGINX
+    API --> NGINX
+    NGINX --> Admin
+    NGINX --> B2G
+    NGINX --> Backend
+    Admin -.-> Backend
+    B2G -.-> Backend
+    Backend --> Postgres
+    Backend --> Valkey
+    Backend --> Storage
+    K8s --> Apps
+    TF --> K8s
+    GH --> TF
 ```
 
 ## Capas de la Arquitectura
@@ -95,59 +98,99 @@ Ver documentación detallada en [Infrastructure](../deployment/infrastructure.md
 
 ## Principios Arquitectónicos
 
-### 1. Clean Architecture (Flutter)
+### Clean Architecture (Flutter)
 
-```
-lib/
-├── core/                    # Compartido entre features
-│   ├── payments/        # Paquete de pagos LATAM
-│   ├── network/          # Cliente HTTP
-│   └── services/         # Servicios globales
-├── features/             # Features del dominio
-│   ├── auth/
-│   ├── pets/
-│   ├── rescues/
-│   ├── adoptions/
-│   └── donations/
-└── shared/               # Utilidades comunes
-```
+```mermaid
+flowchart LR
+    subgraph Core["Core"]
+        Payments["payments/<br/>LATAM Package"]
+        Network["network/<br/>HTTP Client"]
+        Services["services/<br/>Global Services"]
+    end
 
-### 2. Modular Monolith (Backend)
+    subgraph Features["Features"]
+        Auth["auth/"]
+        Pets["pets/"]
+        Rescues["rescues/"]
+        Adoptions["adoptions/"]
+        Donations["donations/"]
+    end
 
-```
-backend/
-├── modules/
-│   ├── auth/
-│   ├── users/
-│   ├── pets/
-│   ├── rescues/
-│   ├── adoptions/
-│   └── donations/
-└── shared/
+    subgraph Shared["Shared"]
+        Utils["Utils"]
+        Widgets["Widgets"]
+    end
+
+    Core --> Features
+    Shared --> Features
 ```
 
-### 3. Micro-Frontends (Web Apps)
+### Modular Monolith (Backend)
 
+```mermaid
+flowchart TB
+    subgraph Backend["NestJS Backend"]
+        subgraph Modules["Modules"]
+            Auth["auth/"]
+            Users["users/"]
+            Pets["pets/"]
+            Rescues["rescues/"]
+            Adoptions["adoptions/"]
+            Donations["donations/"]
+        end
+        
+        subgraph Shared["Shared"]
+            Guards["Guards"]
+            Decorators["Decorators"]
+            Interceptors["Interceptors"]
+        end
+    end
+    
+    Modules --> Shared
 ```
-apps/web/
-├── crud-superusers/         # Admin Panel
-│   ├── src/server/          # Express.js server
-│   └── package.json         # Solo Express dependencies
-│
-├── b2g/                     # Government Portal
-│   ├── src/server/          # Express.js server
-│   └── package.json         # Solo Express dependencies
-│
-└── shared/                  # Shared utilities (futuro)
+
+### Micro-Frontends (Web Apps)
+
+```mermaid
+flowchart TB
+    subgraph WebApps["apps/web/"]
+        subgraph CRUDSuperusers["crud-superusers/"]
+            Server1["src/server/<br/>Express.js"]
+            Pkg1["package.json<br/>Solo Express deps"]
+        end
+        
+        subgraph B2G["b2g/"]
+            Server2["src/server/<br/>Express.js"]
+            Pkg2["package.json<br/>Solo Express deps"]
+        end
+        
+        subgraph Shared["shared/"]
+            Utils["Utilidades"]
+        end
+    end
 ```
 
 ## 🛡️ Seguridad
 
-- **JWT Authentication** con refresh tokens
-- **RBAC** (Role-Based Access Control)
-- **Rate Limiting** por endpoint
-- **Tokenización PCI** para pagos
-- **SSL/TLS** en todos los endpoints
+```mermaid
+flowchart LR
+    subgraph Security["🛡️ Security Layer"]
+        JWT["JWT Auth<br/>Refresh Tokens"]
+        RBAC["RBAC<br/>Role-Based Access"]
+        Rate["Rate Limiting<br/>Por Endpoint"]
+        PCI["PCI Tokenization<br/>Para Pagos"]
+        SSL["SSL/TLS<br/>Todos Endpoints"]
+    end
+    
+    subgraph Roles["Roles"]
+        Super["SUPER_USER<br/>Admin Total"]
+        Gov["GOVERNMENT_ADMIN<br/>Portal Gobierno"]
+        Rescuer["RESCUER<br/>Rescatista"]
+        Adopter["ADOPTER<br/>Adoptante"]
+    end
+    
+    Security --> Roles
+```
 
 ## Próximos Pasos
 
