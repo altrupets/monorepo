@@ -22,7 +22,7 @@ for file in $MD_FILES; do
         echo "WARNING: Emoji found in $file - may cause render errors"
         WARNINGS=$((WARNINGS + 1))
     fi
-    
+
     # Check for pipes outside table context
     if awk '/```mermaid/,/```/' "$file" 2>/dev/null | grep -q '|' ; then
         if ! awk '/```mermaid/,/```/' "$file" 2>/dev/null | grep -qE '^\|.*\|$' ; then
