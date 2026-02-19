@@ -488,228 +488,34 @@
 }
 
 /* ============================================
-   Mermaid Fullscreen Styles
+   Mermaid Diagram Styles
    ============================================ */
 
-/* Wrapper para cada diagrama Mermaid */
-.mermaid-wrapper {
-  position: relative;
+/* Wrapper para cada diagrama Mermaid con estilo de marca */
+.mermaid {
   margin: 1.5em 0;
   border: 2px solid var(--altrupets-primary-90);
   border-radius: 8px;
-  padding: 1em;
+  padding: 1.5em;
   background-color: var(--altrupets-primary-95);
   box-shadow: 0 2px 4px rgba(9, 79, 114, 0.1);
-}
-
-/* Botón de pantalla completa */
-.mermaid-fullscreen-btn {
-  position: absolute;
-  top: 8px;
-  right: 8px;
-  background-color: var(--altrupets-primary);
-  color: white;
-  border: none;
-  border-radius: 8px;
-  padding: 8px;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: all 0.2s ease;
-  z-index: 10;
-  box-shadow: 0 2px 4px rgba(9, 79, 114, 0.3);
-}
-
-.mermaid-fullscreen-btn:hover {
-  background-color: var(--altrupets-accent);
-  transform: scale(1.1);
-  box-shadow: 0 4px 8px rgba(19, 112, 166, 0.4);
-}
-
-.mermaid-fullscreen-btn:active {
-  transform: scale(0.95);
-}
-
-/* Modal de pantalla completa */
-.mermaid-fullscreen-modal {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background-color: rgba(9, 79, 114, 0.95);
-  z-index: 9999;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  animation: fadeIn 0.3s ease;
-}
-
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
-  }
-}
-
-/* Contenido del modal */
-.mermaid-fullscreen-content {
-  background-color: var(--md-default-bg-color);
-  border-radius: 12px;
-  width: 95%;
-  height: 95%;
-  display: flex;
-  flex-direction: column;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
-  animation: slideUp 0.3s ease;
-  border: 2px solid var(--altrupets-primary-60);
-}
-
-@keyframes slideUp {
-  from {
-    transform: translateY(50px);
-    opacity: 0;
-  }
-  to {
-    transform: translateY(0);
-    opacity: 1;
-  }
-}
-
-/* Header del modal */
-.mermaid-fullscreen-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 1rem 1.5rem;
-  border-bottom: 2px solid var(--altrupets-primary-90);
-  background: linear-gradient(135deg, var(--altrupets-primary) 0%, var(--altrupets-primary-40) 100%);
-  border-radius: 12px 12px 0 0;
-  color: white;
-}
-
-.mermaid-fullscreen-header h3 {
-  margin: 0;
-  font-size: 1.2rem;
-  font-family: "Lemon Milk", var(--md-text-font);
-  font-weight: 600;
-  color: white;
-}
-
-/* Botón de cerrar */
-.mermaid-fullscreen-close {
-  background: rgba(255, 255, 255, 0.2);
-  border: none;
-  color: white;
-  cursor: pointer;
-  padding: 8px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 8px;
+  cursor: zoom-in;
   transition: all 0.2s ease;
 }
 
-.mermaid-fullscreen-close:hover {
-  background-color: var(--altrupets-error);
-  transform: scale(1.1);
-}
-
-/* Body del modal */
-.mermaid-fullscreen-body {
-  flex: 1;
-  overflow: auto;
-  padding: 2rem;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background-color: var(--md-default-bg-color);
-}
-
-.mermaid-fullscreen-body .mermaid {
-  max-width: 100%;
-  max-height: 100%;
-  margin: 0 auto;
-}
-
-/* Footer del modal con controles de zoom */
-.mermaid-fullscreen-footer {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 1rem;
-  border-top: 2px solid var(--altrupets-primary-90);
-  background-color: var(--altrupets-primary-95);
-  border-radius: 0 0 12px 12px;
-}
-
-.mermaid-fullscreen-footer button {
-  background-color: var(--altrupets-primary);
-  color: white;
-  border: none;
-  border-radius: 8px;
-  padding: 8px 12px;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: all 0.2s ease;
-  box-shadow: 0 2px 4px rgba(9, 79, 114, 0.2);
-}
-
-.mermaid-fullscreen-footer button:hover {
-  background-color: var(--altrupets-accent);
-  transform: scale(1.05);
-  box-shadow: 0 4px 8px rgba(19, 112, 166, 0.3);
-}
-
-.mermaid-fullscreen-footer button:active {
-  transform: scale(0.95);
-}
-
-/* Responsive */
-@media (max-width: 768px) {
-  .mermaid-fullscreen-content {
-    width: 100%;
-    height: 100%;
-    border-radius: 0;
-  }
-  
-  .mermaid-fullscreen-header,
-  .mermaid-fullscreen-footer {
-    border-radius: 0;
-  }
-  
-  .mermaid-fullscreen-body {
-    padding: 1rem;
-  }
-  
-  .mermaid-fullscreen-btn {
-    padding: 6px;
-  }
+.mermaid:hover {
+  border-color: var(--altrupets-primary-80);
+  box-shadow: 0 4px 8px rgba(9, 79, 114, 0.15);
 }
 
 /* Dark mode adjustments */
-[data-md-color-scheme="slate"] .mermaid-wrapper {
+[data-md-color-scheme="slate"] .mermaid {
   background-color: var(--altrupets-primary-20);
   border-color: var(--altrupets-primary-30);
 }
 
-[data-md-color-scheme="slate"] .mermaid-fullscreen-modal {
-  background-color: rgba(0, 30, 47, 0.95);
-}
-
-[data-md-color-scheme="slate"] .mermaid-fullscreen-header {
-  background: linear-gradient(135deg, var(--altrupets-primary-30) 0%, var(--altrupets-primary-20) 100%);
-}
-
-[data-md-color-scheme="slate"] .mermaid-fullscreen-footer {
-  background-color: var(--altrupets-primary-20);
-  border-top-color: var(--altrupets-primary-30);
+[data-md-color-scheme="slate"] .mermaid:hover {
+  border-color: var(--altrupets-primary-40);
 }
 
 /* ============================================
