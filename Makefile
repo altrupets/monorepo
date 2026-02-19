@@ -16,7 +16,7 @@
         dev-argocd-deploy dev-argocd-destroy dev-argocd-status dev-argocd-password \
         dev-gateway-deploy dev-gateway-start dev-gateway-stop \
         dev-postgres-deploy dev-postgres-destroy dev-postgres-logs dev-postgres-port-forward \
-        dev-backend-build dev-images-build dev-backend-start \
+        dev-backend-build dev-backend-deploy dev-images-build dev-all-deploy dev-backend-start \
         dev-superusers-start dev-superusers-stop dev-superusers-deploy dev-superusers-destroy \
         dev-b2g-start dev-b2g-stop dev-b2g-deploy dev-b2g-destroy \
         dev-infisical-sync dev-infisical-sync-cli \
@@ -62,7 +62,7 @@ help: ## Show this help message
 	@echo ""
 	@echo "$(GREEN)Quick Start (Full Setup):$(NC)"
 	@echo "  $(YELLOW)Manual (sin ArgoCD):$(NC)"
-	@echo "  make setup && make dev-minikube-deploy && make dev-terraform-deploy && make dev-images-build && make dev-superusers-deploy && make dev-b2g-deploy && make dev-gateway-start"
+	@echo "  make setup && make dev-minikube-deploy && make dev-terraform-deploy && make dev-images-build && make dev-all-deploy && make dev-gateway-start"
 	@echo ""
 	@echo "  $(YELLOW)Con ArgoCD (GitOps):$(NC)"
 	@echo "  make setup && make dev-minikube-deploy && make dev-terraform-deploy && make dev-images-build && make dev-argocd-deploy && make dev-gateway-start"
@@ -72,9 +72,8 @@ help: ## Show this help message
 	@echo "  2. make dev-minikube-deploy      $(BLUE)# Create minikube cluster$(NC)"
 	@echo "  3. make dev-terraform-deploy     $(BLUE)# Deploy PostgreSQL + Gateway API$(NC)"
 	@echo "  4. make dev-images-build         $(BLUE)# Build all images (backend + web apps)$(NC)"
-	@echo "  5. make dev-superusers-deploy    $(BLUE)# Deploy CRUD Superusers$(NC)"
-	@echo "  6. make dev-b2g-deploy           $(BLUE)# Deploy B2G$(NC)"
-	@echo "  7. make dev-gateway-start        $(BLUE)# Start port-forward (localhost:3001)$(NC)"
+	@echo "  5. make dev-all-deploy           $(BLUE)# Deploy all apps (backend + web apps)$(NC)"
+	@echo "  6. make dev-gateway-start        $(BLUE)# Start port-forward (localhost:3001)$(NC)"
 	@echo ""
 	@echo "  $(YELLOW)Después del setup:$(NC)"
 	@echo "  make dev-mobile-launch           $(BLUE)# Launch Flutter app (Android/Desktop)$(NC)"
@@ -108,7 +107,9 @@ help: ## Show this help message
 	@echo ""
 	@echo "$(GREEN)DEV - Backend:$(NC)"
 	@echo "  $(YELLOW)dev-backend-build$(NC)           Build backend image"
+	@echo "  $(YELLOW)dev-backend-deploy$(NC)          Deploy backend to minikube"
 	@echo "  $(YELLOW)dev-images-build$(NC)            Build all images (backend + web apps)"
+	@echo "  $(YELLOW)dev-all-deploy$(NC)              Deploy all apps (backend + web apps)"
 	@echo "  $(YELLOW)dev-backend-start$(NC)           Start backend in dev mode"
 	@echo "  $(YELLOW)dev-backend-test$(NC)            Run unit tests"
 	@echo "  $(YELLOW)dev-backend-test-e2e$(NC)        Run e2e tests (needs DB port-forward)"
@@ -319,6 +320,15 @@ dev-images-build: ## Build all images (backend + web apps)
 	@$(SCRIPTS_DIR)/build-web-images-minikube.sh superusers
 	@$(SCRIPTS_DIR)/build-web-images-minikube.sh b2g
 	@echo "$(GREEN)✓ All images built$(NC)"
+
+dev-backend-deploy: ## Deploy backend to minikube
+	@echo "$(BLUE)Deploying backend...$(NC)"
+	@kubectl apply -k k8s/base/backend --server-side -n altrupets-dev
+	@kubectl rollout status deployment/backend -n altrupets-dev --timeout=120s
+	@echo "$(GREEN)✓ Backend deployed$(NC)"
+
+dev-all-deploy: dev-backend-deploy dev-superusers-deploy dev-b2g-deploy ## Deploy all apps (backend + web apps)
+	@echo "$(GREEN)✓ All apps deployed$(NC)"
 
 dev-backend-start: ## Start backend in dev mode
 	@./launch_backend_dev.sh
