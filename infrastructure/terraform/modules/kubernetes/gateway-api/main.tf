@@ -445,7 +445,37 @@ resource "kubernetes_manifest" "main_gateway" {
     }
     spec = {
       gatewayClassName = var.enable_nginx_gateway ? var.nginx_gateway_class_name : var.istio_gateway_class_name
-      listeners = [
+      listeners = var.enable_https ? [
+        {
+          name     = "http"
+          protocol = "HTTP"
+          port     = 80
+          allowedRoutes = {
+            namespaces = {
+              from = "All"
+            }
+          }
+        },
+        {
+          name     = "https"
+          protocol = "HTTPS"
+          port     = 443
+          tls = {
+            mode = "Terminate"
+            certificateRefs = [
+              {
+                name      = var.tls_certificate_secret_name
+                namespace = var.tls_certificate_namespace != "" ? var.tls_certificate_namespace : var.namespace
+              }
+            ]
+          }
+          allowedRoutes = {
+            namespaces = {
+              from = "All"
+            }
+          }
+        }
+      ] : [
         {
           name     = "http"
           protocol = "HTTP"
@@ -491,6 +521,17 @@ resource "kubernetes_service" "gateway_nodeport" {
       target_port = 80
       node_port   = var.gateway_nodeport_port
       protocol    = "TCP"
+    }
+    
+    dynamic "port" {
+      for_each = var.enable_https ? [1] : []
+      content {
+        name        = "https"
+        port        = 443
+        target_port = 443
+        node_port   = var.https_nodeport_port
+        protocol    = "TCP"
+      }
     }
   }
 }

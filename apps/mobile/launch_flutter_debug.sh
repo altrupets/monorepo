@@ -342,7 +342,7 @@ esac
 # ─── Help ─────────────────────────────────────────────────────────────────────
 
 show_help() {
-	echo "Uso: ./launch_debug.sh [OPCIÓN]"
+	echo "Uso: ./launch_flutter_debug.sh [OPCIÓN]"
 	echo ""
 	echo "  Desktop:"
 	echo "    -l, --linux       Lanzar en $DESKTOP_LABEL (pruebas rápidas)"
@@ -352,7 +352,7 @@ show_help() {
 	echo "    -d, --device      Lanzar en dispositivo Android físico"
 	echo ""
 	echo "  Widgetbook:"
-	echo "    -w, --widgetbook  Lanzar Widgetbook en Chrome"
+	echo "    -w, --widgetbook  Lanzar Widgetbook en Linux desktop"
 	echo ""
 	echo "  Opciones Globales:"
 	echo "    --dirty           Saltar 'flutter clean' (útil en Android)"
@@ -517,15 +517,8 @@ if [ "$TARGET" = "widgetbook" ]; then
 	flutter pub get
 	echo "⚙️  Generando directorios (build_runner)..."
 	dart run build_runner build -d
-	# Intentar Chrome, si no está disponible usar escritorio nativo
-	if flutter devices 2>/dev/null | grep -qi chrome; then
-		echo -e "${GREEN}🚀 Abriendo Widgetbook en Chrome...${NC}"
-		flutter run -d chrome
-	else
-		echo -e "${ORANGE}⚠️  Chrome no disponible como dispositivo Flutter.${NC}"
-		echo -e "${GREEN}🚀 Abriendo Widgetbook en $DESKTOP_LABEL...${NC}"
-		flutter run -d "$DESKTOP_TARGET"
-	fi
+	echo -e "${GREEN}🚀 Abriendo Widgetbook en $DESKTOP_LABEL...${NC}"
+	flutter run -d "$DESKTOP_TARGET"
 elif [ "$TARGET" = "desktop" ]; then
 	echo -e "${BLUE}🖥️  AltruPets – $DESKTOP_LABEL Debug${NC}"
 	init_mobile_logging "${DESKTOP_TARGET}"

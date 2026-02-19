@@ -134,6 +134,11 @@ nav:
   - 🚀 Empezar:
     - Instalación: docs/getting-started/installation.md
     - Configuración: docs/getting-started/setup.md
+  - 🖥️ Backend:
+    - Visión general: docs/backend/index.md
+    - API Reference: docs/backend/api.md
+    - Autenticación: docs/backend/auth.md
+    - Changelog: docs/backend/changelog.md
   - 📱 Mobile:
     - Visión general: docs/mobile/index.md
     - Getting Started: docs/mobile/getting-started.md
@@ -155,6 +160,10 @@ nav:
   - 🚀 Despliegue:
     - Kubernetes: docs/deployment/kubernetes.md
     - CI/CD: docs/deployment/cicd.md
+    - Secrets (Infisical): docs/deployment/secrets.md
+    - TLS/HTTPS: docs/deployment/tls.md
+  - 🔒 DevSecOps:
+    - Security Scanner: devsecops/security-scanner.md
   - 📦 Paquetes:
     - latam_payments: docs/packages/latam-payments-package.md
     - Progreso: docs/packages/latam-payments-progress.md

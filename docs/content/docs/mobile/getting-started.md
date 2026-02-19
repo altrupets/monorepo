@@ -159,9 +159,9 @@ make dev-gateway-start            # Port-forward del backend
 
 # 2. Desarrollar en mobile
 cd apps/mobile
-./launch_debug.sh -l              # Desktop para pruebas rápidas
+make dev-mobile-launch-desktop              # Desktop para pruebas rápidas
 # o
-./launch_debug.sh -e              # Emulador Android
+make dev-mobile-launch-emulator              # Emulador Android
 
 # 3. Si cambias el backend
 make dev-backend-build            # Rebuild + redeploy automático
@@ -261,29 +261,30 @@ API_URL=https://api.altrupets.com
 
 ### Script de Lanzamiento Automatizado
 
-AltruPets incluye un script `launch_debug.sh` que automatiza el flujo completo de desarrollo:
+AltruPets incluye comandos `make dev-mobile-*` que automatizan el flujo completo de desarrollo:
 
 ```bash
 # Desde la raíz del monorepo
-./launch_debug.sh [OPCIÓN]
+make dev-mobile-launch  # Menú interactivo
 ```
 
 #### Opciones Disponibles
 
 **Desktop (Pruebas Rápidas):**
 ```bash
-./launch_debug.sh -l, --linux       # Linux desktop
+make dev-mobile-launch-desktop, --linux       # Linux desktop
 ```
 
 **Android:**
 ```bash
-./launch_debug.sh -e, --emulator    # Emulador Android
-./launch_debug.sh -d, --device      # Dispositivo físico Android
+make dev-mobile-launch-desktop          # Linux desktop
+make dev-mobile-launch-emulator         # Emulador Android
+make dev-mobile-launch-device           # Dispositivo físico Android
 ```
 
 **Widgetbook (Catálogo de Widgets):**
 ```bash
-./launch_debug.sh -w, --widgetbook  # Abre Widgetbook en Chrome
+make dev-mobile-widgetbook  # Abre Widgetbook en Linux desktop
 ```
 
 **Opciones Globales:**
@@ -304,7 +305,7 @@ AltruPets incluye un script `launch_debug.sh` que automatiza el flujo completo d
 Si ejecutas el script sin argumentos, se muestra un menú interactivo:
 
 ```bash
-./launch_debug.sh
+make dev-mobile-launch
 
 # 📱 AltruPets — Selecciona destino:
 #   1) 🖥️  Linux desktop (prueba rápida)
@@ -316,7 +317,7 @@ Si ejecutas el script sin argumentos, se muestra un menú interactivo:
 
 #### Características del Script
 
-El script `launch_debug.sh` realiza automáticamente:
+El script `apps/mobile/launch_flutter_debug.sh` (invocado por `make dev-mobile-*`) realiza automáticamente:
 
 1. **Verificación de Backend**: Comprueba que el backend en Kubernetes esté Ready
 2. **Recuperación Automática**: Intenta resolver problemas comunes (ImagePullBackOff, pods estancados)
@@ -329,19 +330,19 @@ El script `launch_debug.sh` realiza automáticamente:
 
 ```bash
 # Desarrollo rápido en desktop
-./launch_debug.sh -l
+make dev-mobile-launch-desktop
 
 # Android con build limpio
-./launch_debug.sh -e
+make dev-mobile-launch-emulator
 
 # Android sin limpiar caché (más rápido)
-./launch_debug.sh -d --dirty
+make dev-mobile-launch-device  # Usa --dirty por defecto
 
 # Con recuperación automática del backend
-./launch_debug.sh -e --backend-retries 10
+make dev-mobile-launch-emulator --backend-retries 10
 
 # Sin verificar backend (desarrollo offline)
-./launch_debug.sh -l --no-backend-check
+make dev-mobile-launch-desktop --no-backend-check
 ```
 
 ### Listar Dispositivos Disponibles
@@ -517,7 +518,7 @@ devtools
 
 ## Troubleshooting
 
-### Problemas del Script launch_debug.sh
+### Problemas con los Comandos make dev-mobile-*
 
 #### Error: "Backend no disponible. Abortando launch"
 
@@ -535,7 +536,7 @@ kubectl -n altrupets-dev logs -f deploy/backend --tail=50
 make dev-backend-build
 
 # Si persiste, usar --no-backend-check
-./launch_debug.sh -l --no-backend-check
+make dev-mobile-launch-desktop --no-backend-check
 ```
 
 #### Error: "No se detectó dispositivo o emulador Android"
@@ -575,7 +576,7 @@ adb devices
 make dev-backend-build
 
 # O con el script:
-./launch_debug.sh -l --backend-rollout-restart
+make dev-mobile-launch-desktop --backend-rollout-restart
 
 # Limpiar pods estancados
 make dev-minikube-clear
@@ -675,8 +676,9 @@ make dev-minikube-deploy
 # Verificar dispositivos
 flutter devices
 
-# Si Chrome no aparece, el script usa desktop automáticamente
-./launch_debug.sh -w
+# Si Linux desktop no aparece, verifica que esté habilitado
+flutter config --enable-linux-desktop
+make dev-mobile-widgetbook
 
 # O ejecuta manualmente
 cd apps/widgetbook
@@ -687,9 +689,9 @@ flutter run -d linux  # o macos/windows
 
 ## Logs y Debugging Avanzado
 
-### Logs Centralizados (launch_debug.sh)
+### Logs Centralizados (make dev-mobile-*)
 
-El script `launch_debug.sh` guarda automáticamente todos los logs en:
+Los comandos `make dev-mobile-*` guardan automáticamente todos los logs en:
 
 ```
 logs/mobile/
@@ -719,7 +721,7 @@ En Linux, el script abre automáticamente una terminal separada con los logs del
 kubectl -n altrupets-dev logs -f deploy/backend --tail=200
 
 # O desactiva la ventana:
-./launch_debug.sh -l --no-backend-logs-window
+make dev-mobile-launch-desktop --no-backend-logs-window
 ```
 
 ### Flutter DevTools

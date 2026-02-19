@@ -124,7 +124,7 @@ kubectl -n altrupets-dev port-forward svc/backend-service 3001:3001
 
 6. Ejecutar app Flutter Linux:
 ```bash
-./launch_debug.sh --linux
+make dev-mobile-launch-desktop
 ```
 
 ---

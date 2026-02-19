@@ -108,5 +108,5 @@ When converting designs, always use `Theme.of(context).colorScheme` tokens. The 
 4.  Generate the Dart code following the Atomic Design structure.
 5.  **Verify on Device**: Execute the debug launch script to see the new screen in action:
     ```bash
-    ./launch_debug.sh
+    make dev-mobile-launch
     ```
