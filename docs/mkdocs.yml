@@ -131,6 +131,7 @@ nav:
     - Configuración: docs/getting-started/setup.md
   - 🏗️ Arquitectura:
     - Visión general: docs/architecture/overview.md
+    - Micro-Frontends: docs/architecture/micro-frontends.md
     - Tecnologías: docs/architecture/technologies.md
     - Flujo de datos: docs/architecture/data-flow.md
   - 💻 Desarrollo:
