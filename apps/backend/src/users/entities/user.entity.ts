@@ -106,14 +106,15 @@ export class User {
   avatarImage?: Buffer | null;
 
   @Field(() => String, { nullable: true })
+  @Column({ type: 'text', nullable: true })
   avatarBase64?: string | null;
 
   @Field(() => String, { nullable: true })
-  @Column({ nullable: true })
+  @Column({ type: 'varchar', nullable: true })
   avatarUrl?: string | null;
 
   @Field(() => String, { nullable: true })
-  @Column({ nullable: true, default: 'local' })
+  @Column({ type: 'varchar', nullable: true, default: 'local' })
   avatarStorageProvider?: string | null;
 
   @Field()
