@@ -36,7 +36,7 @@ jobs:
 
       - name: Install dependencies
         run: |
-          pip install mkdocs-material mkdocs-git-revision-date-localized-plugin mkdocs-git-committers-plugin mkdocs-minify-plugin
+          pip install -r docs/requirements.txt
 
       - name: Build documentation
         run: |
