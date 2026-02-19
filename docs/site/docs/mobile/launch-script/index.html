@@ -1,0 +1,3579 @@
+
+<!doctype html>
+<html lang="es" class="no-js">
+  <head>
+
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+
+        <meta name="description" content="Plataforma cloud-native que reduce el tiempo de respuesta en rescates de animales vulnerables en Latinoamérica">
+
+
+
+        <link rel="canonical" href="https://altrupets.github.io/monorepo/docs/mobile/launch-script/">
+
+
+        <link rel="prev" href="../getting-started/">
+
+
+        <link rel="next" href="../sast/">
+
+
+
+
+
+      <link rel="icon" href="../../../assets/images/isotipo.svg">
+      <meta name="generator" content="zensical-0.0.23">
+
+
+
+        <title>🚀 Comandos de Lanzamiento (make dev-mobile-*) - AltruPets - Plataforma de Protección Animal</title>
+
+
+
+
+
+
+      <link rel="stylesheet" href="../../../assets/stylesheets/modern/main.1e989742.min.css">
+
+
+
+
+        <link rel="stylesheet" href="../../../assets/stylesheets/modern/palette.dfe2e883.min.css">
+
+
+
+
+
+
+
+
+
+
+
+
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Poppins:300,300i,400,400i,500,500i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Poppins";--md-code-font:"Roboto Mono"}</style>
+
+
+
+      <link rel="stylesheet" href="../../../stylesheets/altrupets-custom.css">
+
+    <script>__md_scope=new URL("../../..",location),__md_hash=e=>[...e].reduce(((e,t)=>(e<<5)-e+t.charCodeAt(0)),0),__md_get=(e,t=localStorage,a=__md_scope)=>JSON.parse(t.getItem(a.pathname+"."+e)),__md_set=(e,t,a=localStorage,_=__md_scope)=>{try{a.setItem(_.pathname+"."+e,JSON.stringify(t))}catch(e){}},document.documentElement.setAttribute("data-platform",navigator.platform)</script>
+
+
+
+
+
+  </head>
+
+
+
+
+
+
+
+
+
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="custom" data-md-color-accent="custom">
+
+
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+
+
+        <a href="#comandos-de-lanzamiento-make-dev-mobile-" class="md-skip">
+          Saltar a contenido
+        </a>
+
+    </div>
+    <div data-md-component="announce">
+
+    </div>
+
+      <div data-md-color-scheme="default" data-md-component="outdated" hidden>
+
+      </div>
+
+
+
+
+
+
+<header class="md-header md-header--shadow md-header--lifted" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Cabecera">
+    <a href="../../.." title="AltruPets - Plataforma de Protección Animal" class="md-header__button md-logo" aria-label="AltruPets - Plataforma de Protección Animal" data-md-component="logo">
+
+  <img src="../../../assets/images/isotipo.svg" alt="logo">
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+
+      <svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="lucide lucide-menu" viewBox="0 0 24 24"><path d="M4 5h16M4 12h16M4 19h16"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            AltruPets - Plataforma de Protección Animal
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+
+              🚀 Comandos de Lanzamiento (make dev-mobile-*)
+
+          </span>
+        </div>
+      </div>
+    </div>
+
+
+        <form class="md-header__option" data-md-component="palette">
+
+
+
+
+    <input class="md-option" data-md-color-media="none" data-md-color-scheme="default" data-md-color-primary="custom" data-md-color-accent="custom"  aria-label="Cambiar a modo oscuro"  type="radio" name="__palette" id="__palette_0">
+
+      <label class="md-header__button md-icon" title="Cambiar a modo oscuro" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+
+
+
+
+
+    <input class="md-option" data-md-color-media="none" data-md-color-scheme="slate" data-md-color-primary="custom" data-md-color-accent="custom"  aria-label="Cambiar a modo claro"  type="radio" name="__palette" id="__palette_1">
+
+      <label class="md-header__button md-icon" title="Cambiar a modo claro" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+
+
+</form>
+
+
+
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+
+
+
+
+
+        <label class="md-header__button md-icon" for="__search">
+
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="lucide lucide-search" viewBox="0 0 24 24"><path d="m21 21-4.34-4.34"/><circle cx="11" cy="11" r="8"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog" aria-label="Buscar">
+  <button type="button" class="md-search__button">
+    Buscar
+  </button>
+</div>
+
+
+    <div class="md-header__source">
+
+        <a href="https://github.com/altrupets/monorepo" title="Ir al repositorio" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path fill="currentColor" d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+  </div>
+  <div class="md-source__repository">
+    altrupets/monorepo
+  </div>
+</a>
+
+    </div>
+  </nav>
+
+
+
+<nav class="md-tabs" aria-label="Pestañas" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+
+
+
+
+
+
+    <li class="md-tabs__item">
+      <a href="../../.." class="md-tabs__link">
+
+
+  Inicio
+
+      </a>
+    </li>
+
+
+
+
+
+
+
+
+
+
+      <li class="md-tabs__item">
+        <a href="../../getting-started/installation/" class="md-tabs__link">
+
+
+  🚀 Empezar
+
+        </a>
+      </li>
+
+
+
+
+
+
+
+
+
+
+
+      <li class="md-tabs__item">
+        <a href="../../backend/" class="md-tabs__link">
+
+
+  🖥️ Backend
+
+        </a>
+      </li>
+
+
+
+
+
+
+
+
+
+
+
+
+
+      <li class="md-tabs__item md-tabs__item--active">
+        <a href="../" class="md-tabs__link">
+
+
+  📱 Mobile
+
+        </a>
+      </li>
+
+
+
+
+
+
+
+
+
+
+
+      <li class="md-tabs__item">
+        <a href="../../architecture/overview/" class="md-tabs__link">
+
+
+  🏗️ Arquitectura
+
+        </a>
+      </li>
+
+
+
+
+
+
+
+
+
+
+
+      <li class="md-tabs__item">
+        <a href="../../development/local-setup/" class="md-tabs__link">
+
+
+  💻 Desarrollo
+
+        </a>
+      </li>
+
+
+
+
+
+
+
+
+
+
+
+      <li class="md-tabs__item">
+        <a href="../../deployment/kubernetes/" class="md-tabs__link">
+
+
+  🚀 Despliegue
+
+        </a>
+      </li>
+
+
+
+
+
+
+
+
+
+
+
+      <li class="md-tabs__item">
+        <a href="../../../devsecops/security-scanner/" class="md-tabs__link">
+
+
+  🔒 DevSecOps
+
+        </a>
+      </li>
+
+
+
+
+
+
+
+
+
+
+
+      <li class="md-tabs__item">
+        <a href="../../mcp/" class="md-tabs__link">
+
+
+  🔌 MCP Servers
+
+        </a>
+      </li>
+
+
+
+
+
+
+
+
+
+
+
+      <li class="md-tabs__item">
+        <a href="../../packages/latam-payments-package/" class="md-tabs__link">
+
+
+  📦 Paquetes
+
+        </a>
+      </li>
+
+
+
+
+    </ul>
+  </div>
+</nav>
+
+
+</header>
+
+    <div class="md-container" data-md-component="container">
+
+
+
+
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+
+
+
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+
+
+
+
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navegación" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../../.." title="AltruPets - Plataforma de Protección Animal" class="md-nav__button md-logo" aria-label="AltruPets - Plataforma de Protección Animal" data-md-component="logo">
+
+  <img src="../../../assets/images/isotipo.svg" alt="logo">
+
+    </a>
+    AltruPets - Plataforma de Protección Animal
+  </label>
+
+    <div class="md-nav__source">
+      <a href="https://github.com/altrupets/monorepo" title="Ir al repositorio" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path fill="currentColor" d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+  </div>
+  <div class="md-source__repository">
+    altrupets/monorepo
+  </div>
+</a>
+    </div>
+
+  <ul class="md-nav__list" data-md-scrollfix>
+
+
+
+
+
+
+
+    <li class="md-nav__item">
+      <a href="../../.." class="md-nav__link">
+
+
+
+  <span class="md-ellipsis">
+
+
+    Inicio
+
+
+
+  </span>
+
+
+
+      </a>
+    </li>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <li class="md-nav__item md-nav__item--nested">
+
+
+
+
+
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_2" >
+
+
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+
+
+
+  <span class="md-ellipsis">
+
+
+    🚀 Empezar
+
+
+
+  </span>
+
+
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+
+
+    🚀 Empezar
+
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+
+
+
+
+
+
+
+    <li class="md-nav__item">
+      <a href="../../getting-started/installation/" class="md-nav__link">
+
+
+
+  <span class="md-ellipsis">
+
+
+    Instalación
+
+
+
+  </span>
+
+
+
+      </a>
+    </li>
+
+
+
+
+
+
+
+
+
+
+    <li class="md-nav__item">
+      <a href="../../getting-started/setup/" class="md-nav__link">
+
+
+
+  <span class="md-ellipsis">
+
+
+    Configuración
+
+
+
+  </span>
+
+
+
+      </a>
+    </li>
+
+
+
+
+          </ul>
+        </nav>
+
+    </li>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <li class="md-nav__item md-nav__item--nested">
+
+
+
+
+
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_3" >
+
+
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+
+
+
+  <span class="md-ellipsis">
+
+
+    🖥️ Backend
+
+
+
+  </span>
+
+
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+
+
+    🖥️ Backend
+
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+
+
+
+
+
+
+
+    <li class="md-nav__item">
+      <a href="../../backend/" class="md-nav__link">
+
+
+
+  <span class="md-ellipsis">
+
+
+    Visión general
+
+
+
+  </span>
+
+
+
+      </a>
+    </li>
+
+
+
+
+
+
+
+
+
+
+    <li class="md-nav__item">
+      <a href="../../backend/api.md" class="md-nav__link">
+
+
+
+  <span class="md-ellipsis">
+
+
+    API Reference
+
+
+
+  </span>
+
+
+
+      </a>
+    </li>
+
+
+
+
+
+
+
+
+
+
+    <li class="md-nav__item">
+      <a href="../../backend/auth/" class="md-nav__link">
+
+
+
+  <span class="md-ellipsis">
+
+
+    Autenticación
+
+
+
+  </span>
+
+
+
+      </a>
+    </li>
+
+
+
+
+
+
+
+
+
+
+    <li class="md-nav__item">
+      <a href="../../backend/changelog.md" class="md-nav__link">
+
+
+
+  <span class="md-ellipsis">
+
+
+    Changelog
+
+
+
+  </span>
+
+
+
+      </a>
+    </li>
+
+
+
+
+          </ul>
+        </nav>
+
+    </li>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+
+
+
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" checked>
+
+
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="">
+
+
+
+  <span class="md-ellipsis">
+
+
+    📱 Mobile
+
+
+
+  </span>
+
+
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+
+
+    📱 Mobile
+
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+
+
+
+
+
+
+
+    <li class="md-nav__item">
+      <a href="../" class="md-nav__link">
+
+
+
+  <span class="md-ellipsis">
+
+
+    Visión general
+
+
+
+  </span>
+
+
+
+      </a>
+    </li>
+
+
+
+
+
+
+
+
+
+
+    <li class="md-nav__item">
+      <a href="../getting-started/" class="md-nav__link">
+
+
+
+  <span class="md-ellipsis">
+
+
+    Getting Started
+
+
+
+  </span>
+
+
+
+      </a>
+    </li>
+
+
+
+
+
+
+
+
+
+
+
+
+    <li class="md-nav__item md-nav__item--active">
+
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+
+
+
+
+
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+
+
+
+  <span class="md-ellipsis">
+
+
+    Launch Script
+
+
+
+  </span>
+
+
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+
+      <a href="././" class="md-nav__link md-nav__link--active">
+
+
+
+  <span class="md-ellipsis">
+
+
+    Launch Script
+
+
+
+  </span>
+
+
+
+      </a>
+
+
+
+
+
+
+<nav class="md-nav md-nav--secondary" aria-label="En esta página">
+
+
+
+
+
+
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      En esta página
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+
+        <li class="md-nav__item">
+  <a href="#descripcion-general" class="md-nav__link">
+    <span class="md-ellipsis">
+
+        Descripción General
+
+    </span>
+  </a>
+
+</li>
+
+        <li class="md-nav__item">
+  <a href="#ubicacion" class="md-nav__link">
+    <span class="md-ellipsis">
+
+        Ubicación
+
+    </span>
+  </a>
+
+</li>
+
+        <li class="md-nav__item">
+  <a href="#sintaxis" class="md-nav__link">
+    <span class="md-ellipsis">
+
+        Sintaxis
+
+    </span>
+  </a>
+
+</li>
+
+        <li class="md-nav__item">
+  <a href="#plataformas-soportadas" class="md-nav__link">
+    <span class="md-ellipsis">
+
+        Plataformas Soportadas
+
+    </span>
+  </a>
+
+    <nav class="md-nav" aria-label="Plataformas Soportadas">
+      <ul class="md-nav__list">
+
+          <li class="md-nav__item">
+  <a href="#desktop-pruebas-rapidas" class="md-nav__link">
+    <span class="md-ellipsis">
+
+        Desktop (Pruebas Rápidas)
+
+    </span>
+  </a>
+
+</li>
+
+          <li class="md-nav__item">
+  <a href="#android-emulator" class="md-nav__link">
+    <span class="md-ellipsis">
+
+        Android Emulator
+
+    </span>
+  </a>
+
+</li>
+
+          <li class="md-nav__item">
+  <a href="#android-device-fisico" class="md-nav__link">
+    <span class="md-ellipsis">
+
+        Android Device (Físico)
+
+    </span>
+  </a>
+
+</li>
+
+          <li class="md-nav__item">
+  <a href="#widgetbook-catalogo-de-widgets" class="md-nav__link">
+    <span class="md-ellipsis">
+
+        Widgetbook (Catálogo de Widgets)
+
+    </span>
+  </a>
+
+</li>
+
+      </ul>
+    </nav>
+
+</li>
+
+        <li class="md-nav__item">
+  <a href="#opciones-avanzadas-del-script" class="md-nav__link">
+    <span class="md-ellipsis">
+
+        Opciones Avanzadas del Script
+
+    </span>
+  </a>
+
+    <nav class="md-nav" aria-label="Opciones Avanzadas del Script">
+      <ul class="md-nav__list">
+
+          <li class="md-nav__item">
+  <a href="#-dirty" class="md-nav__link">
+    <span class="md-ellipsis">
+
+        --dirty
+
+    </span>
+  </a>
+
+</li>
+
+          <li class="md-nav__item">
+  <a href="#-no-backend-check" class="md-nav__link">
+    <span class="md-ellipsis">
+
+        --no-backend-check
+
+    </span>
+  </a>
+
+</li>
+
+          <li class="md-nav__item">
+  <a href="#-no-backend-auto-build" class="md-nav__link">
+    <span class="md-ellipsis">
+
+        --no-backend-auto-build
+
+    </span>
+  </a>
+
+</li>
+
+          <li class="md-nav__item">
+  <a href="#-backend-retries-n" class="md-nav__link">
+    <span class="md-ellipsis">
+
+        --backend-retries N
+
+    </span>
+  </a>
+
+</li>
+
+          <li class="md-nav__item">
+  <a href="#-backend-redeploy-argo" class="md-nav__link">
+    <span class="md-ellipsis">
+
+        --backend-redeploy-argo
+
+    </span>
+  </a>
+
+</li>
+
+          <li class="md-nav__item">
+  <a href="#-backend-rollout-restart" class="md-nav__link">
+    <span class="md-ellipsis">
+
+        --backend-rollout-restart
+
+    </span>
+  </a>
+
+</li>
+
+          <li class="md-nav__item">
+  <a href="#-no-backend-prune" class="md-nav__link">
+    <span class="md-ellipsis">
+
+        --no-backend-prune
+
+    </span>
+  </a>
+
+</li>
+
+          <li class="md-nav__item">
+  <a href="#-no-backend-logs-window" class="md-nav__link">
+    <span class="md-ellipsis">
+
+        --no-backend-logs-window
+
+    </span>
+  </a>
+
+</li>
+
+          <li class="md-nav__item">
+  <a href="#-no-adb-reverse" class="md-nav__link">
+    <span class="md-ellipsis">
+
+        --no-adb-reverse
+
+    </span>
+  </a>
+
+</li>
+
+      </ul>
+    </nav>
+
+</li>
+
+        <li class="md-nav__item">
+  <a href="#menu-interactivo" class="md-nav__link">
+    <span class="md-ellipsis">
+
+        Menú Interactivo
+
+    </span>
+  </a>
+
+</li>
+
+        <li class="md-nav__item">
+  <a href="#flujo-de-ejecucion" class="md-nav__link">
+    <span class="md-ellipsis">
+
+        Flujo de Ejecución
+
+    </span>
+  </a>
+
+    <nav class="md-nav" aria-label="Flujo de Ejecución">
+      <ul class="md-nav__list">
+
+          <li class="md-nav__item">
+  <a href="#1-deteccion-de-plataforma" class="md-nav__link">
+    <span class="md-ellipsis">
+
+        1. Detección de Plataforma
+
+    </span>
+  </a>
+
+</li>
+
+          <li class="md-nav__item">
+  <a href="#2-verificacion-de-backend-si-esta-habilitada" class="md-nav__link">
+    <span class="md-ellipsis">
+
+        2. Verificación de Backend (si está habilitada)
+
+    </span>
+  </a>
+
+</li>
+
+          <li class="md-nav__item">
+  <a href="#3-configuracion-de-tuneles" class="md-nav__link">
+    <span class="md-ellipsis">
+
+        3. Configuración de Túneles
+
+    </span>
+  </a>
+
+</li>
+
+          <li class="md-nav__item">
+  <a href="#4-logs-centralizados" class="md-nav__link">
+    <span class="md-ellipsis">
+
+        4. Logs Centralizados
+
+    </span>
+  </a>
+
+</li>
+
+          <li class="md-nav__item">
+  <a href="#5-ventana-de-logs-backend-linux" class="md-nav__link">
+    <span class="md-ellipsis">
+
+        5. Ventana de Logs Backend (Linux)
+
+    </span>
+  </a>
+
+</li>
+
+          <li class="md-nav__item">
+  <a href="#6-ejecucion-de-flutter" class="md-nav__link">
+    <span class="md-ellipsis">
+
+        6. Ejecución de Flutter
+
+    </span>
+  </a>
+
+</li>
+
+      </ul>
+    </nav>
+
+</li>
+
+        <li class="md-nav__item">
+  <a href="#ejemplos-de-uso" class="md-nav__link">
+    <span class="md-ellipsis">
+
+        Ejemplos de Uso
+
+    </span>
+  </a>
+
+    <nav class="md-nav" aria-label="Ejemplos de Uso">
+      <ul class="md-nav__list">
+
+          <li class="md-nav__item">
+  <a href="#desarrollo-rapido-en-desktop" class="md-nav__link">
+    <span class="md-ellipsis">
+
+        Desarrollo Rápido en Desktop
+
+    </span>
+  </a>
+
+</li>
+
+          <li class="md-nav__item">
+  <a href="#android-con-build-limpio" class="md-nav__link">
+    <span class="md-ellipsis">
+
+        Android con Build Limpio
+
+    </span>
+  </a>
+
+</li>
+
+          <li class="md-nav__item">
+  <a href="#android-incremental-rapido" class="md-nav__link">
+    <span class="md-ellipsis">
+
+        Android Incremental (Rápido)
+
+    </span>
+  </a>
+
+</li>
+
+          <li class="md-nav__item">
+  <a href="#desarrollo-offline" class="md-nav__link">
+    <span class="md-ellipsis">
+
+        Desarrollo Offline
+
+    </span>
+  </a>
+
+</li>
+
+          <li class="md-nav__item">
+  <a href="#con-recuperacion-agresiva-del-backend" class="md-nav__link">
+    <span class="md-ellipsis">
+
+        Con Recuperación Agresiva del Backend
+
+    </span>
+  </a>
+
+</li>
+
+          <li class="md-nav__item">
+  <a href="#debugging-del-backend" class="md-nav__link">
+    <span class="md-ellipsis">
+
+        Debugging del Backend
+
+    </span>
+  </a>
+
+</li>
+
+          <li class="md-nav__item">
+  <a href="#widgetbook-sin-backend" class="md-nav__link">
+    <span class="md-ellipsis">
+
+        Widgetbook sin Backend
+
+    </span>
+  </a>
+
+</li>
+
+      </ul>
+    </nav>
+
+</li>
+
+        <li class="md-nav__item">
+  <a href="#variables-de-entorno-internas" class="md-nav__link">
+    <span class="md-ellipsis">
+
+        Variables de Entorno Internas
+
+    </span>
+  </a>
+
+</li>
+
+        <li class="md-nav__item">
+  <a href="#troubleshooting" class="md-nav__link">
+    <span class="md-ellipsis">
+
+        Troubleshooting
+
+    </span>
+  </a>
+
+    <nav class="md-nav" aria-label="Troubleshooting">
+      <ul class="md-nav__list">
+
+          <li class="md-nav__item">
+  <a href="#backend-no-disponible-abortando-launch" class="md-nav__link">
+    <span class="md-ellipsis">
+
+        "Backend no disponible. Abortando launch"
+
+    </span>
+  </a>
+
+</li>
+
+          <li class="md-nav__item">
+  <a href="#no-se-detecto-dispositivo-o-emulador-android" class="md-nav__link">
+    <span class="md-ellipsis">
+
+        "No se detectó dispositivo o emulador Android"
+
+    </span>
+  </a>
+
+</li>
+
+          <li class="md-nav__item">
+  <a href="#adb-reverse-failed" class="md-nav__link">
+    <span class="md-ellipsis">
+
+        "adb reverse failed"
+
+    </span>
+  </a>
+
+</li>
+
+          <li class="md-nav__item">
+  <a href="#no-se-pudo-abrir-terminal-adicional-para-logs" class="md-nav__link">
+    <span class="md-ellipsis">
+
+        "No se pudo abrir terminal adicional para logs"
+
+    </span>
+  </a>
+
+</li>
+
+          <li class="md-nav__item">
+  <a href="#logs-no-se-guardan" class="md-nav__link">
+    <span class="md-ellipsis">
+
+        Logs no se guardan
+
+    </span>
+  </a>
+
+</li>
+
+      </ul>
+    </nav>
+
+</li>
+
+        <li class="md-nav__item">
+  <a href="#integracion-con-makefile" class="md-nav__link">
+    <span class="md-ellipsis">
+
+        Integración con Makefile
+
+    </span>
+  </a>
+
+</li>
+
+        <li class="md-nav__item">
+  <a href="#mejores-practicas" class="md-nav__link">
+    <span class="md-ellipsis">
+
+        Mejores Prácticas
+
+    </span>
+  </a>
+
+</li>
+
+        <li class="md-nav__item">
+  <a href="#proximas-mejoras" class="md-nav__link">
+    <span class="md-ellipsis">
+
+        Próximas Mejoras
+
+    </span>
+  </a>
+
+</li>
+
+        <li class="md-nav__item">
+  <a href="#ver-tambien" class="md-nav__link">
+    <span class="md-ellipsis">
+
+        Ver También
+
+    </span>
+  </a>
+
+</li>
+
+    </ul>
+
+</nav>
+
+    </li>
+
+
+
+
+
+
+
+
+
+
+    <li class="md-nav__item">
+      <a href="../sast/" class="md-nav__link">
+
+
+
+  <span class="md-ellipsis">
+
+
+    SAST (Static Analysis)
+
+
+
+  </span>
+
+
+
+      </a>
+    </li>
+
+
+
+
+
+
+
+
+
+
+    <li class="md-nav__item">
+      <a href="../widgetbook/" class="md-nav__link">
+
+
+
+  <span class="md-ellipsis">
+
+
+    Widgetbook (QA UI)
+
+
+
+  </span>
+
+
+
+      </a>
+    </li>
+
+
+
+
+
+
+
+
+
+
+    <li class="md-nav__item">
+      <a href="../architecture/" class="md-nav__link">
+
+
+
+  <span class="md-ellipsis">
+
+
+    Arquitectura
+
+
+
+  </span>
+
+
+
+      </a>
+    </li>
+
+
+
+
+
+
+
+
+
+
+    <li class="md-nav__item">
+      <a href="../features/" class="md-nav__link">
+
+
+
+  <span class="md-ellipsis">
+
+
+    Features
+
+
+
+  </span>
+
+
+
+      </a>
+    </li>
+
+
+
+
+
+
+
+
+
+
+    <li class="md-nav__item">
+      <a href="../core/" class="md-nav__link">
+
+
+
+  <span class="md-ellipsis">
+
+
+    Core
+
+
+
+  </span>
+
+
+
+      </a>
+    </li>
+
+
+
+
+
+
+
+
+
+
+    <li class="md-nav__item">
+      <a href="../design-system/" class="md-nav__link">
+
+
+
+  <span class="md-ellipsis">
+
+
+    Design System
+
+
+
+  </span>
+
+
+
+      </a>
+    </li>
+
+
+
+
+          </ul>
+        </nav>
+
+    </li>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <li class="md-nav__item md-nav__item--nested">
+
+
+
+
+
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_5" >
+
+
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+
+
+
+  <span class="md-ellipsis">
+
+
+    🏗️ Arquitectura
+
+
+
+  </span>
+
+
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+
+
+    🏗️ Arquitectura
+
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+
+
+
+
+
+
+
+    <li class="md-nav__item">
+      <a href="../../architecture/overview/" class="md-nav__link">
+
+
+
+  <span class="md-ellipsis">
+
+
+    Visión general
+
+
+
+  </span>
+
+
+
+      </a>
+    </li>
+
+
+
+
+
+
+
+
+
+
+    <li class="md-nav__item">
+      <a href="../../architecture/micro-frontends/" class="md-nav__link">
+
+
+
+  <span class="md-ellipsis">
+
+
+    Micro-Frontends
+
+
+
+  </span>
+
+
+
+      </a>
+    </li>
+
+
+
+
+
+
+
+
+
+
+    <li class="md-nav__item">
+      <a href="../../architecture/technologies/" class="md-nav__link">
+
+
+
+  <span class="md-ellipsis">
+
+
+    Tecnologías
+
+
+
+  </span>
+
+
+
+      </a>
+    </li>
+
+
+
+
+
+
+
+
+
+
+    <li class="md-nav__item">
+      <a href="../../architecture/data-flow/" class="md-nav__link">
+
+
+
+  <span class="md-ellipsis">
+
+
+    Flujo de datos
+
+
+
+  </span>
+
+
+
+      </a>
+    </li>
+
+
+
+
+          </ul>
+        </nav>
+
+    </li>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <li class="md-nav__item md-nav__item--nested">
+
+
+
+
+
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_6" >
+
+
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+
+
+
+  <span class="md-ellipsis">
+
+
+    💻 Desarrollo
+
+
+
+  </span>
+
+
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+
+
+    💻 Desarrollo
+
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+
+
+
+
+
+
+
+    <li class="md-nav__item">
+      <a href="../../development/local-setup/" class="md-nav__link">
+
+
+
+  <span class="md-ellipsis">
+
+
+    Configuración local
+
+
+
+  </span>
+
+
+
+      </a>
+    </li>
+
+
+
+
+
+
+
+
+
+
+    <li class="md-nav__item">
+      <a href="../../development/structure/" class="md-nav__link">
+
+
+
+  <span class="md-ellipsis">
+
+
+    Estructura
+
+
+
+  </span>
+
+
+
+      </a>
+    </li>
+
+
+
+
+
+
+
+
+
+
+    <li class="md-nav__item">
+      <a href="../../development/testing/" class="md-nav__link">
+
+
+
+  <span class="md-ellipsis">
+
+
+    Testing
+
+
+
+  </span>
+
+
+
+      </a>
+    </li>
+
+
+
+
+          </ul>
+        </nav>
+
+    </li>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <li class="md-nav__item md-nav__item--nested">
+
+
+
+
+
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_7" >
+
+
+          <label class="md-nav__link" for="__nav_7" id="__nav_7_label" tabindex="0">
+
+
+
+  <span class="md-ellipsis">
+
+
+    🚀 Despliegue
+
+
+
+  </span>
+
+
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_7_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_7">
+            <span class="md-nav__icon md-icon"></span>
+
+
+    🚀 Despliegue
+
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+
+
+
+
+
+
+
+    <li class="md-nav__item">
+      <a href="../../deployment/kubernetes/" class="md-nav__link">
+
+
+
+  <span class="md-ellipsis">
+
+
+    Kubernetes
+
+
+
+  </span>
+
+
+
+      </a>
+    </li>
+
+
+
+
+
+
+
+
+
+
+    <li class="md-nav__item">
+      <a href="../../deployment/harbor/" class="md-nav__link">
+
+
+
+  <span class="md-ellipsis">
+
+
+    Harbor Registry
+
+
+
+  </span>
+
+
+
+      </a>
+    </li>
+
+
+
+
+
+
+
+
+
+
+    <li class="md-nav__item">
+      <a href="../../deployment/cicd/" class="md-nav__link">
+
+
+
+  <span class="md-ellipsis">
+
+
+    CI/CD
+
+
+
+  </span>
+
+
+
+      </a>
+    </li>
+
+
+
+
+
+
+
+
+
+
+    <li class="md-nav__item">
+      <a href="../../deployment/secrets/" class="md-nav__link">
+
+
+
+  <span class="md-ellipsis">
+
+
+    Secrets (Infisical)
+
+
+
+  </span>
+
+
+
+      </a>
+    </li>
+
+
+
+
+
+
+
+
+
+
+    <li class="md-nav__item">
+      <a href="../../deployment/tls/" class="md-nav__link">
+
+
+
+  <span class="md-ellipsis">
+
+
+    TLS/HTTPS
+
+
+
+  </span>
+
+
+
+      </a>
+    </li>
+
+
+
+
+          </ul>
+        </nav>
+
+    </li>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <li class="md-nav__item md-nav__item--nested">
+
+
+
+
+
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_8" >
+
+
+          <label class="md-nav__link" for="__nav_8" id="__nav_8_label" tabindex="0">
+
+
+
+  <span class="md-ellipsis">
+
+
+    🔒 DevSecOps
+
+
+
+  </span>
+
+
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_8_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_8">
+            <span class="md-nav__icon md-icon"></span>
+
+
+    🔒 DevSecOps
+
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+
+
+
+
+
+
+
+    <li class="md-nav__item">
+      <a href="../../../devsecops/security-scanner/" class="md-nav__link">
+
+
+
+  <span class="md-ellipsis">
+
+
+    Security Scanner
+
+
+
+  </span>
+
+
+
+      </a>
+    </li>
+
+
+
+
+          </ul>
+        </nav>
+
+    </li>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <li class="md-nav__item md-nav__item--nested">
+
+
+
+
+
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_9" >
+
+
+          <label class="md-nav__link" for="__nav_9" id="__nav_9_label" tabindex="0">
+
+
+
+  <span class="md-ellipsis">
+
+
+    🔌 MCP Servers
+
+
+
+  </span>
+
+
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_9_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_9">
+            <span class="md-nav__icon md-icon"></span>
+
+
+    🔌 MCP Servers
+
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+
+
+
+
+
+
+
+    <li class="md-nav__item">
+      <a href="../../mcp/" class="md-nav__link">
+
+
+
+  <span class="md-ellipsis">
+
+
+    Visión general
+
+
+
+  </span>
+
+
+
+      </a>
+    </li>
+
+
+
+
+
+
+
+
+
+
+    <li class="md-nav__item">
+      <a href="../../mcp/setup/" class="md-nav__link">
+
+
+
+  <span class="md-ellipsis">
+
+
+    Configuración
+
+
+
+  </span>
+
+
+
+      </a>
+    </li>
+
+
+
+
+          </ul>
+        </nav>
+
+    </li>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <li class="md-nav__item md-nav__item--nested">
+
+
+
+
+
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_10" >
+
+
+          <label class="md-nav__link" for="__nav_10" id="__nav_10_label" tabindex="0">
+
+
+
+  <span class="md-ellipsis">
+
+
+    📦 Paquetes
+
+
+
+  </span>
+
+
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_10_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_10">
+            <span class="md-nav__icon md-icon"></span>
+
+
+    📦 Paquetes
+
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+
+
+
+
+
+
+
+    <li class="md-nav__item">
+      <a href="../../packages/latam-payments-package/" class="md-nav__link">
+
+
+
+  <span class="md-ellipsis">
+
+
+    latam_payments
+
+
+
+  </span>
+
+
+
+      </a>
+    </li>
+
+
+
+
+
+
+
+
+
+
+    <li class="md-nav__item">
+      <a href="../../packages/latam-payments-progress/" class="md-nav__link">
+
+
+
+  <span class="md-ellipsis">
+
+
+    Progreso
+
+
+
+  </span>
+
+
+
+      </a>
+    </li>
+
+
+
+
+          </ul>
+        </nav>
+
+    </li>
+
+
+
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+
+
+
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+
+
+
+
+
+<nav class="md-nav md-nav--secondary" aria-label="En esta página">
+
+
+
+
+
+
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      En esta página
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+
+        <li class="md-nav__item">
+  <a href="#descripcion-general" class="md-nav__link">
+    <span class="md-ellipsis">
+
+        Descripción General
+
+    </span>
+  </a>
+
+</li>
+
+        <li class="md-nav__item">
+  <a href="#ubicacion" class="md-nav__link">
+    <span class="md-ellipsis">
+
+        Ubicación
+
+    </span>
+  </a>
+
+</li>
+
+        <li class="md-nav__item">
+  <a href="#sintaxis" class="md-nav__link">
+    <span class="md-ellipsis">
+
+        Sintaxis
+
+    </span>
+  </a>
+
+</li>
+
+        <li class="md-nav__item">
+  <a href="#plataformas-soportadas" class="md-nav__link">
+    <span class="md-ellipsis">
+
+        Plataformas Soportadas
+
+    </span>
+  </a>
+
+    <nav class="md-nav" aria-label="Plataformas Soportadas">
+      <ul class="md-nav__list">
+
+          <li class="md-nav__item">
+  <a href="#desktop-pruebas-rapidas" class="md-nav__link">
+    <span class="md-ellipsis">
+
+        Desktop (Pruebas Rápidas)
+
+    </span>
+  </a>
+
+</li>
+
+          <li class="md-nav__item">
+  <a href="#android-emulator" class="md-nav__link">
+    <span class="md-ellipsis">
+
+        Android Emulator
+
+    </span>
+  </a>
+
+</li>
+
+          <li class="md-nav__item">
+  <a href="#android-device-fisico" class="md-nav__link">
+    <span class="md-ellipsis">
+
+        Android Device (Físico)
+
+    </span>
+  </a>
+
+</li>
+
+          <li class="md-nav__item">
+  <a href="#widgetbook-catalogo-de-widgets" class="md-nav__link">
+    <span class="md-ellipsis">
+
+        Widgetbook (Catálogo de Widgets)
+
+    </span>
+  </a>
+
+</li>
+
+      </ul>
+    </nav>
+
+</li>
+
+        <li class="md-nav__item">
+  <a href="#opciones-avanzadas-del-script" class="md-nav__link">
+    <span class="md-ellipsis">
+
+        Opciones Avanzadas del Script
+
+    </span>
+  </a>
+
+    <nav class="md-nav" aria-label="Opciones Avanzadas del Script">
+      <ul class="md-nav__list">
+
+          <li class="md-nav__item">
+  <a href="#-dirty" class="md-nav__link">
+    <span class="md-ellipsis">
+
+        --dirty
+
+    </span>
+  </a>
+
+</li>
+
+          <li class="md-nav__item">
+  <a href="#-no-backend-check" class="md-nav__link">
+    <span class="md-ellipsis">
+
+        --no-backend-check
+
+    </span>
+  </a>
+
+</li>
+
+          <li class="md-nav__item">
+  <a href="#-no-backend-auto-build" class="md-nav__link">
+    <span class="md-ellipsis">
+
+        --no-backend-auto-build
+
+    </span>
+  </a>
+
+</li>
+
+          <li class="md-nav__item">
+  <a href="#-backend-retries-n" class="md-nav__link">
+    <span class="md-ellipsis">
+
+        --backend-retries N
+
+    </span>
+  </a>
+
+</li>
+
+          <li class="md-nav__item">
+  <a href="#-backend-redeploy-argo" class="md-nav__link">
+    <span class="md-ellipsis">
+
+        --backend-redeploy-argo
+
+    </span>
+  </a>
+
+</li>
+
+          <li class="md-nav__item">
+  <a href="#-backend-rollout-restart" class="md-nav__link">
+    <span class="md-ellipsis">
+
+        --backend-rollout-restart
+
+    </span>
+  </a>
+
+</li>
+
+          <li class="md-nav__item">
+  <a href="#-no-backend-prune" class="md-nav__link">
+    <span class="md-ellipsis">
+
+        --no-backend-prune
+
+    </span>
+  </a>
+
+</li>
+
+          <li class="md-nav__item">
+  <a href="#-no-backend-logs-window" class="md-nav__link">
+    <span class="md-ellipsis">
+
+        --no-backend-logs-window
+
+    </span>
+  </a>
+
+</li>
+
+          <li class="md-nav__item">
+  <a href="#-no-adb-reverse" class="md-nav__link">
+    <span class="md-ellipsis">
+
+        --no-adb-reverse
+
+    </span>
+  </a>
+
+</li>
+
+      </ul>
+    </nav>
+
+</li>
+
+        <li class="md-nav__item">
+  <a href="#menu-interactivo" class="md-nav__link">
+    <span class="md-ellipsis">
+
+        Menú Interactivo
+
+    </span>
+  </a>
+
+</li>
+
+        <li class="md-nav__item">
+  <a href="#flujo-de-ejecucion" class="md-nav__link">
+    <span class="md-ellipsis">
+
+        Flujo de Ejecución
+
+    </span>
+  </a>
+
+    <nav class="md-nav" aria-label="Flujo de Ejecución">
+      <ul class="md-nav__list">
+
+          <li class="md-nav__item">
+  <a href="#1-deteccion-de-plataforma" class="md-nav__link">
+    <span class="md-ellipsis">
+
+        1. Detección de Plataforma
+
+    </span>
+  </a>
+
+</li>
+
+          <li class="md-nav__item">
+  <a href="#2-verificacion-de-backend-si-esta-habilitada" class="md-nav__link">
+    <span class="md-ellipsis">
+
+        2. Verificación de Backend (si está habilitada)
+
+    </span>
+  </a>
+
+</li>
+
+          <li class="md-nav__item">
+  <a href="#3-configuracion-de-tuneles" class="md-nav__link">
+    <span class="md-ellipsis">
+
+        3. Configuración de Túneles
+
+    </span>
+  </a>
+
+</li>
+
+          <li class="md-nav__item">
+  <a href="#4-logs-centralizados" class="md-nav__link">
+    <span class="md-ellipsis">
+
+        4. Logs Centralizados
+
+    </span>
+  </a>
+
+</li>
+
+          <li class="md-nav__item">
+  <a href="#5-ventana-de-logs-backend-linux" class="md-nav__link">
+    <span class="md-ellipsis">
+
+        5. Ventana de Logs Backend (Linux)
+
+    </span>
+  </a>
+
+</li>
+
+          <li class="md-nav__item">
+  <a href="#6-ejecucion-de-flutter" class="md-nav__link">
+    <span class="md-ellipsis">
+
+        6. Ejecución de Flutter
+
+    </span>
+  </a>
+
+</li>
+
+      </ul>
+    </nav>
+
+</li>
+
+        <li class="md-nav__item">
+  <a href="#ejemplos-de-uso" class="md-nav__link">
+    <span class="md-ellipsis">
+
+        Ejemplos de Uso
+
+    </span>
+  </a>
+
+    <nav class="md-nav" aria-label="Ejemplos de Uso">
+      <ul class="md-nav__list">
+
+          <li class="md-nav__item">
+  <a href="#desarrollo-rapido-en-desktop" class="md-nav__link">
+    <span class="md-ellipsis">
+
+        Desarrollo Rápido en Desktop
+
+    </span>
+  </a>
+
+</li>
+
+          <li class="md-nav__item">
+  <a href="#android-con-build-limpio" class="md-nav__link">
+    <span class="md-ellipsis">
+
+        Android con Build Limpio
+
+    </span>
+  </a>
+
+</li>
+
+          <li class="md-nav__item">
+  <a href="#android-incremental-rapido" class="md-nav__link">
+    <span class="md-ellipsis">
+
+        Android Incremental (Rápido)
+
+    </span>
+  </a>
+
+</li>
+
+          <li class="md-nav__item">
+  <a href="#desarrollo-offline" class="md-nav__link">
+    <span class="md-ellipsis">
+
+        Desarrollo Offline
+
+    </span>
+  </a>
+
+</li>
+
+          <li class="md-nav__item">
+  <a href="#con-recuperacion-agresiva-del-backend" class="md-nav__link">
+    <span class="md-ellipsis">
+
+        Con Recuperación Agresiva del Backend
+
+    </span>
+  </a>
+
+</li>
+
+          <li class="md-nav__item">
+  <a href="#debugging-del-backend" class="md-nav__link">
+    <span class="md-ellipsis">
+
+        Debugging del Backend
+
+    </span>
+  </a>
+
+</li>
+
+          <li class="md-nav__item">
+  <a href="#widgetbook-sin-backend" class="md-nav__link">
+    <span class="md-ellipsis">
+
+        Widgetbook sin Backend
+
+    </span>
+  </a>
+
+</li>
+
+      </ul>
+    </nav>
+
+</li>
+
+        <li class="md-nav__item">
+  <a href="#variables-de-entorno-internas" class="md-nav__link">
+    <span class="md-ellipsis">
+
+        Variables de Entorno Internas
+
+    </span>
+  </a>
+
+</li>
+
+        <li class="md-nav__item">
+  <a href="#troubleshooting" class="md-nav__link">
+    <span class="md-ellipsis">
+
+        Troubleshooting
+
+    </span>
+  </a>
+
+    <nav class="md-nav" aria-label="Troubleshooting">
+      <ul class="md-nav__list">
+
+          <li class="md-nav__item">
+  <a href="#backend-no-disponible-abortando-launch" class="md-nav__link">
+    <span class="md-ellipsis">
+
+        "Backend no disponible. Abortando launch"
+
+    </span>
+  </a>
+
+</li>
+
+          <li class="md-nav__item">
+  <a href="#no-se-detecto-dispositivo-o-emulador-android" class="md-nav__link">
+    <span class="md-ellipsis">
+
+        "No se detectó dispositivo o emulador Android"
+
+    </span>
+  </a>
+
+</li>
+
+          <li class="md-nav__item">
+  <a href="#adb-reverse-failed" class="md-nav__link">
+    <span class="md-ellipsis">
+
+        "adb reverse failed"
+
+    </span>
+  </a>
+
+</li>
+
+          <li class="md-nav__item">
+  <a href="#no-se-pudo-abrir-terminal-adicional-para-logs" class="md-nav__link">
+    <span class="md-ellipsis">
+
+        "No se pudo abrir terminal adicional para logs"
+
+    </span>
+  </a>
+
+</li>
+
+          <li class="md-nav__item">
+  <a href="#logs-no-se-guardan" class="md-nav__link">
+    <span class="md-ellipsis">
+
+        Logs no se guardan
+
+    </span>
+  </a>
+
+</li>
+
+      </ul>
+    </nav>
+
+</li>
+
+        <li class="md-nav__item">
+  <a href="#integracion-con-makefile" class="md-nav__link">
+    <span class="md-ellipsis">
+
+        Integración con Makefile
+
+    </span>
+  </a>
+
+</li>
+
+        <li class="md-nav__item">
+  <a href="#mejores-practicas" class="md-nav__link">
+    <span class="md-ellipsis">
+
+        Mejores Prácticas
+
+    </span>
+  </a>
+
+</li>
+
+        <li class="md-nav__item">
+  <a href="#proximas-mejoras" class="md-nav__link">
+    <span class="md-ellipsis">
+
+        Próximas Mejoras
+
+    </span>
+  </a>
+
+</li>
+
+        <li class="md-nav__item">
+  <a href="#ver-tambien" class="md-nav__link">
+    <span class="md-ellipsis">
+
+        Ver También
+
+    </span>
+  </a>
+
+</li>
+
+    </ul>
+
+</nav>
+                  </div>
+                </div>
+              </div>
+
+
+
+            <div class="md-content" data-md-component="content">
+
+
+
+
+
+
+
+
+  <nav class="md-path" aria-label="Navegación" >
+    <ol class="md-path__list">
+
+
+
+
+    <li class="md-path__item">
+      <a href="../../.." class="md-path__link">
+
+  <span class="md-ellipsis">
+    Inicio
+  </span>
+
+      </a>
+    </li>
+
+
+
+
+
+
+
+
+
+      <li class="md-path__item">
+        <a href="../" class="md-path__link">
+
+  <span class="md-ellipsis">
+    📱 Mobile
+  </span>
+
+        </a>
+      </li>
+
+
+
+
+    </ol>
+  </nav>
+
+
+              <article class="md-content__inner md-typeset">
+
+
+
+    <a href="https://github.com/altrupets/monorepo/edit/main/docs/docs/mobile/launch-script.md" title="Editar esta página" class="md-content__button md-icon" rel="edit">
+
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20.71 7.04c.39-.39.39-1.04 0-1.41l-2.34-2.34c-.37-.39-1.02-.39-1.41 0l-1.84 1.83 3.75 3.75M3 17.25V21h3.75L17.81 9.93l-3.75-3.75z"/></svg>
+    </a>
+
+
+
+
+
+    <a href="https://github.com/altrupets/monorepo/raw/main/docs/docs/mobile/launch-script.md" title="Ver código fuente de esta página" class="md-content__button md-icon">
+
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 9a3 3 0 0 0-3 3 3 3 0 0 0 3 3 3 3 0 0 0 3-3 3 3 0 0 0-3-3m0 8a5 5 0 0 1-5-5 5 5 0 0 1 5-5 5 5 0 0 1 5 5 5 5 0 0 1-5 5m0-12.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5"/></svg>
+    </a>
+
+
+
+<h1 id="comandos-de-lanzamiento-make-dev-mobile-">🚀 Comandos de Lanzamiento (make dev-mobile-*)<a class="headerlink" href="#comandos-de-lanzamiento-make-dev-mobile-" title="Permanent link">&para;</a></h1>
+<p>Guía completa de los comandos automatizados para ejecutar AltruPets Mobile con verificación de backend y configuración automática.</p>
+<h2 id="descripcion-general">Descripción General<a class="headerlink" href="#descripcion-general" title="Permanent link">&para;</a></h2>
+<p>Los comandos <code>make dev-mobile-*</code> automatizan el flujo completo de desarrollo de la aplicación móvil, invocando el script <code>apps/mobile/launch_flutter_debug.sh</code> con las opciones correctas:</p>
+<ul>
+<li>✅ Verificación automática del backend en Kubernetes</li>
+<li>🔄 Recuperación automática de errores comunes</li>
+<li>🌐 Configuración de port-forwarding y túneles</li>
+<li>📝 Logs centralizados por dispositivo</li>
+<li>🪟 Ventana separada con logs del backend (Linux)</li>
+</ul>
+<h2 id="ubicacion">Ubicación<a class="headerlink" href="#ubicacion" title="Permanent link">&para;</a></h2>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="c1"># Desde la raíz del monorepo</span>
+</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>make<span class="w"> </span>dev-mobile-launch<span class="w">          </span><span class="c1"># Menú interactivo</span>
+</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>make<span class="w"> </span>dev-mobile-launch-desktop<span class="w">  </span><span class="c1"># Linux desktop</span>
+</span><span id="__span-0-4"><a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>make<span class="w"> </span>dev-mobile-launch-emulator<span class="w"> </span><span class="c1"># Android emulator</span>
+</span><span id="__span-0-5"><a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>make<span class="w"> </span>dev-mobile-launch-device<span class="w">   </span><span class="c1"># Android device</span>
+</span><span id="__span-0-6"><a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>make<span class="w"> </span>dev-mobile-widgetbook<span class="w">      </span><span class="c1"># Widgetbook UI catalog</span>
+</span></code></pre></div>
+<h2 id="sintaxis">Sintaxis<a class="headerlink" href="#sintaxis" title="Permanent link">&para;</a></h2>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>make<span class="w"> </span>dev-mobile-&lt;target&gt;
+</span></code></pre></div>
+<h2 id="plataformas-soportadas">Plataformas Soportadas<a class="headerlink" href="#plataformas-soportadas" title="Permanent link">&para;</a></h2>
+<h3 id="desktop-pruebas-rapidas">Desktop (Pruebas Rápidas)<a class="headerlink" href="#desktop-pruebas-rapidas" title="Permanent link">&para;</a></h3>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>make<span class="w"> </span>dev-mobile-launch-desktop
+</span></code></pre></div>
+<p>Lanza la app en el escritorio nativo (Linux/macOS/Windows). Ideal para:
+- Pruebas rápidas de UI
+- Desarrollo de lógica de negocio
+- Debugging sin emulador</p>
+<h3 id="android-emulator">Android Emulator<a class="headerlink" href="#android-emulator" title="Permanent link">&para;</a></h3>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>make<span class="w"> </span>dev-mobile-launch-emulator
+</span></code></pre></div>
+<p>Lanza en el emulador Android activo. Si no hay ninguno activo, intenta lanzar el primero disponible.</p>
+<p><strong>Características:</strong>
+- Detección automática del emulador
+- Lanzamiento automático si no está activo
+- Configuración de túnel para backend</p>
+<h3 id="android-device-fisico">Android Device (Físico)<a class="headerlink" href="#android-device-fisico" title="Permanent link">&para;</a></h3>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>make<span class="w"> </span>dev-mobile-launch-device
+</span></code></pre></div>
+<p>Lanza en un dispositivo Android físico conectado por USB.</p>
+<p><strong>Características:</strong>
+- Detección automática del dispositivo
+- Configuración de <code>adb reverse</code> para túnel localhost
+- Verificación de autorización USB</p>
+<h3 id="widgetbook-catalogo-de-widgets">Widgetbook (Catálogo de Widgets)<a class="headerlink" href="#widgetbook-catalogo-de-widgets" title="Permanent link">&para;</a></h3>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-5-1"><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>make<span class="w"> </span>dev-mobile-widgetbook
+</span></code></pre></div>
+<p>Abre el catálogo de widgets en Linux desktop.</p>
+<p><strong>Características:</strong>
+- Generación automática con <code>build_runner</code>
+- Ideal para desarrollo de Design System
+- No requiere backend activo</p>
+<h2 id="opciones-avanzadas-del-script">Opciones Avanzadas del Script<a class="headerlink" href="#opciones-avanzadas-del-script" title="Permanent link">&para;</a></h2>
+<p>Si necesitas opciones avanzadas, puedes invocar el script directamente desde <code>apps/mobile/</code>:</p>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-6-1"><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="nb">cd</span><span class="w"> </span>apps/mobile
+</span><span id="__span-6-2"><a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a>./launch_flutter_debug.sh<span class="w"> </span><span class="o">[</span>OPCIONES<span class="o">]</span>
+</span></code></pre></div>
+<h3 id="-dirty">--dirty<a class="headerlink" href="#-dirty" title="Permanent link">&para;</a></h3>
+<p>Salta el paso de <code>flutter clean</code> en Android.</p>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-7-1"><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a><span class="nb">cd</span><span class="w"> </span>apps/mobile
+</span><span id="__span-7-2"><a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a>./launch_flutter_debug.sh<span class="w"> </span>-d<span class="w"> </span>--dirty
+</span></code></pre></div>
+<p><strong>Cuándo usar:</strong>
+- Builds incrementales rápidos
+- Cuando no hay cambios en dependencias nativas
+- Para ahorrar tiempo en iteraciones rápidas</p>
+<p><strong>Cuándo NO usar:</strong>
+- Después de cambiar dependencias en <code>pubspec.yaml</code>
+- Después de modificar código nativo (Android/iOS)
+- Si hay errores de build extraños</p>
+<h3 id="-no-backend-check">--no-backend-check<a class="headerlink" href="#-no-backend-check" title="Permanent link">&para;</a></h3>
+<p>Desactiva la verificación de readiness del backend en Kubernetes.</p>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-8-1"><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a><span class="nb">cd</span><span class="w"> </span>apps/mobile
+</span><span id="__span-8-2"><a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a>./launch_flutter_debug.sh<span class="w"> </span>--linux<span class="w"> </span>--no-backend-check
+</span></code></pre></div>
+<p><strong>Cuándo usar:</strong>
+- Desarrollo offline
+- Cuando el backend no está en Kubernetes
+- Para pruebas de UI sin backend</p>
+<h3 id="-no-backend-auto-build">--no-backend-auto-build<a class="headerlink" href="#-no-backend-auto-build" title="Permanent link">&para;</a></h3>
+<p>Desactiva el build automático de la imagen del backend si hay <code>ImagePullBackOff</code>.</p>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-9-1"><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a><span class="nb">cd</span><span class="w"> </span>apps/mobile
+</span><span id="__span-9-2"><a id="__codelineno-9-2" name="__codelineno-9-2" href="#__codelineno-9-2"></a>./launch_flutter_debug.sh<span class="w"> </span>--emulator<span class="w"> </span>--no-backend-auto-build
+</span></code></pre></div>
+<p><strong>Cuándo usar:</strong>
+- Cuando no quieres que el script modifique el backend
+- En entornos CI/CD
+- Si prefieres hacer el build manualmente</p>
+<h3 id="-backend-retries-n">--backend-retries N<a class="headerlink" href="#-backend-retries-n" title="Permanent link">&para;</a></h3>
+<p>Configura el número de intentos de recuperación del backend (default: 5).</p>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-10-1"><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a><span class="nb">cd</span><span class="w"> </span>apps/mobile
+</span><span id="__span-10-2"><a id="__codelineno-10-2" name="__codelineno-10-2" href="#__codelineno-10-2"></a>./launch_flutter_debug.sh<span class="w"> </span>--emulator<span class="w"> </span>--backend-retries<span class="w"> </span><span class="m">10</span>
+</span></code></pre></div>
+<p><strong>Cuándo usar:</strong>
+- Backend lento en iniciar
+- Recursos limitados en Minikube
+- Debugging de problemas de deployment</p>
+<h3 id="-backend-redeploy-argo">--backend-redeploy-argo<a class="headerlink" href="#-backend-redeploy-argo" title="Permanent link">&para;</a></h3>
+<p>Flujo GitOps: build local + refresh/sync de ArgoCD (sin <code>rollout restart</code> manual).</p>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-11-1"><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a><span class="nb">cd</span><span class="w"> </span>apps/mobile
+</span><span id="__span-11-2"><a id="__codelineno-11-2" name="__codelineno-11-2" href="#__codelineno-11-2"></a>./launch_flutter_debug.sh<span class="w"> </span>--emulator<span class="w"> </span>--backend-redeploy-argo
+</span></code></pre></div>
+<p><strong>Cuándo usar:</strong>
+- Cuando usas ArgoCD para gestionar deployments
+- Para mantener consistencia con GitOps
+- En entornos compartidos</p>
+<h3 id="-backend-rollout-restart">--backend-rollout-restart<a class="headerlink" href="#-backend-rollout-restart" title="Permanent link">&para;</a></h3>
+<p>Flujo imperativo: ejecuta <code>kubectl rollout restart deployment/backend</code>.</p>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-12-1"><a id="__codelineno-12-1" name="__codelineno-12-1" href="#__codelineno-12-1"></a><span class="nb">cd</span><span class="w"> </span>apps/mobile
+</span><span id="__span-12-2"><a id="__codelineno-12-2" name="__codelineno-12-2" href="#__codelineno-12-2"></a>./launch_flutter_debug.sh<span class="w"> </span>--emulator<span class="w"> </span>--backend-rollout-restart
+</span></code></pre></div>
+<p><strong>Cuándo usar:</strong>
+- Desarrollo local rápido
+- Cuando no usas ArgoCD
+- Para forzar recreación de pods</p>
+<h3 id="-no-backend-prune">--no-backend-prune<a class="headerlink" href="#-no-backend-prune" title="Permanent link">&para;</a></h3>
+<p>Desactiva la eliminación automática de pods backend en <code>CrashLoopBackOff</code>.</p>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-13-1"><a id="__codelineno-13-1" name="__codelineno-13-1" href="#__codelineno-13-1"></a><span class="nb">cd</span><span class="w"> </span>apps/mobile
+</span><span id="__span-13-2"><a id="__codelineno-13-2" name="__codelineno-13-2" href="#__codelineno-13-2"></a>./launch_flutter_debug.sh<span class="w"> </span>--emulator<span class="w"> </span>--no-backend-prune
+</span></code></pre></div>
+<p><strong>Cuándo usar:</strong>
+- Debugging de problemas de backend
+- Cuando quieres inspeccionar pods fallidos
+- En entornos de producción</p>
+<h3 id="-no-backend-logs-window">--no-backend-logs-window<a class="headerlink" href="#-no-backend-logs-window" title="Permanent link">&para;</a></h3>
+<p>Desactiva la apertura automática de una ventana con logs del backend (solo Linux).</p>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-14-1"><a id="__codelineno-14-1" name="__codelineno-14-1" href="#__codelineno-14-1"></a><span class="nb">cd</span><span class="w"> </span>apps/mobile
+</span><span id="__span-14-2"><a id="__codelineno-14-2" name="__codelineno-14-2" href="#__codelineno-14-2"></a>./launch_flutter_debug.sh<span class="w"> </span>--linux<span class="w"> </span>--no-backend-logs-window
+</span></code></pre></div>
+<p><strong>Cuándo usar:</strong>
+- Cuando prefieres ver logs en la terminal principal
+- En sistemas sin terminal gráfica
+- Para reducir ventanas abiertas</p>
+<h3 id="-no-adb-reverse">--no-adb-reverse<a class="headerlink" href="#-no-adb-reverse" title="Permanent link">&para;</a></h3>
+<p>Desactiva la configuración de <code>adb reverse</code> en modo <code>--device</code>.</p>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-15-1"><a id="__codelineno-15-1" name="__codelineno-15-1" href="#__codelineno-15-1"></a>./launch_flutter_debug.sh<span class="w"> </span>-d<span class="w"> </span>--no-adb-reverse
+</span></code></pre></div>
+<p><strong>Cuándo usar:</strong>
+- Cuando usas IP directa en lugar de localhost
+- Problemas con adb reverse
+- Dispositivos que no soportan reverse</p>
+<h2 id="menu-interactivo">Menú Interactivo<a class="headerlink" href="#menu-interactivo" title="Permanent link">&para;</a></h2>
+<p>Si ejecutas el script sin argumentos, se muestra un menú interactivo:</p>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-16-1"><a id="__codelineno-16-1" name="__codelineno-16-1" href="#__codelineno-16-1"></a><span class="nb">cd</span><span class="w"> </span>apps/mobile
+</span><span id="__span-16-2"><a id="__codelineno-16-2" name="__codelineno-16-2" href="#__codelineno-16-2"></a>./launch_flutter_debug.sh
+</span><span id="__span-16-3"><a id="__codelineno-16-3" name="__codelineno-16-3" href="#__codelineno-16-3"></a>
+</span><span id="__span-16-4"><a id="__codelineno-16-4" name="__codelineno-16-4" href="#__codelineno-16-4"></a>📱<span class="w"> </span>AltruPets<span class="w"> </span>—<span class="w"> </span>Selecciona<span class="w"> </span>destino:
+</span><span id="__span-16-5"><a id="__codelineno-16-5" name="__codelineno-16-5" href="#__codelineno-16-5"></a><span class="w">  </span><span class="m">1</span><span class="o">)</span><span class="w"> </span>🖥️<span class="w">  </span>Linux<span class="w"> </span>desktop<span class="w"> </span><span class="o">(</span>prueba<span class="w"> </span>rápida<span class="o">)</span>
+</span><span id="__span-16-6"><a id="__codelineno-16-6" name="__codelineno-16-6" href="#__codelineno-16-6"></a><span class="w">  </span><span class="m">2</span><span class="o">)</span><span class="w"> </span>📱<span class="w"> </span>Emulador<span class="w"> </span>Android
+</span><span id="__span-16-7"><a id="__codelineno-16-7" name="__codelineno-16-7" href="#__codelineno-16-7"></a><span class="w">  </span><span class="m">3</span><span class="o">)</span><span class="w"> </span>📲<span class="w"> </span>Dispositivo<span class="w"> </span>Android<span class="w"> </span>físico
+</span><span id="__span-16-8"><a id="__codelineno-16-8" name="__codelineno-16-8" href="#__codelineno-16-8"></a><span class="w">  </span><span class="m">4</span><span class="o">)</span><span class="w"> </span>📖<span class="w"> </span>Widgetbook<span class="w"> </span><span class="o">(</span>catálogo<span class="w"> </span>de<span class="w"> </span>widgets<span class="o">)</span>
+</span><span id="__span-16-9"><a id="__codelineno-16-9" name="__codelineno-16-9" href="#__codelineno-16-9"></a>Opción<span class="w"> </span><span class="o">[</span><span class="m">1</span>-4<span class="o">]</span>:
+</span></code></pre></div>
+<h2 id="flujo-de-ejecucion">Flujo de Ejecución<a class="headerlink" href="#flujo-de-ejecucion" title="Permanent link">&para;</a></h2>
+<h3 id="1-deteccion-de-plataforma">1. Detección de Plataforma<a class="headerlink" href="#1-deteccion-de-plataforma" title="Permanent link">&para;</a></h3>
+<p>El script detecta automáticamente el sistema operativo:
+- Linux → <code>linux</code>
+- macOS → <code>macos</code>
+- Windows → <code>windows</code></p>
+<h3 id="2-verificacion-de-backend-si-esta-habilitada">2. Verificación de Backend (si está habilitada)<a class="headerlink" href="#2-verificacion-de-backend-si-esta-habilitada" title="Permanent link">&para;</a></h3>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-17-1"><a id="__codelineno-17-1" name="__codelineno-17-1" href="#__codelineno-17-1"></a><span class="c1"># El script verifica:</span>
+</span><span id="__span-17-2"><a id="__codelineno-17-2" name="__codelineno-17-2" href="#__codelineno-17-2"></a><span class="m">1</span>.<span class="w"> </span>kubectl<span class="w"> </span>está<span class="w"> </span>instalado
+</span><span id="__span-17-3"><a id="__codelineno-17-3" name="__codelineno-17-3" href="#__codelineno-17-3"></a><span class="m">2</span>.<span class="w"> </span>Namespace<span class="w"> </span><span class="s1">&#39;altrupets-dev&#39;</span><span class="w"> </span>existe
+</span><span id="__span-17-4"><a id="__codelineno-17-4" name="__codelineno-17-4" href="#__codelineno-17-4"></a><span class="m">3</span>.<span class="w"> </span>Deployment<span class="w"> </span><span class="s1">&#39;backend&#39;</span><span class="w"> </span>existe
+</span><span id="__span-17-5"><a id="__codelineno-17-5" name="__codelineno-17-5" href="#__codelineno-17-5"></a><span class="m">4</span>.<span class="w"> </span>Backend<span class="w"> </span>está<span class="w"> </span>Ready<span class="w"> </span><span class="o">(</span>readyReplicas<span class="w"> </span>&gt;<span class="o">=</span><span class="w"> </span><span class="m">1</span><span class="o">)</span>
+</span></code></pre></div>
+<p><strong>Recuperación automática:</strong>
+- Sincroniza secretos de DB si están desincronizados
+- Elimina pods en <code>CrashLoopBackOff</code> si hay réplicas sanas
+- Intenta build automático si hay <code>ImagePullBackOff</code>
+- Limpia pods de ReplicaSets viejos que bloquean rollout</p>
+<h3 id="3-configuracion-de-tuneles">3. Configuración de Túneles<a class="headerlink" href="#3-configuracion-de-tuneles" title="Permanent link">&para;</a></h3>
+<p><strong>Desktop:</strong>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-18-1"><a id="__codelineno-18-1" name="__codelineno-18-1" href="#__codelineno-18-1"></a><span class="c1"># Port-forward del backend (si está disponible)</span>
+</span><span id="__span-18-2"><a id="__codelineno-18-2" name="__codelineno-18-2" href="#__codelineno-18-2"></a>kubectl<span class="w"> </span>port-forward<span class="w"> </span>-n<span class="w"> </span>altrupets-dev<span class="w"> </span>svc/backend-service<span class="w"> </span><span class="m">3001</span>:3001
+</span></code></pre></div></p>
+<p><strong>Android Device:</strong>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-19-1"><a id="__codelineno-19-1" name="__codelineno-19-1" href="#__codelineno-19-1"></a><span class="c1"># adb reverse para túnel localhost</span>
+</span><span id="__span-19-2"><a id="__codelineno-19-2" name="__codelineno-19-2" href="#__codelineno-19-2"></a>adb<span class="w"> </span>-s<span class="w"> </span>&lt;device-id&gt;<span class="w"> </span>reverse<span class="w"> </span>tcp:3001<span class="w"> </span>tcp:3001
+</span></code></pre></div></p>
+<h3 id="4-logs-centralizados">4. Logs Centralizados<a class="headerlink" href="#4-logs-centralizados" title="Permanent link">&para;</a></h3>
+<p>Todos los logs se guardan en:
+<div class="language-text highlight"><pre><span></span><code><span id="__span-20-1"><a id="__codelineno-20-1" name="__codelineno-20-1" href="#__codelineno-20-1"></a>logs/mobile/&lt;device-label&gt;/launch-&lt;timestamp&gt;.log
+</span></code></pre></div></p>
+<p>Donde <code>&lt;device-label&gt;</code> es:
+- <code>linux</code> / <code>macos</code> / <code>windows</code> para desktop
+- <code>android-emulator</code> para emulador
+- <code>android-device</code> para dispositivo físico</p>
+<h3 id="5-ventana-de-logs-backend-linux">5. Ventana de Logs Backend (Linux)<a class="headerlink" href="#5-ventana-de-logs-backend-linux" title="Permanent link">&para;</a></h3>
+<p>En Linux, el script intenta abrir una terminal separada con:
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-21-1"><a id="__codelineno-21-1" name="__codelineno-21-1" href="#__codelineno-21-1"></a>kubectl<span class="w"> </span>-n<span class="w"> </span>altrupets-dev<span class="w"> </span>logs<span class="w"> </span>-f<span class="w"> </span>deploy/backend<span class="w"> </span>--tail<span class="o">=</span><span class="m">200</span>
+</span></code></pre></div></p>
+<p>Soporta:
+- <code>gnome-terminal</code>
+- <code>x-terminal-emulator</code>
+- <code>konsole</code></p>
+<h3 id="6-ejecucion-de-flutter">6. Ejecución de Flutter<a class="headerlink" href="#6-ejecucion-de-flutter" title="Permanent link">&para;</a></h3>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-22-1"><a id="__codelineno-22-1" name="__codelineno-22-1" href="#__codelineno-22-1"></a><span class="nb">cd</span><span class="w"> </span>apps/mobile
+</span><span id="__span-22-2"><a id="__codelineno-22-2" name="__codelineno-22-2" href="#__codelineno-22-2"></a>flutter<span class="w"> </span>pub<span class="w"> </span>get
+</span><span id="__span-22-3"><a id="__codelineno-22-3" name="__codelineno-22-3" href="#__codelineno-22-3"></a>flutter<span class="w"> </span>run<span class="w"> </span>-d<span class="w"> </span>&lt;device-id&gt;
+</span></code></pre></div>
+<h2 id="ejemplos-de-uso">Ejemplos de Uso<a class="headerlink" href="#ejemplos-de-uso" title="Permanent link">&para;</a></h2>
+<h3 id="desarrollo-rapido-en-desktop">Desarrollo Rápido en Desktop<a class="headerlink" href="#desarrollo-rapido-en-desktop" title="Permanent link">&para;</a></h3>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-23-1"><a id="__codelineno-23-1" name="__codelineno-23-1" href="#__codelineno-23-1"></a>make<span class="w"> </span>dev-mobile-launch-desktop
+</span></code></pre></div>
+<h3 id="android-con-build-limpio">Android con Build Limpio<a class="headerlink" href="#android-con-build-limpio" title="Permanent link">&para;</a></h3>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-24-1"><a id="__codelineno-24-1" name="__codelineno-24-1" href="#__codelineno-24-1"></a>make<span class="w"> </span>dev-mobile-launch-emulator
+</span></code></pre></div>
+<h3 id="android-incremental-rapido">Android Incremental (Rápido)<a class="headerlink" href="#android-incremental-rapido" title="Permanent link">&para;</a></h3>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-25-1"><a id="__codelineno-25-1" name="__codelineno-25-1" href="#__codelineno-25-1"></a><span class="nb">cd</span><span class="w"> </span>apps/mobile
+</span><span id="__span-25-2"><a id="__codelineno-25-2" name="__codelineno-25-2" href="#__codelineno-25-2"></a>./launch_flutter_debug.sh<span class="w"> </span>-d<span class="w"> </span>--dirty
+</span></code></pre></div>
+<h3 id="desarrollo-offline">Desarrollo Offline<a class="headerlink" href="#desarrollo-offline" title="Permanent link">&para;</a></h3>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-26-1"><a id="__codelineno-26-1" name="__codelineno-26-1" href="#__codelineno-26-1"></a><span class="nb">cd</span><span class="w"> </span>apps/mobile
+</span><span id="__span-26-2"><a id="__codelineno-26-2" name="__codelineno-26-2" href="#__codelineno-26-2"></a>./launch_flutter_debug.sh<span class="w"> </span>--linux<span class="w"> </span>--no-backend-check
+</span></code></pre></div>
+<h3 id="con-recuperacion-agresiva-del-backend">Con Recuperación Agresiva del Backend<a class="headerlink" href="#con-recuperacion-agresiva-del-backend" title="Permanent link">&para;</a></h3>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-27-1"><a id="__codelineno-27-1" name="__codelineno-27-1" href="#__codelineno-27-1"></a><span class="nb">cd</span><span class="w"> </span>apps/mobile
+</span><span id="__span-27-2"><a id="__codelineno-27-2" name="__codelineno-27-2" href="#__codelineno-27-2"></a>./launch_flutter_debug.sh<span class="w"> </span>--emulator<span class="w"> </span>--backend-retries<span class="w"> </span><span class="m">10</span><span class="w"> </span>--backend-rollout-restart
+</span></code></pre></div>
+<h3 id="debugging-del-backend">Debugging del Backend<a class="headerlink" href="#debugging-del-backend" title="Permanent link">&para;</a></h3>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-28-1"><a id="__codelineno-28-1" name="__codelineno-28-1" href="#__codelineno-28-1"></a><span class="nb">cd</span><span class="w"> </span>apps/mobile
+</span><span id="__span-28-2"><a id="__codelineno-28-2" name="__codelineno-28-2" href="#__codelineno-28-2"></a>./launch_flutter_debug.sh<span class="w"> </span>--linux<span class="w"> </span>--no-backend-prune<span class="w"> </span>--backend-retries<span class="w"> </span><span class="m">1</span>
+</span></code></pre></div>
+<h3 id="widgetbook-sin-backend">Widgetbook sin Backend<a class="headerlink" href="#widgetbook-sin-backend" title="Permanent link">&para;</a></h3>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-29-1"><a id="__codelineno-29-1" name="__codelineno-29-1" href="#__codelineno-29-1"></a>make<span class="w"> </span>dev-mobile-widgetbook
+</span><span id="__span-29-2"><a id="__codelineno-29-2" name="__codelineno-29-2" href="#__codelineno-29-2"></a><span class="c1"># Backend check se salta automáticamente para Widgetbook</span>
+</span></code></pre></div>
+<h2 id="variables-de-entorno-internas">Variables de Entorno Internas<a class="headerlink" href="#variables-de-entorno-internas" title="Permanent link">&para;</a></h2>
+<p>El script usa estas variables (no necesitas configurarlas):</p>
+<table>
+<thead>
+<tr>
+<th>Variable</th>
+<th>Default</th>
+<th>Descripción</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>BACKEND_CHECK_ENABLED</code></td>
+<td><code>true</code></td>
+<td>Verificar backend</td>
+</tr>
+<tr>
+<td><code>BACKEND_AUTO_BUILD_ENABLED</code></td>
+<td><code>true</code></td>
+<td>Build automático</td>
+</tr>
+<tr>
+<td><code>BACKEND_MAX_RECOVERY_ATTEMPTS</code></td>
+<td><code>5</code></td>
+<td>Intentos de recuperación</td>
+</tr>
+<tr>
+<td><code>ADB_REVERSE_ENABLED</code></td>
+<td><code>true</code></td>
+<td>Configurar adb reverse</td>
+</tr>
+<tr>
+<td><code>BACKEND_PRUNE_STALE_PODS</code></td>
+<td><code>true</code></td>
+<td>Eliminar pods estancados</td>
+</tr>
+<tr>
+<td><code>BACKEND_LOGS_WINDOW_ENABLED</code></td>
+<td><code>true</code></td>
+<td>Abrir ventana de logs</td>
+</tr>
+</tbody>
+</table>
+<h2 id="troubleshooting">Troubleshooting<a class="headerlink" href="#troubleshooting" title="Permanent link">&para;</a></h2>
+<h3 id="backend-no-disponible-abortando-launch">"Backend no disponible. Abortando launch"<a class="headerlink" href="#backend-no-disponible-abortando-launch" title="Permanent link">&para;</a></h3>
+<p><strong>Causa:</strong> El backend no está Ready después de todos los intentos.</p>
+<p><strong>Solución:</strong>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-30-1"><a id="__codelineno-30-1" name="__codelineno-30-1" href="#__codelineno-30-1"></a><span class="c1"># Ver estado</span>
+</span><span id="__span-30-2"><a id="__codelineno-30-2" name="__codelineno-30-2" href="#__codelineno-30-2"></a>kubectl<span class="w"> </span>-n<span class="w"> </span>altrupets-dev<span class="w"> </span>get<span class="w"> </span>pods
+</span><span id="__span-30-3"><a id="__codelineno-30-3" name="__codelineno-30-3" href="#__codelineno-30-3"></a>
+</span><span id="__span-30-4"><a id="__codelineno-30-4" name="__codelineno-30-4" href="#__codelineno-30-4"></a><span class="c1"># Ver logs</span>
+</span><span id="__span-30-5"><a id="__codelineno-30-5" name="__codelineno-30-5" href="#__codelineno-30-5"></a>kubectl<span class="w"> </span>-n<span class="w"> </span>altrupets-dev<span class="w"> </span>logs<span class="w"> </span>-f<span class="w"> </span>deploy/backend
+</span><span id="__span-30-6"><a id="__codelineno-30-6" name="__codelineno-30-6" href="#__codelineno-30-6"></a>
+</span><span id="__span-30-7"><a id="__codelineno-30-7" name="__codelineno-30-7" href="#__codelineno-30-7"></a><span class="c1"># Rebuild manual</span>
+</span><span id="__span-30-8"><a id="__codelineno-30-8" name="__codelineno-30-8" href="#__codelineno-30-8"></a>make<span class="w"> </span>dev-backend-build
+</span><span id="__span-30-9"><a id="__codelineno-30-9" name="__codelineno-30-9" href="#__codelineno-30-9"></a>
+</span><span id="__span-30-10"><a id="__codelineno-30-10" name="__codelineno-30-10" href="#__codelineno-30-10"></a><span class="c1"># O saltar verificación</span>
+</span><span id="__span-30-11"><a id="__codelineno-30-11" name="__codelineno-30-11" href="#__codelineno-30-11"></a><span class="nb">cd</span><span class="w"> </span>apps/mobile
+</span><span id="__span-30-12"><a id="__codelineno-30-12" name="__codelineno-30-12" href="#__codelineno-30-12"></a>./launch_flutter_debug.sh<span class="w"> </span>--linux<span class="w"> </span>--no-backend-check
+</span></code></pre></div></p>
+<h3 id="no-se-detecto-dispositivo-o-emulador-android">"No se detectó dispositivo o emulador Android"<a class="headerlink" href="#no-se-detecto-dispositivo-o-emulador-android" title="Permanent link">&para;</a></h3>
+<p><strong>Causa:</strong> No hay dispositivos conectados.</p>
+<p><strong>Solución:</strong>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-31-1"><a id="__codelineno-31-1" name="__codelineno-31-1" href="#__codelineno-31-1"></a><span class="c1"># Listar emuladores</span>
+</span><span id="__span-31-2"><a id="__codelineno-31-2" name="__codelineno-31-2" href="#__codelineno-31-2"></a>flutter<span class="w"> </span>emulators
+</span><span id="__span-31-3"><a id="__codelineno-31-3" name="__codelineno-31-3" href="#__codelineno-31-3"></a>
+</span><span id="__span-31-4"><a id="__codelineno-31-4" name="__codelineno-31-4" href="#__codelineno-31-4"></a><span class="c1"># Lanzar emulador</span>
+</span><span id="__span-31-5"><a id="__codelineno-31-5" name="__codelineno-31-5" href="#__codelineno-31-5"></a>flutter<span class="w"> </span>emulators<span class="w"> </span>--launch<span class="w"> </span>&lt;emulator-id&gt;
+</span><span id="__span-31-6"><a id="__codelineno-31-6" name="__codelineno-31-6" href="#__codelineno-31-6"></a>
+</span><span id="__span-31-7"><a id="__codelineno-31-7" name="__codelineno-31-7" href="#__codelineno-31-7"></a><span class="c1"># Verificar</span>
+</span><span id="__span-31-8"><a id="__codelineno-31-8" name="__codelineno-31-8" href="#__codelineno-31-8"></a>flutter<span class="w"> </span>devices
+</span><span id="__span-31-9"><a id="__codelineno-31-9" name="__codelineno-31-9" href="#__codelineno-31-9"></a>adb<span class="w"> </span>devices
+</span></code></pre></div></p>
+<h3 id="adb-reverse-failed">"adb reverse failed"<a class="headerlink" href="#adb-reverse-failed" title="Permanent link">&para;</a></h3>
+<p><strong>Causa:</strong> Dispositivo no autorizado o sin depuración USB.</p>
+<p><strong>Solución:</strong>
+1. Habilita "Depuración USB" en el dispositivo
+2. Acepta el diálogo de autorización
+3. Verifica: <code>adb devices</code>
+4. O usa directamente: <code>cd apps/mobile &amp;&amp; ./launch_flutter_debug.sh -d --no-adb-reverse</code></p>
+<h3 id="no-se-pudo-abrir-terminal-adicional-para-logs">"No se pudo abrir terminal adicional para logs"<a class="headerlink" href="#no-se-pudo-abrir-terminal-adicional-para-logs" title="Permanent link">&para;</a></h3>
+<p><strong>Causa:</strong> Terminal no soportada o no disponible.</p>
+<p><strong>Solución:</strong>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-32-1"><a id="__codelineno-32-1" name="__codelineno-32-1" href="#__codelineno-32-1"></a><span class="c1"># Ver logs manualmente</span>
+</span><span id="__span-32-2"><a id="__codelineno-32-2" name="__codelineno-32-2" href="#__codelineno-32-2"></a>kubectl<span class="w"> </span>-n<span class="w"> </span>altrupets-dev<span class="w"> </span>logs<span class="w"> </span>-f<span class="w"> </span>deploy/backend<span class="w"> </span>--tail<span class="o">=</span><span class="m">200</span>
+</span><span id="__span-32-3"><a id="__codelineno-32-3" name="__codelineno-32-3" href="#__codelineno-32-3"></a>
+</span><span id="__span-32-4"><a id="__codelineno-32-4" name="__codelineno-32-4" href="#__codelineno-32-4"></a><span class="c1"># O desactiva la ventana</span>
+</span><span id="__span-32-5"><a id="__codelineno-32-5" name="__codelineno-32-5" href="#__codelineno-32-5"></a><span class="nb">cd</span><span class="w"> </span>apps/mobile
+</span><span id="__span-32-6"><a id="__codelineno-32-6" name="__codelineno-32-6" href="#__codelineno-32-6"></a>./launch_flutter_debug.sh<span class="w"> </span>--linux<span class="w"> </span>--no-backend-logs-window
+</span></code></pre></div></p>
+<h3 id="logs-no-se-guardan">Logs no se guardan<a class="headerlink" href="#logs-no-se-guardan" title="Permanent link">&para;</a></h3>
+<p><strong>Causa:</strong> Directorio <code>logs/mobile/</code> no existe o sin permisos.</p>
+<p><strong>Solución:</strong>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-33-1"><a id="__codelineno-33-1" name="__codelineno-33-1" href="#__codelineno-33-1"></a>mkdir<span class="w"> </span>-p<span class="w"> </span>logs/mobile/<span class="o">{</span>android-device,android-emulator,linux<span class="o">}</span>
+</span><span id="__span-33-2"><a id="__codelineno-33-2" name="__codelineno-33-2" href="#__codelineno-33-2"></a>chmod<span class="w"> </span>-R<span class="w"> </span><span class="m">755</span><span class="w"> </span>logs/
+</span></code></pre></div></p>
+<h2 id="integracion-con-makefile">Integración con Makefile<a class="headerlink" href="#integracion-con-makefile" title="Permanent link">&para;</a></h2>
+<p>El script se integra con los comandos del Makefile:</p>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-34-1"><a id="__codelineno-34-1" name="__codelineno-34-1" href="#__codelineno-34-1"></a><span class="c1"># Setup completo</span>
+</span><span id="__span-34-2"><a id="__codelineno-34-2" name="__codelineno-34-2" href="#__codelineno-34-2"></a>make<span class="w"> </span>setup
+</span><span id="__span-34-3"><a id="__codelineno-34-3" name="__codelineno-34-3" href="#__codelineno-34-3"></a>make<span class="w"> </span>dev-minikube-deploy
+</span><span id="__span-34-4"><a id="__codelineno-34-4" name="__codelineno-34-4" href="#__codelineno-34-4"></a>make<span class="w"> </span>dev-gateway-deploy
+</span><span id="__span-34-5"><a id="__codelineno-34-5" name="__codelineno-34-5" href="#__codelineno-34-5"></a>make<span class="w"> </span>dev-backend-build
+</span><span id="__span-34-6"><a id="__codelineno-34-6" name="__codelineno-34-6" href="#__codelineno-34-6"></a>make<span class="w"> </span>dev-argocd-deploy
+</span><span id="__span-34-7"><a id="__codelineno-34-7" name="__codelineno-34-7" href="#__codelineno-34-7"></a>
+</span><span id="__span-34-8"><a id="__codelineno-34-8" name="__codelineno-34-8" href="#__codelineno-34-8"></a><span class="c1"># Lanzar app</span>
+</span><span id="__span-34-9"><a id="__codelineno-34-9" name="__codelineno-34-9" href="#__codelineno-34-9"></a>make<span class="w"> </span>dev-mobile-launch-emulator
+</span><span id="__span-34-10"><a id="__codelineno-34-10" name="__codelineno-34-10" href="#__codelineno-34-10"></a>
+</span><span id="__span-34-11"><a id="__codelineno-34-11" name="__codelineno-34-11" href="#__codelineno-34-11"></a><span class="c1"># Si cambias backend</span>
+</span><span id="__span-34-12"><a id="__codelineno-34-12" name="__codelineno-34-12" href="#__codelineno-34-12"></a>make<span class="w"> </span>dev-backend-build
+</span><span id="__span-34-13"><a id="__codelineno-34-13" name="__codelineno-34-13" href="#__codelineno-34-13"></a><span class="c1"># El script detectará el cambio automáticamente</span>
+</span></code></pre></div>
+<h2 id="mejores-practicas">Mejores Prácticas<a class="headerlink" href="#mejores-practicas" title="Permanent link">&para;</a></h2>
+<ol>
+<li><strong>Usa <code>--dirty</code> para iteraciones rápidas</strong> en Android (ahorra ~30s por build)</li>
+<li><strong>Revisa los logs centralizados</strong> si hay problemas: <code>logs/mobile/*/launch-*.log</code></li>
+<li><strong>Usa desktop para desarrollo de UI</strong> (más rápido que emulador)</li>
+<li><strong>Usa <code>--backend-retries 10</code></strong> si Minikube es lento</li>
+<li><strong>Desactiva verificación de backend</strong> si trabajas offline: <code>--no-backend-check</code></li>
+</ol>
+<h2 id="proximas-mejoras">Próximas Mejoras<a class="headerlink" href="#proximas-mejoras" title="Permanent link">&para;</a></h2>
+<ul class="task-list">
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled/><span class="task-list-indicator"></span></label> Soporte para iOS (detección de simuladores)</li>
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled/><span class="task-list-indicator"></span></label> Configuración de variables de entorno por archivo <code>.env</code></li>
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled/><span class="task-list-indicator"></span></label> Selección interactiva de múltiples dispositivos</li>
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled/><span class="task-list-indicator"></span></label> Integración con Firebase Test Lab</li>
+<li class="task-list-item"><label class="task-list-control"><input type="checkbox" disabled/><span class="task-list-indicator"></span></label> Modo "watch" para rebuild automático del backend</li>
+</ul>
+<h2 id="ver-tambien">Ver También<a class="headerlink" href="#ver-tambien" title="Permanent link">&para;</a></h2>
+<ul>
+<li><a href="../getting-started/">Getting Started</a> - Guía completa de instalación</li>
+<li><a href="../../infrastructure/makefile/">Makefile Commands</a> - Comandos de infraestructura</li>
+<li><a href="../../backend/setup/">Backend Setup</a> - Configuración del backend</li>
+<li><a href="../getting-started/#troubleshooting">Troubleshooting</a> - Solución de problemas comunes</li>
+</ul>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+              </article>
+            </div>
+
+
+  <script>var tabs=__md_get("__tabs");if(Array.isArray(tabs))e:for(var set of document.querySelectorAll(".tabbed-set")){var labels=set.querySelector(".tabbed-labels");for(var tab of tabs)for(var label of labels.getElementsByTagName("label"))if(label.innerText.trim()===tab){var input=document.getElementById(label.htmlFor);input.checked=!0;continue e}}</script>
+
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+
+  <svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="lucide lucide-circle-arrow-up" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="m16 12-4-4-4 4M12 16V8"/></svg>
+  Volver al principio
+</button>
+
+      </main>
+
+        <footer class="md-footer">
+
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+
+
+</div>
+
+
+<div class="md-social">
+
+
+
+
+
+
+
+
+    <a href="https://github.com/altrupets" target="_blank" rel="noopener" title="github.com" class="md-social__link">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path fill="currentColor" d="M173.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6m-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3m44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9M252.8 8C114.1 8 8 113.3 8 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C436.2 457.8 504 362.9 504 252 504 113.3 391.5 8 252.8 8M105.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1m-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7m32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1m-11.4-14.7c-1.6 1-1.6 3.6 0 5.9s4.3 3.3 5.6 2.3c1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2"/></svg>
+    </a>
+
+
+
+
+
+
+
+
+    <a href="https://linkedin.com/company/altrupets" target="_blank" rel="noopener" title="linkedin.com" class="md-social__link">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path fill="currentColor" d="M416 32H31.9C14.3 32 0 46.5 0 64.3v383.4C0 465.5 14.3 480 31.9 480H416c17.6 0 32-14.5 32-32.3V64.3c0-17.8-14.4-32.3-32-32.3M135.4 416H69V202.2h66.5V416zM102.2 96a38.5 38.5 0 1 1 0 77 38.5 38.5 0 1 1 0-77m282.1 320h-66.4V312c0-24.8-.5-56.7-34.5-56.7-34.6 0-39.9 27-39.9 54.9V416h-66.4V202.2h63.7v29.2h.9c8.9-16.8 30.6-34.5 62.9-34.5 67.2 0 79.7 44.3 79.7 101.9z"/></svg>
+    </a>
+
+</div>
+
+    </div>
+  </div>
+</footer>
+
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+
+
+
+
+
+
+      <script id="__config" type="application/json">{"annotate":null,"base":"../../..","features":["navigation.tabs","navigation.tabs.sticky","navigation.sections","navigation.expand","navigation.path","navigation.top","search.highlight","search.share","search.suggest","content.code.copy","content.code.annotate","content.tabs.link","content.action.edit","content.action.view"],"search":"../../../assets/javascripts/workers/search.e2d2d235.min.js","tags":null,"translations":{"clipboard.copied":"Copiado al portapapeles","clipboard.copy":"Copiar al portapapeles","search.result.more.one":"1 más en esta página","search.result.more.other":"# más en esta página","search.result.none":"No se encontraron documentos","search.result.one":"1 documento encontrado","search.result.other":"# documentos encontrados","search.result.placeholder":"Teclee para comenzar búsqueda","search.result.term.missing":"Falta","select.version":"Seleccionar versión"},"version":null}</script>
+
+
+      <script src="../../../assets/javascripts/bundle.5fcf0de6.min.js"></script>
+
+        <script src="../../../javascripts/altrupets-custom.js"></script>
+
+        <script src="../../../javascripts/mermaid.mjs" type="module"></script>
+
+
+  </body>
+</html>
