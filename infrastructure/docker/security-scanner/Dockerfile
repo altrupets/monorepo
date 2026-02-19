@@ -1,7 +1,7 @@
 FROM python:3.12-slim
 
 LABEL maintainer="AltruPets DevSecOps Team"
-LABEL description="Security scanner with trivy, trufflehog, checkov, tfsec"
+LABEL description="Security scanner with trivy, trufflehog3, checkov, tfsec"
 LABEL version="1.0.0"
 
 # Install system dependencies
@@ -13,22 +13,23 @@ RUN apt-get update && apt-get install -y \
     lsb-release \
     ca-certificates \
     apt-transport-https \
+    unzip \
     && rm -rf /var/lib/apt/lists/*
 
-# Install Trivy
-RUN wget -qO - https://aquasecurity.github.io/trivy-repo/deb/public.key | apt-key add - && \
-    echo "deb https://aquasecurity.github.io/trivy-repo/deb $(lsb_release -sc) main" | tee -a /etc/apt/sources.list.d/trivy.list && \
-    apt-get update && \
-    apt-get install -y trivy && \
-    rm -rf /var/lib/apt/lists/*
+# Install Trivy (binary from GitHub releases)
+RUN TRIVY_VERSION=$(curl -s https://api.github.com/repos/aquasecurity/trivy/releases/latest | grep '"tag_name"' | sed -E 's/.*"v([^"]+)".*/\1/') && \
+    wget -q https://github.com/aquasecurity/trivy/releases/download/v${TRIVY_VERSION}/trivy_${TRIVY_VERSION}_Linux-64bit.tar.gz && \
+    tar -xzf trivy_${TRIVY_VERSION}_Linux-64bit.tar.gz && \
+    mv trivy /usr/local/bin/ && \
+    rm trivy_${TRIVY_VERSION}_Linux-64bit.tar.gz
 
 # Install tfsec
 RUN curl -s https://raw.githubusercontent.com/aquasecurity/tfsec/master/scripts/install_linux.sh | bash
 
 # Install Python security tools via pip
 RUN pip install --no-cache-dir \
-    trufflehog==2.2.1 \
-    checkov==3.2.504 \
+    trufflehog3 \
+    checkov \
     safety \
     bandit
 
@@ -36,13 +37,6 @@ RUN pip install --no-cache-dir \
 RUN curl -fsSL https://deb.nodesource.com/setup_20.x | bash - && \
     apt-get install -y nodejs && \
     rm -rf /var/lib/apt/lists/*
-
-# Install Flutter/Dart (for dart analyze)
-RUN git clone https://github.com/flutter/flutter.git -b stable --depth 1 /opt/flutter && \
-    /opt/flutter/bin/flutter precache && \
-    /opt/flutter/bin/flutter config --no-analytics
-
-ENV PATH="/opt/flutter/bin:${PATH}"
 
 # Create working directory
 WORKDIR /workspace

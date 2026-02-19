@@ -62,11 +62,18 @@ void main() async {
   );
 }
 
-class AltruPetsApp extends ConsumerWidget {
+class AltruPetsApp extends ConsumerStatefulWidget {
   const AltruPetsApp({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<AltruPetsApp> createState() => _AltruPetsAppState();
+}
+
+class _AltruPetsAppState extends ConsumerState<AltruPetsApp> {
+  bool _launchedPrinted = false;
+
+  @override
+  Widget build(BuildContext context) {
     final themeMode = ref.watch(themeModeProvider);
     final isAuthenticatedAsync = ref.watch(isAuthenticatedProvider);
     final navigation = ref.read(navigationProvider);
@@ -77,6 +84,13 @@ class AltruPetsApp extends ConsumerWidget {
         navigation.navigateAndRemoveAllGlobal(const LoginPage());
       });
     });
+
+    if (!_launchedPrinted) {
+      _launchedPrinted = true;
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        debugPrint('🚀 Launched successfully!');
+      });
+    }
 
     return MaterialApp(
       navigatorKey: navigation.navigatorKey,
