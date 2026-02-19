@@ -129,6 +129,13 @@ nav:
   - 🚀 Empezar:
     - Instalación: docs/getting-started/installation.md
     - Configuración: docs/getting-started/setup.md
+  - 📱 Mobile:
+    - Visión general: docs/mobile/index.md
+    - Arquitectura: docs/mobile/architecture.md
+    - Getting Started: docs/mobile/getting-started.md
+    - Features: docs/mobile/features.md
+    - Core: docs/mobile/core.md
+    - Design System: docs/mobile/design-system.md
   - 🏗️ Arquitectura:
     - Visión general: docs/architecture/overview.md
     - Micro-Frontends: docs/architecture/micro-frontends.md

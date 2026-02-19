@@ -99,6 +99,7 @@ export class Organization {
   legalDocumentation?: Buffer | null;
 
   @Field(() => String, { nullable: true })
+  @Column({ type: 'text', nullable: true })
   legalDocumentationBase64?: string | null;
 
   // Financial statements stored as bytea (binary)
@@ -106,6 +107,7 @@ export class Organization {
   financialStatements?: Buffer | null;
 
   @Field(() => String, { nullable: true })
+  @Column({ type: 'text', nullable: true })
   financialStatementsBase64?: string | null;
 
   @Field({ nullable: true })
