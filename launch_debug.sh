@@ -17,17 +17,12 @@ NC='\033[0m'
 MOBILE_DIR="apps/mobile"
 WIDGETBOOK_DIR="apps/widgetbook"
 LOG_BASE_DIR="$SCRIPT_DIR/logs/mobile"
-BACKEND_FORWARD_ENABLED=true
-BACKEND_FORWARD_PID=""
 BACKEND_CHECK_ENABLED=true
 BACKEND_AUTO_BUILD_ENABLED=true
 BACKEND_MAX_RECOVERY_ATTEMPTS=5
 ADB_REVERSE_ENABLED=true
-BACKEND_REDEPLOY_ARGO_ENABLED=false
-BACKEND_ROLLOUT_RESTART_ENABLED=false
 BACKEND_PRUNE_STALE_PODS=true
 BACKEND_LOGS_WINDOW_ENABLED=true
-BACKEND_FORWARD_IN_TERMINAL=true
 
 # ─── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -69,14 +64,7 @@ get_android_device_id() {
 	flutter devices 2>/dev/null | grep -i android | grep -v -i emulator | head -1 | _get_id_from_line
 }
 
-cleanup_backend_forward() {
-	if [ -n "$BACKEND_FORWARD_PID" ] && kill -0 "$BACKEND_FORWARD_PID" 2>/dev/null; then
-		echo -e "${BLUE}🧹 Cerrando port-forward del backend (PID: $BACKEND_FORWARD_PID)...${NC}"
-		kill "$BACKEND_FORWARD_PID" 2>/dev/null || true
-	fi
-}
-
-is_local_backend_graphql_reachable() {
+is_local_backend_graphql_reachable()
 	if ! command -v curl >/dev/null 2>&1; then
 		return 1
 	fi
@@ -131,81 +119,7 @@ setup_adb_reverse_if_needed() {
 	fi
 }
 
-backend_redeploy_argo_if_requested() {
-	if [ "$BACKEND_REDEPLOY_ARGO_ENABLED" = false ]; then
-		return 0
-	fi
-
-	if ! command -v kubectl >/dev/null 2>&1; then
-		echo -e "${RED}❌ kubectl no está instalado. No se puede hacer --backend-redeploy-argo.${NC}"
-		return 1
-	fi
-
-	if ! kubectl get ns altrupets-dev >/dev/null 2>&1; then
-		echo -e "${RED}❌ Namespace 'altrupets-dev' no existe. No se puede hacer --backend-redeploy-argo.${NC}"
-		return 1
-	fi
-
-	if [ ! -x "./infrastructure/scripts/build-backend-image-minikube.sh" ]; then
-		echo -e "${RED}❌ Script faltante: infrastructure/scripts/build-backend-image-minikube.sh${NC}"
-		return 1
-	fi
-
-	echo -e "${BLUE}♻️  --backend-redeploy-argo: reconstruyendo imagen backend...${NC}"
-	./infrastructure/scripts/build-backend-image-minikube.sh
-
-	if kubectl get ns argocd >/dev/null 2>&1 && kubectl -n argocd get application altrupets-backend-dev >/dev/null 2>&1; then
-		echo -e "${BLUE}♻️  --backend-redeploy-argo: solicitando refresh=hard a ArgoCD app...${NC}"
-		kubectl -n argocd annotate application altrupets-backend-dev argocd.argoproj.io/refresh=hard --overwrite >/dev/null || true
-		echo -e "${BLUE}♻️  --backend-redeploy-argo: solicitando sync a ArgoCD app...${NC}"
-		kubectl -n argocd patch application altrupets-backend-dev --type merge \
-			-p '{"operation":{"sync":{"prune":true,"syncOptions":["CreateNamespace=true"]}}}' >/dev/null || true
-	else
-		echo -e "${ORANGE}⚠️  ArgoCD app 'altrupets-backend-dev' no encontrada. Saltando refresh/sync.${NC}"
-	fi
-}
-
-backend_rollout_restart_if_requested() {
-	if [ "$BACKEND_ROLLOUT_RESTART_ENABLED" = false ]; then
-		return 0
-	fi
-
-	if ! command -v kubectl >/dev/null 2>&1; then
-		echo -e "${RED}❌ kubectl no está instalado. No se puede hacer --backend-rollout-restart.${NC}"
-		return 1
-	fi
-
-	if ! kubectl get ns altrupets-dev >/dev/null 2>&1; then
-		echo -e "${RED}❌ Namespace 'altrupets-dev' no existe. No se puede hacer --backend-rollout-restart.${NC}"
-		return 1
-	fi
-
-	echo -e "${BLUE}♻️  --backend-rollout-restart: reiniciando deployment/backend...${NC}"
-	kubectl -n altrupets-dev rollout restart deployment/backend
-
-	echo -e "${BLUE}♻️  --backend-rollout-restart: esperando rollout inicial...${NC}"
-	local redeploy_rollout_output
-	local redeploy_rollout_code
-	set +e
-	redeploy_rollout_output="$(kubectl -n altrupets-dev rollout status deployment/backend --timeout=60s 2>&1)"
-	redeploy_rollout_code=$?
-	set -e
-	echo "$redeploy_rollout_output"
-
-	if [ "$redeploy_rollout_code" -ne 0 ]; then
-		if echo "$redeploy_rollout_output" | grep -q "old replicas are pending termination"; then
-			echo -e "${ORANGE}⚠️  Rollout bloqueado por réplica vieja durante --backend-rollout-restart.${NC}"
-			prune_old_backend_replicaset_pods
-			echo -e "${BLUE}♻️  Reintentando rollout corto tras limpieza...${NC}"
-			kubectl -n altrupets-dev rollout status deployment/backend --timeout=45s >/dev/null 2>&1 || true
-		else
-			echo -e "${ORANGE}⚠️  Rollout inicial de --backend-rollout-restart no completó a tiempo.${NC}"
-		fi
-		echo -e "${ORANGE}   Continuando: el chequeo robusto de backend correrá a continuación.${NC}"
-	fi
-}
-
-prune_stale_backend_pods_if_safe() {
+prune_stale_backend_pods_if_safe()
 	if [ "$BACKEND_PRUNE_STALE_PODS" = false ]; then
 		return 0
 	fi
@@ -259,73 +173,7 @@ prune_old_backend_replicaset_pods() {
 	done <<<"$old_pods"
 }
 
-start_backend_forward_if_available() {
-	if [ "$BACKEND_FORWARD_ENABLED" = false ]; then
-		return 0
-	fi
-
-	if ! command -v kubectl >/dev/null 2>&1; then
-		echo -e "${ORANGE}⚠️  kubectl no está instalado. Continuando sin port-forward.${NC}"
-		return 0
-	fi
-
-	if ! kubectl get ns altrupets-dev >/dev/null 2>&1; then
-		echo -e "${ORANGE}⚠️  Namespace 'altrupets-dev' no existe. Continuando sin port-forward.${NC}"
-		return 0
-	fi
-
-	if ! kubectl -n altrupets-dev get svc/backend-service >/dev/null 2>&1; then
-		echo -e "${ORANGE}⚠️  Service 'backend-service' no encontrado en altrupets-dev. Continuando sin port-forward.${NC}"
-		return 0
-	fi
-
-	if ss -ltn 2>/dev/null | grep -qE '127\.0\.0\.1:3001|::1:3001'; then
-		if is_local_backend_graphql_reachable; then
-			echo -e "${ORANGE}⚠️  El puerto localhost:3001 ya está en uso. Backend accesible; se reutiliza el túnel existente.${NC}"
-			return 0
-		fi
-
-		echo -e "${RED}❌ localhost:3001 está ocupado, pero GraphQL no responde.${NC}"
-		echo -e "${RED}   Esto rompe la carga de sesión (currentUser falla al iniciar).${NC}"
-		echo -e "${ORANGE}   Libera el puerto 3001 o cierra el proceso stale y vuelve a ejecutar.${NC}"
-		return 1
-	fi
-
-	local forward_cmd
-	forward_cmd="echo '🔌 Port-forward backend: localhost:3001 -> svc/backend-service:3001'; echo; kubectl -n altrupets-dev port-forward svc/backend-service 3001:3001"
-
-	if [ "$BACKEND_FORWARD_IN_TERMINAL" = true ] && [ "$OS_NAME" = "Linux" ]; then
-		if command -v gnome-terminal >/dev/null 2>&1; then
-			gnome-terminal -- bash -lc "$forward_cmd; echo; read -r -p 'Cerrar port-forward (ENTER)...' _" >/dev/null 2>&1 &
-			echo -e "${GREEN}✅ Port-forward del backend abierto en nueva terminal (gnome-terminal).${NC}"
-			return 0
-		fi
-		if command -v x-terminal-emulator >/dev/null 2>&1; then
-			x-terminal-emulator -e bash -lc "$forward_cmd; echo; read -r -p 'Cerrar port-forward (ENTER)...' _" >/dev/null 2>&1 &
-			echo -e "${GREEN}✅ Port-forward del backend abierto en nueva terminal (x-terminal-emulator).${NC}"
-			return 0
-		fi
-		if command -v konsole >/dev/null 2>&1; then
-			konsole -e bash -lc "$forward_cmd; echo; read -r -p 'Cerrar port-forward (ENTER)...' _" >/dev/null 2>&1 &
-			echo -e "${GREEN}✅ Port-forward del backend abierto en nueva terminal (konsole).${NC}"
-			return 0
-		fi
-		echo -e "${ORANGE}⚠️  No se encontró terminal para abrir port-forward aparte. Usando modo background.${NC}"
-	fi
-
-	echo -e "${BLUE}🔌 Iniciando port-forward backend (background): localhost:3001 -> svc/backend-service:3001${NC}"
-	kubectl -n altrupets-dev port-forward svc/backend-service 3001:3001 >/tmp/altrupets-backend-forward.log 2>&1 &
-	BACKEND_FORWARD_PID=$!
-	trap cleanup_backend_forward EXIT
-
-	sleep 1
-	if ! kill -0 "$BACKEND_FORWARD_PID" 2>/dev/null; then
-		echo -e "${ORANGE}⚠️  No se pudo iniciar port-forward automático. Revisa /tmp/altrupets-backend-forward.log${NC}"
-		BACKEND_FORWARD_PID=""
-	fi
-}
-
-open_backend_logs_window_if_available() {
+open_backend_logs_window_if_available()
 	if [ "$BACKEND_LOGS_WINDOW_ENABLED" = false ]; then
 		return 0
 	fi

@@ -42,7 +42,7 @@ import { OrganizationMembership } from './organizations/entities/organization-me
         entities: [User, CaptureRequest, Organization, OrganizationMembership],
         synchronize: configService.get<string>('NODE_ENV') !== 'production',
         migrations: [join(__dirname, 'migrations', '*{.ts,.js}')],
-        migrationsRun: true,
+        migrationsRun: false,
       }),
       inject: [ConfigService],
     }),

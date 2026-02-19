@@ -168,8 +168,9 @@ flutter run
 
 | Documento | Descripción |
 |-----------|-------------|
+| [Getting Started](getting-started.md) | Instalación, configuración, flujo de desarrollo |
+| [Launch Script](launch-script.md) | Guía completa del script `launch_debug.sh` |
 | [Arquitectura](architecture.md) | Clean Architecture, Riverpod patterns, manejo de errores |
-| [Getting Started](getting-started.md) | Instalación, configuración, comandos |
 | [Features](features.md) | Detalle de cada funcionalidad |
 | [Core](core.md) | Servicios compartidos, network, payments, storage |
 | [Design System](design-system.md) | Colores, tipografía, tema, widgets |
