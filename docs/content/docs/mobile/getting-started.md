@@ -336,3 +336,4 @@ cd ..
 **Causa**: Cambios en código nativo o archivos de configuración.
 
 **Solución**: Usa Hot Restart (`R`) o reinicia completamente con `flutter run`.
+
