@@ -285,6 +285,18 @@
 
   --md-accent-fg-color: var(--altrupets-accent);
   --md-accent-fg-color--transparent: rgba(19, 112, 166, 0.1);
+
+  /* Headings in dark mode - orange secondary color */
+  --md-typeset-color: var(--altrupets-secondary-80);
+}
+
+[data-md-color-scheme="slate"] .md-typeset h1,
+[data-md-color-scheme="slate"] .md-typeset h2,
+[data-md-color-scheme="slate"] .md-typeset h3,
+[data-md-color-scheme="slate"] .md-typeset h4,
+[data-md-color-scheme="slate"] .md-typeset h5,
+[data-md-color-scheme="slate"] .md-typeset h6 {
+  color: var(--altrupets-secondary) !important;
 }
 
 /* ============================================
@@ -522,6 +534,57 @@
 
 [data-md-color-scheme="slate"] .mermaid:hover {
   border-color: var(--altrupets-primary-40);
+}
+
+/* Dark mode Mermaid text and elements */
+[data-md-color-scheme="slate"] .mermaid svg {
+  color: #e0e0e0 !important;
+}
+
+[data-md-color-scheme="slate"] .mermaid svg text,
+[data-md-color-scheme="slate"] .mermaid svg .nodeLabel,
+[data-md-color-scheme="slate"] .mermaid svg .edgeLabel,
+[data-md-color-scheme="slate"] .mermaid svg .label,
+[data-md-color-scheme="slate"] .mermaid svg [fill="#333"] {
+  fill: #e0e0e0 !important;
+  color: #e0e0e0 !important;
+}
+
+[data-md-color-scheme="slate"] .mermaid svg .edgePath .path,
+[data-md-color-scheme="slate"] .mermaid svg .flowchart-link {
+  stroke: #e0e0e0 !important;
+}
+
+[data-md-color-scheme="slate"] .mermaid svg .marker {
+  fill: #e0e0e0 !important;
+  stroke: #e0e0e0 !important;
+}
+
+[data-md-color-scheme="slate"] .mermaid svg .node rect,
+[data-md-color-scheme="slate"] .mermaid svg .node circle,
+[data-md-color-scheme="slate"] .mermaid svg .node polygon {
+  fill: #2d2d44 !important;
+  stroke: #EA840B !important;
+  stroke-width: 2px !important;
+}
+
+[data-md-color-scheme="slate"] .mermaid svg .cluster rect {
+  fill: #1a1a2e !important;
+  stroke: #888866 !important;
+}
+
+[data-md-color-scheme="slate"] .mermaid svg .cluster text,
+[data-md-color-scheme="slate"] .mermaid svg .cluster span {
+  color: #EA840B !important;
+}
+
+/* Mermaid zoom cursor */
+.mermaid svg {
+  cursor: grab;
+}
+
+.mermaid svg:active {
+  cursor: grabbing;
 }
 
 /* ============================================
