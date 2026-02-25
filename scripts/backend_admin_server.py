@@ -90,22 +90,8 @@ def execute_backend_command() -> dict:
     """Execute the backend start commands sequentially with streaming output."""
     request_id = str(uuid.uuid4())[:8]
 
-    log(f"[{request_id}] 🔍 Checking if minikube is running...")
-    minikube_running = (
-        subprocess.run(
-            "minikube status -o json 2>/dev/null | grep -q 'Running'",
-            shell=True,
-            capture_output=True,
-        ).returncode
-        == 0
-    )
-
-    if minikube_running:
-        log(f"[{request_id}] ✅ Minikube already running, running gateway only")
-        commands_to_run = ["make dev-gateway-start"]
-    else:
-        log(f"[{request_id}] 🚀 Minikube not running, starting full deployment...")
-        commands_to_run = BACKEND_COMMANDS
+    log(f"[{request_id}] 🚀 Starting full backend deployment...")
+    commands_to_run = BACKEND_COMMANDS
 
     start_time = datetime.datetime.now()
     all_success = True
