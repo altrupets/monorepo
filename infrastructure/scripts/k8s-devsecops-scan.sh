@@ -38,9 +38,7 @@ NC='\033[0m'
 REPORT_DIR="$PROJECT_ROOT/.security-reports"
 mkdir -p "$REPORT_DIR"
 
-echo -e "${BLUE}╔════════════════════════════════════════════════════════════════╗${NC}"
-echo -e "${BLUE}║              DevSecOps Pipeline - DEV Local                    ║${NC}"
-echo -e "${BLUE}╚════════════════════════════════════════════════════════════════╝${NC}"
+echo -e "${BLUE}=== DevSecOps Pipeline - DEV Local ===${NC}"
 echo ""
 
 # ============================================

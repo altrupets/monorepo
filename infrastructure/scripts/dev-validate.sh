@@ -183,9 +183,7 @@ setup_port_forward() {
 }
 
 main() {
-	echo -e "${BLUE}╔════════════════════════════════════════════════════════════╗${NC}"
-	echo -e "${BLUE}║       AltruPets - DEV Environment Validation               ║${NC}"
-	echo -e "${BLUE}╚════════════════════════════════════════════════════════════╝${NC}"
+	echo -e "${BLUE}=== AltruPets - DEV Environment Validation ===${NC}"
 	echo ""
 
 	load_env_credentials

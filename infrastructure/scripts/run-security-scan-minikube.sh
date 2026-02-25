@@ -32,9 +32,7 @@ YELLOW='\033[1;33m'
 BLUE='\033[0;34m'
 NC='\033[0m'
 
-echo -e "${BLUE}╔════════════════════════════════════════════════════════════════╗${NC}"
-echo -e "${BLUE}║         Security Scanner - Kubernetes Job (Minikube)          ║${NC}"
-echo -e "${BLUE}╚════════════════════════════════════════════════════════════════╝${NC}"
+echo -e "${BLUE}=== Security Scanner - Kubernetes Job (Minikube) ===${NC}"
 echo ""
 
 # Check if minikube is running
