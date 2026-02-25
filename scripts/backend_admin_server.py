@@ -152,6 +152,7 @@ def run_command_streaming_with_log(
             for line in iter(process.stdout.readline, ""):
                 print(line.rstrip())
                 output_lines.append(line)
+                log_fn(line.rstrip())
         process.wait()
         output = "".join(output_lines)
         success = process.returncode == 0
