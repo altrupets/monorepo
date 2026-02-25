@@ -336,7 +336,7 @@ dev-gateway-deploy: ## Deploy Gateway API only
 dev-gateway-start: ## Start port-forward to Gateway
 	@echo "$(BLUE)Starting Gateway port-forward...$(NC)"
 	@$(SCRIPTS_DIR)/dev-validate.sh || true
-	@pkill -f "kubectl port-forward.*gateway" 2>/dev/null || true
+	@for pid in $$(ps aux | grep "kubectl port-forward.*gateway" | grep -v grep | awk "{print $$2}"); do kill $$pid 2>/dev/null || true; done
 	@kubectl port-forward -n altrupets-dev svc/dev-gateway-nginx 3001:80 > /dev/null 2>&1 &
 	@sleep 2
 	@echo "$(GREEN)✓ Gateway at http://localhost:3001$(NC)"
@@ -348,7 +348,7 @@ dev-gateway-start: ## Start port-forward to Gateway
 
 dev-gateway-stop: ## Stop port-forward
 	@echo "$(BLUE)Stopping port-forward...$(NC)"
-	@pkill -f "kubectl port-forward" 2>/dev/null || true
+	@for pid in $$(ps aux | grep "kubectl port-forward" | grep -v grep | awk "{print $$2}"); do kill $$pid 2>/dev/null || true; done
 	@echo "$(GREEN)✓ Port-forward stopped$(NC)"
 
 # ==========================================

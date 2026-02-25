@@ -7,6 +7,29 @@ y este proyecto adhiere a [Semantic Versioning](https://semver.org/lang/es/).
 
 ## [Unreleased]
 
+### Fixed - 2026-02-25
+
+#### 🐛 Bugfix: Admin Server y Mobile Launch
+
+- **Problema 1**: El admin server (`backend_admin_server.py`) ejecutaba siempre el one-liner completo en lugar de usar la variable correcta según el estado de minikube
+- **Problema 2**: Los logs del admin server no se mostraban en el mobile log
+- **Problema 3**: `make dev-gateway-start` fallaba con exit code 2 (el comando `pkill` se colgaba)
+
+**Soluciones implementadas:**
+
+1. `backend_admin_server.py`:
+   - Corregido bug: ahora usa la variable correcta (`commands_to_run`)
+   - Añadido streaming de output por comando
+   - Cada comando se ejecuta secuencialmente y loggea inicio/resultado
+
+2. `Makefile`:
+   - Cambiado `pkill -f "kubectl port-forward"` por `ps aux | grep | awk | kill`
+   - El `pkill` se colga indefinidamente cuando no hay procesos que coincidan
+
+**Archivos modificados:**
+- `scripts/backend_admin_server.py` - Streaming de comandos y bugfix
+- `Makefile` - Fix para pkill en dev-gateway-start y dev-gateway-stop
+
 ### Changed - 2025-02-18
 
 #### 🔄 Cambio a Renderizado Estático de Diagramas Mermaid

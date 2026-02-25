@@ -27,12 +27,6 @@ def get_log_filename():
 
 LOG_FILE = get_log_filename()
 
-BACKEND_START_COMMAND = (
-    "make setup && make dev-minikube-deploy && make dev-terraform-deploy && "
-    "make dev-harbor-deploy && make dev-images-build && make dev-argocd-push-and-deploy && "
-    "make dev-gateway-start"
-)
-
 
 def ensure_log_dir():
     LOG_DIR.mkdir(parents=True, exist_ok=True)
@@ -48,8 +42,52 @@ def log(message: str):
     print(log_line.strip())
 
 
+BACKEND_COMMANDS = [
+    "make setup",
+    "make dev-minikube-deploy",
+    "make dev-terraform-deploy",
+    "make dev-harbor-deploy",
+    "make dev-images-build",
+    "make dev-argocd-push-and-deploy",
+    "make dev-gateway-start",
+]
+
+
+def run_command_streaming(command: str, request_id: str) -> tuple[bool, str]:
+    """Run a command with streaming output to stdout."""
+    log(f"[{request_id}] ▶️  {command}")
+    try:
+        process = subprocess.Popen(
+            command,
+            shell=True,
+            cwd=PROJECT_DIR,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.STDOUT,
+            text=True,
+            bufsize=1,
+        )
+        output_lines = []
+        if process.stdout:
+            for line in iter(process.stdout.readline, ""):
+                print(line.rstrip())
+                output_lines.append(line)
+        process.wait()
+        output = "".join(output_lines)
+        success = process.returncode == 0
+        if success:
+            log(f"[{request_id}] ✅ {command} - OK")
+        else:
+            log(
+                f"[{request_id}] ❌ {command} - FAILED (exit code {process.returncode})"
+            )
+        return success, output
+    except Exception as e:
+        log(f"[{request_id}] ❌ {command} - EXCEPTION: {str(e)}")
+        return False, str(e)
+
+
 def execute_backend_command() -> dict:
-    """Execute the backend start command and return result."""
+    """Execute the backend start commands sequentially with streaming output."""
     request_id = str(uuid.uuid4())[:8]
 
     log(f"[{request_id}] 🔍 Checking if minikube is running...")
@@ -63,55 +101,41 @@ def execute_backend_command() -> dict:
     )
 
     if minikube_running:
-        log(f"[{request_id}] ✅ Minikube already running, starting gateway only")
-        COMMAND = "make dev-gateway-start"
+        log(f"[{request_id}] ✅ Minikube already running, running gateway only")
+        commands_to_run = ["make dev-gateway-start"]
     else:
         log(f"[{request_id}] 🚀 Minikube not running, starting full deployment...")
-        COMMAND = BACKEND_START_COMMAND
-
-    log(f"[{request_id}] Command: {COMMAND}")
+        commands_to_run = BACKEND_COMMANDS
 
     start_time = datetime.datetime.now()
+    all_success = True
+    full_output = ""
 
-    try:
-        result = subprocess.run(
-            BACKEND_START_COMMAND,
-            shell=True,
-            capture_output=True,
-            text=True,
-            cwd=PROJECT_DIR,
-        )
+    for cmd in commands_to_run:
+        success, output = run_command_streaming(cmd, request_id)
+        full_output += output + "\n"
+        if not success:
+            all_success = False
+            break
 
-        duration = (datetime.datetime.now() - start_time).total_seconds()
+    duration = (datetime.datetime.now() - start_time).total_seconds()
 
-        if result.returncode == 0:
-            log(f"[{request_id}] ✅ Backend deployment completed in {duration:.1f}s")
-            return {
-                "success": True,
-                "request_id": request_id,
-                "duration_seconds": duration,
-                "output": result.stdout[-5000:] if result.stdout else "",
-            }
-        else:
-            log(
-                f"[{request_id}] ❌ Backend deployment failed (exit code {result.returncode})"
-            )
-            return {
-                "success": False,
-                "request_id": request_id,
-                "duration_seconds": duration,
-                "error": result.stderr[-2000:] if result.stderr else "Unknown error",
-                "output": result.stdout[-5000:] if result.stdout else "",
-            }
-
-    except Exception as e:
-        duration = (datetime.datetime.now() - start_time).total_seconds()
-        log(f"[{request_id}] ❌ Exception: {str(e)}")
+    if all_success:
+        log(f"[{request_id}] ✅ Backend deployment completed in {duration:.1f}s")
+        return {
+            "success": True,
+            "request_id": request_id,
+            "duration_seconds": duration,
+            "output": full_output[-5000:] if full_output else "",
+        }
+    else:
+        log(f"[{request_id}] ❌ Backend deployment failed after {duration:.1f}s")
         return {
             "success": False,
             "request_id": request_id,
             "duration_seconds": duration,
-            "error": str(e),
+            "error": "One or more commands failed",
+            "output": full_output[-5000:] if full_output else "",
         }
 
 
