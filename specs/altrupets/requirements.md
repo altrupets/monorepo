@@ -493,7 +493,7 @@ Los rescatistas son la **única excepción** al principio de responsabilidad ún
 **Tipos de solicitudes que pueden crear los rescatistas:**
 
 1. **"Solicitudes para atención veterinaria"** - Cuando evalúen que el caso requiere atención profesional que excede sus conocimientos/insumos disponibles
-2. **"Solicitudes de adopción"** - Cuando evalúen que el animal cumple todos los criterios de adoptabilidad  
+2. **"Solicitudes de adopción"** - Cuando evalúen que el animal cumple todos los criterios de adoptabilidad
 3. **"Solicitudes de intervención policial"** - Cuando identifiquen situaciones de maltrato animal o resistencia que requiera autoridad legal
 
 **¿Por qué esta violación es necesaria y justificada?**
@@ -2548,14 +2548,14 @@ interface AuxiliarScore {
 function calcularPrioridadAuxiliar(auxiliar: Auxiliar, solicitud: SolicitudAuxilio): number {
   const distancia = calcularDistancia(auxiliar.ubicacion, solicitud.ubicacion);
   const scoreDistancia = Math.max(0, 100 - (distancia / 1000)); // 1km = 1 punto menos
-  
+
   const scoreReputacion = auxiliar.reputacion * 20; // 0-5 estrellas * 20
   const scoreDisponibilidad = auxiliar.disponible ? 100 : 0;
   const scoreExperiencia = Math.min(100, auxiliar.rescatesCompletados * 2);
-  
-  return (scoreDistancia * 0.4) + 
-         (scoreReputacion * 0.3) + 
-         (scoreDisponibilidad * 0.2) + 
+
+  return (scoreDistancia * 0.4) +
+         (scoreReputacion * 0.3) +
+         (scoreDisponibilidad * 0.2) +
          (scoreExperiencia * 0.1);
 }
 
@@ -2570,20 +2570,20 @@ interface RescatistaScore {
 function calcularPrioridadRescatista(rescatista: Rescatista, solicitud: SolicitudRescate): number {
   const distancia = calcularDistancia(rescatista.ubicacion, solicitud.ubicacion);
   const scoreDistancia = Math.max(0, 100 - (distancia / 1000));
-  
-  const capacidadDisponible = rescatista.casasCuna.reduce((total, casa) => 
+
+  const capacidadDisponible = rescatista.casasCuna.reduce((total, casa) =>
     total + (casa.capacidadMaxima - casa.animalesActuales), 0);
   const scoreCapacidad = Math.min(100, capacidadDisponible * 10);
-  
+
   const scoreReputacion = rescatista.reputacion * 20;
-  
-  const tieneEspecializacion = rescatista.especializaciones.some(esp => 
+
+  const tieneEspecializacion = rescatista.especializaciones.some(esp =>
     solicitud.animal.condiciones.includes(esp));
   const scoreEspecializacion = tieneEspecializacion ? 100 : 50;
-  
-  return (scoreDistancia * 0.3) + 
-         (scoreCapacidad * 0.25) + 
-         (scoreReputacion * 0.25) + 
+
+  return (scoreDistancia * 0.3) +
+         (scoreCapacidad * 0.25) +
+         (scoreReputacion * 0.25) +
          (scoreEspecializacion * 0.2);
 }
 ```
@@ -2595,51 +2595,51 @@ function calcularPrioridadRescatista(rescatista: Rescatista, solicitud: Solicitu
 function validateAdoptable(animal: Animal): boolean {
   // Verificar requisitos (TODOS deben ser TRUE)
   const requirements = animal.requisitos.usaArenero && animal.requisitos.comePorSiMismo;
-  
+
   // Verificar restricciones (NINGUNA debe ser TRUE)
-  const restrictions = !animal.restricciones.arizcoConHumanos && 
-                      !animal.restricciones.arizcoConAnimales && 
-                      !animal.restricciones.lactante && 
-                      !animal.restricciones.nodriza && 
-                      !animal.restricciones.enfermo && 
-                      !animal.restricciones.herido && 
-                      !animal.restricciones.recienParida && 
+  const restrictions = !animal.restricciones.arizcoConHumanos &&
+                      !animal.restricciones.arizcoConAnimales &&
+                      !animal.restricciones.lactante &&
+                      !animal.restricciones.nodriza &&
+                      !animal.restricciones.enfermo &&
+                      !animal.restricciones.herido &&
+                      !animal.restricciones.recienParida &&
                       !animal.restricciones.recienNacido;
-  
+
   return requirements && restrictions;
 }
 
 // Validación de Subvención Municipal
 function validateMunicipalSubsidy(
-  solicitud: SolicitudSubvencion, 
+  solicitud: SolicitudSubvencion,
   encargado: EncargadoBienestar
 ): boolean {
   // Verificar jurisdicción
   const enJurisdiccion = isWithinJurisdiction(
-    solicitud.ubicacion, 
+    solicitud.ubicacion,
     encargado.jurisdiccion
   );
-  
+
   // Verificar condición callejero
   const esCallejero = solicitud.animal.condiciones.callejero === true;
-  
+
   return enJurisdiccion && esCallejero;
 }
 
 // Validación de Integridad de Atributos
 function validateAnimalIntegrity(animal: Animal): ValidationResult {
   const errors: string[] = [];
-  
+
   // BR-081: No puede comer por sí mismo si es lactante
   if (animal.requisitos.comePorSiMismo && animal.restricciones.lactante) {
     errors.push('Un animal lactante no puede comer por sí mismo');
   }
-  
+
   // BR-082: Recién nacido automáticamente es lactante
   if (animal.restricciones.recienNacido && !animal.restricciones.lactante) {
     errors.push('Un animal recién nacido debe ser marcado como lactante');
   }
-  
+
   return {
     valid: errors.length === 0,
     errors
@@ -2688,7 +2688,7 @@ CUANDO no haya respuesta policial ENTONCES el sistema DEBERÁ escalar automátic
 // Estados de Solicitudes de Intervención Policial
 enum SolicitudIntervencionPolicialState {
   CREADA = 'CREADA',
-  EN_REVISION = 'EN_REVISION', 
+  EN_REVISION = 'EN_REVISION',
   ASIGNADA = 'ASIGNADA',
   EN_PROGRESO = 'EN_PROGRESO',
   COMPLETADA = 'COMPLETADA',
@@ -2733,13 +2733,13 @@ interface SolicitudIntervencionPolicial {
 function validatePolicialRequest(rescatista: Rescatista, solicitud: SolicitudIntervencionPolicial): boolean {
   // Solo rescatistas pueden crear solicitudes de intervención policial
   const esRescatista = rescatista.rol === 'RESCATISTA';
-  
+
   // Debe tener experiencia mínima para casos críticos
   const tieneExperiencia = rescatista.rescatesCompletados >= 5 || solicitud.nivelUrgencia !== 'CRITICO';
-  
+
   // Ubicación debe estar dentro de área de operación del rescatista
   const enAreaOperacion = isWithinOperationArea(solicitud.ubicacion, rescatista.areaOperacion);
-  
+
   return esRescatista && tieneExperiencia && enAreaOperacion;
 }
 ```
@@ -2846,35 +2846,35 @@ interface CrowdfundingTransporte {
 // Validación de elegibilidad para crowdfunding
 function validateCrowdfundingEligibility(auxiliar: Auxiliar): ValidationResult {
   const errors: string[] = [];
-  
+
   // Máximo 2 solicitudes por mes
   const solicitudesEsteMes = auxiliar.crowdfundingHistorial.filter(
     cf => isCurrentMonth(cf.fechaCreacion)
   ).length;
-  
+
   if (solicitudesEsteMes >= 2) {
     errors.push('Máximo 2 solicitudes de crowdfunding por mes');
   }
-  
+
   // Verificar que no tenga transporte propio
   if (auxiliar.tieneTransportePropio) {
     errors.push('Auxiliar tiene transporte propio registrado');
   }
-  
+
   // Verificar historial de rescates exitosos
   if (auxiliar.rescatesCompletados < 1) {
     errors.push('Requiere al menos 1 rescate completado exitosamente');
   }
-  
+
   // Verificar que no tenga crowdfundings incumplidos
   const tieneIncumplimientos = auxiliar.crowdfundingHistorial.some(
     cf => cf.estado === 'INCUMPLIDA'
   );
-  
+
   if (tieneIncumplimientos) {
     errors.push('Auxiliar tiene crowdfundings incumplidos pendientes');
   }
-  
+
   return {
     valid: errors.length === 0,
     errors

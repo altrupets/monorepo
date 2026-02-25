@@ -1,7 +1,7 @@
 # Task 4: HTTP Client Base y Manejo de Errores - COMPLETADO ✅
 
-**Fecha:** 17 de febrero de 2026  
-**Sprint:** 1 (v0.3.0)  
+**Fecha:** 17 de febrero de 2026
+**Sprint:** 1 (v0.3.0)
 **Estado:** ✅ COMPLETADO
 
 ---
@@ -200,6 +200,6 @@ final someDataProvider = FutureProvider<Data>((ref) async {
 
 ---
 
-**Última actualización:** 17 de febrero de 2026  
-**Responsable:** Equipo AltruPets  
+**Última actualización:** 17 de febrero de 2026
+**Responsable:** Equipo AltruPets
 **Próxima tarea:** Task 5 - Servicio de Autenticación

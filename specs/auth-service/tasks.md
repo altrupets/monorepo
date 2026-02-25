@@ -1,9 +1,9 @@
 # Plan de Implementación: Servicio de Autenticación y Gestión de Tokens JWT
 
-**Versión:** 1.0.0  
-**Sprint:** 1 (v0.3.0)  
-**Tarea:** 5 - Implementar servicio de autenticación y gestión de tokens JWT  
-**Duración Estimada:** 3-4 días  
+**Versión:** 1.0.0
+**Sprint:** 1 (v0.3.0)
+**Tarea:** 5 - Implementar servicio de autenticación y gestión de tokens JWT
+**Duración Estimada:** 3-4 días
 **Estado:** 📋 Listo para Implementación
 
 ---
@@ -456,6 +456,6 @@ El servicio se integra con el HttpClientService completado en Task 4 y proporcio
 
 ---
 
-**Última actualización:** 17 de febrero de 2026  
-**Versión:** 1.0.0  
+**Última actualización:** 17 de febrero de 2026
+**Versión:** 1.0.0
 **Estado:** 📋 Listo para Implementación

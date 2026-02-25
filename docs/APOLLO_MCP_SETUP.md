@@ -245,5 +245,5 @@ Niveles disponibles: `ERROR`, `WARN`, `INFO`, `DEBUG`, `TRACE`
 
 ---
 
-**Última actualización:** Febrero 2026  
+**Última actualización:** Febrero 2026
 **Versión:** 1.0.0

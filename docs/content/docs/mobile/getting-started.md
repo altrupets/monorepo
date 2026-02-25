@@ -227,16 +227,16 @@ Edita `lib/core/utils/constants.dart`:
 class AppConstants {
   // Desarrollo local
   static const String baseUrl = 'http://localhost:4000';
-  
+
   // Para emulador Android (localhost no funciona)
   // static const String baseUrl = 'http://10.0.2.2:4000';
-  
+
   // Para dispositivo físico Android (usa tu IP local)
   // static const String baseUrl = 'http://192.168.1.100:4000';
-  
+
   // Staging
   // static const String baseUrl = 'https://api-staging.altrupets.com';
-  
+
   // Producción
   // static const String baseUrl = 'https://api.altrupets.com';
 }

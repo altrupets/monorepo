@@ -19,7 +19,7 @@ export class RolesGuard implements CanActivate {
     }
 
     let req: any;
-    
+
     // Check if it's a GraphQL context
     try {
       const ctx = GqlExecutionContext.create(context);
@@ -28,7 +28,7 @@ export class RolesGuard implements CanActivate {
       // If not GraphQL, get HTTP request directly
       req = context.switchToHttp().getRequest();
     }
-    
+
     const user = req.user;
     return requiredRoles.some((role) => user?.roles?.includes(role));
   }

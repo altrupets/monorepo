@@ -558,5 +558,5 @@ final result = await graphQLClient.query(
 
 ---
 
-**Última actualización:** Febrero 2026  
+**Última actualización:** Febrero 2026
 **Versión:** 1.0.0

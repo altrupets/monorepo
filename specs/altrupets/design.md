@@ -131,7 +131,7 @@ El sistema implementa una arquitectura de microservicios autocontenidos con sepa
 #### API Endpoints
 ```
 POST /api/v1/users/register
-POST /api/v1/users/login  
+POST /api/v1/users/login
 GET  /api/v1/users/profile
 PUT  /api/v1/users/roles
 GET  /api/v1/organizations
@@ -264,21 +264,21 @@ interface SolicitudSubvencionMunicipal {
   rescatistaId: string;
   animalId: string;
   tenantMunicipalId: string; // Segregación multi-tenant
-  
+
   // Detalles del procedimiento
   montoTentativo: number;
   desgloceServicios: ServicioVeterinario[];
   fechaProcedimiento: Date;
   ubicacionAnimal: Coordenadas;
-  
+
   // Estados del workflow
   estado: 'CREADA' | 'EN_REVISION' | 'APROBADA' | 'RECHAZADA' | 'EXPIRADA';
-  
+
   // Configuración municipal
   tiempoMaximoRespuesta: number; // En horas, configurable por municipalidad
   fechaCreacion: Date;
   fechaExpiracion: Date;
-  
+
   // Auditoría
   aprobadoPor?: string;
   motivoRechazo?: string;
@@ -287,34 +287,34 @@ interface SolicitudSubvencionMunicipal {
 
 // Motor de reglas para subvención
 class SubvencionMunicipalEngine {
-  
+
   // REQ-FIN-VET-002: Asignación automática por jurisdicción
   async asignarJurisdiccion(ubicacionAnimal: Coordenadas): Promise<string> {
     const jurisdiccion = await this.geolocationService.getJurisdictionByLocation(ubicacionAnimal);
-    
+
     // Validar casos especiales (JUR-020, JUR-021)
     if (await this.isSpecialCase(ubicacionAnimal)) {
       return await this.handleSpecialJurisdictionCase(ubicacionAnimal);
     }
-    
+
     return jurisdiccion.tenantId;
   }
-  
+
   // REQ-FIN-VET-003: Gestión de estados
   async procesarTransicionEstado(
-    solicitudId: string, 
+    solicitudId: string,
     nuevoEstado: EstadoSubvencion,
     usuarioId: string
   ): Promise<void> {
     const solicitud = await this.getSolicitud(solicitudId);
-    
+
     switch (nuevoEstado) {
       case 'APROBADA':
         // REQ-FIN-VET-004: Factura a municipalidad
         await this.emitirFacturaMunicipal(solicitud);
         await this.registrarObligacionPagoMunicipal(solicitud);
         break;
-        
+
       case 'RECHAZADA':
       case 'EXPIRADA':
         // REQ-FIN-VET-005: Factura a rescatista
@@ -322,25 +322,25 @@ class SubvencionMunicipalEngine {
         await this.registrarObligacionPagoRescatista(solicitud);
         break;
     }
-    
+
     // REQ-FIN-VET-006: Notificaciones automáticas
     await this.enviarNotificacionesEstado(solicitud, nuevoEstado);
-    
+
     // REQ-FIN-VET-013: Auditoría completa
     await this.registrarAuditoria(solicitud, nuevoEstado, usuarioId);
   }
-  
+
   // REQ-FIN-VET-014: Expiración automática
   async verificarExpiraciones(): Promise<void> {
     const solicitudesPendientes = await this.getSolicitudesEnRevision();
-    
+
     for (const solicitud of solicitudesPendientes) {
       if (this.haExpirado(solicitud)) {
         await this.procesarTransicionEstado(solicitud.id, 'EXPIRADA', 'SYSTEM');
       }
     }
   }
-  
+
   private haExpirado(solicitud: SolicitudSubvencionMunicipal): boolean {
     const ahora = new Date();
     return ahora > solicitud.fechaExpiracion;
@@ -353,30 +353,30 @@ class SubvencionMunicipalEngine {
 ```typescript
 // Segregación de datos gubernamentales para subvenciones
 class SubvencionMultiTenantService {
-  
+
   // REQ-MT-002: Solo datos gubernamentales segregados
   async getSolicitudesPorTenant(tenantId: string): Promise<SolicitudSubvencionMunicipal[]> {
     // Row Level Security aplicada automáticamente
     return await this.db.query(`
-      SELECT * FROM solicitudes_subvencion_municipal 
+      SELECT * FROM solicitudes_subvencion_municipal
       WHERE tenant_municipal_id = $1
     `, [tenantId]);
   }
-  
+
   // REQ-MT-004: Reportes filtrados por jurisdicción
   async generarReporteTransparencia(
-    tenantId: string, 
+    tenantId: string,
     periodo: PeriodoReporte
   ): Promise<ReporteTransparencia> {
-    
+
     // Datos centralizados filtrados por jurisdicción geográfica
     const rescatesEnJurisdiccion = await this.animalRescueService
       .getRescatesPorJurisdiccion(tenantId, periodo);
-    
+
     // Datos segregados del tenant
     const subvencionesAprobadas = await this.getSolicitudesPorTenant(tenantId)
       .filter(s => s.estado === 'APROBADA' && this.enPeriodo(s, periodo));
-    
+
     return {
       rescatesTotales: rescatesEnJurisdiccion.length,
       subvencionesAprobadas: subvencionesAprobadas.length,
@@ -392,7 +392,7 @@ class SubvencionMultiTenantService {
 ```typescript
 // REQ-WF-050 a REQ-WF-054: Estados específicos de subvención
 class SubvencionWorkflowStateMachine {
-  
+
   private transiciones = {
     'CREADA': ['EN_REVISION'],
     'EN_REVISION': ['APROBADA', 'RECHAZADA', 'EXPIRADA'],
@@ -400,23 +400,23 @@ class SubvencionWorkflowStateMachine {
     'RECHAZADA': [], // Estado final
     'EXPIRADA': []   // Estado final
   };
-  
+
   // REQ-WF-052: Aprobación municipal
   async aprobarSubvencion(solicitudId: string, encargadoId: string): Promise<void> {
     const solicitud = await this.getSolicitud(solicitudId);
-    
+
     // Validar autorización jurisdiccional
     await this.validarAutoridadMunicipal(encargadoId, solicitud.tenantMunicipalId);
-    
+
     // Cambiar estado y emitir factura municipal
     await this.transicionarEstado(solicitudId, 'APROBADA');
     await this.financialService.emitirFacturaMunicipal(solicitud);
   }
-  
+
   // REQ-WF-054: Expiración automática
   async procesarExpiracionAutomatica(): Promise<void> {
     const solicitudesVencidas = await this.getSolicitudesVencidas();
-    
+
     for (const solicitud of solicitudesVencidas) {
       await this.transicionarEstado(solicitud.id, 'EXPIRADA');
       await this.financialService.emitirFacturaRescatista(solicitud);
@@ -431,7 +431,7 @@ class SubvencionWorkflowStateMachine {
 
 **Decisión**: El sistema de subvención se implementa como una funcionalidad distribuida entre Financial Service y Government Service, con eventos asíncronos para coordinación.
 
-**Rationale**: 
+**Rationale**:
 - Financial Service maneja la lógica de facturación y obligaciones de pago
 - Government Service maneja la aprobación/rechazo y políticas municipales
 - La comunicación asíncrona permite que cada servicio mantenga su responsabilidad única
@@ -696,12 +696,12 @@ ReputationService:
 ```typescript
 // Motor de reglas centralizado en Animal Rescue Service
 class BusinessRulesEngine {
-  
+
   // Validación de adoptabilidad (BR-050, BR-051)
   validateAdoptability(animal: Animal): AdoptabilityResult {
     const requirements = this.checkRequirements(animal);
     const restrictions = this.checkRestrictions(animal);
-    
+
     return {
       isAdoptable: requirements.allMet && !restrictions.hasAny,
       requirements,
@@ -709,58 +709,58 @@ class BusinessRulesEngine {
       validatedAt: new Date()
     };
   }
-  
+
   // Disparadores automáticos de subvención veterinaria (REQ-BR-060)
   checkVeterinarySubsidyTriggers(animal: Animal): boolean {
-    return animal.conditions.callejero || 
-           animal.conditions.herido || 
+    return animal.conditions.callejero ||
+           animal.conditions.herido ||
            animal.conditions.enfermo;
   }
-  
+
   // Validación de autorización municipal para subvención (REQ-BR-070)
   validateMunicipalSubsidyAuthorization(
     solicitud: SolicitudSubvencionMunicipal,
     encargado: EncargadoBienestar
   ): ValidationResult {
     const errors: string[] = [];
-    
+
     // REQ-BR-070: Solo si está en jurisdicción Y animal es callejero
     const enJurisdiccion = this.isWithinJurisdiction(
-      solicitud.ubicacionAnimal, 
+      solicitud.ubicacionAnimal,
       encargado.jurisdiccion
     );
-    
+
     const esCallejero = solicitud.animal.conditions.callejero === true;
-    
+
     if (!enJurisdiccion) {
       errors.push('FUERA_DE_JURISDICCION');
     }
-    
+
     if (!esCallejero) {
       errors.push('ANIMAL_NO_CALLEJERO');
     }
-    
-    return { 
-      valid: errors.length === 0, 
+
+    return {
+      valid: errors.length === 0,
       errors,
       canAuthorize: enJurisdiccion && esCallejero
     };
   }
-  
+
   // Validación de integridad (BR-080, BR-081, BR-082)
   validateAnimalIntegrity(animal: Animal): ValidationResult {
     const errors: string[] = [];
-    
+
     // BR-081: No puede comer por sí mismo si es lactante
     if (animal.requirements.comePorSiMismo && animal.restrictions.lactante) {
       errors.push('CONFLICT_EATING_LACTATING');
     }
-    
+
     // BR-082: Recién nacido automáticamente es lactante
     if (animal.restrictions.recienNacido && !animal.restrictions.lactante) {
       animal.restrictions.lactante = true; // Auto-corrección
     }
-    
+
     return { valid: errors.length === 0, errors };
   }
 }
@@ -771,7 +771,7 @@ class BusinessRulesEngine {
 ```typescript
 // Estados y transiciones según reglas WF-001 a WF-042
 class WorkflowStateMachine {
-  
+
   // Estados de Solicitud de Auxilio
   private auxilio_transitions = {
     'CREADA': ['EN_REVISION', 'ASIGNADA', 'RECHAZADA'],
@@ -781,7 +781,7 @@ class WorkflowStateMachine {
     'COMPLETADA': [], // Estado final
     'RECHAZADA': []   // Estado final
   };
-  
+
   // Estados de Solicitud de Rescate
   private rescate_transitions = {
     'CREADA': ['PENDIENTE_SUBVENCION', 'AUTORIZADA', 'RECHAZADA'],
@@ -795,7 +795,7 @@ class WorkflowStateMachine {
     'COMPLETADA': [], // Estado final
     'RECHAZADA': []   // Estado final
   };
-  
+
   // Estados de Subvención Municipal (REQ-WF-050 a REQ-WF-054)
   private subvencion_transitions = {
     'CREADA': ['EN_REVISION'],
@@ -804,7 +804,7 @@ class WorkflowStateMachine {
     'RECHAZADA': [], // Estado final
     'EXPIRADA': []   // Estado final
   };
-  
+
   // Transiciones automáticas (WF-040 a WF-042)
   async handleAutomaticTransitions(event: WorkflowEvent): Promise<void> {
     switch (event.type) {
@@ -812,7 +812,7 @@ class WorkflowStateMachine {
         // WF-040: Crear automáticamente solicitud de rescate
         await this.createRescueRequest(event.data);
         break;
-        
+
       case 'ANIMAL_ATTRIBUTES_UPDATED':
         // WF-041: Evaluar adoptabilidad automáticamente
         const adoptability = this.rulesEngine.validateAdoptability(event.data.animal);
@@ -820,7 +820,7 @@ class WorkflowStateMachine {
           await this.transitionAnimalState(event.data.animal.id, 'ADOPTABLE');
         }
         break;
-        
+
       case 'SOLICITUD_RESCATE_CREADA':
         // REQ-BR-060: Crear automáticamente solicitud de subvención veterinaria
         const animal = event.data.animal;
@@ -829,13 +829,13 @@ class WorkflowStateMachine {
           await this.transitionRescueState(event.data.rescueId, 'PENDIENTE_SUBVENCION');
         }
         break;
-        
+
       case 'SUBVENCION_APROBADA':
         // REQ-WF-052: Facturación municipal automática
         await this.financialService.emitirFacturaMunicipal(event.data.solicitudSubvencion);
         await this.transitionRescueState(event.data.rescueId, 'SUBVENCION_APROBADA');
         break;
-        
+
       case 'SUBVENCION_RECHAZADA':
       case 'SUBVENCION_EXPIRADA':
         // REQ-WF-053, REQ-WF-054: Facturación a rescatista automática
@@ -854,15 +854,15 @@ class WorkflowStateMachine {
 ```typescript
 // Implementación de reglas GEO-001 a GEO-022
 class ProximitySearchEngine {
-  
+
   // Búsqueda escalonada de auxiliares (GEO-001 a GEO-004)
   async findAuxiliares(solicitud: SolicitudAuxilio): Promise<Auxiliar[]> {
     let radius = 10; // GEO-001: Radio inicial 10km
     let auxiliares: Auxiliar[] = [];
-    
+
     // Búsqueda inicial
     auxiliares = await this.searchInRadius(solicitud.ubicacion, radius);
-    
+
     if (auxiliares.length === 0) {
       // GEO-002: Expandir a 25km después de 30 minutos
       setTimeout(async () => {
@@ -870,7 +870,7 @@ class ProximitySearchEngine {
         auxiliares = await this.searchInRadius(solicitud.ubicacion, radius);
         await this.notifyAuxiliares(auxiliares, solicitud);
       }, 30 * 60 * 1000);
-      
+
       // GEO-003: Expandir a 50km después de 60 minutos y alertar supervisores
       setTimeout(async () => {
         radius = 50;
@@ -878,39 +878,39 @@ class ProximitySearchEngine {
         await this.alertSupervisors(solicitud);
       }, 60 * 60 * 1000);
     }
-    
+
     return auxiliares;
   }
-  
+
   // Búsqueda de rescatistas (GEO-010 a GEO-012)
   async findRescatistas(solicitud: SolicitudRescate): Promise<RescatistaScore[]> {
     const radius = 15; // GEO-010: Radio inicial 15km
     const rescatistas = await this.searchInRadius(solicitud.ubicacion, radius);
-    
+
     return rescatistas.map(rescatista => ({
       rescatista,
       score: this.calculateRescatistaScore(rescatista, solicitud)
     })).sort((a, b) => b.score - a.score);
   }
-  
+
   // Algoritmo de priorización según Apéndice F
   private calculateRescatistaScore(rescatista: Rescatista, solicitud: SolicitudRescate): number {
     const distancia = this.calculateDistance(rescatista.ubicacion, solicitud.ubicacion);
     const scoreDistancia = Math.max(0, 100 - (distancia / 1000));
-    
-    const capacidadDisponible = rescatista.casasCuna.reduce((total, casa) => 
+
+    const capacidadDisponible = rescatista.casasCuna.reduce((total, casa) =>
       total + (casa.capacidadMaxima - casa.animalesActuales), 0);
     const scoreCapacidad = Math.min(100, capacidadDisponible * 10);
-    
+
     const scoreReputacion = rescatista.reputacion * 20;
-    
-    const tieneEspecializacion = rescatista.especializaciones.some(esp => 
+
+    const tieneEspecializacion = rescatista.especializaciones.some(esp =>
       solicitud.animal.condiciones.includes(esp));
     const scoreEspecializacion = tieneEspecializacion ? 100 : 50;
-    
-    return (scoreDistancia * 0.3) + 
-           (scoreCapacidad * 0.25) + 
-           (scoreReputacion * 0.25) + 
+
+    return (scoreDistancia * 0.3) +
+           (scoreCapacidad * 0.25) +
+           (scoreReputacion * 0.25) +
            (scoreEspecializacion * 0.2);
   }
 }
@@ -921,22 +921,22 @@ class ProximitySearchEngine {
 ```typescript
 // Implementación de reglas JUR-001 a JUR-022
 class JurisdictionValidator {
-  
+
   // Validación de autorización veterinaria (BR-070, JUR-010, JUR-011)
   async validateVeterinaryAuthorization(
-    solicitud: SolicitudRescate, 
+    solicitud: SolicitudRescate,
     encargado: EncargadoBienestar
   ): Promise<AuthorizationResult> {
-    
+
     // JUR-011: Determinar jurisdicción por ubicación exacta del animal
     const jurisdiccion = await this.getJurisdictionByLocation(solicitud.ubicacion);
-    
+
     // JUR-010: Solo encargados de la jurisdicción correspondiente pueden autorizar
     const enJurisdiccion = encargado.jurisdicciones.includes(jurisdiccion.id);
-    
+
     // BR-070: Verificar condición callejero
     const esCallejero = solicitud.animal.condiciones.callejero === true;
-    
+
     // JUR-012: Casos fronterizos requieren autorización múltiple
     const esFronterizo = await this.isBorderCase(solicitud.ubicacion);
     if (esFronterizo) {
@@ -947,14 +947,14 @@ class JurisdictionValidator {
         jurisdictions: jurisdiccionesAfectadas
       };
     }
-    
+
     return {
       authorized: enJurisdiccion && esCallejero,
       jurisdiction: jurisdiccion,
       encargado: encargado
     };
   }
-  
+
   // Casos especiales de jurisdicción (JUR-020 a JUR-022)
   async handleSpecialCases(ubicacion: Coordenadas): Promise<JurisdictionResult> {
     // JUR-020: Carreteras nacionales
@@ -962,7 +962,7 @@ class JurisdictionValidator {
       const cantonMasCercano = await this.findNearestCanton(ubicacion);
       return { jurisdiction: cantonMasCercano, type: 'CARRETERA_NACIONAL' };
     }
-    
+
     // JUR-021: Zonas protegidas
     if (await this.isInProtectedArea(ubicacion)) {
       return {
@@ -972,7 +972,7 @@ class JurisdictionValidator {
         environmentalEntity: await this.getEnvironmentalEntity(ubicacion)
       };
     }
-    
+
     return { jurisdiction: await this.getJurisdictionByLocation(ubicacion), type: 'NORMAL' };
   }
 }
@@ -985,7 +985,7 @@ class JurisdictionValidator {
 ```typescript
 // Arquitectura de datos: Centralizado vs Multi-Tenant
 class DataArchitecture {
-  
+
   // DATOS CENTRALIZADOS (compartidos entre todos los países/municipios)
   centralizedData = {
     // Core AltruPets data - NO segregado
@@ -995,14 +995,14 @@ class DataArchitecture {
     donations: 'Donaciones dentro de cada país (NO cross-border inicialmente)',
     veterinarians: 'Red de veterinarios regional',
     rescuerFosterHomes: 'Casas cuna de rescatistas de toda la región',
-    
+
     // Configuración regional - NO segregado
     countries: 'Configuración de países',
     currencies: 'Monedas soportadas',
     regulatoryEntities: 'Entidades reguladoras por país',
     exchangeRates: 'Tasas de cambio globales'
   };
-  
+
   // DATOS MULTI-TENANT (segregados por gobierno local)
   multiTenantData = {
     // Solo datos gubernamentales específicos
@@ -1023,27 +1023,27 @@ CREATE TABLE government_tenants (
   id UUID PRIMARY KEY,
   tenant_code VARCHAR(50) NOT NULL UNIQUE, -- 'SAN_JOSE_CR', 'CDMX_MEX', etc.
   tenant_name VARCHAR(200) NOT NULL,
-  
+
   -- Ubicación administrativa
   country_code VARCHAR(3) NOT NULL REFERENCES countries(country_code),
   state_province VARCHAR(100),
   municipality VARCHAR(100),
   administrative_level administrative_level_enum, -- 'MUNICIPAL', 'PROVINCIAL', 'STATE'
-  
+
   -- Configuración del tenant
   jurisdiction_polygon GEOMETRY(POLYGON, 4326) NOT NULL,
   parent_tenant_id UUID REFERENCES government_tenants(id), -- Para jerarquías
-  
+
   -- Configuración específica del gobierno local
   local_policies JSONB, -- Políticas específicas del municipio
   contact_info JSONB,
   branding_config JSONB, -- Logo, colores para reportes
-  
+
   -- Estado del tenant
   is_active BOOLEAN DEFAULT TRUE,
   subscription_tier VARCHAR(50) DEFAULT 'BASIC', -- BASIC, PREMIUM, ENTERPRISE
   created_at TIMESTAMP DEFAULT NOW(),
-  
+
   INDEX idx_tenant_country (country_code),
   INDEX idx_tenant_polygon USING GIST (jurisdiction_polygon)
 );
@@ -1055,21 +1055,21 @@ CREATE TYPE administrative_level_enum AS ENUM ('MUNICIPAL', 'PROVINCIAL', 'STATE
 CREATE TABLE veterinary_authorizations (
   id UUID PRIMARY KEY,
   tenant_id UUID NOT NULL REFERENCES government_tenants(id), -- SEGREGACIÓN POR TENANT
-  
+
   solicitud_rescate_id UUID REFERENCES solicitudes_rescate(id),
   encargado_bienestar_id UUID NOT NULL,
   animal_location GEOMETRY(POINT, 4326) NOT NULL,
-  
+
   authorization_status authorization_status_enum DEFAULT 'PENDIENTE',
   justification TEXT,
   authorized_at TIMESTAMP,
   expires_at TIMESTAMP,
-  
+
   -- Metadatos del tenant
   tenant_policies_applied JSONB, -- Políticas específicas aplicadas
-  
+
   created_at TIMESTAMP DEFAULT NOW(),
-  
+
   -- Índice compuesto para segregación por tenant
   INDEX idx_auth_tenant_status (tenant_id, authorization_status),
   INDEX idx_auth_tenant_date (tenant_id, created_at)
@@ -1079,17 +1079,17 @@ CREATE TABLE veterinary_authorizations (
 CREATE TABLE government_reports (
   id UUID PRIMARY KEY,
   tenant_id UUID NOT NULL REFERENCES government_tenants(id), -- SEGREGACIÓN POR TENANT
-  
+
   report_type VARCHAR(50) NOT NULL, -- 'MONTHLY_RESCUES', 'FINANCIAL_TRANSPARENCY', etc.
   report_period_start DATE NOT NULL,
   report_period_end DATE NOT NULL,
-  
+
   -- Datos del reporte (solo para este tenant)
   report_data JSONB NOT NULL,
   generated_by UUID NOT NULL, -- Usuario que generó el reporte
-  
+
   created_at TIMESTAMP DEFAULT NOW(),
-  
+
   INDEX idx_reports_tenant_type (tenant_id, report_type),
   INDEX idx_reports_tenant_period (tenant_id, report_period_start, report_period_end)
 );
@@ -1113,7 +1113,7 @@ CREATE POLICY tenant_isolation_policy ON veterinary_authorizations
   TO application_role
   USING (tenant_id = get_current_tenant_id());
 
--- Row Level Security para reportes gubernamentales  
+-- Row Level Security para reportes gubernamentales
 ALTER TABLE government_reports ENABLE ROW LEVEL SECURITY;
 
 CREATE POLICY tenant_reports_policy ON government_reports
@@ -1127,35 +1127,35 @@ CREATE POLICY tenant_reports_policy ON government_reports
 ```typescript
 // Servicio de contexto de tenant (solo para funciones gubernamentales)
 class TenantContextService {
-  
+
   // Establecer contexto de tenant para operaciones gubernamentales
   async setTenantContext(userId: string, operation: string): Promise<void> {
-    
+
     // Solo aplicar multi-tenancy para operaciones gubernamentales
     const governmentalOperations = [
       'veterinary_authorization',
-      'government_reports', 
+      'government_reports',
       'conflict_mediation',
       'jurisdictional_oversight'
     ];
-    
+
     if (!governmentalOperations.includes(operation)) {
       // Para operaciones normales de AltruPets, NO hay segregación
       return;
     }
-    
+
     const user = await this.userService.findById(userId);
-    
+
     if (user.role === 'GOVERNMENT_ADMIN') {
       const tenantId = await this.getTenantByUser(userId);
       await this.database.query('SET app.current_tenant_id = $1', [tenantId]);
     }
   }
-  
+
   // Obtener configuración del tenant gubernamental
   async getTenantConfig(tenantId: string): Promise<TenantConfig> {
     const tenant = await this.tenantRepository.findById(tenantId);
-    
+
     return {
       tenantId: tenant.id,
       tenantCode: tenant.tenantCode,
@@ -1169,25 +1169,25 @@ class TenantContextService {
 
 // Servicio de autorización veterinaria (MULTI-TENANT)
 class VeterinaryAuthorizationService {
-  
+
   async createAuthorization(
     solicitudRescateId: string,
     encargadoId: string
   ): Promise<AuthorizationResult> {
-    
+
     // 1. Determinar tenant basado en la ubicación del rescate
     const solicitud = await this.rescueService.findById(solicitudRescateId);
     const tenant = await this.getTenantByLocation(solicitud.location);
-    
+
     // 2. Establecer contexto de tenant para esta operación
     await this.tenantContext.setTenantContext(encargadoId, 'veterinary_authorization');
-    
+
     // 3. Validar que el encargado pertenece a este tenant
     const encargado = await this.userService.findById(encargadoId);
     if (encargado.tenantId !== tenant.id) {
       throw new Error('Encargado no autorizado para esta jurisdicción');
     }
-    
+
     // 4. Crear autorización (automáticamente segregada por RLS)
     const authorization = await this.authorizationRepository.create({
       tenantId: tenant.id, // Segregación explícita
@@ -1196,33 +1196,33 @@ class VeterinaryAuthorizationService {
       animalLocation: solicitud.location,
       tenantPoliciesApplied: tenant.localPolicies
     });
-    
+
     return { success: true, authorizationId: authorization.id };
   }
 }
 
 // Servicio de reportes gubernamentales (MULTI-TENANT)
 class GovernmentReportsService {
-  
+
   async generateReport(
     tenantId: string,
     reportType: string,
     startDate: Date,
     endDate: Date
   ): Promise<GovernmentReport> {
-    
+
     // Establecer contexto de tenant
     await this.tenantContext.setTenantContext(tenantId, 'government_reports');
-    
+
     // Obtener datos SOLO de este tenant (gracias a RLS)
     const reportData = await this.generateReportData(reportType, startDate, endDate);
-    
+
     // Los datos de rescates, donaciones, etc. son globales pero filtrados por jurisdicción
     const jurisdictionalData = await this.filterDataByJurisdiction(
       reportData,
       tenantId
     );
-    
+
     return await this.reportRepository.create({
       tenantId, // Segregación por tenant
       reportType,
@@ -1239,12 +1239,12 @@ class GovernmentReportsService {
 ```typescript
 // Servicio de gestión multi-moneda
 class MultiCurrencyService {
-  
+
   // Configuración de monedas por país
   async getCurrencyConfig(countryCode: string): Promise<CurrencyConfig> {
     const country = await this.countryRepository.findByCode(countryCode);
     const currencies = await this.currencyRepository.findByCountry(countryCode);
-    
+
     return {
       defaultCurrency: country.defaultCurrencyCode,
       supportedCurrencies: currencies,
@@ -1252,7 +1252,7 @@ class MultiCurrencyService {
       kycThresholds: await this.getKycThresholds(countryCode)
     };
   }
-  
+
   // Conversión de monedas con tasas actualizadas
   async convertCurrency(
     amount: number,
@@ -1260,14 +1260,14 @@ class MultiCurrencyService {
     toCurrency: string,
     date?: Date
   ): Promise<ConversionResult> {
-    
+
     if (fromCurrency === toCurrency) {
       return { convertedAmount: amount, rate: 1.0, date: new Date() };
     }
-    
+
     const exchangeRate = await this.getExchangeRate(fromCurrency, toCurrency, date);
     const convertedAmount = amount * exchangeRate.rate;
-    
+
     return {
       convertedAmount: Math.round(convertedAmount * 100) / 100, // 2 decimales
       rate: exchangeRate.rate,
@@ -1275,7 +1275,7 @@ class MultiCurrencyService {
       source: exchangeRate.source
     };
   }
-  
+
   // Validación KYC basada en país y monto
   async validateKycRequirement(
     donorCountry: string,
@@ -1283,13 +1283,13 @@ class MultiCurrencyService {
     currency: string,
     period: 'daily' | 'monthly' | 'annual' = 'daily'
   ): Promise<KycValidationResult> {
-    
+
     const threshold = await this.getKycThreshold(donorCountry, currency, period);
     const convertedAmount = await this.convertToLocalCurrency(amount, currency, donorCountry);
-    
+
     const requiresKyc = convertedAmount >= threshold.amount;
     const regulatoryEntity = await this.getRegulatoryEntity(donorCountry, 'FINANCIAL');
-    
+
     return {
       requiresKyc,
       threshold: threshold.amount,
@@ -1302,26 +1302,26 @@ class MultiCurrencyService {
 
 // Servicio de procesamiento de donaciones multi-país
 class DonationProcessingService {
-  
+
   async processDonation(donationRequest: DonationRequest): Promise<DonationResult> {
-    
+
     // 1. Validar que donante y receptor estén en el mismo país (NO cross-border)
     if (donationRequest.donorCountry !== donationRequest.recipientCountry) {
       throw new Error('Donaciones cross-border no soportadas inicialmente');
     }
-    
+
     // 2. Validar configuración del país
     const countryConfig = await this.multiCurrencyService.getCurrencyConfig(
       donationRequest.country
     );
-    
+
     // 3. Determinar si requiere KYC
     const kycValidation = await this.multiCurrencyService.validateKycRequirement(
       donationRequest.country,
       donationRequest.amount,
       donationRequest.currency
     );
-    
+
     if (kycValidation.requiresKyc && !donationRequest.kycCompleted) {
       return {
         success: false,
@@ -1330,24 +1330,24 @@ class DonationProcessingService {
         regulatoryEntity: kycValidation.regulatoryEntity
       };
     }
-    
+
     // 4. Seleccionar proveedor de pago del país
     const paymentProvider = await this.selectPaymentProvider(
       donationRequest.country,
       donationRequest.currency,
       donationRequest.amount
     );
-    
+
     // 5. Convertir moneda solo si es USD → moneda local o viceversa
     let finalAmount = donationRequest.amount;
     let finalCurrency = donationRequest.currency;
     let exchangeRate = 1.0;
-    
-    if (donationRequest.currency !== countryConfig.defaultCurrency && 
+
+    if (donationRequest.currency !== countryConfig.defaultCurrency &&
         donationRequest.currency !== 'USD') {
       throw new Error('Solo se soporta moneda local y USD');
     }
-    
+
     if (donationRequest.currency === 'USD' && countryConfig.defaultCurrency !== 'USD') {
       const conversion = await this.multiCurrencyService.convertCurrency(
         donationRequest.amount,
@@ -1358,7 +1358,7 @@ class DonationProcessingService {
       finalCurrency = countryConfig.defaultCurrency;
       exchangeRate = conversion.rate;
     }
-    
+
     // 6. Procesar pago
     const paymentResult = await paymentProvider.processPayment({
       amount: donationRequest.amount,
@@ -1368,7 +1368,7 @@ class DonationProcessingService {
       donorId: donationRequest.donorId,
       recipientId: donationRequest.recipientId
     });
-    
+
     // 7. Registrar transacción (mismo país)
     await this.recordTransaction({
       originalAmount: donationRequest.amount,
@@ -1380,7 +1380,7 @@ class DonationProcessingService {
       paymentProvider: paymentProvider.name,
       transactionId: paymentResult.transactionId
     });
-    
+
     return {
       success: true,
       transactionId: paymentResult.transactionId,
@@ -1391,23 +1391,23 @@ class DonationProcessingService {
       exchangeRate
     };
   }
-  
+
   // Seleccionar proveedor de pago según país y moneda
   private async selectPaymentProvider(
     countryCode: string,
     currency: string,
     amount: number
   ): Promise<PaymentProvider> {
-    
+
     const providers = await this.getPaymentProviders(countryCode, currency);
-    
+
     // Lógica de selección basada en:
     // 1. Soporte de moneda
     // 2. Límites de monto
     // 3. Fees más bajos
     // 4. Confiabilidad del proveedor
-    
-    return providers.find(provider => 
+
+    return providers.find(provider =>
       provider.supportsCurrency(currency) &&
       provider.supportsAmount(amount) &&
       provider.isAvailable()
@@ -1455,25 +1455,25 @@ interface DonationRequest {
 ```typescript
 // Implementación de reglas BR-001 a BR-003
 class RescatistaCasaCunaManager {
-  
+
   // BR-001: Un rescatista puede tener múltiples casas cuna
   async associateRescatistaWithCasaCuna(
-    rescatistaId: string, 
+    rescatistaId: string,
     casaCunaId: string
   ): Promise<AssociationResult> {
-    
+
     // BR-003: Requiere autorización explícita de ambas partes
     const rescatistaApproval = await this.requestRescatistaApproval(rescatistaId, casaCunaId);
     const casaCunaApproval = await this.requestCasaCunaApproval(casaCunaId, rescatistaId);
-    
+
     if (rescatistaApproval && casaCunaApproval) {
       await this.createAssociation(rescatistaId, casaCunaId);
       return { success: true, associationId: generateId() };
     }
-    
+
     return { success: false, reason: 'MISSING_APPROVALS' };
   }
-  
+
   // BR-002: Una casa cuna puede estar asociada a múltiples rescatistas
   async getCasaCunaRescatistas(casaCunaId: string): Promise<Rescatista[]> {
     return await this.repository.findRescatistasByCasaCuna(casaCunaId);
@@ -1517,12 +1517,12 @@ CREATE TYPE solicitud_auxilio_state AS ENUM (
 );
 
 CREATE TYPE solicitud_rescate_state AS ENUM (
-  'CREADA', 'PENDIENTE_AUTORIZACION', 'AUTORIZADA', 'ASIGNADA', 
+  'CREADA', 'PENDIENTE_AUTORIZACION', 'AUTORIZADA', 'ASIGNADA',
   'EN_PROGRESO', 'RESCATADO', 'COMPLETADA', 'RECHAZADA'
 );
 
 CREATE TYPE animal_state AS ENUM (
-  'REPORTADO', 'EVALUADO', 'EN_RESCATE', 'EN_CUIDADO', 'ADOPTABLE', 
+  'REPORTADO', 'EVALUADO', 'EN_RESCATE', 'EN_CUIDADO', 'ADOPTABLE',
   'ADOPTADO', 'NO_ADOPTABLE', 'FALLECIDO', 'INALCANZABLE', 'FALSA_ALARMA'
 );
 
@@ -1563,17 +1563,17 @@ CREATE TABLE animals (
   breed VARCHAR(255),
   age_months INTEGER,
   sex sex_enum,
-  
+
   -- Condiciones del animal (BR-060 disparadores)
   discapacitado BOOLEAN DEFAULT FALSE,
   paciente_cronico BOOLEAN DEFAULT FALSE,
   zeropositivo BOOLEAN DEFAULT FALSE,
   callejero BOOLEAN DEFAULT FALSE,
-  
+
   -- Requisitos de adoptabilidad (BR-050 - TODOS deben ser TRUE)
   usa_arenero BOOLEAN DEFAULT FALSE,
   come_por_si_mismo BOOLEAN DEFAULT FALSE,
-  
+
   -- Restricciones de adoptabilidad (BR-051 - CUALQUIERA impide adopción)
   arizco_con_humanos BOOLEAN DEFAULT FALSE,
   arizco_con_animales BOOLEAN DEFAULT FALSE,
@@ -1583,7 +1583,7 @@ CREATE TABLE animals (
   herido BOOLEAN DEFAULT FALSE,
   recien_parida BOOLEAN DEFAULT FALSE,
   recien_nacido BOOLEAN DEFAULT FALSE,
-  
+
   -- Estado y metadatos
   current_state animal_state DEFAULT 'REPORTADO',
   current_caretaker_id UUID,
@@ -1598,7 +1598,7 @@ CREATE TABLE animals (
     lactante = FALSE AND nodriza = FALSE AND enfermo = FALSE AND
     herido = FALSE AND recien_parida = FALSE AND recien_nacido = FALSE
   ) STORED,
-  
+
   version INTEGER DEFAULT 1,
   created_at TIMESTAMP DEFAULT NOW(),
   updated_at TIMESTAMP DEFAULT NOW()
@@ -1641,43 +1641,43 @@ CREATE TABLE solicitudes_subvencion_municipal (
   rescatista_id UUID NOT NULL,
   animal_id UUID REFERENCES animals(id),
   solicitud_rescate_id UUID REFERENCES solicitudes_rescate(id),
-  
+
   -- Segregación multi-tenant (REQ-MT-002)
   tenant_municipal_id UUID NOT NULL REFERENCES government_tenants(id),
-  
+
   -- Detalles del procedimiento
   monto_tentativo DECIMAL(10,2) NOT NULL,
   desgloce_servicios JSONB NOT NULL,
   fecha_procedimiento TIMESTAMP NOT NULL,
   ubicacion_animal POINT NOT NULL,
-  
+
   -- Estados del workflow (REQ-WF-050 a REQ-WF-054)
   estado subvencion_estado_enum DEFAULT 'CREADA',
-  
+
   -- Configuración temporal
   tiempo_maximo_respuesta_horas INTEGER NOT NULL DEFAULT 72, -- Configurable por municipalidad
   fecha_creacion TIMESTAMP DEFAULT NOW(),
   fecha_expiracion TIMESTAMP GENERATED ALWAYS AS (
     fecha_creacion + (tiempo_maximo_respuesta_horas || ' hours')::INTERVAL
   ) STORED,
-  
+
   -- Resolución
   aprobado_por UUID,
   fecha_aprobacion TIMESTAMP,
   fecha_rechazo TIMESTAMP,
   fecha_expiracion_real TIMESTAMP,
   motivo_rechazo TEXT,
-  
+
   -- Facturación
   factura_municipal_id UUID,
   factura_rescatista_id UUID,
-  
+
   -- Auditoría (REQ-FIN-VET-013)
   auditoria JSONB DEFAULT '{}',
-  
+
   created_at TIMESTAMP DEFAULT NOW(),
   updated_at TIMESTAMP DEFAULT NOW(),
-  
+
   -- Índices para performance y segregación
   INDEX idx_subvencion_tenant_estado (tenant_municipal_id, estado),
   INDEX idx_subvencion_veterinario (veterinario_id),
@@ -1702,30 +1702,30 @@ CREATE POLICY tenant_subvencion_policy ON solicitudes_subvencion_municipal
 CREATE TABLE facturas_veterinarias (
   id UUID PRIMARY KEY,
   solicitud_subvencion_id UUID REFERENCES solicitudes_subvencion_municipal(id),
-  
+
   -- Sujeto obligado de pago
   facturado_a_tipo facturado_tipo_enum, -- 'MUNICIPALIDAD' | 'RESCATISTA'
   facturado_a_id UUID NOT NULL, -- ID de municipalidad o rescatista
-  
+
   -- Detalles de facturación
   monto_total DECIMAL(10,2) NOT NULL,
   moneda VARCHAR(3) DEFAULT 'CRC',
   desgloce_servicios JSONB NOT NULL,
-  
+
   -- Proveedor
   veterinario_id UUID NOT NULL,
   clinica_id UUID,
-  
+
   -- Estado de pago
   estado_pago pago_estado_enum DEFAULT 'PENDIENTE',
   fecha_pago TIMESTAMP,
   metodo_pago VARCHAR(50),
   referencia_pago VARCHAR(255),
-  
+
   -- Metadatos
   fecha_emision TIMESTAMP DEFAULT NOW(),
   fecha_vencimiento TIMESTAMP DEFAULT (NOW() + INTERVAL '30 days'),
-  
+
   created_at TIMESTAMP DEFAULT NOW()
 );
 
@@ -1741,12 +1741,12 @@ BEGIN
   IF NEW.recien_nacido = TRUE THEN
     NEW.lactante = TRUE;
   END IF;
-  
+
   -- BR-081: No puede comer por sí mismo si es lactante
   IF NEW.come_por_si_mismo = TRUE AND NEW.lactante = TRUE THEN
     RAISE EXCEPTION 'Un animal lactante no puede comer por sí mismo (BR-081)';
   END IF;
-  
+
   NEW.updated_at = NOW();
   RETURN NEW;
 END;
@@ -1767,15 +1767,15 @@ BEGIN
   FROM animals a
   JOIN solicitudes_auxilio sa ON sa.id = NEW.solicitud_auxilio_id
   WHERE a.id = sa.animal_id;
-  
+
   -- BR-060: Verificar disparadores de autorización veterinaria
-  IF animal_record.callejero = TRUE OR 
-     animal_record.herido = TRUE OR 
+  IF animal_record.callejero = TRUE OR
+     animal_record.herido = TRUE OR
      animal_record.enfermo = TRUE THEN
-    
+
     NEW.requires_veterinary_auth = TRUE;
     NEW.veterinary_auth_requested_at = NOW();
-    
+
     -- Crear solicitud de autorización automáticamente
     INSERT INTO veterinary_authorizations (
       solicitud_rescate_id,
@@ -1787,7 +1787,7 @@ BEGIN
       (SELECT get_jurisdiction_by_location(NEW.location))
     );
   END IF;
-  
+
   RETURN NEW;
 END;
 $$ LANGUAGE plpgsql;
@@ -1804,24 +1804,24 @@ CREATE TABLE financial_transactions (
   id UUID PRIMARY KEY,
   event_type VARCHAR(50),
   aggregate_id UUID,
-  
+
   -- Montos en moneda original y USD para auditoría
   original_amount DECIMAL(15,2) NOT NULL,
   original_currency VARCHAR(3) NOT NULL,
   usd_amount DECIMAL(15,2) NOT NULL, -- Siempre convertir a USD para reportes
   exchange_rate DECIMAL(18,8),
   exchange_rate_date DATE,
-  
+
   -- Información del país y proveedor
   country_code VARCHAR(3) NOT NULL,
   payment_provider VARCHAR(50),
   provider_transaction_id VARCHAR(255),
-  
+
   event_data JSONB,
   encrypted_pii BYTEA,
   timestamp TIMESTAMP DEFAULT NOW(),
   version INTEGER,
-  
+
   -- Índices para consultas por moneda y país
   INDEX idx_transactions_currency (original_currency),
   INDEX idx_transactions_country (country_code),
@@ -1840,7 +1840,7 @@ CREATE TABLE payment_tokens (
   is_active BOOLEAN DEFAULT TRUE,
   created_at TIMESTAMP DEFAULT NOW(),
   expires_at TIMESTAMP,
-  
+
   INDEX idx_tokens_user_country (user_id, country_code)
 );
 
@@ -1849,30 +1849,30 @@ CREATE TABLE donations (
   id UUID PRIMARY KEY,
   donor_id UUID NOT NULL,
   recipient_id UUID NOT NULL, -- rescatista o casa cuna
-  
+
   -- Montos multi-moneda
   requested_amount DECIMAL(15,2) NOT NULL,
   requested_currency VARCHAR(3) NOT NULL,
   final_amount DECIMAL(15,2) NOT NULL, -- Después de fees y conversiones
   final_currency VARCHAR(3) NOT NULL,
-  
+
   -- Información geográfica (mismo país inicialmente)
   country_code VARCHAR(3) NOT NULL, -- Donante y receptor en el mismo país
   requires_kyc BOOLEAN DEFAULT FALSE,
   kyc_completed BOOLEAN DEFAULT FALSE,
-  
+
   -- Metadatos de la donación
   donation_type donation_type_enum DEFAULT 'ONE_TIME', -- 'ONE_TIME', 'RECURRING', 'EMERGENCY'
   purpose TEXT,
   animal_id UUID, -- Si es para un animal específico
-  
+
   status donation_status_enum DEFAULT 'PENDING',
   payment_method VARCHAR(50),
   transaction_id UUID REFERENCES financial_transactions(id),
-  
+
   created_at TIMESTAMP DEFAULT NOW(),
   completed_at TIMESTAMP,
-  
+
   INDEX idx_donations_donor (donor_id),
   INDEX idx_donations_recipient (recipient_id),
   INDEX idx_donations_currency (requested_currency),
@@ -1895,10 +1895,10 @@ CREATE TABLE kyc_thresholds (
   requires_address_verification BOOLEAN DEFAULT TRUE,
   requires_source_of_funds BOOLEAN DEFAULT FALSE,
   regulatory_entity_code VARCHAR(20), -- SUGEF, CNBV, etc.
-  
+
   created_at TIMESTAMP DEFAULT NOW(),
   updated_at TIMESTAMP DEFAULT NOW(),
-  
+
   UNIQUE(country_code, currency_code)
 );
 
@@ -1914,28 +1914,28 @@ DECLARE
   converted_amount DECIMAL(15,2);
 BEGIN
   -- Obtener el threshold según el período
-  SELECT 
-    CASE 
+  SELECT
+    CASE
       WHEN period_type = 'daily' THEN daily_threshold
-      WHEN period_type = 'monthly' THEN monthly_threshold  
+      WHEN period_type = 'monthly' THEN monthly_threshold
       WHEN period_type = 'annual' THEN annual_threshold
       ELSE daily_threshold
     END
   INTO threshold_amount
   FROM kyc_thresholds
   WHERE country_code = donor_country AND currency_code = currency;
-  
+
   -- Si no hay configuración específica, usar USD como fallback
   IF threshold_amount IS NULL THEN
     SELECT daily_threshold INTO threshold_amount
     FROM kyc_thresholds
     WHERE country_code = donor_country AND currency_code = 'USD';
   END IF;
-  
+
   -- Convertir monto a la moneda del threshold para comparación
-  converted_amount := convert_currency(amount, currency, 
+  converted_amount := convert_currency(amount, currency,
     (SELECT currency_code FROM kyc_thresholds WHERE country_code = donor_country LIMIT 1));
-  
+
   RETURN converted_amount >= COALESCE(threshold_amount, 1000.00);
 END;
 $$ LANGUAGE plpgsql;
@@ -1953,7 +1953,7 @@ CREATE OR REPLACE FUNCTION get_payment_config_by_country(
 ) AS $$
 BEGIN
   RETURN QUERY
-  SELECT 
+  SELECT
     cpc.payment_provider,
     cpc.provider_config,
     cpc.min_donation_amount,
@@ -2043,7 +2043,7 @@ DECLARE
 BEGIN
   -- GEO-001: Radio inicial 10km
   RETURN QUERY
-  SELECT 
+  SELECT
     l.user_id,
     ST_Distance(l.coordinates, center_point) / 1000 AS distance_km,
     calculate_auxiliar_priority_score(l.user_id, center_point) AS priority_score
@@ -2053,7 +2053,7 @@ BEGIN
     AND u.is_available = TRUE
     AND ST_DWithin(l.coordinates, center_point, current_radius * 1000)
   ORDER BY priority_score DESC, distance_km ASC;
-  
+
   -- Si no hay resultados, la expansión se maneja en el servicio con timers
 END;
 $$ LANGUAGE plpgsql;
@@ -2070,7 +2070,7 @@ CREATE OR REPLACE FUNCTION find_rescatistas_by_proximity(
 ) AS $$
 BEGIN
   RETURN QUERY
-  SELECT 
+  SELECT
     l.user_id,
     ST_Distance(l.coordinates, center_point) / 1000 AS distance_km,
     calculate_rescatista_priority_score(l.user_id, center_point) AS priority_score,
@@ -2099,7 +2099,7 @@ BEGIN
     AND gj.is_active = TRUE
   ORDER BY ST_Area(gj.jurisdiction_polygon) ASC -- Priorizar jurisdicción más pequeña
   LIMIT 1;
-  
+
   RETURN jurisdiction_id;
 END;
 $$ LANGUAGE plpgsql;
@@ -2214,19 +2214,19 @@ INSERT INTO regulatory_entities (id, country_id, entity_type, entity_name, entit
   -- Costa Rica
   (gen_random_uuid(), (SELECT id FROM countries WHERE country_code = 'CRI'), 'ENVIRONMENTAL', 'Sistema Nacional de Áreas de Conservación', 'SINAC', 'Entidad encargada de zonas protegidas en Costa Rica'),
   (gen_random_uuid(), (SELECT id FROM countries WHERE country_code = 'CRI'), 'FINANCIAL', 'Superintendencia General de Entidades Financieras', 'SUGEF', 'Regulador financiero de Costa Rica'),
-  
+
   -- México
   (gen_random_uuid(), (SELECT id FROM countries WHERE country_code = 'MEX'), 'ENVIRONMENTAL', 'Secretaría de Medio Ambiente y Recursos Naturales', 'SEMARNAT', 'Secretaría de medio ambiente de México'),
   (gen_random_uuid(), (SELECT id FROM countries WHERE country_code = 'MEX'), 'FINANCIAL', 'Comisión Nacional Bancaria y de Valores', 'CNBV', 'Regulador financiero de México'),
-  
+
   -- Colombia
   (gen_random_uuid(), (SELECT id FROM countries WHERE country_code = 'COL'), 'ENVIRONMENTAL', 'Autoridad Nacional de Licencias Ambientales', 'ANLA', 'Autoridad ambiental de Colombia'),
   (gen_random_uuid(), (SELECT id FROM countries WHERE country_code = 'COL'), 'FINANCIAL', 'Superintendencia Financiera de Colombia', 'SUPERFINANCIERA', 'Regulador financiero de Colombia'),
-  
+
   -- Argentina
   (gen_random_uuid(), (SELECT id FROM countries WHERE country_code = 'ARG'), 'ENVIRONMENTAL', 'Consejo Federal de Medio Ambiente', 'COFEMA', 'Consejo ambiental de Argentina'),
   (gen_random_uuid(), (SELECT id FROM countries WHERE country_code = 'ARG'), 'FINANCIAL', 'Banco Central de la República Argentina', 'BCRA', 'Banco central y regulador financiero de Argentina'),
-  
+
   -- Entidades de Hacienda Pública (para regulación fiscal de donaciones)
   (gen_random_uuid(), (SELECT id FROM countries WHERE country_code = 'CRI'), 'TAXES', 'Ministerio de Hacienda de Costa Rica', 'HACIENDA_CR', 'Regulación fiscal y tributaria de donaciones'),
   (gen_random_uuid(), (SELECT id FROM countries WHERE country_code = 'MEX'), 'TAXES', 'Secretaría de Hacienda y Crédito Público', 'SHCP', 'Regulación fiscal de México'),
@@ -2245,7 +2245,7 @@ CREATE OR REPLACE FUNCTION get_regulatory_entity_by_country(
 ) AS $$
 BEGIN
   RETURN QUERY
-  SELECT 
+  SELECT
     re.id,
     re.entity_name,
     re.entity_code,
@@ -2274,7 +2274,7 @@ BEGIN
   IF from_currency = to_currency THEN
     RETURN amount;
   END IF;
-  
+
   -- Buscar tasa de cambio más reciente
   SELECT rate INTO exchange_rate
   FROM exchange_rates
@@ -2283,25 +2283,25 @@ BEGIN
     AND rate_date <= conversion_date
   ORDER BY rate_date DESC
   LIMIT 1;
-  
+
   -- Si no hay tasa directa, intentar conversión vía USD
   IF exchange_rate IS NULL THEN
     -- Convertir a USD primero, luego a moneda destino
-    SELECT 
-      (SELECT rate FROM exchange_rates 
-       WHERE from_currency_code = from_currency AND to_currency_code = 'USD' 
+    SELECT
+      (SELECT rate FROM exchange_rates
+       WHERE from_currency_code = from_currency AND to_currency_code = 'USD'
        AND rate_date <= conversion_date ORDER BY rate_date DESC LIMIT 1) *
-      (SELECT rate FROM exchange_rates 
-       WHERE from_currency_code = 'USD' AND to_currency_code = to_currency 
+      (SELECT rate FROM exchange_rates
+       WHERE from_currency_code = 'USD' AND to_currency_code = to_currency
        AND rate_date <= conversion_date ORDER BY rate_date DESC LIMIT 1)
     INTO exchange_rate;
   END IF;
-  
+
   -- Si aún no hay tasa, usar 1:1 (fallback)
   IF exchange_rate IS NULL THEN
     exchange_rate := 1.0;
   END IF;
-  
+
   converted_amount := amount * exchange_rate;
   RETURN ROUND(converted_amount, 2);
 END;
@@ -2309,7 +2309,7 @@ $$ LANGUAGE plpgsql;
 
 -- Función para validar casos especiales con entidades por país
 -- NOTA: No se incluye validación de propiedades privadas porque según las leyes de maltrato animal
--- de países latinoamericanos, los auxiliares y rescatistas tienen derecho legal a actuar en 
+-- de países latinoamericanos, los auxiliares y rescatistas tienen derecho legal a actuar en
 -- propiedades privadas para rescatar animales maltratados, con escolta policial si es necesario
 CREATE OR REPLACE FUNCTION check_special_zone_requirements(
   location_point GEOMETRY(POINT, 4326),
@@ -2324,7 +2324,7 @@ CREATE OR REPLACE FUNCTION check_special_zone_requirements(
 ) AS $$
 BEGIN
   RETURN QUERY
-  SELECT 
+  SELECT
     sz.zone_type,
     FALSE, -- No se requiere autorización de propietario (omitido por ley de maltrato animal)
     sz.requires_environmental_auth,
@@ -2333,12 +2333,12 @@ BEGIN
     NULL -- owner_id removido
   FROM special_zones sz
   LEFT JOIN countries c ON c.country_code = country_code_param
-  LEFT JOIN regulatory_entities re ON re.country_id = c.id 
-    AND re.entity_type = 'ENVIRONMENTAL' 
+  LEFT JOIN regulatory_entities re ON re.country_id = c.id
+    AND re.entity_type = 'ENVIRONMENTAL'
     AND re.is_active = TRUE
   WHERE ST_Contains(sz.zone_polygon, location_point)
-  ORDER BY 
-    CASE sz.zone_type 
+  ORDER BY
+    CASE sz.zone_type
       WHEN 'ZONA_PROTEGIDA' THEN 1
       WHEN 'CARRETERA_NACIONAL' THEN 2
       ELSE 3
@@ -2400,7 +2400,7 @@ services:
       failure-threshold: 5
       timeout: 30s
       recovery-timeout: 60s
-  
+
   geolocation-service:
     circuit-breaker:
       failure-threshold: 3
@@ -2422,7 +2422,7 @@ donation-saga:
     2. process-payment (Financial Service)
     3. update-casa-cuna (Animal Rescue Service)
     4. send-notification (Notification Service)
-  
+
   compensations:
     4. cancel-notification
     3. revert-casa-cuna-update
@@ -2439,7 +2439,7 @@ logging:
   level: INFO
   format: json
   output: stdout  # Para agregación por Kubernetes
-  
+
   fields:
     service: ${SERVICE_NAME}
     version: ${SERVICE_VERSION}
@@ -2463,7 +2463,7 @@ logging:
 /health:
   liveness: /health/live    # Para Kubernetes liveness probe
   readiness: /health/ready  # Para Kubernetes readiness probe
-  
+
   checks:
     - database-connection
     - external-service-connectivity
@@ -2491,7 +2491,7 @@ user-management-service:
     - unit: domain logic, RBAC validation
     - integration: PostgreSQL, JWT generation
     - contract: API schema validation
-    
+
 financial-service:
   tests:
     - unit: payment processing, KYC validation
@@ -2506,7 +2506,7 @@ contracts:
   user-management -> animal-rescue:
     - user authentication tokens
     - role validation responses
-    
+
   financial -> notification:
     - payment completion events
     - donation confirmation data
@@ -2535,25 +2535,25 @@ contracts:
 ```typescript
 // Tests para reglas BR-050 y BR-051
 describe('Animal Adoptability Rules', () => {
-  
+
   test('BR-050: Animal debe cumplir TODOS los requisitos', () => {
     const animal = createAnimal({
       requirements: { usaArenero: true, comePorSiMismo: true },
       restrictions: { /* todos false */ }
     });
-    
+
     expect(businessRulesEngine.validateAdoptability(animal).isAdoptable).toBe(true);
   });
-  
+
   test('BR-051: CUALQUIER restricción impide adopción', () => {
     const animal = createAnimal({
       requirements: { usaArenero: true, comePorSiMismo: true },
       restrictions: { lactante: true } // Una sola restricción
     });
-    
+
     expect(businessRulesEngine.validateAdoptability(animal).isAdoptable).toBe(false);
   });
-  
+
   test('BR-081: Conflicto entre comer solo y ser lactante', () => {
     expect(() => {
       createAnimal({
@@ -2562,12 +2562,12 @@ describe('Animal Adoptability Rules', () => {
       });
     }).toThrow('CONFLICT_EATING_LACTATING');
   });
-  
+
   test('BR-082: Recién nacido automáticamente es lactante', () => {
     const animal = createAnimal({
       restrictions: { recienNacido: true, lactante: false }
     });
-    
+
     expect(animal.restrictions.lactante).toBe(true);
   });
 });
@@ -2577,24 +2577,24 @@ describe('Animal Adoptability Rules', () => {
 ```typescript
 // Tests para reglas WF-001 a WF-042
 describe('Workflow State Machine', () => {
-  
+
   test('WF-040: Auxilio completado crea automáticamente solicitud de rescate', async () => {
     const auxilio = await createSolicitudAuxilio();
     await workflowStateMachine.transition(auxilio.id, 'COMPLETADA');
-    
+
     const rescateCreado = await findSolicitudRescateByAuxilio(auxilio.id);
     expect(rescateCreado).toBeDefined();
     expect(rescateCreado.status).toBe('CREADA');
   });
-  
+
   test('WF-041: Actualización de atributos evalúa adoptabilidad automáticamente', async () => {
     const animal = await createAnimal({ state: 'EN_CUIDADO' });
-    
+
     await updateAnimalAttributes(animal.id, {
       requirements: { usaArenero: true, comePorSiMismo: true },
       restrictions: { /* todos false */ }
     });
-    
+
     const updatedAnimal = await getAnimal(animal.id);
     expect(updatedAnimal.state).toBe('ADOPTABLE');
   });
@@ -2605,30 +2605,30 @@ describe('Workflow State Machine', () => {
 ```typescript
 // Tests para reglas GEO-001 a GEO-022
 describe('Geolocation Rules', () => {
-  
+
   test('GEO-001: Búsqueda inicial de auxiliares en radio de 10km', async () => {
     const solicitud = createSolicitudAuxilio({ ubicacion: CENTRO_SAN_JOSE });
     const auxiliares = await proximitySearchEngine.findAuxiliares(solicitud);
-    
+
     auxiliares.forEach(auxiliar => {
       const distance = calculateDistance(auxiliar.ubicacion, CENTRO_SAN_JOSE);
       expect(distance).toBeLessThanOrEqual(10000); // 10km en metros
     });
   });
-  
+
   test('GEO-002: Expansión automática a 25km después de 30 minutos', async () => {
     const solicitud = createSolicitudAuxilio({ ubicacion: ZONA_RURAL });
-    
+
     // Simular que no hay auxiliares en 10km
     jest.spyOn(proximitySearchEngine, 'searchInRadius')
       .mockResolvedValueOnce([]) // Primera búsqueda vacía
       .mockResolvedValueOnce([mockAuxiliar]); // Segunda búsqueda con resultado
-    
+
     await proximitySearchEngine.findAuxiliares(solicitud);
-    
+
     // Avanzar tiempo 30 minutos
     jest.advanceTimersByTime(30 * 60 * 1000);
-    
+
     expect(proximitySearchEngine.searchInRadius).toHaveBeenCalledWith(
       ZONA_RURAL, 25 // Radio expandido a 25km
     );
@@ -2640,30 +2640,30 @@ describe('Geolocation Rules', () => {
 ```typescript
 // Tests para reglas JUR-001 a JUR-022
 describe('Jurisdiction Validation', () => {
-  
+
   test('JUR-010: Solo encargados de jurisdicción pueden autorizar', async () => {
     const solicitud = createSolicitudRescate({ ubicacion: SAN_JOSE_CENTRO });
     const encargadoSanJose = createEncargado({ jurisdiccion: 'SAN_JOSE' });
     const encargadoCartago = createEncargado({ jurisdiccion: 'CARTAGO' });
-    
+
     const resultSanJose = await jurisdictionValidator.validateVeterinaryAuthorization(
       solicitud, encargadoSanJose
     );
     const resultCartago = await jurisdictionValidator.validateVeterinaryAuthorization(
       solicitud, encargadoCartago
     );
-    
+
     expect(resultSanJose.authorized).toBe(true);
     expect(resultCartago.authorized).toBe(false);
   });
-  
+
   test('JUR-012: Zona fronteriza requiere autorización múltiple', async () => {
     const solicitud = createSolicitudRescate({ ubicacion: FRONTERA_SAN_JOSE_CARTAGO });
-    
+
     const result = await jurisdictionValidator.validateVeterinaryAuthorization(
       solicitud, mockEncargado
     );
-    
+
     expect(result.requiresMultipleAuthorizations).toBe(true);
     expect(result.jurisdictions).toHaveLength(2);
   });
@@ -2744,15 +2744,15 @@ data-classification:
   public:
     - animal photos
     - rescue statistics
-  
+
   internal:
     - user profiles
     - rescue requests
-  
+
   confidential:
     - financial transactions
     - medical records
-  
+
   restricted:
     - payment tokens
     - kyc documents
@@ -2768,7 +2768,7 @@ auth:
   flows:
     - authorization_code  # Para frontend
     - client_credentials  # Para service-to-service
-  
+
   token-validation:
     - signature-verification
     - expiration-check
@@ -2789,7 +2789,7 @@ pci-scope:
   in-scope:
     - financial-service
     - api-gateway (payment endpoints)
-  
+
   out-of-scope:
     - user-management-service
     - animal-rescue-service
@@ -2813,12 +2813,12 @@ payment-adapters:
     adapter: ONVOPayAdapter
     config: ${ONVOPAY_CONFIG}
     fallback: stripe
-  
+
   stripe:
     adapter: StripeAdapter
     config: ${STRIPE_CONFIG}
     fallback: manual-transfer
-  
+
   sinpe:
     adapter: SINPEAdapter
     config: ${SINPE_CONFIG}
@@ -2831,11 +2831,11 @@ payment-adapters:
 map-providers:
   primary: google-maps
   fallback: openstreetmap
-  
+
   google-maps:
     api-key: ${GOOGLE_MAPS_API_KEY}
     rate-limit: 1000/day
-  
+
   openstreetmap:
     endpoint: ${OSM_ENDPOINT}
     rate-limit: unlimited
@@ -2853,7 +2853,7 @@ kafka:
     - rescue-events
     - financial-events
     - notification-events
-  
+
   consumer-groups:
     - notification-service-group
     - analytics-service-group
@@ -2866,11 +2866,11 @@ external-services:
   firebase-messaging:
     url: ${FCM_URL}
     credentials: ${FCM_CREDENTIALS}
-  
+
   kyc-provider:
     url: ${KYC_API_URL}
     api-key: ${KYC_API_KEY}
-  
+
   sanctions-list:
     url: ${SANCTIONS_API_URL}
     refresh-interval: 24h
@@ -2965,11 +2965,11 @@ caching-strategy:
   user-management:
     - user-sessions: TTL 30m
     - role-permissions: TTL 1h
-  
+
   geolocation:
     - proximity-queries: TTL 5m
     - route-calculations: TTL 15m
-  
+
   reputation:
     - user-scores: TTL 10m
     - rating-aggregates: TTL 1h
@@ -3001,12 +3001,12 @@ metrics:
     - p50, p95, p99 response times
     - database query times
     - external API call times
-  
+
   throughput:
     - requests per second
     - transactions per minute
     - events processed per hour
-  
+
   errors:
     - error rates by endpoint
     - failed transaction rates
@@ -3024,7 +3024,7 @@ resources:
     limits:
       cpu: 500m
       memory: 512Mi
-  
+
   financial-service:
     requests:
       cpu: 200m
@@ -3042,7 +3042,7 @@ resources:
 ```yaml
 # Configuración optimizada por microservicio según patrones de uso
 cost-optimization:
-  
+
   # Servicios de alta demanda con auto-scaling agresivo
   high-demand-services:
     - animal-rescue-service:
@@ -3051,14 +3051,14 @@ cost-optimization:
         target-cpu: 60%
         scale-down-delay: 300s
         instance-type: "t3.medium"
-    
+
     - notification-service:
         min-replicas: 3
         max-replicas: 50
         target-cpu: 70%
         scale-down-delay: 180s
         instance-type: "t3.small"
-  
+
   # Servicios de demanda moderada
   moderate-demand-services:
     - user-management-service:
@@ -3067,14 +3067,14 @@ cost-optimization:
         target-cpu: 70%
         scale-down-delay: 600s
         instance-type: "t3.small"
-    
+
     - geolocation-service:
         min-replicas: 2
         max-replicas: 15
         target-cpu: 65%
         scale-down-delay: 300s
         instance-type: "t3.medium" # Requiere más CPU para cálculos geoespaciales
-  
+
   # Servicios de baja demanda con Spot Instances
   low-demand-services:
     - analytics-service:
@@ -3085,7 +3085,7 @@ cost-optimization:
         instance-type: "t3.large"
         use-spot-instances: true
         spot-max-price: "0.05"
-    
+
     - reputation-service:
         min-replicas: 1
         max-replicas: 3
@@ -3099,7 +3099,7 @@ cost-optimization:
 ```yaml
 # Optimización de costos de almacenamiento
 storage-optimization:
-  
+
   # Datos transaccionales críticos (SSD de alta performance)
   tier-1-hot:
     services: [financial-service, user-management-service]
@@ -3107,7 +3107,7 @@ storage-optimization:
     iops: 3000
     retention: "7-years" # Cumplimiento regulatorio
     backup-frequency: "6-hours"
-  
+
   # Datos operacionales frecuentes (SSD estándar)
   tier-2-warm:
     services: [animal-rescue-service, geolocation-service, notification-service]
@@ -3115,14 +3115,14 @@ storage-optimization:
     iops: 1000
     retention: "2-years"
     backup-frequency: "12-hours"
-  
+
   # Datos analíticos y reportes (almacenamiento optimizado)
   tier-3-cold:
     services: [analytics-service, reputation-service]
     storage-class: "st1" # Throughput optimized HDD
     retention: "5-years"
     backup-frequency: "24-hours"
-    
+
   # Archivos multimedia con lifecycle policies
   media-storage:
     type: "S3"
@@ -3137,7 +3137,7 @@ storage-optimization:
 ```yaml
 # Estrategia de bases de datos por costo-beneficio
 database-optimization:
-  
+
   # Bases de datos críticas con Multi-AZ
   production-critical:
     - financial-service-db:
@@ -3146,14 +3146,14 @@ database-optimization:
         multi-az: true
         read-replicas: 2
         backup-retention: 35 # Máximo para cumplimiento
-        
+
     - user-management-db:
-        engine: "PostgreSQL" 
+        engine: "PostgreSQL"
         instance-class: "db.t4g.medium"
         multi-az: true
         read-replicas: 1
         backup-retention: 7
-  
+
   # Bases de datos operacionales con Single-AZ
   production-standard:
     - animal-rescue-db:
@@ -3162,14 +3162,14 @@ database-optimization:
         multi-az: false
         read-replicas: 1
         backup-retention: 7
-        
+
     - geolocation-db:
         engine: "PostgreSQL + PostGIS"
         instance-class: "db.r6g.medium" # Optimizado para consultas geoespaciales
         multi-az: false
         read-replicas: 2 # Muchas consultas de lectura
         backup-retention: 7
-  
+
   # Bases de datos analíticas con Reserved Instances
   analytics-optimized:
     - analytics-db:
@@ -3184,26 +3184,26 @@ database-optimization:
 ```yaml
 # Planificación de costos a largo plazo
 cost-planning:
-  
+
   # Reserved Instances para cargas predecibles
   reserved-instances:
     - compute:
         percentage: 60% # 60% de la capacidad base
         term: "1-year-partial-upfront"
         instance-families: ["t3", "r6g", "m6i"]
-    
+
     - databases:
         percentage: 80% # Bases de datos más predecibles
         term: "3-year-all-upfront" # Máximo descuento
         engines: ["PostgreSQL", "Redis"]
-  
+
   # Savings Plans para flexibilidad
   savings-plans:
     - compute-savings-plan:
         commitment: "$500/month"
         term: "1-year"
         payment: "partial-upfront"
-        
+
   # Spot Instances para cargas tolerantes a interrupciones
   spot-instances:
     - analytics-workloads: 70% # Procesamiento de datos no crítico
@@ -3215,7 +3215,7 @@ cost-planning:
 ```yaml
 # Governance de costos automatizada
 cost-monitoring:
-  
+
   # Budgets por servicio
   service-budgets:
     - financial-service: "$2000/month"
@@ -3227,7 +3227,7 @@ cost-monitoring:
     - reputation-service: "$200/month"
     - government-service: "$300/month"
     - veterinary-service: "$400/month"
-  
+
   # Alertas de anomalías
   cost-anomaly-detection:
     - threshold: 20% # Alerta si el costo aumenta >20%
@@ -3235,7 +3235,7 @@ cost-monitoring:
     - auto-actions:
         - scale-down-non-critical-services
         - pause-development-environments
-  
+
   # Reportes automáticos
   cost-reports:
     - frequency: "weekly"
@@ -3249,33 +3249,33 @@ cost-monitoring:
 ```yaml
 # Reducción de costos operacionales mediante automatización
 operational-automation:
-  
+
   # Auto-remediation para reducir intervención manual
   auto-remediation:
     - failed-health-checks:
         action: "restart-pod"
         max-attempts: 3
         escalation: "alert-on-call"
-    
+
     - high-memory-usage:
         threshold: 85%
         action: "scale-up"
         cooldown: "5-minutes"
-    
+
     - database-connection-pool-exhaustion:
         action: "restart-service"
         notification: "immediate"
-  
+
   # Scheduled operations para optimizar recursos
   scheduled-operations:
     - development-environment-shutdown:
         schedule: "0 19 * * 1-5" # Apagar a las 7 PM días laborales
         action: "scale-to-zero"
-        
+
     - analytics-batch-processing:
         schedule: "0 2 * * *" # Ejecutar a las 2 AM
         resources: "spot-instances"
-        
+
     - database-maintenance:
         schedule: "0 3 * * 0" # Domingos a las 3 AM
         action: "automated-maintenance"
@@ -3287,13 +3287,13 @@ operational-automation:
 ```yaml
 # Estrategia de múltiples regiones optimizada por costos
 multi-region-strategy:
-  
+
   # Región primaria (full deployment)
   primary-region:
     region: "us-east-1" # Costos más bajos
     services: "all"
     redundancy: "multi-az"
-    
+
   # Región secundaria (disaster recovery)
   secondary-region:
     region: "us-west-2"
@@ -3301,7 +3301,7 @@ multi-region-strategy:
     deployment-type: "warm-standby"
     rto: "15-minutes"
     rpo: "5-minutes"
-    
+
   # Cross-region replication optimizada
   replication-strategy:
     - financial-data: "synchronous" # Crítico
@@ -3313,7 +3313,7 @@ multi-region-strategy:
 ```yaml
 # Estrategia de backups costo-efectiva
 backup-optimization:
-  
+
   # Backups por criticidad de datos
   backup-tiers:
     - critical-data:
@@ -3321,13 +3321,13 @@ backup-optimization:
         frequency: "continuous"
         retention: "35-days-hot + 7-years-cold"
         storage-class: "S3 IA -> Glacier"
-        
+
     - important-data:
         services: ["animal-rescue-service", "geolocation-service"]
         frequency: "6-hours"
         retention: "7-days-hot + 2-years-cold"
         storage-class: "S3 Standard -> S3 IA"
-        
+
     - operational-data:
         services: ["notification-service", "reputation-service"]
         frequency: "daily"
@@ -3341,7 +3341,7 @@ backup-optimization:
 ```yaml
 # Distribución de contenido optimizada por costos
 cdn-strategy:
-  
+
   # Contenido estático con CloudFront
   static-content:
     - animal-photos:
@@ -3349,27 +3349,27 @@ cdn-strategy:
         origin: "S3"
         cache-ttl: "30-days"
         compression: "gzip + brotli"
-        
+
     - app-assets:
         cdn: "CloudFront"
         origin: "S3"
         cache-ttl: "1-year"
         versioning: "enabled"
-  
+
   # API caching inteligente
   api-caching:
     - public-endpoints:
         cache-ttl: "5-minutes"
         cache-key: "url + query-params"
-        
+
     - user-specific-endpoints:
         cache-ttl: "30-seconds"
         cache-key: "url + user-id"
-        
+
     - geolocation-queries:
         cache-ttl: "2-minutes"
         cache-key: "coordinates + radius"
-  
+
   # Edge computing para reducir latencia y costos
   edge-computing:
     - image-resizing: "Lambda@Edge"
@@ -3381,19 +3381,19 @@ cdn-strategy:
 ```yaml
 # Reducción de costos de transferencia de datos
 data-transfer-optimization:
-  
+
   # Compresión y optimización
   compression:
     - api-responses: "gzip"
     - images: "webp + progressive-jpeg"
     - videos: "h264 + adaptive-bitrate"
-  
+
   # Estrategia de regiones
   region-strategy:
     - primary-traffic: "same-region-routing"
     - cross-region-traffic: "minimize"
     - cdn-offloading: "80%" # Reducir tráfico al origen
-  
+
   # Batch processing para reducir API calls
   batch-optimization:
     - notification-delivery: "batch-size-100"
@@ -3406,21 +3406,21 @@ data-transfer-optimization:
 ```yaml
 # Seguridad que reduce costos operacionales
 security-automation:
-  
+
   # WAF con reglas inteligentes
   web-application-firewall:
     - managed-rules: "AWS-AWSManagedRulesCommonRuleSet"
     - rate-limiting: "1000-requests-per-5min-per-ip"
     - geo-blocking: "block-non-latam" # Reducir tráfico malicioso
     - cost-optimization: "pay-per-request" # Solo pagar por uso real
-  
+
   # Secrets management centralizado
   secrets-management:
     - service: "AWS Secrets Manager"
     - rotation: "automatic-90-days"
     - cross-service-sharing: "enabled" # Reducir duplicación
     - cost-optimization: "pay-per-secret-per-month"
-  
+
   # Security scanning automatizado
   automated-security:
     - vulnerability-scanning: "AWS Inspector"
@@ -3435,20 +3435,20 @@ security-automation:
 ```yaml
 # Monitoreo de performance optimizado
 performance-monitoring:
-  
+
   # Métricas esenciales vs nice-to-have
   essential-metrics:
     - application-latency: "p50, p95, p99"
     - error-rates: "4xx, 5xx by service"
     - throughput: "requests-per-second"
     - business-metrics: "rescues-completed, donations-processed"
-    
+
   # Sampling para reducir costos de observabilidad
   sampling-strategy:
     - traces: "1% sampling for normal traffic, 100% for errors"
     - logs: "ERROR and WARN always, INFO sampled at 10%"
     - metrics: "1-minute resolution for dashboards, 5-minute for alerts"
-  
+
   # Retention policies optimizadas
   retention-optimization:
     - hot-data: "7-days" # Dashboards y alertas
@@ -3462,19 +3462,19 @@ performance-monitoring:
 ```yaml
 # Sostenibilidad que reduce costos
 sustainability-optimization:
-  
+
   # Regiones con energía renovable
   green-regions:
     - primary: "us-west-2" # 95% energía renovable
     - secondary: "eu-west-1" # 89% energía renovable
     - avoid: "ap-southeast-2" # Mayor huella de carbono
-  
+
   # Optimización de instancias
   efficient-instances:
     - graviton-processors: "40% mejor performance por watt"
     - right-sizing: "automated-recommendations"
     - spot-instances: "utilizar capacidad ociosa"
-  
+
   # Lifecycle management
   resource-lifecycle:
     - auto-shutdown: "development-environments-after-hours"
@@ -3488,23 +3488,23 @@ sustainability-optimization:
 ```yaml
 # Proyección de costos por servicio en producción
 monthly-cost-projection:
-  
+
   # Servicios de alto costo (críticos)
   high-cost-services:
-    - financial-service: 
+    - financial-service:
         compute: "$800"
-        database: "$600" 
+        database: "$600"
         storage: "$200"
         networking: "$100"
         total: "$1,700"
-        
+
     - animal-rescue-service:
         compute: "$600"
         database: "$400"
         storage: "$150"
         networking: "$80"
         total: "$1,230"
-  
+
   # Servicios de costo medio
   medium-cost-services:
     - notification-service:
@@ -3514,7 +3514,7 @@ monthly-cost-projection:
         networking: "$60"
         external-apis: "$100" # Firebase
         total: "$810"
-        
+
     - geolocation-service:
         compute: "$350"
         database: "$300" # PostGIS requiere más recursos
@@ -3522,7 +3522,7 @@ monthly-cost-projection:
         networking: "$50"
         external-apis: "$80" # Google Maps
         total: "$860"
-  
+
   # Servicios de bajo costo
   low-cost-services:
     - user-management-service: "$450"
@@ -3530,7 +3530,7 @@ monthly-cost-projection:
     - reputation-service: "$180"
     - government-service: "$250"
     - analytics-service: "$380" # Spot instances
-  
+
   # Costos compartidos
   shared-infrastructure:
     - api-gateway: "$200"
@@ -3540,10 +3540,10 @@ monthly-cost-projection:
     - backups: "$250"
     - cdn: "$120"
     - total-shared: "$1,200"
-  
+
   # Total estimado mensual
   total-monthly-cost: "$8,560"
-  
+
   # Estrategias de reducción de costos
   cost-reduction-strategies:
     - reserved-instances: "-25% ($2,140 savings)"
@@ -3559,7 +3559,7 @@ monthly-cost-projection:
 ```yaml
 # Justificación económica del sistema
 cost-benefit-analysis:
-  
+
   # Costos anuales proyectados
   annual-costs:
     - infrastructure: "$74,208" # $6,184 * 12
@@ -3567,7 +3567,7 @@ cost-benefit-analysis:
     - operations: "$120,000" # 1 DevOps + 1 SRE
     - compliance: "$50,000" # PCI DSS, auditorías
     - total-annual: "$484,208"
-  
+
   # Beneficios cuantificables
   annual-benefits:
     - donation-processing-efficiency: "$200,000"
@@ -3575,7 +3575,7 @@ cost-benefit-analysis:
     - improved-rescue-response-time: "$300,000"
     - transparency-compliance-savings: "$100,000"
     - total-annual-benefits: "$750,000"
-  
+
   # ROI calculation
   roi-metrics:
     - net-benefit: "$265,792" # Benefits - Costs

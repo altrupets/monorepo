@@ -56,20 +56,20 @@ class DesignSystemManager extends ChangeNotifier {
       if (await file.exists()) {
         final content = await file.readAsString();
         final json = jsonDecode(content);
-        
+
         final colorData = json['color']['brand'];
         final typographyData = json['typography']['family'];
-        
+
         primaryColor = _hexToColor(colorData['primary']['value']);
         secondaryColor = _hexToColor(colorData['secondary']['value']);
         accentColor = _hexToColor(colorData['accent']['value']);
         warningColor = _hexToColor(colorData['warning']['value']);
         errorColor = _hexToColor(colorData['error']['value']);
         successColor = _hexToColor(colorData['success']?['value'] ?? '#2E7D32');
-        
+
         headerFont = typographyData['header']['value'];
         bodyFont = typographyData['primary']['value'];
-        
+
         await applyTheme(skipSave: true); // Apply loaded values immediately
       }
     } catch (e) {
@@ -109,7 +109,7 @@ class DesignSystemManager extends ChangeNotifier {
             // ignore: deprecated_member_use
             "primary": _paletteToMap(CorePalette.of(primaryColor.toARGB32()).primary),
             // ignore: deprecated_member_use
-            "secondary": _paletteToMap(CorePalette.of(secondaryColor.toARGB32()).primary), 
+            "secondary": _paletteToMap(CorePalette.of(secondaryColor.toARGB32()).primary),
             // ignore: deprecated_member_use
             "accent": _paletteToMap(CorePalette.of(accentColor.toARGB32()).primary),
             // ignore: deprecated_member_use
@@ -152,11 +152,11 @@ class DesignSystemManager extends ChangeNotifier {
 
       await _updateAppColors();
       await _updateAppTypography();
-      
+
       // Touch these files to trigger hot reload if needed
       await _touchFile(appThemePath);
       await _touchFile(themeProviderPath);
-      
+
     } catch (e) {
       debugPrint('Error applying theme: $e');
       rethrow;
@@ -202,22 +202,22 @@ class AppTypography {
       displayLarge: ${getTextStyle(headerFont, isHeaderGoogle, 'displayLarge', letterSpacing: -0.25)},
       displayMedium: ${getTextStyle(headerFont, isHeaderGoogle, 'displayMedium')},
       displaySmall: ${getTextStyle(headerFont, isHeaderGoogle, 'displaySmall')},
-      
+
       // Headline Styles ($headerFont)
       headlineLarge: ${getTextStyle(headerFont, isHeaderGoogle, 'headlineLarge')},
       headlineMedium: ${getTextStyle(headerFont, isHeaderGoogle, 'headlineMedium')},
       headlineSmall: ${getTextStyle(headerFont, isHeaderGoogle, 'headlineSmall')},
-      
+
       // Title Styles ($bodyFont)
       titleLarge: ${getTextStyle(bodyFont, isBodyGoogle, 'titleLarge')},
       titleMedium: ${getTextStyle(bodyFont, isBodyGoogle, 'titleMedium', letterSpacing: 0.15)},
       titleSmall: ${getTextStyle(bodyFont, isBodyGoogle, 'titleSmall', letterSpacing: 0.1)},
-      
+
       // Body Styles ($bodyFont)
       bodyLarge: ${getTextStyle(bodyFont, isBodyGoogle, 'bodyLarge', letterSpacing: 0.5)},
       bodyMedium: ${getTextStyle(bodyFont, isBodyGoogle, 'bodyMedium', letterSpacing: 0.25)},
       bodySmall: ${getTextStyle(bodyFont, isBodyGoogle, 'bodySmall', letterSpacing: 0.4)},
-      
+
       // Label Styles ($bodyFont)
       labelLarge: ${getTextStyle(bodyFont, isBodyGoogle, 'labelLarge', letterSpacing: 0.1)},
       labelMedium: ${getTextStyle(bodyFont, isBodyGoogle, 'labelMedium', letterSpacing: 0.5)},

@@ -233,4 +233,3 @@ Copy-Item -Path skills\* -Destination .cursor\rules\skills\ -Recurse
 ---
 
 **Última actualización:** Diciembre 2025
-

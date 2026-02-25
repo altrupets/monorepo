@@ -1,6 +1,6 @@
 # Plan de Implementación - AltruPets (8 Sprints)
 
-**Versión:** 0.3.0 (Sprint 1) → 1.0.0 (Sprint 8)  
+**Versión:** 0.3.0 (Sprint 1) → 1.0.0 (Sprint 8)
 **Duración Total:** 6 meses | **Objetivo:** MVP funcional con coordinación de rescate animal
 
 ---
@@ -20,7 +20,7 @@
 
 # 🚀 SPRINT 1 (v0.3.0) - Coordinación Básica de Rescate
 
-**Duración:** 3 semanas | **Prioridad:** 🔴 CRÍTICA  
+**Duración:** 3 semanas | **Prioridad:** 🔴 CRÍTICA
 **Objetivo:** Implementar flujo completo de coordinación entre centinelas, auxiliares y rescatistas
 
 ## Fase 1: Configuración del Proyecto y Arquitectura Base
@@ -92,9 +92,9 @@
     - `apps/mobile/lib/core/network/interceptors/error_interceptor.dart` (FIXED: NetworkException abstract class)
   - **Validación:** `dart analyze` ejecutado sin errores ✅
   - _Requerimientos: 1.3, 1.4_
-  
+
   **GraphQL Mutations/Queries para Registro:**
-  
+
   ```graphql
   # Mutation de Registro
   mutation Register($registerInput: RegisterInput!) {
@@ -119,7 +119,7 @@
       updatedAt
     }
   }
-  
+
   # Input Type para Registro
   input RegisterInput {
     username: String!           # Mínimo 3 caracteres
@@ -137,7 +137,7 @@
     incomeSource: String        # Opcional (requerido para DONOR)
     roles: [UserRole!]          # Opcional, default: [WATCHER]
   }
-  
+
   # Enum de Roles Disponibles
   enum UserRole {
     SUPER_USER              # Super Administrador
@@ -151,7 +151,7 @@
     DONOR                   # Donante
     VETERINARIAN            # Veterinario
   }
-  
+
   # Mutation de Login
   mutation Login($loginInput: LoginInput!) {
     login(loginInput: $loginInput) {
@@ -160,12 +160,12 @@
       expires_in
     }
   }
-  
+
   input LoginInput {
     username: String!
     password: String!
   }
-  
+
   # Query de Perfil (requiere autenticación)
   query Profile {
     profile {
@@ -175,7 +175,7 @@
     }
   }
   ```
-  
+
   **Notas de Implementación:**
   - El backend valida que username sea único (mínimo 3 caracteres)
   - El email es opcional pero debe ser único si se proporciona
@@ -218,9 +218,9 @@
     - ✅ Asignación de roles organizacionales (Legal Representative, User Admin, Member)
   - **Validación:** `dart analyze` ejecutado - 0 errores de compilación ✅
   - _Requerimientos: 1.6, 2.1, 2.2, REQ-ADM-001, REQ-ADM-002_
-  
+
   **GraphQL Mutations/Queries Disponibles:**
-  
+
   ```graphql
   # Mutation para registrar organización
   mutation RegisterOrganization($registerOrganizationInput: RegisterOrganizationInput!) {
@@ -250,7 +250,7 @@
       updatedAt
     }
   }
-  
+
   # Input para registro de organización
   input RegisterOrganizationInput {
     name: String!                           # Nombre único de la organización
@@ -269,7 +269,7 @@
     financialStatementsBase64: String       # Estados financieros en base64
     maxCapacity: Int                        # Capacidad máxima de animales
   }
-  
+
   # Enum de tipos de organización
   enum OrganizationType {
     FOUNDATION                              # Fundación
@@ -279,7 +279,7 @@
     GOVERNMENT                              # Gubernamental
     OTHER                                   # Otro
   }
-  
+
   # Enum de estados de organización
   enum OrganizationStatus {
     PENDING_VERIFICATION                    # Pendiente de verificación
@@ -287,7 +287,7 @@
     SUSPENDED                               # Suspendida
     INACTIVE                                # Inactiva
   }
-  
+
   # Query para buscar organizaciones
   query SearchOrganizations($searchOrganizationsInput: SearchOrganizationsInput!) {
     searchOrganizations(searchOrganizationsInput: $searchOrganizationsInput) {
@@ -303,7 +303,7 @@
       status
     }
   }
-  
+
   # Input para búsqueda de organizaciones
   input SearchOrganizationsInput {
     name: String                            # Búsqueda por nombre (ILIKE)
@@ -313,7 +313,7 @@
     province: String                        # Filtrar por provincia
     canton: String                          # Filtrar por cantón
   }
-  
+
   # Query para obtener organización por ID
   query Organization($id: ID!) {
     organization(id: $id) {
@@ -340,7 +340,7 @@
       updatedAt
     }
   }
-  
+
   # Mutation para solicitar membresía
   mutation RequestMembership($requestMembershipInput: RequestMembershipInput!) {
     requestMembership(requestMembershipInput: $requestMembershipInput) {
@@ -353,13 +353,13 @@
       createdAt
     }
   }
-  
+
   # Input para solicitar membresía
   input RequestMembershipInput {
     organizationId: ID!                     # ID de la organización
     requestMessage: String                  # Mensaje de solicitud
   }
-  
+
   # Mutation para aprobar membresía (requiere LEGAL_REPRESENTATIVE o USER_ADMIN)
   mutation ApproveMembership($approveMembershipInput: ApproveMembershipInput!) {
     approveMembership(approveMembershipInput: $approveMembershipInput) {
@@ -372,13 +372,13 @@
       approvedAt
     }
   }
-  
+
   # Input para aprobar membresía
   input ApproveMembershipInput {
     membershipId: ID!                       # ID de la membresía
     role: OrganizationRole                  # Rol a asignar (opcional, default: MEMBER)
   }
-  
+
   # Mutation para rechazar membresía (requiere LEGAL_REPRESENTATIVE o USER_ADMIN)
   mutation RejectMembership($rejectMembershipInput: RejectMembershipInput!) {
     rejectMembership(rejectMembershipInput: $rejectMembershipInput) {
@@ -389,13 +389,13 @@
       rejectionReason
     }
   }
-  
+
   # Input para rechazar membresía
   input RejectMembershipInput {
     membershipId: ID!                       # ID de la membresía
     rejectionReason: String                 # Razón del rechazo
   }
-  
+
   # Mutation para asignar rol (requiere LEGAL_REPRESENTATIVE)
   mutation AssignRole($assignRoleInput: AssignRoleInput!) {
     assignRole(assignRoleInput: $assignRoleInput) {
@@ -405,20 +405,20 @@
       role
     }
   }
-  
+
   # Input para asignar rol
   input AssignRoleInput {
     membershipId: ID!                       # ID de la membresía
     role: OrganizationRole!                 # Nuevo rol
   }
-  
+
   # Enum de roles organizacionales
   enum OrganizationRole {
     LEGAL_REPRESENTATIVE                    # Representante Legal (máxima autoridad)
     USER_ADMIN                              # Administrador de Usuarios
     MEMBER                                  # Miembro regular
   }
-  
+
   # Enum de estados de membresía
   enum MembershipStatus {
     PENDING                                 # Pendiente de aprobación
@@ -426,7 +426,7 @@
     REJECTED                                # Rechazada
     REVOKED                                 # Revocada
   }
-  
+
   # Query para obtener membresías de una organización
   query OrganizationMemberships($organizationId: ID!) {
     organizationMemberships(organizationId: $organizationId) {
@@ -440,7 +440,7 @@
       createdAt
     }
   }
-  
+
   # Query para obtener mis membresías (requiere autenticación)
   query MyMemberships {
     myMemberships {
@@ -452,7 +452,7 @@
     }
   }
   ```
-  
+
   **Notas de Implementación Backend:**
   - Al registrar una organización, el usuario que la crea automáticamente se convierte en LEGAL_REPRESENTATIVE (REQ-ADM-001)
   - Solo LEGAL_REPRESENTATIVE y USER_ADMIN pueden aprobar/rechazar membresías
@@ -541,7 +541,7 @@
 
 # 📱 SPRINT 2 (v0.4.0) - Sistema de Adopciones
 
-**Duración:** 2 semanas | **Prioridad:** 🟠 ALTA  
+**Duración:** 2 semanas | **Prioridad:** 🟠 ALTA
 **Objetivo:** Implementar proceso completo de adopción de animales
 
 ## Fase 7: Red de Veterinarios Colaboradores
@@ -571,7 +571,7 @@
 
 # 💰 SPRINT 3 (v0.5.0) - Sistema Financiero y Donaciones
 
-**Duración:** 2.5 semanas | **Prioridad:** 🟠 ALTA  
+**Duración:** 2.5 semanas | **Prioridad:** 🟠 ALTA
 **Objetivo:** Implementar sistema de donaciones, pagos y gestión financiera
 
 ## Fase 8: Sistema Financiero y Gestión Contable
@@ -608,14 +608,14 @@
 
 # 🏥 SPRINT 4 (v0.6.0) - Red Veterinaria
 
-**Duración:** 2 semanas | **Prioridad:** 🟡 MEDIA  
+**Duración:** 2 semanas | **Prioridad:** 🟡 MEDIA
 **Objetivo:** Completar integración con red de veterinarios colaboradores
 
 ---
 
 # 🏛️ SPRINT 5 (v0.7.0) - Administración Gubernamental
 
-**Duración:** 2 semanas | **Prioridad:** 🟡 MEDIA  
+**Duración:** 2 semanas | **Prioridad:** 🟡 MEDIA
 **Objetivo:** Implementar funcionalidades de administración gubernamental y multi-tenant
 
 ## Fase 11: Funcionalidades Gubernamentales
@@ -638,21 +638,21 @@
 
 # 🔄 SPRINT 6 (v0.8.0) - Sistema de Continuidad
 
-**Duración:** 2 semanas | **Prioridad:** 🟡 MEDIA  
+**Duración:** 2 semanas | **Prioridad:** 🟡 MEDIA
 **Objetivo:** Implementar sistema de continuidad y gestión de emergencias
 
 ---
 
 # ☁️ SPRINT 7 (v0.9.0) - Infraestructura Cloud
 
-**Duración:** 2 semanas | **Prioridad:** 🟡 MEDIA  
+**Duración:** 2 semanas | **Prioridad:** 🟡 MEDIA
 **Objetivo:** Desplegar infraestructura cloud (QA, STAGING, PROD)
 
 ---
 
 # 🎯 SPRINT 8 (v1.0.0) - Release Producción
 
-**Duración:** 2 semanas | **Prioridad:** 🔴 CRÍTICA  
+**Duración:** 2 semanas | **Prioridad:** 🔴 CRÍTICA
 **Objetivo:** Testing final, seguridad y lanzamiento a producción
 
 ## Fase 9: Sistema de Comunicación y Notificaciones
@@ -766,5 +766,5 @@
 
 ---
 
-**Última actualización:** 17 de febrero de 2026  
+**Última actualización:** 17 de febrero de 2026
 **Estado:** Sprint 1 en progreso (Tareas 1-3 completadas)

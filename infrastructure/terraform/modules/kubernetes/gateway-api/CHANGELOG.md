@@ -112,7 +112,7 @@ y este proyecto adhiere a [Semantic Versioning](https://semver.org/lang/es/spec/
   - Gateway resources
   - HTTPRoutes (con matching avanzado: path, headers, query params, methods)
   - TCPRoutes
-  - TLSRoutes  
+  - TLSRoutes
   - ReferenceGrants (cross-namespace routing)
 - Helpers template (`_helpers.tpl`) para etiquetas y anotaciones consistentes
 - Values por defecto configurables
@@ -272,7 +272,7 @@ kubectl apply -k overlays/dev
 ```hcl
 module "gateway_api" {
   source = "../../modules/kubernetes/gateway-api"
-  
+
   deployment_method = "helm-kustomize"  # Opciones: terraform-only, helm, kustomize, helm-kustomize
   environment       = "dev"
   # ... otras configuraciones

@@ -1,9 +1,9 @@
 # Especificación de Requisitos: Servicio de Autenticación y Gestión de Tokens JWT
 
-**Versión:** 1.0.0  
-**Sprint:** 1 (v0.3.0)  
-**Tarea:** 5 - Implementar servicio de autenticación y gestión de tokens JWT  
-**Requisitos Asociados:** REQ-SEC-001, REQ-SEC-002, REQ-SEC-003, REQ-COM-002, REQ-FLT-027  
+**Versión:** 1.0.0
+**Sprint:** 1 (v0.3.0)
+**Tarea:** 5 - Implementar servicio de autenticación y gestión de tokens JWT
+**Requisitos Asociados:** REQ-SEC-001, REQ-SEC-002, REQ-SEC-003, REQ-COM-002, REQ-FLT-027
 **Estado:** 📋 Especificación en Revisión
 
 ---
@@ -85,7 +85,7 @@ El **AuthService** es un componente central que se integra con:
 
 **Flujo de integración:**
 ```
-Usuario → AuthService.login() 
+Usuario → AuthService.login()
   → HttpClientService.post('/auth/login')
   → Backend valida credenciales
   → Retorna access_token + refresh_token
@@ -548,6 +548,6 @@ CUANDO un usuario olvide su contraseña ENTONCES:
 
 ---
 
-**Última actualización:** 17 de febrero de 2026  
-**Versión:** 1.0.0  
+**Última actualización:** 17 de febrero de 2026
+**Versión:** 1.0.0
 **Estado:** 📋 Listo para Revisión

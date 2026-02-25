@@ -12,7 +12,7 @@ import { CAPTURE_VIEWER_ROLES } from '../../auth/roles/rbac-constants';
 @Controller('b2g')
 @UseGuards(JwtAuthGuard, RolesGuard)
 export class B2gController {
-  
+
   @Get()
   @Roles(...CAPTURE_VIEWER_ROLES)
   async index(@Res() res: Response) {

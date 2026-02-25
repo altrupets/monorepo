@@ -189,7 +189,7 @@ deploy_postgres() {
 	cat >"$temp_dir/main.tf" <<EOF
 module "postgres" {
   source = "$tf_dir"
-  
+
   name               = "postgres${suffix}"
   namespace          = "$namespace"
   postgres_version   = "15"

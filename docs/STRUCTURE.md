@@ -233,4 +233,3 @@ Usando el MCP server:
 **💡 Tip:** Comienza con el skill `flutter-mvvm-pattern` si eres nuevo en arquitecturas de Flutter, o salta directamente a `flutter-clean-architecture` si buscas máxima escalabilidad.
 
 **Última actualización:** Diciembre 2025
-

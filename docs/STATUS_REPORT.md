@@ -1,7 +1,7 @@
 # Reporte de Estado del Proyecto AltruPets
-**Fecha:** 17 de febrero de 2026  
-**Versión Backend:** 0.2.0  
-**Versión Mobile:** 0.2.0  
+**Fecha:** 17 de febrero de 2026
+**Versión Backend:** 0.2.0
+**Versión Mobile:** 0.2.0
 **Versión Infraestructura:** 1.0.0 (Gateway API)
 
 ---
@@ -32,12 +32,12 @@ El proyecto AltruPets ha completado exitosamente la **Fase 0.2.0** con infraestr
 
 **Servicios Activos:**
 ```
-NAMESPACE       POD                                    STATUS    
-altrupets-dev   backend-5d45495d56-hwxkl              Running   
-altrupets-dev   dev-gateway-nginx-85c9854499-v8bpm    Running   
-argocd          argocd-* (7 pods)                     Running   
-default         postgres-dev-0                        Running   
-nginx-gateway   ngf-nginx-gateway-fabric-*            Running   
+NAMESPACE       POD                                    STATUS
+altrupets-dev   backend-5d45495d56-hwxkl              Running
+altrupets-dev   dev-gateway-nginx-85c9854499-v8bpm    Running
+argocd          argocd-* (7 pods)                     Running
+default         postgres-dev-0                        Running
+nginx-gateway   ngf-nginx-gateway-fabric-*            Running
 ```
 
 **Endpoints Configurados:**
@@ -151,8 +151,8 @@ query AdminOnlyData {
 
 **Campos User:**
 ```typescript
-id, username, passwordHash, roles[], firstName, lastName, 
-phone, identification, country, province, canton, district, 
+id, username, passwordHash, roles[], firstName, lastName,
+phone, identification, country, province, canton, district,
 avatarImage (Buffer), avatarBase64 (string), createdAt, updatedAt
 ```
 
@@ -173,7 +173,7 @@ avatarImage (Buffer), avatarBase64 (string), createdAt, updatedAt
 
 **Campos CaptureRequest:**
 ```typescript
-id, latitude, longitude, description, animalType, 
+id, latitude, longitude, description, animalType,
 status, imageUrl, createdAt
 ```
 
@@ -260,7 +260,7 @@ status, imageUrl, createdAt
 
 **Flujo de Login:**
 ```
-LoginPage → AuthProvider.login() → AuthRepository.login() 
+LoginPage → AuthProvider.login() → AuthRepository.login()
 → GraphQL mutation → Save token → Navigate to HomePage
 ```
 
@@ -531,6 +531,6 @@ Ver **PLAN_DE_ACCION.md** para roadmap detallado.
 
 ---
 
-**Última actualización:** 17 de febrero de 2026  
-**Responsable:** Equipo AltruPets  
+**Última actualización:** 17 de febrero de 2026
+**Responsable:** Equipo AltruPets
 **Próxima revisión:** Al completar Sprint 1 (Fase 0.3.0)

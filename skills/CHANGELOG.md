@@ -255,4 +255,3 @@ y este proyecto adhiere a [Semantic Versioning](https://semver.org/lang/es/).
 ---
 
 **Nota:** Las fechas siguen el formato YYYY-MM-DD (ISO 8601)
-

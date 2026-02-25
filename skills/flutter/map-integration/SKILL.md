@@ -67,19 +67,19 @@ import 'package:flutter/material.dart';
 
 class MapPage extends StatefulWidget {
   const MapPage({super.key});
-  
+
   @override
   State<MapPage> createState() => _MapPageState();
 }
 
 class _MapPageState extends State<MapPage> {
   GoogleMapController? _mapController;
-  
+
   static const CameraPosition _initialPosition = CameraPosition(
     target: LatLng(37.7749, -122.4194), // San Francisco
     zoom: 12,
   );
-  
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -94,7 +94,7 @@ class _MapPageState extends State<MapPage> {
       ),
     );
   }
-  
+
   @override
   void dispose() {
     _mapController?.dispose();
@@ -108,11 +108,11 @@ class _MapPageState extends State<MapPage> {
 ```dart
 class MapService {
   GoogleMapController? _controller;
-  
+
   void setController(GoogleMapController controller) {
     _controller = controller;
   }
-  
+
   Future<void> animateToLocation(LatLng location, {double zoom = 15}) async {
     await _controller?.animateCamera(
       CameraUpdate.newCameraPosition(
@@ -120,11 +120,11 @@ class MapService {
       ),
     );
   }
-  
+
   Future<void> addMarker(Marker marker) async {
     // Implementation depends on your state management
   }
-  
+
   Future<void> drawPolyline(List<LatLng> points) async {
     // Implementation
   }
@@ -136,9 +136,9 @@ class MapService {
 ```dart
 class MarkerManager {
   final Set<Marker> _markers = {};
-  
+
   Set<Marker> get markers => _markers;
-  
+
   void addMarker({
     required String id,
     required LatLng position,
@@ -155,14 +155,14 @@ class MarkerManager {
       ),
       icon: icon ?? BitmapDescriptor.defaultMarker,
     );
-    
+
     _markers.add(marker);
   }
-  
+
   void removeMarker(String id) {
     _markers.removeWhere((marker) => marker.markerId.value == id);
   }
-  
+
   void clearMarkers() {
     _markers.clear();
   }
@@ -180,7 +180,7 @@ class LocationService {
     if (!serviceEnabled) {
       throw Exception('Location services are disabled');
     }
-    
+
     LocationPermission permission = await Geolocator.checkPermission();
     if (permission == LocationPermission.denied) {
       permission = await Geolocator.requestPermission();
@@ -188,10 +188,10 @@ class LocationService {
         throw Exception('Location permissions are denied');
       }
     }
-    
+
     return await Geolocator.getCurrentPosition();
   }
-  
+
   Stream<Position> getLocationStream() {
     return Geolocator.getPositionStream(
       locationSettings: const LocationSettings(
@@ -205,20 +205,20 @@ class LocationService {
 // Usage in a map
 class TrackingMap extends ConsumerWidget {
   const TrackingMap({super.key});
-  
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final locationService = LocationService();
-    
+
     return StreamBuilder<Position>(
       stream: locationService.getLocationStream(),
       builder: (context, snapshot) {
         if (!snapshot.hasData) {
           return const Center(child: CircularProgressIndicator());
         }
-        
+
         final position = snapshot.data!;
-        
+
         return GoogleMap(
           initialCameraPosition: CameraPosition(
             target: LatLng(position.latitude, position.longitude),
@@ -248,9 +248,9 @@ import 'package:flutter_polyline_points/flutter_polyline_points.dart';
 class RoutingService {
   final String apiKey;
   final PolylinePoints _polylinePoints = PolylinePoints();
-  
+
   RoutingService({required this.apiKey});
-  
+
   Future<List<LatLng>> getDirections(
     LatLng origin,
     LatLng destination,
@@ -263,13 +263,13 @@ class RoutingService {
         mode: TravelMode.driving,
       ),
     );
-    
+
     if (result.points.isNotEmpty) {
       return result.points
           .map((point) => LatLng(point.latitude, point.longitude))
           .toList();
     }
-    
+
     return [];
   }
 }
@@ -280,7 +280,7 @@ class RoutingService {
 ```dart
 class RescueMapPage extends ConsumerStatefulWidget {
   const RescueMapPage({super.key});
-  
+
   @override
   ConsumerState<RescueMapPage> createState() => _RescueMapPageState();
 }
@@ -289,7 +289,7 @@ class _RescueMapPageState extends ConsumerState<RescueMapPage> {
   GoogleMapController? _controller;
   final Set<Marker> _markers = {};
   List<LatLng> _routePoints = [];
-  
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -329,7 +329,7 @@ class _RescueMapPageState extends ConsumerState<RescueMapPage> {
       ),
     );
   }
-  
+
   void _loadRescueLocations() {
     // Add rescue markers
     setState(() {
@@ -348,7 +348,7 @@ class _RescueMapPageState extends ConsumerState<RescueMapPage> {
       ]);
     });
   }
-  
+
   void _handleMapTap(LatLng position) {
     // Add marker at tap location
     setState(() {
@@ -360,7 +360,7 @@ class _RescueMapPageState extends ConsumerState<RescueMapPage> {
       );
     });
   }
-  
+
   Future<void> _centerOnCurrentLocation() async {
     final position = await LocationService().getCurrentLocation();
     _controller?.animateCamera(

@@ -1356,7 +1356,7 @@ microservices:
   api:
     graphql: "Apollo Server 5.x"
     rest: "Express 5.2.1"
-  
+
   databases:
     - "PostgreSQL 15 (Multi-AZ para críticos)"
     - "PostGIS (Geolocation Service)"
@@ -1367,7 +1367,7 @@ microservices:
   auth:
     jwt: "passport-jwt"
     hashing: "bcrypt (12 rounds)"
-    
+
   frontend_integration:
     inertia: "@lapc506/nestjs-inertia@1.0.0"
 
@@ -1447,17 +1447,17 @@ tls_configuration:
   cert_manager:
     version: "v1.14.0"
     install: "Helm chart from charts.jetstack.io"
-    
+
   lets_encrypt:
     staging: "https://acme-staging-v02.api.letsencrypt.org/directory"
     production: "https://acme-v02.api.letsencrypt.org/directory"
-    
+
   dns_challenge:
     provider: "Cloudflare"
     required_variables:
       - "CLOUDFLARE_API_TOKEN"
       - "CLOUDFLARE_ZONE_ID"
-      
+
   certificates:
     domains:
       - "altrupets.app"
@@ -1484,7 +1484,7 @@ gateway_api:
     - "TLS Termination"
     - "Path-based routing"
     - "Header-based routing"
-  
+
   service_mesh:
     enabled: true
     platform: "Istio"
@@ -1750,7 +1750,7 @@ cicd_pipeline:
   deployment: "ArgoCD (GitOps)"
   testing: "Automated testing with cost controls"
   images: "ghcr.io/altrupets/backend, ghcr.io/altrupets/frontend"
-  
+
   cost_optimizations:
     - "Spot instances for CI runners"
     - "Parallel builds"

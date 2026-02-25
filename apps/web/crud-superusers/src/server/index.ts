@@ -15,7 +15,7 @@ app.use(express.static(resolve(__dirname, '../public')))
 
 function renderPage(component: string, props: Record<string, any> = {}, title: string = 'AltruPets Admin'): string {
   const pageData = JSON.stringify({ component, props, url: '/admin', version: '1' })
-  
+
   return `<!DOCTYPE html>
 <html lang="es">
 <head>
@@ -188,12 +188,12 @@ app.post('/admin/login', async (req, res) => {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(req.body),
     })
-    
+
     const setCookie = response.headers.get('set-cookie')
     if (setCookie) res.setHeader('Set-Cookie', setCookie)
-    
+
     if (response.ok) return res.redirect('/admin')
-    
+
     const data = await response.json()
     res.send(renderPage('Auth/Login', { errors: { login: data.message || 'Error de autenticación' } }, 'Login'))
   } catch {
@@ -220,10 +220,10 @@ app.use('/graphql', async (req, res) => {
       },
       body: JSON.stringify(req.body),
     })
-    
+
     const setCookie = response.headers.get('set-cookie')
     if (setCookie) res.setHeader('Set-Cookie', setCookie)
-    
+
     res.json(await response.json())
   } catch {
     res.status(500).json({ errors: [{ message: 'Backend connection error' }] })

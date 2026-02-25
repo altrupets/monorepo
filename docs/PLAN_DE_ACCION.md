@@ -1,6 +1,6 @@
 # Plan de Acción - Proyecto AltruPets
-**Fecha de creación:** 17 de febrero de 2026  
-**Versión actual:** Backend 0.2.0 | Mobile 0.2.0  
+**Fecha de creación:** 17 de febrero de 2026
+**Versión actual:** Backend 0.2.0 | Mobile 0.2.0
 **Próxima versión objetivo:** 0.3.0 (Sprint 1)
 
 ---
@@ -100,7 +100,7 @@ Sprint 8 (v1.0.0) ─┴─ Release Producción
 
 ## 🚀 Sprint 1 (v0.3.0) - Coordinación Básica de Rescate
 
-**Duración:** 3 semanas  
+**Duración:** 3 semanas
 **Objetivo:** Implementar el flujo completo de coordinación entre centinelas, auxiliares y rescatistas
 
 ### 📦 Entregables
@@ -142,4 +142,3 @@ Sprint 8 (v1.0.0) ─┴─ Release Producción
 - [ ] Query `getNearbyAuxiliares` (radio 5km)
 - [ ] Query `getNearbyRescatistas` (radio 15km)
 - [ ] Cálculo de distancias con ST_Distance
-

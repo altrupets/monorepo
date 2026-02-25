@@ -206,10 +206,10 @@ Para proyectos simples donde solo necesitas routing externo.
 ```hcl
 module "gateway_api" {
   source = "../../modules/kubernetes/gateway-api"
-  
+
   environment = "dev"
   namespace   = "default"
-  
+
   # Solo NGINX Gateway
   enable_nginx_gateway     = true
   enable_istio_service_mesh = false
@@ -222,14 +222,14 @@ Para microservicios con mTLS entre servicios.
 ```hcl
 module "gateway_api" {
   source = "../../modules/kubernetes/gateway-api"
-  
+
   environment = "dev"
   namespace   = "default"
-  
+
   # NGINX para routing externo
   enable_nginx_gateway     = true
   nginx_gateway_version    = "1.2.0"
-  
+
   # Istio para service mesh (sidecars + mTLS)
   enable_istio_service_mesh = true
   istio_version            = "1.20.0"
@@ -254,13 +254,13 @@ Si prefieres usar Istio para todo (gateway + service mesh).
 ```hcl
 module "gateway_api" {
   source = "../../modules/kubernetes/gateway-api"
-  
+
   environment = "dev"
   namespace   = "default"
-  
+
   # Desactivar NGINX
   enable_nginx_gateway = false
-  
+
   # Solo Istio (gateway + service mesh)
   enable_istio_service_mesh = true
 }
@@ -275,7 +275,7 @@ cd infrastructure/helm-charts/gateway-api
 # Dev environment
 helm install gateway-api-dev . -f values-dev.yaml --namespace dev --create-namespace
 
-# Production environment  
+# Production environment
 helm install gateway-api-prod . -f values-prod.yaml --namespace production --create-namespace
 ```
 

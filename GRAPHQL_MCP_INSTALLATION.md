@@ -239,6 +239,6 @@ Apollo GraphQL MCP Server está completamente instalado y configurado. Ahora pue
 
 ---
 
-**Última actualización:** Febrero 2026  
-**Versión:** 1.0.0  
+**Última actualización:** Febrero 2026
+**Versión:** 1.0.0
 **Estado:** ✅ Completado y Funcional

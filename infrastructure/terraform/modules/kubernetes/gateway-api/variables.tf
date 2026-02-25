@@ -24,7 +24,7 @@ variable "channel" {
   description = "Gateway API release channel (standard or experimental)"
   type        = string
   default     = "standard"
-  
+
   validation {
     condition     = contains(["standard", "experimental"], var.channel)
     error_message = "Channel must be either 'standard' or 'experimental'."
@@ -39,7 +39,7 @@ variable "deployment_method" {
   description = "Deployment method: terraform-only, helm, kustomize, or helm-kustomize"
   type        = string
   default     = "terraform-only"
-  
+
   validation {
     condition     = contains(["terraform-only", "helm", "kustomize", "helm-kustomize"], var.deployment_method)
     error_message = "Deployment method must be one of: terraform-only, helm, kustomize, helm-kustomize."

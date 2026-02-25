@@ -1,8 +1,8 @@
 # Diseño: Servicio de Autenticación y Gestión de Tokens JWT
 
-**Versión:** 1.0.0  
-**Sprint:** 1 (v0.3.0)  
-**Tarea:** 5 - Implementar servicio de autenticación y gestión de tokens JWT  
+**Versión:** 1.0.0
+**Sprint:** 1 (v0.3.0)
+**Tarea:** 5 - Implementar servicio de autenticación y gestión de tokens JWT
 **Estado:** 📐 Diseño en Revisión
 
 ---
@@ -60,28 +60,28 @@ El **AuthService** es un componente central que gestiona la autenticación de us
 class AuthService {
   /// Login con credenciales
   Future<User> login(String email, String password)
-  
+
   /// Logout del usuario actual
   Future<void> logout()
-  
+
   /// Renovar access token usando refresh token
   Future<void> refreshToken()
-  
+
   /// Obtener access token actual
   Future<String?> getAccessToken()
-  
+
   /// Obtener refresh token actual
   Future<String?> getRefreshToken()
-  
+
   /// Verificar si usuario está autenticado
   Future<bool> isAuthenticated()
-  
+
   /// Obtener información del usuario actual
   Future<User?> getCurrentUser()
-  
+
   /// Restaurar sesión al iniciar app
   Future<void> restoreSession()
-  
+
   /// Stream de cambios de autenticación
   Stream<AuthState> get authStateStream
 }
@@ -95,17 +95,17 @@ class AuthService {
   final EnvironmentManager _environmentManager;
   final HttpClientService _httpClientService;
   final LoggingService _loggingService;
-  
+
   // Almacenamiento seguro
   final FlutterSecureStorage _secureStorage;
-  
+
   // Estado
   late AuthState _currentState;
   late StreamController<AuthState> _authStateController;
-  
+
   // Timers
   Timer? _tokenRefreshTimer;
-  
+
   // Constantes
   static const String _accessTokenKey = 'auth_access_token';
   static const String _refreshTokenKey = 'auth_refresh_token';
@@ -137,7 +137,7 @@ class AuthLoading extends AuthState {
 class AuthAuthenticated extends AuthState {
   final User user;
   final String accessToken;
-  
+
   const AuthAuthenticated({
     required this.user,
     required this.accessToken,
@@ -146,14 +146,14 @@ class AuthAuthenticated extends AuthState {
 
 class AuthUnauthenticated extends AuthState {
   final String? message;
-  
+
   const AuthUnauthenticated({this.message});
 }
 
 class AuthError extends AuthState {
   final String message;
   final Exception? exception;
-  
+
   const AuthError({
     required this.message,
     this.exception,
@@ -162,7 +162,7 @@ class AuthError extends AuthState {
 
 class AuthLocked extends AuthState {
   final DateTime unlockedAt;
-  
+
   const AuthLocked({required this.unlockedAt});
 }
 ```
@@ -180,7 +180,7 @@ class User {
   final List<String> roles;
   final DateTime createdAt;
   final DateTime? lastLoginAt;
-  
+
   User({
     required this.id,
     required this.email,
@@ -190,7 +190,7 @@ class User {
     required this.createdAt,
     this.lastLoginAt,
   });
-  
+
   factory User.fromJson(Map<String, dynamic> json) { ... }
   Map<String, dynamic> toJson() { ... }
 }
@@ -204,7 +204,7 @@ class User {
 class AuthInterceptor extends Interceptor {
   final AuthService _authService;
   final LoggingService _loggingService;
-  
+
   @override
   Future<void> onRequest(
     RequestOptions options,
@@ -212,15 +212,15 @@ class AuthInterceptor extends Interceptor {
   ) async {
     // Obtener token actual
     final token = await _authService.getAccessToken();
-    
+
     if (token != null) {
       // Inyectar token en header
       options.headers['Authorization'] = 'Bearer $token';
     }
-    
+
     handler.next(options);
   }
-  
+
   @override
   Future<void> onError(
     DioException err,
@@ -231,12 +231,12 @@ class AuthInterceptor extends Interceptor {
       // Intentar renovar token
       try {
         await _authService.refreshToken();
-        
+
         // Reintentar request original
         final options = err.requestOptions;
         final token = await _authService.getAccessToken();
         options.headers['Authorization'] = 'Bearer $token';
-        
+
         final response = await Dio().request(
           options.path,
           options: Options(
@@ -246,7 +246,7 @@ class AuthInterceptor extends Interceptor {
           data: options.data,
           queryParameters: options.queryParameters,
         );
-        
+
         handler.resolve(response);
       } catch (e) {
         // Renovación falló, redirigir a login
@@ -839,12 +839,12 @@ try {
     '/auth/login',
     data: {'email': email, 'password': password},
   );
-  
+
   // Procesar respuesta exitosa
   await _storeTokens(response);
   _scheduleTokenRefresh();
   _authStateController.add(AuthAuthenticated(...));
-  
+
 } on AuthenticationException catch (e) {
   // Credenciales inválidas
   _incrementFailedAttempts();
@@ -854,15 +854,15 @@ try {
   } else {
     _authStateController.add(AuthError(message: 'Email o contraseña incorrectos'));
   }
-  
+
 } on NetworkConnectionException catch (e) {
   // Sin conexión
   _authStateController.add(AuthError(message: 'Sin conexión a internet'));
-  
+
 } on NetworkTimeoutException catch (e) {
   // Timeout
   _authStateController.add(AuthError(message: 'Tiempo de espera agotado'));
-  
+
 } catch (e) {
   // Error desconocido
   _loggingService.error('Login failed', exception: e);
@@ -916,6 +916,6 @@ logger.error(
 
 ---
 
-**Última actualización:** 17 de febrero de 2026  
-**Versión:** 1.0.0  
+**Última actualización:** 17 de febrero de 2026
+**Versión:** 1.0.0
 **Estado:** 📐 Listo para Revisión

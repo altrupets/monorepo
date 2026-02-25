@@ -12,7 +12,7 @@ import { USER_ADMIN_ROLES } from '../../auth/roles/rbac-constants';
 @Controller('admin')
 @UseGuards(JwtAuthGuard, RolesGuard)
 export class AdminController {
-  
+
   @Get()
   @Roles(...USER_ADMIN_ROLES)
   async index(@Res() res: Response) {

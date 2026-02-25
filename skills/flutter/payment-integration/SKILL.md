@@ -40,11 +40,11 @@ import 'package:flutter_stripe/flutter_stripe.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  
+
   // Initialize Stripe
   Stripe.publishableKey = 'pk_test_your_key_here';
   await Stripe.instance.applySettings();
-  
+
   runApp(MyApp());
 }
 ```
@@ -58,9 +58,9 @@ import 'dart:convert';
 
 class PaymentService {
   final String backendUrl;
-  
+
   PaymentService({required this.backendUrl});
-  
+
   /// Create a payment intent on your backend
   Future<Map<String, dynamic>> createPaymentIntent(
     double amount,
@@ -74,14 +74,14 @@ class PaymentService {
         'currency': currency,
       }),
     );
-    
+
     if (response.statusCode == 200) {
       return jsonDecode(response.body);
     } else {
       throw Exception('Failed to create payment intent');
     }
   }
-  
+
   /// Present payment sheet
   Future<bool> presentPaymentSheet(String clientSecret) async {
     try {
@@ -93,10 +93,10 @@ class PaymentService {
           style: ThemeMode.system,
         ),
       );
-      
+
       // Display payment sheet
       await Stripe.instance.presentPaymentSheet();
-      
+
       return true;
     } on StripeException catch (e) {
       if (e.error.code == FailureCode.Canceled) {
@@ -105,16 +105,16 @@ class PaymentService {
       rethrow;
     }
   }
-  
+
   /// Create and confirm payment
   Future<bool> makePayment(double amount, String currency) async {
     try {
       // 1. Create payment intent
       final paymentIntent = await createPaymentIntent(amount, currency);
-      
+
       // 2. Present payment sheet
       final success = await presentPaymentSheet(paymentIntent['clientSecret']);
-      
+
       return success;
     } catch (e) {
       print('Payment error: $e');
@@ -133,13 +133,13 @@ class PaymentState {
   final bool isProcessing;
   final bool paymentSuccess;
   final String? error;
-  
+
   PaymentState({
     this.isProcessing = false,
     this.paymentSuccess = false,
     this.error,
   });
-  
+
   PaymentState copyWith({
     bool? isProcessing,
     bool? paymentSuccess,
@@ -155,15 +155,15 @@ class PaymentState {
 
 class PaymentNotifier extends StateNotifier<PaymentState> {
   final PaymentService _paymentService;
-  
+
   PaymentNotifier(this._paymentService) : super(PaymentState());
-  
+
   Future<void> processPayment(double amount, String currency) async {
     state = state.copyWith(isProcessing: true, error: null);
-    
+
     try {
       final success = await _paymentService.makePayment(amount, currency);
-      
+
       state = state.copyWith(
         isProcessing: false,
         paymentSuccess: success,
@@ -189,11 +189,11 @@ final paymentProvider = StateNotifierProvider<PaymentNotifier, PaymentState>(
 ```dart
 class PaymentPage extends ConsumerWidget {
   const PaymentPage({super.key});
-  
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final paymentState = ref.watch(paymentProvider);
-    
+
     return Scaffold(
       appBar: AppBar(title: const Text('Payment')),
       body: Padding(
@@ -238,9 +238,9 @@ class PaymentPage extends ConsumerWidget {
 ```dart
 class SubscriptionService {
   final String backendUrl;
-  
+
   SubscriptionService({required this.backendUrl});
-  
+
   Future<Map<String, dynamic>> createSubscription(
     String customerId,
     String priceId,
@@ -253,10 +253,10 @@ class SubscriptionService {
         'priceId': priceId,
       }),
     );
-    
+
     return jsonDecode(response.body);
   }
-  
+
   Future<void> cancelSubscription(String subscriptionId) async {
     await http.post(
       Uri.parse('$backendUrl/cancel-subscription'),
@@ -275,13 +275,13 @@ import 'package:pay/pay.dart';
 class DigitalWalletPayment extends StatelessWidget {
   final double amount;
   final String currency;
-  
+
   const DigitalWalletPayment({
     super.key,
     required this.amount,
     required this.currency,
   });
-  
+
   @override
   Widget build(BuildContext context) {
     return GooglePayButton(
@@ -321,13 +321,13 @@ const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
 
 app.post('/create-payment-intent', async (req, res) => {
   const { amount, currency } = req.body;
-  
+
   const paymentIntent = await stripe.paymentIntents.create({
     amount,
     currency,
     automatic_payment_methods: { enabled: true },
   });
-  
+
   res.json({ clientSecret: paymentIntent.client_secret });
 });
 
@@ -338,7 +338,7 @@ app.post('/webhook', async (req, res) => {
     sig,
     process.env.STRIPE_WEBHOOK_SECRET
   );
-  
+
   // Handle the event
   switch (event.type) {
     case 'payment_intent.succeeded':
@@ -348,7 +348,7 @@ app.post('/webhook', async (req, res) => {
       // Notify user
       break;
   }
-  
+
   res.json({ received: true });
 });
 ```

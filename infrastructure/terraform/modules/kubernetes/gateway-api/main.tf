@@ -5,13 +5,13 @@ locals {
   # Determine deployment method based on configuration
   use_helm      = var.deployment_method == "helm" || var.deployment_method == "helm-kustomize"
   use_kustomize = var.deployment_method == "kustomize" || var.deployment_method == "helm-kustomize"
-  
+
   # Environment-specific values
   environment = var.environment
-  
+
   # Gateway API version
   gateway_version = var.gateway_version
-  
+
   # CRD URL based on channel - Use NGINX Gateway Fabric CRDs (includes NGF-specific fields)
   crd_url = var.channel == "experimental" ? "https://github.com/nginx/nginx-gateway-fabric/config/crd/gateway-api/experimental?ref=v${var.nginx_gateway_version}" : "https://github.com/nginx/nginx-gateway-fabric/config/crd/gateway-api/standard?ref=v${var.nginx_gateway_version}"
 }
@@ -54,17 +54,17 @@ resource "null_resource" "gateway_api_crds" {
 
 resource "helm_release" "istio_base" {
   count = var.enable_istio_service_mesh ? 1 : 0
-  
+
   depends_on = [null_resource.gateway_api_crds]
-  
+
   name       = "istio-base"
   namespace  = "istio-system"
   chart      = "base"
   repository = "https://istio-release.storage.googleapis.com/charts"
   version    = var.istio_version
-  
+
   create_namespace = true
-  
+
   set {
     name  = "defaultRevision"
     value = "default"
@@ -73,15 +73,15 @@ resource "helm_release" "istio_base" {
 
 resource "helm_release" "istiod" {
   count = var.enable_istio_service_mesh ? 1 : 0
-  
+
   depends_on = [helm_release.istio_base]
-  
+
   name       = "istiod"
   namespace  = "istio-system"
   chart      = "istiod"
   repository = "https://istio-release.storage.googleapis.com/charts"
   version    = var.istio_version
-  
+
   values = [
     <<-EOT
     meshConfig:
@@ -101,22 +101,22 @@ resource "helm_release" "istiod" {
 
 resource "helm_release" "nginx_gateway_fabric" {
   count = var.enable_nginx_gateway ? 1 : 0
-  
+
   depends_on = [null_resource.gateway_api_crds]
-  
+
   name       = "ngf"
   namespace  = var.nginx_gateway_namespace
   chart      = "nginx-gateway-fabric"
   repository = "oci://ghcr.io/nginx/charts"
   version    = var.nginx_gateway_version
-  
+
   create_namespace = true
-  
+
   set {
     name  = "nginxGateway.config.logging.level"
     value = var.environment == "dev" ? "debug" : "info"
   }
-  
+
   timeout         = 300
   cleanup_on_fail = true
 }
@@ -133,12 +133,12 @@ resource "helm_release" "nginx_gateway_fabric" {
 
 resource "kubernetes_manifest" "istio_gateway_class" {
   count = var.enable_istio_service_mesh ? 1 : 0
-  
+
   depends_on = [
     null_resource.gateway_api_crds,
     helm_release.istiod
   ]
-  
+
   manifest = {
     apiVersion = "gateway.networking.k8s.io/v1"
     kind       = "GatewayClass"
@@ -161,7 +161,7 @@ resource "kubernetes_manifest" "istio_gateway_class" {
 
 resource "kubernetes_namespace" "otel_namespace" {
   count = var.enable_opentelemetry ? 1 : 0
-  
+
   metadata {
     name = var.otel_namespace
   }
@@ -169,19 +169,19 @@ resource "kubernetes_namespace" "otel_namespace" {
 
 resource "helm_release" "opentelemetry_collector" {
   count = var.enable_opentelemetry ? 1 : 0
-  
+
   depends_on = [
     kubernetes_namespace.otel_namespace
   ]
-  
+
   name       = "otel-collector"
   namespace  = var.otel_namespace
   chart      = "opentelemetry-collector"
   repository = "https://open-telemetry.github.io/opentelemetry-helm-charts"
   version    = var.otel_collector_version
-  
+
   create_namespace = false
-  
+
   values = [
     <<-EOT
     mode: deployment
@@ -241,24 +241,24 @@ resource "helm_release" "opentelemetry_collector" {
 
 resource "helm_release" "grafana" {
   count = var.enable_opentelemetry && var.enable_grafana ? 1 : 0
-  
+
   depends_on = [
     kubernetes_namespace.otel_namespace
   ]
-  
+
   name       = "grafana"
   namespace  = var.otel_namespace
   chart      = "grafana"
   repository = "https://grafana.github.io/helm-charts"
   version    = var.grafana_version
-  
+
   create_namespace = false
-  
+
   set {
     name  = "adminUser"
     value = "admin"
   }
-  
+
   set {
     name  = "adminPassword"
     value = "admin"
@@ -267,51 +267,51 @@ resource "helm_release" "grafana" {
 
 resource "helm_release" "tempo" {
   count = var.enable_opentelemetry && var.enable_tempo ? 1 : 0
-  
+
   depends_on = [
     kubernetes_namespace.otel_namespace
   ]
-  
+
   name       = "tempo"
   namespace  = var.otel_namespace
   chart      = "tempo"
   repository = "https://grafana.github.io/helm-charts"
   version    = "1.7.1"
-  
+
   create_namespace = false
 }
 
 resource "helm_release" "loki" {
   count = var.enable_opentelemetry && var.enable_loki ? 1 : 0
-  
+
   depends_on = [
     kubernetes_namespace.otel_namespace
   ]
-  
+
   name       = "loki"
   namespace  = var.otel_namespace
   chart      = "loki"
   repository = "https://grafana.github.io/helm-charts"
   version    = "5.41.2"
-  
+
   create_namespace = false
 }
 
 resource "helm_release" "prometheus" {
   count = var.enable_opentelemetry ? 1 : 0
-  
+
   depends_on = [
     kubernetes_namespace.otel_namespace
   ]
-  
+
   name       = "prometheus"
   namespace  = var.otel_namespace
   chart      = "prometheus"
   repository = "https://prometheus-community.github.io/helm-charts"
   version    = "25.8.0"
-  
+
   create_namespace = false
-  
+
   set {
     name  = "server.retention"
     value = "15d"
@@ -323,43 +323,43 @@ resource "helm_release" "prometheus" {
 # ============================================
 resource "helm_release" "gateway_api" {
   count = local.use_helm ? 1 : 0
-  
+
   depends_on = [null_resource.gateway_api_crds]
-  
+
   name       = var.helm_release_name
   namespace  = var.namespace
   chart      = "${path.module}/../../../helm-charts/gateway-api"
-  
+
   # Use environment-specific values file if it exists
   values = fileexists("${path.module}/../../../helm-charts/gateway-api/values-${local.environment}.yaml") ? [
     file("${path.module}/../../../helm-charts/gateway-api/values-${local.environment}.yaml")
   ] : []
-  
+
   set {
     name  = "global.environment"
     value = local.environment
   }
-  
+
   set {
     name  = "gateway.enabled"
     value = var.deploy_gateway
   }
-  
+
   set {
     name  = "gateway.name"
     value = var.gateway_name
   }
-  
+
   set {
     name  = "gateway.gatewayClassName"
     value = var.enable_nginx_gateway ? var.nginx_gateway_class_name : var.istio_gateway_class_name
   }
-  
+
   set {
     name  = "httpRoutes.enabled"
     value = var.deploy_example_routes
   }
-  
+
   dynamic "set" {
     for_each = var.helm_values
     content {
@@ -367,7 +367,7 @@ resource "helm_release" "gateway_api" {
       value = set.value
     }
   }
-  
+
   timeout         = 300
   cleanup_on_fail = true
   force_update    = true
@@ -379,9 +379,9 @@ resource "helm_release" "gateway_api" {
 # ============================================
 resource "null_resource" "kustomize_apply" {
   count = local.use_kustomize ? 1 : 0
-  
+
   depends_on = [null_resource.gateway_api_crds]
-  
+
   triggers = {
     environment = local.environment
     overlay_path = "${path.module}/../../../k8s/gateway-api/overlays/${local.environment}"
@@ -426,13 +426,13 @@ resource "kubernetes_namespace" "app_namespace" {
 # ============================================
 resource "kubernetes_manifest" "main_gateway" {
   count = var.deploy_gateway ? 1 : 0
-  
+
   depends_on = [
     null_resource.gateway_api_crds,
     helm_release.nginx_gateway_fabric,
     kubernetes_namespace.app_namespace
   ]
-  
+
   manifest = jsondecode(templatefile("${path.module}/templates/gateway.json.tpl", {
     gateway_name       = var.gateway_name
     namespace          = var.namespace
@@ -449,24 +449,24 @@ resource "kubernetes_manifest" "main_gateway" {
 
 resource "kubernetes_service" "gateway_nodeport" {
   count = var.deploy_gateway && var.enable_nginx_gateway ? 1 : 0
-  
+
   depends_on = [
     helm_release.nginx_gateway_fabric,
     kubernetes_manifest.main_gateway
   ]
-  
+
   metadata {
     name      = "gateway-nodeport"
     namespace = var.nginx_gateway_namespace
   }
-  
+
   spec {
     type = "NodePort"
-    
+
     selector = {
       "app.kubernetes.io/name" = "nginx-gateway-fabric"
     }
-    
+
     port {
       name        = "http"
       port        = 80
@@ -474,7 +474,7 @@ resource "kubernetes_service" "gateway_nodeport" {
       node_port   = var.gateway_nodeport_port
       protocol    = "TCP"
     }
-    
+
     dynamic "port" {
       for_each = var.enable_https ? [1] : []
       content {
@@ -493,7 +493,7 @@ resource "kubernetes_service" "gateway_nodeport" {
 # ============================================
 resource "time_sleep" "wait_for_gateway" {
   count = var.deploy_gateway ? 1 : 0
-  
+
   depends_on = [
     null_resource.gateway_api_crds,
     helm_release.nginx_gateway_fabric,
@@ -503,6 +503,6 @@ resource "time_sleep" "wait_for_gateway" {
     kubernetes_manifest.main_gateway,
     kubernetes_service.gateway_nodeport
   ]
-  
+
   create_duration = "60s"
 }

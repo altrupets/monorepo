@@ -31,16 +31,16 @@ jobs:
           echo "Source: ${{ github.head_ref }}"
           echo "Target: production"
           echo "PR #${{ github.event.pull_request.number }}"
-          
+
           # Check required labels
           LABELS='${{ toJson(github.event.pull_request.labels) }}'
           echo "Labels: $LABELS"
-          
+
           # Check if it comes from staging or main
           if [[ "${{ github.head_ref }}" != "staging" && "${{ github.head_ref }}" != "main" ]]; then
             echo "⚠️  Warning: PR to production should come from staging or main"
           fi
-          
+
           echo "✓ PR validation passed"
 
   # ==========================================
@@ -54,19 +54,19 @@ jobs:
       - name: Check approvals
         run: |
           echo "👥 Checking PR approvals..."
-          
+
           # Get PR approvals using GitHub API
           APPROVALS=$(curl -s -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
             "https://api.github.com/repos/${{ github.repository }}/pulls/${{ github.event.pull_request.number }}/reviews" \
             | jq '[.[] | select(.state == "APPROVED")] | length')
-          
+
           echo "Number of approvals: $APPROVALS"
-          
+
           if [ "$APPROVALS" -lt 2 ]; then
             echo "❌ Production deployments require at least 2 approvals"
             exit 1
           fi
-          
+
           echo "✓ Required approvals obtained"
 
   # ==========================================
@@ -86,14 +86,14 @@ jobs:
       - name: Verify deployment readiness
         run: |
           echo "🔍 Pre-deployment checks..."
-          
+
           # Check if staging tests passed
           echo "Checking staging deployment status..."
-          
+
           # Verify image tags exist
           VERSION=$(cat VERSION 2>/dev/null || echo "latest")
           echo "Deploying version: $VERSION"
-          
+
           echo "✓ Pre-deployment checks passed"
 
   # ==========================================
@@ -128,9 +128,9 @@ jobs:
           echo "🚀 Deploying to PRODUCTION..."
           echo "This is a placeholder - implement production deployment"
           echo "Production uses OVH Managed PostgreSQL (not self-managed)"
-          
+
           # kubectl apply -k k8s/prod/
-          
+
           echo "✓ Production deployment complete"
 
       - name: Verify deployment
@@ -169,11 +169,11 @@ jobs:
           release_name: Production Release ${{ github.sha }}
           body: |
             ## Production Deployment
-            
+
             - **Date:** ${{ github.event.pull_request.merged_at }}
             - **Commit:** ${{ github.sha }}
             - **PR:** #${{ github.event.pull_request.number }}
-            
+
             [View changes](${{ github.event.pull_request.html_url }})
           draft: false
           prerelease: false
@@ -190,10 +190,10 @@ jobs:
       - name: Rollback
         run: |
           echo "⚠️  Deployment failed - initiating rollback..."
-          
+
           # kubectl rollout undo deployment/backend -n production
           # kubectl rollout undo deployment/frontend -n production
-          
+
           echo "Rollback complete"
 
       - name: Alert team

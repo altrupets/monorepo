@@ -83,7 +83,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
    ```typescript
    // Express 4
    app.use('*', handler)
-   
+
    // Express 5
    app.use('{*splat}', handler)
    ```
@@ -92,7 +92,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
    ```typescript
    // Express 4
    res.send(200)
-   
+
    // Express 5
    res.sendStatus(200)
    ```

@@ -143,7 +143,7 @@ if minikube status &>/dev/null && minikube status | grep -q "Running"; then
 else
   echo -e "${ORANGE}⚠️  Minikube is not running. Starting Minikube...${NC}"
   echo -e "${BLUE}⏳ This may take a few minutes on first run...${NC}"
-  
+
   START_DRIVER_ARGS=()
   if command -v podman &> /dev/null && ! command -v docker &> /dev/null; then
     START_DRIVER_ARGS=(--driver=podman)

@@ -73,7 +73,7 @@ spec:
 ```hcl
 module "cert_manager" {
   source = "../../modules/kubernetes/cert-manager"
-  
+
   environment           = "dev"
   namespace             = "altrupets-dev"
   domain_name           = "altrupets.app"

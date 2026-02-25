@@ -199,5 +199,5 @@ export INSECURE_SKIP_VERIFY=true
 
 ---
 
-**Última actualización:** Febrero 2026  
+**Última actualización:** Febrero 2026
 **Versión:** 1.0.0

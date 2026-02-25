@@ -1,7 +1,7 @@
 # Security Vulnerabilities - Breaking Changes Required
 
-**Fecha:** 2026-02-18  
-**Proyecto:** AltruPets Monorepo  
+**Fecha:** 2026-02-18
+**Proyecto:** AltruPets Monorepo
 **Fuente:** npm audit report
 
 ---
@@ -85,7 +85,7 @@ lodash
         └── @nestjs/cli (old)
 ```
 
-**Solución sugerida:** 
+**Solución sugerida:**
 - Actualizar `@nestjs/cli` a versión reciente
 - O usar `lodash` como dependencia directa en versión >=4.17.21
 
@@ -372,7 +372,7 @@ rm -rf node_modules package-lock.json
 npm install
 ```
 
-**Pros:** Resuelve todas las vulnerabilidades  
+**Pros:** Resuelve todas las vulnerabilidades
 **Cons:** Requiere testing exhaustivo por breaking changes
 
 ### Opción 2: Actualización Selectiva

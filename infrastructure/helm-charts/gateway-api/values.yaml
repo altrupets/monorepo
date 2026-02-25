@@ -17,10 +17,10 @@ gateway:
   enabled: true
   name: default-gateway
   namespace: default
-  
+
   # GatewayClass name
   gatewayClassName: nginx
-  
+
   # Listeners configuration
   listeners:
     - name: http

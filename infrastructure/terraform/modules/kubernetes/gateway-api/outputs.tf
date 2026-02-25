@@ -102,25 +102,25 @@ output "next_steps" {
   description = "Recommended next steps after deployment"
   value = <<-EOT
     Gateway API has been deployed successfully!
-    
+
     Verification Commands:
     - CRDs: kubectl get crd | grep gateway.networking.k8s.io
     - GatewayClasses: kubectl get gatewayclass
     - Gateways: kubectl get gateway -n ${var.namespace}
     - HTTPRoutes: kubectl get httproute -n ${var.namespace}
-    
+
     ${var.enable_istio_service_mesh ? "Istio Service Mesh Enabled:\n    - Check Istio pods: kubectl get pods -n istio-system\n    - Check sidecars: kubectl get pods -n ${var.namespace} (should show 2/2)\n    - Check mTLS: istioctl authn tls-check <service>.${var.namespace}.svc.cluster.local\n    " : ""}
-    
+
     Next Steps:
     1. Deploy your applications to namespace: ${var.namespace}
-    
+
     2. Create HTTPRoutes:
        kubectl apply -f my-httproute.yaml
-    
+
     3. Verify routing:
        kubectl get httproute -n ${var.namespace}
        kubectl describe gateway ${var.gateway_name} -n ${var.namespace}
-    
+
     4. Test connectivity:
        curl http://<gateway-ip>/<path>
   EOT

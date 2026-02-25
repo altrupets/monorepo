@@ -187,7 +187,7 @@ class TypographyShowcase extends StatelessWidget {
                 FilledButton.icon(
                   onPressed: manager.isLoading ? null : () => manager.syncAll(),
                   label: const Text('SYNC CHANGES'),
-                  icon: manager.isLoading 
+                  icon: manager.isLoading
                     ? const SizedBox(width: 18, height: 18, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
                     : const Icon(Icons.sync_rounded),
                   style: FilledButton.styleFrom(

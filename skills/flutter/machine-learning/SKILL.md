@@ -62,11 +62,11 @@ import 'dart:io';
 class ImageClassifier {
   Interpreter? _interpreter;
   List<String>? _labels;
-  
+
   Future<void> loadModel() async {
     try {
       _interpreter = await Interpreter.fromAsset('assets/models/model.tflite');
-      
+
       // Load labels
       final labelData = await rootBundle.loadString('assets/labels/labels.txt');
       _labels = labelData.split('\n');
@@ -74,35 +74,35 @@ class ImageClassifier {
       print('Error loading model: $e');
     }
   }
-  
+
   Future<Map<String, double>> classifyImage(File imageFile) async {
     if (_interpreter == null) {
       throw Exception('Model not loaded');
     }
-    
+
     // Load and preprocess image
     final imageData = await imageFile.readAsBytes();
     var image = img.decodeImage(imageData)!;
-    
+
     // Resize to model input size (e.g., 224x224)
     image = img.copyResize(image, width: 224, height: 224);
-    
+
     // Convert to input format
     final input = _imageToInputList(image);
-    
+
     // Run inference
     final output = List.filled(1 * _labels!.length, 0).reshape([1, _labels!.length]);
     _interpreter!.run(input, output);
-    
+
     // Process results
     final results = <String, double>{};
     for (int i = 0; i < _labels!.length; i++) {
       results[_labels![i]] = output[0][i];
     }
-    
+
     return results;
   }
-  
+
   List<List<List<List<double>>>> _imageToInputList(img.Image image) {
     final input = List.generate(
       1,
@@ -123,7 +123,7 @@ class ImageClassifier {
     );
     return input;
   }
-  
+
   void dispose() {
     _interpreter?.close();
   }
@@ -135,7 +135,7 @@ class ImageClassifier {
 ```dart
 class ImageClassificationPage extends ConsumerStatefulWidget {
   const ImageClassificationPage({super.key});
-  
+
   @override
   ConsumerState<ImageClassificationPage> createState() => _ImageClassificationPageState();
 }
@@ -145,32 +145,32 @@ class _ImageClassificationPageState extends ConsumerState<ImageClassificationPag
   File? _selectedImage;
   Map<String, double>? _results;
   bool _isLoading = false;
-  
+
   @override
   void initState() {
     super.initState();
     _classifier.loadModel();
   }
-  
+
   Future<void> _pickImage() async {
     final picker = ImagePicker();
     final picked = await picker.pickImage(source: ImageSource.gallery);
-    
+
     if (picked != null) {
       setState(() {
         _selectedImage = File(picked.path);
         _isLoading = true;
       });
-      
+
       final results = await _classifier.classifyImage(_selectedImage!);
-      
+
       setState(() {
         _results = results;
         _isLoading = false;
       });
     }
   }
-  
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -189,7 +189,7 @@ class _ImageClassificationPageState extends ConsumerState<ImageClassificationPag
                 itemBuilder: (context, index) {
                   final label = _results!.keys.elementAt(index);
                   final confidence = _results![label]!;
-                  
+
                   return ListTile(
                     title: Text(label),
                     trailing: Text('${(confidence * 100).toStringAsFixed(1)}%'),
@@ -208,7 +208,7 @@ class _ImageClassificationPageState extends ConsumerState<ImageClassificationPag
       ),
     );
   }
-  
+
   @override
   void dispose() {
     _classifier.dispose();
@@ -224,21 +224,21 @@ import 'package:google_mlkit_text_recognition/google_mlkit_text_recognition.dart
 
 class TextRecognitionService {
   final TextRecognizer _textRecognizer = TextRecognizer();
-  
+
   Future<String> recognizeText(File imageFile) async {
     final inputImage = InputImage.fromFile(imageFile);
     final recognizedText = await _textRecognizer.processImage(inputImage);
-    
+
     return recognizedText.text;
   }
-  
+
   Future<List<TextBlock>> recognizeTextBlocks(File imageFile) async {
     final inputImage = InputImage.fromFile(imageFile);
     final recognizedText = await _textRecognizer.processImage(inputImage);
-    
+
     return recognizedText.blocks;
   }
-  
+
   void dispose() {
     _textRecognizer.close();
   }
@@ -246,7 +246,7 @@ class TextRecognitionService {
 
 class OCRWidget extends StatefulWidget {
   const OCRWidget({super.key});
-  
+
   @override
   State<OCRWidget> createState() => _OCRWidgetState();
 }
@@ -255,19 +255,19 @@ class _OCRWidgetState extends State<OCRWidget> {
   final TextRecognitionService _service = TextRecognitionService();
   File? _image;
   String _recognizedText = '';
-  
+
   Future<void> _scanText() async {
     final picker = ImagePicker();
     final picked = await picker.pickImage(source: ImageSource.camera);
-    
+
     if (picked != null) {
       setState(() => _image = File(picked.path));
-      
+
       final text = await _service.recognizeText(_image!);
       setState(() => _recognizedText = text);
     }
   }
-  
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -294,7 +294,7 @@ class _OCRWidgetState extends State<OCRWidget> {
       ),
     );
   }
-  
+
   @override
   void dispose() {
     _service.dispose();
@@ -310,7 +310,7 @@ import 'package:google_mlkit_object_detection/google_mlkit_object_detection.dart
 
 class ObjectDetectionService {
   late ObjectDetector _objectDetector;
-  
+
   void initialize() {
     final options = ObjectDetectorOptions(
       mode: DetectionMode.single,
@@ -319,12 +319,12 @@ class ObjectDetectionService {
     );
     _objectDetector = ObjectDetector(options: options);
   }
-  
+
   Future<List<DetectedObject>> detectObjects(File imageFile) async {
     final inputImage = InputImage.fromFile(imageFile);
     return await _objectDetector.processImage(inputImage);
   }
-  
+
   void dispose() {
     _objectDetector.close();
   }
@@ -333,24 +333,24 @@ class ObjectDetectionService {
 class ObjectDetectionPainter extends CustomPainter {
   final List<DetectedObject> objects;
   final Size imageSize;
-  
+
   ObjectDetectionPainter({required this.objects, required this.imageSize});
-  
+
   @override
   void paint(Canvas canvas, Size size) {
     final paint = Paint()
       ..style = PaintingStyle.stroke
       ..strokeWidth = 3.0
       ..color = Colors.green;
-    
+
     final textPainter = TextPainter(
       textDirection: TextDirection.ltr,
     );
-    
+
     for (final object in objects) {
       final rect = _scaleRect(object.boundingBox, imageSize, size);
       canvas.drawRect(rect, paint);
-      
+
       // Draw label
       if (object.labels.isNotEmpty) {
         final label = object.labels.first;
@@ -368,11 +368,11 @@ class ObjectDetectionPainter extends CustomPainter {
       }
     }
   }
-  
+
   Rect _scaleRect(Rect rect, Size imageSize, Size canvasSize) {
     final scaleX = canvasSize.width / imageSize.width;
     final scaleY = canvasSize.height / imageSize.height;
-    
+
     return Rect.fromLTRB(
       rect.left * scaleX,
       rect.top * scaleY,
@@ -380,7 +380,7 @@ class ObjectDetectionPainter extends CustomPainter {
       rect.bottom * scaleY,
     );
   }
-  
+
   @override
   bool shouldRepaint(covariant CustomPainter oldDelegate) => true;
 }
@@ -393,12 +393,12 @@ import 'package:google_mlkit_barcode_scanning/google_mlkit_barcode_scanning.dart
 
 class BarcodeScannerService {
   final BarcodeScanner _scanner = BarcodeScanner();
-  
+
   Future<List<Barcode>> scanBarcodes(File imageFile) async {
     final inputImage = InputImage.fromFile(imageFile);
     return await _scanner.processImage(inputImage);
   }
-  
+
   void dispose() {
     _scanner.close();
   }
@@ -407,7 +407,7 @@ class BarcodeScannerService {
 // Real-time barcode scanning with camera
 class BarcodeScannerPage extends StatefulWidget {
   const BarcodeScannerPage({super.key});
-  
+
   @override
   State<BarcodeScannerPage> createState() => _BarcodeScannerPageState();
 }
@@ -417,13 +417,13 @@ class _BarcodeScannerPageState extends State<BarcodeScannerPage> {
   final BarcodeScanner _scanner = BarcodeScanner();
   bool _isProcessing = false;
   String? _scannedBarcode;
-  
+
   @override
   void initState() {
     super.initState();
     _initializeCamera();
   }
-  
+
   Future<void> _initializeCamera() async {
     final cameras = await availableCameras();
     _cameraController = CameraController(
@@ -431,26 +431,26 @@ class _BarcodeScannerPageState extends State<BarcodeScannerPage> {
       ResolutionPreset.medium,
       enableAudio: false,
     );
-    
+
     await _cameraController!.initialize();
     await _cameraController!.startImageStream(_processCameraImage);
-    
+
     setState(() {});
   }
-  
+
   Future<void> _processCameraImage(CameraImage image) async {
     if (_isProcessing) return;
     _isProcessing = true;
-    
+
     try {
       final WriteBuffer allBytes = WriteBuffer();
       for (final Plane plane in image.planes) {
         allBytes.putUint8List(plane.bytes);
       }
       final bytes = allBytes.done().buffer.asUint8List();
-      
+
       final imageSize = Size(image.width.toDouble(), image.height.toDouble());
-      
+
       final inputImage = InputImage.fromBytes(
         bytes: bytes,
         metadata: InputImageMetadata(
@@ -460,9 +460,9 @@ class _BarcodeScannerPageState extends State<BarcodeScannerPage> {
           bytesPerRow: image.planes.first.bytesPerRow,
         ),
       );
-      
+
       final barcodes = await _scanner.processImage(inputImage);
-      
+
       if (barcodes.isNotEmpty) {
         setState(() {
           _scannedBarcode = barcodes.first.rawValue;
@@ -472,7 +472,7 @@ class _BarcodeScannerPageState extends State<BarcodeScannerPage> {
       _isProcessing = false;
     }
   }
-  
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -496,7 +496,7 @@ class _BarcodeScannerPageState extends State<BarcodeScannerPage> {
       ),
     );
   }
-  
+
   @override
   void dispose() {
     _cameraController?.dispose();
@@ -524,7 +524,7 @@ class FirebaseMLService {
         androidDeviceIdleRequired: false,
       ),
     );
-    
+
     print('Model downloaded to: ${model.file}');
   }
 }
@@ -545,34 +545,34 @@ class FirebaseMLService {
 class OptimizedMLService {
   Interpreter? _interpreter;
   bool _isModelLoaded = false;
-  
+
   Future<void> loadModel() async {
     if (_isModelLoaded) return;
-    
+
     final options = InterpreterOptions()
       ..threads = 4  // Use multiple threads
       ..useNnApiForAndroid = true;  // Use NNAPI acceleration
-    
+
     _interpreter = await Interpreter.fromAsset(
       'model.tflite',
       options: options,
     );
-    
+
     _isModelLoaded = true;
   }
-  
+
   // Process multiple images in batch
   Future<List<dynamic>> batchInference(List<File> images) async {
     final results = <dynamic>[];
-    
+
     for (final image in images) {
       final result = await _singleInference(image);
       results.add(result);
     }
-    
+
     return results;
   }
-  
+
   Future<dynamic> _singleInference(File image) async {
     // Preprocess and run inference
     // ...

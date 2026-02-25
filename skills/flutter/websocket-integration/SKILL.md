@@ -45,7 +45,7 @@ class WebSocketService {
   final Function()? onConnect;
   final Function(dynamic)? onError;
   final Function(int?)? onClose;
-  
+
   WebSocketService({
     required this.url,
     this.onMessage,
@@ -57,7 +57,7 @@ class WebSocketService {
   void connect() {
     try {
       _channel = IOWebSocketChannel.connect(url);
-      
+
       _channel!.stream.listen(
         (message) {
           onMessage?.call(message);
@@ -69,7 +69,7 @@ class WebSocketService {
           onError?.call(error);
         },
       );
-      
+
       onConnect?.call();
     } catch (e) {
       onError?.call(e);
@@ -96,13 +96,13 @@ class WebSocketState {
   final bool isConnected;
   final List<String> messages;
   final String? error;
-  
+
   WebSocketState({
     this.isConnected = false,
     this.messages = const [],
     this.error,
   });
-  
+
   WebSocketState copyWith({
     bool? isConnected,
     List<String>? messages,
@@ -118,7 +118,7 @@ class WebSocketState {
 
 class WebSocketNotifier extends StateNotifier<WebSocketState> {
   late final WebSocketService _service;
-  
+
   WebSocketNotifier() : super(WebSocketState()) {
     _service = WebSocketService(
       url: 'wss://your-server.com/ws',
@@ -128,11 +128,11 @@ class WebSocketNotifier extends StateNotifier<WebSocketState> {
       onError: (error) => state = state.copyWith(error: error.toString()),
     );
   }
-  
+
   void connect() => _service.connect();
   void disconnect() => _service.disconnect();
   void send(String message) => _service.send(message);
-  
+
   void _handleMessage(dynamic message) {
     final messages = [...state.messages, message.toString()];
     state = state.copyWith(messages: messages);
@@ -152,36 +152,36 @@ import 'package:socket_io_client/socket_io_client.dart' as io;
 class SocketIOService {
   io.Socket? _socket;
   final String url;
-  
+
   SocketIOService({required this.url});
-  
+
   void connect() {
     _socket = io.io(url, <String, dynamic>{
       'transports': ['websocket'],
       'autoConnect': true,
     });
-    
+
     _socket!.onConnect((_) {
       print('Connected to Socket.io');
     });
-    
+
     _socket!.onDisconnect((_) {
       print('Disconnected from Socket.io');
     });
-    
+
     _socket!.on('message', (data) {
       print('Received: $data');
     });
   }
-  
+
   void emit(String event, dynamic data) {
     _socket?.emit(event, data);
   }
-  
+
   void on(String event, Function(dynamic) handler) {
     _socket?.on(event, handler);
   }
-  
+
   void disconnect() {
     _socket?.disconnect();
   }
@@ -198,20 +198,20 @@ class ReconnectingWebSocket {
   final Duration initialDelay;
   final Duration maxDelay;
   final int maxAttempts;
-  
+
   int _attempts = 0;
   Timer? _reconnectTimer;
-  
+
   void _scheduleReconnect() {
     if (_attempts >= maxAttempts) return;
-    
+
     final delay = Duration(
       milliseconds: min(
         initialDelay.inMilliseconds * pow(2, _attempts),
         maxDelay.inMilliseconds,
       ),
     );
-    
+
     _reconnectTimer = Timer(delay, () {
       _attempts++;
       connect();
@@ -225,11 +225,11 @@ class ReconnectingWebSocket {
 ```dart
 class WebSocketMessageQueue {
   final List<String> _queue = [];
-  
+
   void enqueue(String message) {
     _queue.add(message);
   }
-  
+
   void flush(WebSocketService service) {
     while (_queue.isNotEmpty) {
       final message = _queue.removeAt(0);
@@ -244,13 +244,13 @@ class WebSocketMessageQueue {
 ```dart
 class ChatPage extends ConsumerWidget {
   const ChatPage({super.key});
-  
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final wsState = ref.watch(webSocketProvider);
     final wsNotifier = ref.read(webSocketProvider.notifier);
     final messageController = TextEditingController();
-    
+
     return Scaffold(
       appBar: AppBar(
         title: Text('Chat ${wsState.isConnected ? "(Online)" : "(Offline)"}'),
@@ -309,12 +309,12 @@ class MockWebSocketChannel extends Mock implements WebSocketChannel {}
 void main() {
   test('WebSocket connection test', () async {
     final service = WebSocketService(url: 'ws://test.com');
-    
+
     bool connected = false;
     service.onConnect = () => connected = true;
-    
+
     service.connect();
-    
+
     expect(connected, true);
   });
 }

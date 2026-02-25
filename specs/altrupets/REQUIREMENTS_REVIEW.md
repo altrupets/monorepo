@@ -14,8 +14,8 @@ Los requisitos han sido actualizados según la nueva lógica de negocio solicita
 ## 📋 Tipos de Solicitudes del Sistema (ACTUALIZADO)
 
 ### 1. Solicitudes de Captura (Centinelas)
-**Código:** REQ-CEN-002  
-**Quién:** Centinelas  
+**Código:** REQ-CEN-002
+**Quién:** Centinelas
 **Propósito:** Reportar animales vulnerables que necesitan captura inmediata
 
 **Estados del workflow:**
@@ -30,13 +30,13 @@ CREADA → EN_REVISION → ASIGNADA → EN_PROGRESO → COMPLETADA/RECHAZADA
 - Nivel de urgencia
 
 ### 2. Solicitudes de Rescate (Auxiliares sin casa cuna)
-**Código:** REQ-AUX-004  
-**Quién:** Auxiliares que capturaron un animal pero no tienen casa cuna propia  
+**Código:** REQ-AUX-004
+**Quién:** Auxiliares que capturaron un animal pero no tienen casa cuna propia
 **Propósito:** Buscar rescatista con casa cuna disponible para dar acogida al animal
 
 **Estados del workflow:**
 ```
-CREADA → PENDIENTE_AUTORIZACION → AUTORIZADA → ASIGNADA → 
+CREADA → PENDIENTE_AUTORIZACION → AUTORIZADA → ASIGNADA →
 EN_PROGRESO → RESCATADO → COMPLETADA/RECHAZADA
 ```
 
@@ -44,8 +44,8 @@ EN_PROGRESO → RESCATADO → COMPLETADA/RECHAZADA
 > "CUANDO un auxiliar capture un animal Y no tenga casa cuna propia ENTONCES el sistema DEBERÁ permitir crear una solicitud de rescate"
 
 ### 3. Animales Listos para Adopción (Rescatistas)
-**Código:** REQ-RES-005  
-**Quién:** Rescatistas  
+**Código:** REQ-RES-005
+**Quién:** Rescatistas
 **Propósito:** Marcar animales que cumplen requisitos de adoptabilidad
 
 **Proceso:**
@@ -56,7 +56,7 @@ EN_PROGRESO → RESCATADO → COMPLETADA/RECHAZADA
 
 **Requisitos de adoptabilidad (REQ-BR-050 a REQ-BR-070):**
 - ✅ Castrado = TRUE
-- ✅ Vacunado = TRUE  
+- ✅ Vacunado = TRUE
 - ✅ Desparasitado = TRUE
 - ✅ Socializado = TRUE
 - ✅ Edad ≥ 3 meses
@@ -64,8 +64,8 @@ EN_PROGRESO → RESCATADO → COMPLETADA/RECHAZADA
 - ❌ Agresivo = FALSE
 
 ### 4. Solicitudes de Adopción (Adoptantes)
-**Código:** REQ-ADO-003, REQ-RES-005A  
-**Quién:** Adoptantes  
+**Código:** REQ-ADO-003, REQ-RES-005A
+**Quién:** Adoptantes
 **Propósito:** Solicitar adopción de un animal marcado como "Listo para Adoptar"
 
 **Proceso:**
@@ -81,8 +81,8 @@ ENVIADA → EN_REVISION → APROBADA/RECHAZADA → COORDINANDO_ENTREGA → COMPL
 ```
 
 ### 5. Solicitudes de Subvención Municipal Veterinaria
-**Código:** REQ-BR-040  
-**Quién:** Veterinarios o Rescatistas  
+**Código:** REQ-BR-040
+**Quién:** Veterinarios o Rescatistas
 **Propósito:** Solicitar subsidio municipal para gastos veterinarios
 
 **Estados del workflow:**
@@ -182,6 +182,6 @@ AppServiceCard(
 
 ---
 
-**Última actualización:** Diciembre 2024  
-**Revisado por:** Kiro AI Assistant  
+**Última actualización:** Diciembre 2024
+**Revisado por:** Kiro AI Assistant
 **Estado:** ✅ Requisitos actualizados según nueva lógica de negocio

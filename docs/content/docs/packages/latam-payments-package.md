@@ -57,25 +57,25 @@ lib/
 abstract class LatinAmericanPaymentGateway {
   /// Unique identifier for the gateway
   String get id;
-  
+
   /// Display name
   String get name;
-  
+
   /// Primary country of operation
   Country get primaryCountry;
-  
+
   /// Additional supported countries (for multi-country gateways)
   Set<Country> get supportedCountries;
-  
+
   /// Supported payment methods
   Set<PaymentMethodType> get supportedMethods;
-  
+
   /// Supported currencies
   Set<Currency> get supportedCurrencies;
-  
+
   /// Initialize with configuration
   Future<void> initialize(PaymentGatewayConfiguration config);
-  
+
   /// PCI compliant card tokenization
   /// Returns a secure token representing the card
   Future<CardToken> tokenizeCard({
@@ -86,7 +86,7 @@ abstract class LatinAmericanPaymentGateway {
     required String cardHolderName,
     CardBillingAddress? billingAddress,
   });
-  
+
   /// Process a payment
   /// [amount]: Amount in smallest currency unit (e.g., 1000 = $10.00)
   /// [currency]: Payment currency
@@ -100,10 +100,10 @@ abstract class LatinAmericanPaymentGateway {
     Customer? customer,
     Map<String, dynamic>? metadata,
   });
-  
+
   /// Check transaction status
   Future<PaymentResult> getTransaction(String transactionId);
-  
+
   /// Refund transaction
   /// [amount]: If null, full refund
   Future<RefundResult> refund({
@@ -111,10 +111,10 @@ abstract class LatinAmericanPaymentGateway {
     int? amount,
     String? reason,
   });
-  
+
   /// Check gateway availability
   Future<bool> healthCheck();
-  
+
   /// Dispose resources
   Future<void> dispose();
 }
@@ -129,22 +129,22 @@ abstract class LatinAmericanPaymentGateway {
 class PaymentGatewayConfiguration {
   /// Public API Key (for client-side tokenization)
   final String? publicKey;
-  
+
   /// Private API Key (for backend, if applicable)
   final String? privateKey;
-  
+
   /// API Secret (for gateways requiring it)
   final String? apiSecret;
-  
+
   /// Environment: sandbox or production
   final bool sandbox;
-  
+
   /// Request timeout (default: 30s)
   final Duration timeout;
-  
+
   /// Gateway-specific configuration
   final Map<String, dynamic>? extraConfig;
-  
+
   const PaymentGatewayConfiguration({
     this.publicKey,
     this.privateKey,
@@ -153,7 +153,7 @@ class PaymentGatewayConfiguration {
     this.timeout = const Duration(seconds: 30),
     this.extraConfig,
   });
-  
+
   /// Factory for minimal configuration (tokenization only)
   factory PaymentGatewayConfiguration.minimal({
     required String publicKey,
@@ -178,7 +178,7 @@ enum Country {
   argentina('AR', 'Argentina'),
   chile('CL', 'Chile'),
   peru('PE', 'Perú');
-  
+
   final String code;
   final String displayName;
   const Country(this.code, this.displayName);
@@ -194,7 +194,7 @@ enum Currency {
   mxn('MXN', 'Mexican Peso', r'$'),
   brl('BRL', 'Brazilian Real', r'R$'),
   usd('USD', 'US Dollar', r'$');
-  
+
   final String code;
   final String name;
   final String symbol;
@@ -255,11 +255,11 @@ class PaymentGatewayFactory {
         return EbanxPaymentGateway(config);
     }
   }
-  
+
   static List<PaymentGatewayType> availableFor(Country country) {
     return PaymentGatewayRegistry.gatewaysByCountry[country] ?? [];
   }
-  
+
   static Set<PaymentMethodType> nativeMethodsFor(Country country) {
     return switch (country) {
       Country.costaRica => {PaymentMethodType.sinpeMovil},
@@ -433,7 +433,7 @@ class MyAppPaymentConfig {
       ),
     );
   }
-  
+
   static PaymentGatewayType _gatewayTypeFor(Country country) {
     return switch (country) {
       Country.costaRica => PaymentGatewayType.onvoPay,

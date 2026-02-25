@@ -13,13 +13,13 @@ resource "kubernetes_stateful_set" "postgres" {
   spec {
     service_name = "${var.name}-service"
     replicas     = 1
-    
+
     selector {
       match_labels = {
         app = "postgres"
       }
     }
-    
+
     template {
       metadata {
         labels = {
@@ -30,7 +30,7 @@ resource "kubernetes_stateful_set" "postgres" {
         container {
           name  = "postgres"
           image = "postgres:${var.postgres_version}"
-          
+
           env {
             name = "POSTGRES_USER"
             value_from {
@@ -58,17 +58,17 @@ resource "kubernetes_stateful_set" "postgres" {
               }
             }
           }
-          
+
           port {
             container_port = 5432
             name           = "postgres"
           }
-          
+
           volume_mount {
             name       = "postgres-data"
             mount_path = "/var/lib/postgresql/data"
           }
-          
+
           resources {
             requests = {
               cpu    = "100m"
@@ -82,7 +82,7 @@ resource "kubernetes_stateful_set" "postgres" {
         }
       }
     }
-    
+
     volume_claim_template {
       metadata {
         name = "postgres-data"

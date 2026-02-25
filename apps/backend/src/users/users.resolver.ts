@@ -66,13 +66,13 @@ export class UsersResolver {
 
         const adminRoles = adminUser.roles as UserRole[];
         const canCreateSuperUser = adminRoles.includes(UserRole.SUPER_USER);
-        
+
         if (input.roles?.includes(UserRole.SUPER_USER) && !canCreateSuperUser) {
             throw new ForbiddenException('Only SUPER_USER can create other SUPER_USER accounts');
         }
 
         const passwordHash = await bcrypt.hash(input.password, 12);
-        
+
         const user = await this.userRepository.save({
             username: input.username,
             passwordHash,
@@ -171,13 +171,13 @@ export class UsersResolver {
         if (avatarBase64 !== undefined) {
             // Support both legacy BLOB and new URL-based storage
             const imageBuffer = this.decodeAvatarBase64(avatarBase64);
-            
+
             if (imageBuffer) {
                 // Upload to storage service (S3/MinIO or local)
                 const uploadResult = await this.avatarStorageService.uploadAvatar(userId, imageBuffer);
                 existingUser.avatarUrl = uploadResult.url;
                 existingUser.avatarStorageProvider = uploadResult.storageProvider;
-                
+
                 // Keep BLOB for backward compatibility during migration
                 existingUser.avatarImage = imageBuffer;
             } else {

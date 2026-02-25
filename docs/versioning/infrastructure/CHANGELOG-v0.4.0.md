@@ -37,7 +37,7 @@ Se actualiza la estrategia de secrets para usar Infisical en todos los ambientes
 
 - **DEV**: Minikube + Infisical
 - **QA**: OVHCloud + Infisical
-- **STAGING**: OVHCloud + Infisical  
+- **STAGING**: OVHCloud + Infisical
 - **PROD**: OVHCloud + Infisical
 
 **Razón**: OVHCloud no ofrece Secrets Manager, y Infisical es cloud-agnostic.

@@ -194,4 +194,3 @@ resource "ovh_cloud_project_kube_nodepool" "node_pool" {
 ---
 
 **Versión:** 1.0.0
-

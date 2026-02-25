@@ -32,7 +32,7 @@ class TonalPaletteGenerator extends StatelessWidget {
           _buildPaletteSection(context, 'Accent Palette', CorePalette.of(manager.accentColor.toARGB32()).primary),
           // ignore: deprecated_member_use
           _buildPaletteSection(context, 'Success Palette', CorePalette.of(manager.successColor.toARGB32()).primary),
-          
+
           const SizedBox(height: 48),
           const Divider(),
           const SizedBox(height: 24),
@@ -88,7 +88,7 @@ class TonalPaletteGenerator extends StatelessWidget {
         const Spacer(),
         FilledButton.icon(
           onPressed: manager.isLoading ? null : () => manager.syncAll(),
-          icon: manager.isLoading 
+          icon: manager.isLoading
             ? const SizedBox(width: 18, height: 18, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
             : const Icon(Icons.sync_rounded),
           label: const Text('SYNC CHANGES'),
@@ -161,7 +161,7 @@ class TonalPaletteGenerator extends StatelessWidget {
 
   Widget _buildColorPickerItem(BuildContext context, String label, String key, Color color, double width) {
     final String hex = '#${color.toARGB32().toRadixString(16).padLeft(8, '0').substring(2).toUpperCase()}';
-    
+
     return SizedBox(
       width: width,
       child: Column(
@@ -316,7 +316,7 @@ class TonalPaletteGenerator extends StatelessWidget {
                 final color = Color(palette.get(tone));
                 final colorHex = color.toARGB32().toRadixString(16).padLeft(8, '0').substring(2).toUpperCase();
                 final onColor = tone > 50 ? Colors.black : Colors.white;
-                
+
                 return Expanded(
                   child: Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 2),
@@ -342,7 +342,7 @@ class TonalPaletteGenerator extends StatelessWidget {
                               decoration: BoxDecoration(
                                 color: color,
                                 borderRadius: BorderRadius.circular(12),
-                                border: tone == 100 || tone == 0 
+                                border: tone == 100 || tone == 0
                                   ? Border.all(color: Theme.of(context).colorScheme.outlineVariant)
                                   : null,
                               ),

@@ -98,7 +98,7 @@
 
 1. **Namespace Migration**: PostgreSQL moved from `default` to `altrupets-dev` namespace
    - Requires updating any external connections to use new service endpoint
-   
+
 2. **Secret Consolidation**: `postgres-dev-secret` no longer exists
    - All applications should reference `backend-secret` for database credentials
 

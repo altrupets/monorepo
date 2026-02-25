@@ -61,7 +61,7 @@ my-app-monorepo/
 
 Para garantizar la estabilidad desde el desarrollo local hasta la producción, se define el siguiente flujo:
 
-1.  **DEV (Local - Kind en Ubuntu)**: 
+1.  **DEV (Local - Kind en Ubuntu)**:
     - **Uso**: Desarrollo rápido, pruebas de integración locales.
     - **Aislamiento**: Cada desarrollador tiene su propio cluster Kind.
     - **PostgreSQL**: Instancia local dentro de Kind con persistencia en el host.
@@ -187,6 +187,5 @@ Puedes combinar skills en tus prompts:
 
 ---
 
-**Última actualización:** Diciembre 2025  
+**Última actualización:** Diciembre 2025
 **Total Skills:** 9
-

@@ -665,21 +665,21 @@ interface PaymentResponse {
 interface PaymentGateway {
   // Authentication
   authenticate(credentials: Credentials): Promise<AuthToken>;
-  
+
   // Payments
   createPayment(request: PaymentRequest): Promise<PaymentResponse>;
   getPayment(id: string): Promise<PaymentResponse>;
   capturePayment(id: string, amount?: number): Promise<PaymentResponse>;
   cancelPayment(id: string): Promise<PaymentResponse>;
   refundPayment(id: string, amount?: number): Promise<PaymentResponse>;
-  
+
   // Tokenization
   tokenizeCard(card: CardDetails): Promise<string>;
-  
+
   // Webhooks
   verifyWebhookSignature(payload: string, signature: string): boolean;
   parseWebhookEvent(payload: string): WebhookEvent;
-  
+
   // Methods
   getPaymentMethods(): Promise<PaymentMethod[]>;
 }

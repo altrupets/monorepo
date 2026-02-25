@@ -34,7 +34,7 @@ You may make production use of the Licensed Work, provided Your use does not inc
 
 -- “Embedded” means including the source code or executable code from the Licensed Work in a competitive offering. “Embedded” also means packaging the competitive offering in such a way that the Licensed Work must be accessed or downloaded for the competitive offering to operate.
 
-Hosting or using the Licensed Work(s) for internal purposes within an organization is not considered a competitive offering.  
+Hosting or using the Licensed Work(s) for internal purposes within an organization is not considered a competitive offering.
 Andrés Peña considers your organization to include all of your affiliates under common control.
 
 For binding interpretive guidance on using Andrés Peña products under the Business Source License, please refer to the official documentation or contact us directly.
@@ -73,4 +73,3 @@ Any use of the Licensed Work in violation of this License will automatically ter
 This License does not grant you any right in any trademark or logo of Licensor or its affiliates (provided that you may use a trademark or logo of Licensor as expressly required by this License).
 
 TO THE EXTENT PERMITTED BY APPLICABLE LAW, THE LICENSED WORK IS PROVIDED ON AN "AS IS" BASIS. LICENSOR HEREBY DISCLAIMS ALL WARRANTIES AND CONDITIONS, EXPRESS OR IMPLIED, INCLUDING (WITHOUT LIMITATION) WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, NON-INFRINGEMENT, AND TITLE.
-

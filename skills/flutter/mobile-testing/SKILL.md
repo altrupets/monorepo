@@ -87,7 +87,7 @@ lib/
 dependencies:
   flutter:
     sdk: flutter
-  
+
   # Testing
   integration_test:
     sdk: flutter
@@ -347,7 +347,7 @@ void main() {
 
     testWidgets('Login completo con email y password', (WidgetTester testTester) async {
       tester = testTester;
-      
+
       // 1. Iniciar la app
       await tester.pumpWidget(const MyApp());
       await tester.pumpAndSettle();
@@ -379,7 +379,7 @@ void main() {
 
     testWidgets('Login con Google Sign-In', (WidgetTester testTester) async {
       tester = testTester;
-      
+
       await tester.pumpWidget(const MyApp());
       await tester.pumpAndSettle();
 
@@ -397,7 +397,7 @@ void main() {
 
     testWidgets('Recuperación de contraseña', (WidgetTester testTester) async {
       tester = testTester;
-      
+
       await tester.pumpWidget(const MyApp());
       await tester.pumpAndSettle();
 
@@ -661,7 +661,7 @@ await Future.delayed(Duration(seconds: 5));
 
 ```dart
 // ✅ Bueno: Assertions específicas con mensajes
-expect(find.text('Welcome'), findsOneWidget, 
+expect(find.text('Welcome'), findsOneWidget,
   reason: 'User should see welcome message after login');
 
 // ❌ Malo: Assertions genéricas
@@ -872,7 +872,7 @@ Compara los resultados y genera un reporte
 
 ---
 
-**Versión:** 1.0.0  
+**Versión:** 1.0.0
 **Última actualización:** Febrero 2026
 
 ---
@@ -906,4 +906,3 @@ Por defecto se guardan en: `logs/mobile/http_logs_<timestamp>.log`
 ```bash
 tail -f logs/mobile/http_logs_$(ls -t logs/mobile/ | head -1)
 ```
-

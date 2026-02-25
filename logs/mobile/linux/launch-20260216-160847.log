@@ -45,7 +45,7 @@ Got dependencies!
 Try `flutter pub outdated` for more information.
 [0;32m🚀 Ejecutando en Linux desktop...[0m
 Launching lib/main.dart on Linux in debug mode...
-Building Linux application...                                   
+Building Linux application...
 ✓ Built build/linux/x64/debug/bundle/altrupets
 Syncing files to device Linux...                                    92ms
 
@@ -60,6 +60,6 @@ q Quit (terminate the application on the device).
 A Dart VM Service on Linux is available at: http://127.0.0.1:43497/BWzx2cuzznw=/
 The Flutter DevTools debugger and profiler on Linux is available at: http://127.0.0.1:43497/BWzx2cuzznw=/devtools/?uri=ws://127.0.0.1:43497/BWzx2cuzznw=/ws
 
-Performing hot restart...                                       
+Performing hot restart...
 Restarted application in 547ms.
 Lost connection to device.

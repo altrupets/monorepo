@@ -22,7 +22,7 @@ export class AvatarStorageService {
     this.useRemoteStorage = configService.get<string>('AVATAR_STORAGE_TYPE') === 's3';
     this.remoteEndpoint = configService.get<string>('S3_ENDPOINT');
     this.remoteBucket = configService.get<string>('S3_BUCKET_NAME');
-    
+
     if (!this.useRemoteStorage) {
       this.ensureLocalUploadPath();
     }
@@ -38,7 +38,7 @@ export class AvatarStorageService {
 
   async uploadAvatar(userId: string, imageBuffer: Buffer): Promise<AvatarUploadResult> {
     const fileName = `${userId}-${uuid()}.jpg`;
-    
+
     if (this.useRemoteStorage && this.remoteEndpoint && this.remoteBucket) {
       return this.uploadToS3(fileName, imageBuffer);
     } else {
@@ -49,7 +49,7 @@ export class AvatarStorageService {
   private async uploadToLocal(fileName: string, imageBuffer: Buffer): Promise<AvatarUploadResult> {
     const filePath = join(this.localUploadPath, fileName);
     await writeFile(filePath, imageBuffer);
-    
+
     return {
       url: `/uploads/avatars/${fileName}`,
       storageProvider: 'local',
@@ -58,11 +58,11 @@ export class AvatarStorageService {
 
   private async uploadToS3(fileName: string, imageBuffer: Buffer): Promise<AvatarUploadResult> {
     this.logger.log(`Uploading avatar to S3: ${fileName}`);
-    
+
     // Placeholder for S3 upload implementation
     // TODO: Implement actual S3 upload using @aws-sdk/client-s3
     const url = `${this.remoteEndpoint}/${this.remoteBucket}/avatars/${fileName}`;
-    
+
     return {
       url,
       storageProvider: 's3',

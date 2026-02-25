@@ -8,17 +8,17 @@ All notable changes to this payment package will be documented in this file.
 - **Costa Rica Gateways:**
   - OnvoPayPaymentGateway - Cards, SINPE
   - TilopayPaymentGateway - Cards, SINPE
-  
+
 - **Colombia Gateway:**
   - WompiPaymentGateway - Cards, PSE, Nequi (Colombia & Panama)
-  
+
 - **Mexico Gateways:**
   - OpenpayPaymentGateway - Cards, SPEI, OXXO
   - ConektaPaymentGateway - Cards, SPEI, OXXO
-  
+
 - **Brazil Gateway:**
   - MercadoPagoPaymentGateway - Cards, PIX, Boleto
-  
+
 - **Core Package:**
   - LatinAmericanPaymentGateway interface
   - PaymentGatewayFactory and PaymentGatewayRegistry

@@ -76,7 +76,7 @@ export class AuthService {
   async refreshToken(refreshToken: string) {
     // Validate refresh token exists in cache
     const userId = await this.cacheManager.get<string>(`refresh:${refreshToken}`);
-    
+
     if (!userId) {
       throw new UnauthorizedException('Invalid or expired refresh token');
     }

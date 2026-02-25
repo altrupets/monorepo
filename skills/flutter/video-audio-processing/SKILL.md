@@ -49,16 +49,16 @@ import 'package:flutter/material.dart';
 
 class VideoPlayerScreen extends StatefulWidget {
   final String videoUrl;
-  
+
   const VideoPlayerScreen({super.key, required this.videoUrl});
-  
+
   @override
   State<VideoPlayerScreen> createState() => _VideoPlayerScreenState();
 }
 
 class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
   late VideoPlayerController _controller;
-  
+
   @override
   void initState() {
     super.initState();
@@ -68,7 +68,7 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
         _controller.play();
       });
   }
-  
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -94,7 +94,7 @@ class _VideoPlayerScreenState extends State<VideoPlayerScreen> {
       ),
     );
   }
-  
+
   @override
   void dispose() {
     _controller.dispose();
@@ -110,9 +110,9 @@ import 'package:chewie/chewie.dart';
 
 class EnhancedVideoPlayer extends StatefulWidget {
   final String videoUrl;
-  
+
   const EnhancedVideoPlayer({super.key, required this.videoUrl});
-  
+
   @override
   State<EnhancedVideoPlayer> createState() => _EnhancedVideoPlayerState();
 }
@@ -120,17 +120,17 @@ class EnhancedVideoPlayer extends StatefulWidget {
 class _EnhancedVideoPlayerState extends State<EnhancedVideoPlayer> {
   VideoPlayerController? _videoController;
   ChewieController? _chewieController;
-  
+
   @override
   void initState() {
     super.initState();
     _initializePlayer();
   }
-  
+
   Future<void> _initializePlayer() async {
     _videoController = VideoPlayerController.network(widget.videoUrl);
     await _videoController!.initialize();
-    
+
     _chewieController = ChewieController(
       videoPlayerController: _videoController!,
       autoPlay: true,
@@ -146,17 +146,17 @@ class _EnhancedVideoPlayerState extends State<EnhancedVideoPlayer> {
         ),
       ),
     );
-    
+
     setState(() {});
   }
-  
+
   @override
   Widget build(BuildContext context) {
     return _chewieController != null
         ? Chewie(controller: _chewieController!)
         : const Center(child: CircularProgressIndicator());
   }
-  
+
   @override
   void dispose() {
     _videoController?.dispose();
@@ -173,7 +173,7 @@ import 'package:camera/camera.dart';
 
 class VideoRecorderScreen extends StatefulWidget {
   const VideoRecorderScreen({super.key});
-  
+
   @override
   State<VideoRecorderScreen> createState() => _VideoRecorderScreenState();
 }
@@ -182,30 +182,30 @@ class _VideoRecorderScreenState extends State<VideoRecorderScreen> {
   CameraController? _controller;
   bool _isRecording = false;
   String? _videoPath;
-  
+
   @override
   void initState() {
     super.initState();
     _initializeCamera();
   }
-  
+
   Future<void> _initializeCamera() async {
     final cameras = await availableCameras();
     if (cameras.isEmpty) return;
-    
+
     _controller = CameraController(
       cameras.first,
       ResolutionPreset.high,
       enableAudio: true,
     );
-    
+
     await _controller!.initialize();
     setState(() {});
   }
-  
+
   Future<void> _startRecording() async {
     if (_controller == null || !_controller!.value.isInitialized) return;
-    
+
     try {
       await _controller!.startVideoRecording();
       setState(() => _isRecording = true);
@@ -213,10 +213,10 @@ class _VideoRecorderScreenState extends State<VideoRecorderScreen> {
       print('Error starting recording: $e');
     }
   }
-  
+
   Future<void> _stopRecording() async {
     if (!_isRecording) return;
-    
+
     try {
       final file = await _controller!.stopVideoRecording();
       setState(() {
@@ -227,13 +227,13 @@ class _VideoRecorderScreenState extends State<VideoRecorderScreen> {
       print('Error stopping recording: $e');
     }
   }
-  
+
   @override
   Widget build(BuildContext context) {
     if (_controller == null || !_controller!.value.isInitialized) {
       return const Center(child: CircularProgressIndicator());
     }
-    
+
     return Scaffold(
       body: CameraPreview(_controller!),
       floatingActionButton: FloatingActionButton(
@@ -243,7 +243,7 @@ class _VideoRecorderScreenState extends State<VideoRecorderScreen> {
       ),
     );
   }
-  
+
   @override
   void dispose() {
     _controller?.dispose();
@@ -264,42 +264,42 @@ class AudioRecorderService {
   final AudioRecorder _audioRecorder = AudioRecorder();
   final AudioPlayer _audioPlayer = AudioPlayer();
   String? _currentRecordingPath;
-  
+
   Future<void> startRecording() async {
     final hasPermission = await _audioRecorder.hasPermission();
     if (!hasPermission) {
       throw Exception('Microphone permission not granted');
     }
-    
+
     final directory = await getApplicationDocumentsDirectory();
     _currentRecordingPath = '${directory.path}/recording_${DateTime.now().millisecondsSinceEpoch}.m4a';
-    
+
     await _audioRecorder.start(
       const RecordConfig(),
       path: _currentRecordingPath!,
     );
   }
-  
+
   Future<String?> stopRecording() async {
     await _audioRecorder.stop();
     return _currentRecordingPath;
   }
-  
+
   Future<void> playRecording(String path) async {
     await _audioPlayer.setFilePath(path);
     await _audioPlayer.play();
   }
-  
+
   Future<void> stopPlayback() async {
     await _audioPlayer.stop();
   }
-  
+
   Stream<Amplitude> get amplitudeStream => _audioRecorder.onAmplitude;
 }
 
 class AudioRecorderWidget extends ConsumerStatefulWidget {
   const AudioRecorderWidget({super.key});
-  
+
   @override
   ConsumerState<AudioRecorderWidget> createState() => _AudioRecorderWidgetState();
 }
@@ -310,7 +310,7 @@ class _AudioRecorderWidgetState extends ConsumerState<AudioRecorderWidget> {
   bool _isPlaying = false;
   String? _recordingPath;
   double _amplitude = 0.0;
-  
+
   @override
   Widget build(BuildContext context) {
     return Column(
@@ -347,7 +347,7 @@ class _AudioRecorderWidgetState extends ConsumerState<AudioRecorderWidget> {
       ],
     );
   }
-  
+
   Future<void> _toggleRecording() async {
     if (_isRecording) {
       final path = await _service.stopRecording();
@@ -358,14 +358,14 @@ class _AudioRecorderWidgetState extends ConsumerState<AudioRecorderWidget> {
     } else {
       await _service.startRecording();
       setState(() => _isRecording = true);
-      
+
       // Listen to amplitude
       _service.amplitudeStream.listen((amp) {
         setState(() => _amplitude = amp.current);
       });
     }
   }
-  
+
   Future<void> _togglePlayback() async {
     if (_isPlaying) {
       await _service.stopPlayback();
@@ -380,23 +380,23 @@ class _AudioRecorderWidgetState extends ConsumerState<AudioRecorderWidget> {
 // Custom painter for amplitude visualization
 class AmplitudePainter extends CustomPainter {
   final double amplitude;
-  
+
   AmplitudePainter({required this.amplitude});
-  
+
   @override
   void paint(Canvas canvas, Size size) {
     final paint = Paint()
       ..color = Colors.blue
       ..strokeWidth = 2;
-    
+
     final height = size.height;
     final centerY = height / 2;
     final barWidth = size.width / 50;
-    
+
     for (int i = 0; i < 50; i++) {
       final barHeight = (amplitude / 100) * height * (0.5 + (i % 5) * 0.1);
       final x = i * barWidth;
-      
+
       canvas.drawLine(
         Offset(x, centerY - barHeight / 2),
         Offset(x, centerY + barHeight / 2),
@@ -404,7 +404,7 @@ class AmplitudePainter extends CustomPainter {
       );
     }
   }
-  
+
   @override
   bool shouldRepaint(covariant CustomPainter oldDelegate) => true;
 }
@@ -427,16 +427,16 @@ class VideoProcessingService {
     final command =
         '-i "$inputPath" -ss ${start.inSeconds} -t ${duration.inSeconds} '
         '-c copy "$outputPath"';
-    
+
     final session = await FFmpegKit.execute(command);
     final returnCode = await session.getReturnCode();
-    
+
     if (ReturnCode.isSuccess(returnCode)) {
       return outputPath;
     }
     return null;
   }
-  
+
   /// Compress video
   static Future<String?> compressVideo(
     String inputPath,
@@ -446,16 +446,16 @@ class VideoProcessingService {
     String crf = '23'; // Default medium
     if (quality == 'low') crf = '28';
     if (quality == 'high') crf = '18';
-    
+
     final command =
         '-i "$inputPath" -vcodec h264 -acodec aac -crf $crf "$outputPath"';
-    
+
     final session = await FFmpegKit.execute(command);
     final returnCode = await session.getReturnCode();
-    
+
     return ReturnCode.isSuccess(returnCode) ? outputPath : null;
   }
-  
+
   /// Extract thumbnail from video
   static Future<String?> extractThumbnail(
     String videoPath,
@@ -464,22 +464,22 @@ class VideoProcessingService {
   }) async {
     final command =
         '-i "$videoPath" -ss ${position.inSeconds} -vframes 1 "$outputPath"';
-    
+
     final session = await FFmpegKit.execute(command);
     final returnCode = await session.getReturnCode();
-    
+
     return ReturnCode.isSuccess(returnCode) ? outputPath : null;
   }
-  
+
   /// Get video information
   static Future<Map<String, dynamic>> getVideoInfo(String videoPath) async {
     final session = await FFmpegKit.execute('-i "$videoPath"');
     final output = await session.getOutput();
     final logs = await session.getLogs();
-    
+
     // Parse duration, resolution, etc. from output
     final info = <String, dynamic>{};
-    
+
     for (final log in logs) {
       final message = log.getMessage();
       if (message?.contains('Duration') == true) {
@@ -497,7 +497,7 @@ class VideoProcessingService {
         }
       }
     }
-    
+
     return info;
   }
 }

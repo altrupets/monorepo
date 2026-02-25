@@ -34,7 +34,7 @@ provider "helm" {
 
 module "postgres" {
   source = "../../modules/database/postgres-minikube"
-  
+
   name                = "postgres-dev"
   namespace           = "altrupets-dev"
   postgres_version    = "15-alpine"
