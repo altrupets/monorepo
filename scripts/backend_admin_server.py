@@ -9,8 +9,17 @@ import sys
 import subprocess
 import datetime
 import uuid
+import re
 from http.server import HTTPServer, BaseHTTPRequestHandler
 from pathlib import Path
+
+
+def clean_ansi(text: str) -> str:
+    """Remove ANSI escape codes and convert \n to actual newlines."""
+    ansi_escape = re.compile(r"\x1B(?:[@-Z\\-_]|\[[0-?]*[ -/]*[@-~])")
+    text = ansi_escape.sub("", text)
+    return text
+
 
 HOST = "localhost"
 PORT = 3002
@@ -105,6 +114,7 @@ def execute_backend_command() -> dict:
             break
 
     duration = (datetime.datetime.now() - start_time).total_seconds()
+    cleaned_output = clean_ansi(full_output[-5000:]) if full_output else ""
 
     if all_success:
         log(f"[{request_id}] ✅ Backend deployment completed in {duration:.1f}s")
@@ -112,7 +122,7 @@ def execute_backend_command() -> dict:
             "success": True,
             "request_id": request_id,
             "duration_seconds": duration,
-            "output": full_output[-5000:] if full_output else "",
+            "output": cleaned_output,
         }
     else:
         log(f"[{request_id}] ❌ Backend deployment failed after {duration:.1f}s")
@@ -121,7 +131,7 @@ def execute_backend_command() -> dict:
             "request_id": request_id,
             "duration_seconds": duration,
             "error": "One or more commands failed",
-            "output": full_output[-5000:] if full_output else "",
+            "output": cleaned_output,
         }
 
 
