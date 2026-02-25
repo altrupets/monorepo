@@ -7,6 +7,16 @@ y este proyecto adhiere a [Semantic Versioning](https://semver.org/lang/es/).
 
 ## [Unreleased]
 
+### Added - 2026-02-25
+
+#### ✨ Configuración de direnv para el proyecto
+
+- Agregado `.envrc` para activar automáticamente el venv con pre-commit
+- Agregado hook de direnv a `~/.bashrc`
+
+**Archivos agregados:**
+- `.envrc` - Activa .venv al entrar al proyecto
+
 ### Fixed - 2026-02-25
 
 #### 🐛 Bugfix: Admin Server y Mobile Launch
