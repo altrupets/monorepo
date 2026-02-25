@@ -5,3 +5,6 @@ namespace: altrupets-dev
 
 resources:
   - ../../base/web-superusers
+
+patches:
+  - path: patch-deployment.yaml

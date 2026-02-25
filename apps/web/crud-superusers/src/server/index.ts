@@ -22,8 +22,8 @@ function renderPage(component: string, props: Record<string, any> = {}, title: s
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>${title}</title>
-  <script src="https://unpkg.com/vue@3/dist/vue.global.prod.js"></script>
-  <script src="https://unpkg.com/@inertiajs/inertia@3/dist/inertia.umd.js"></script>
+  <script src="https://unpkg.com/vue@3.4.38/dist/vue.global.prod.js"></script>
+  <script src="https://unpkg.com/@inertiajs/inertia@0.11.1/dist/index.umd.js"></script>
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
     body { font-family: system-ui, -apple-system, sans-serif; background: #f5f5f5; min-height: 100vh; }

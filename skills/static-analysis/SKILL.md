@@ -132,7 +132,25 @@ cd ..
 cd mobile
 dart format .
 cd ..
+
+# Ejecutar pruebas unitarias
+cd mobile
+flutter test
+cd ..
+
+# Ejecutar pruebas con cobertura
+cd mobile
+flutter test --coverage
+cd ..
+
+# Linting completo (Análisis + Formato)
+cd mobile
+flutter analyze && dart format --set-exit-if-changed .
+cd ..
 ```
+
+> [!TIP]
+> Para el proyecto AltruPets, se recomienda usar el script especializado `apps/mobile/flutter-sast.sh` que centraliza estas operaciones.
 
 #### Configuración: analysis_options.yaml
 

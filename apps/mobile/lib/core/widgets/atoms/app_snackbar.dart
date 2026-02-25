@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../../../core/utils/debug_helper.dart';
+import 'package:altrupets/core/utils/debug_helper.dart';
 
 /// AppSnackbar - Helper para mostrar SnackBars consistentes en la app
 ///

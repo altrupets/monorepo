@@ -68,6 +68,7 @@ import { OrganizationMembership } from './organizations/entities/organization-me
       driver: ApolloDriver,
       autoSchemaFile: join(process.cwd(), 'schema.gql'),
       sortSchema: true,
+      csrfPrevention: false,
     }),
     AuthModule,
     HealthModule,

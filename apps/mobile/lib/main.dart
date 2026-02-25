@@ -23,7 +23,7 @@ void main() async {
   if (Platform.isLinux || Platform.isWindows || Platform.isMacOS) {
     await windowManager.ensureInitialized();
 
-    WindowOptions windowOptions = const WindowOptions(
+    final WindowOptions windowOptions = const WindowOptions(
       title: 'AltruPets',
       center: true,
       backgroundColor: Colors.transparent,

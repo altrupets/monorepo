@@ -24,6 +24,7 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 NAMESPACE="altrupets-dev"
 OPERATOR_NAMESPACE="infisical-operator-system"
 SECRET_NAME="backend-secret"
+HARBOR_SECRET_NAME="harbor-registry-secret"
 
 GREEN='\033[0;32m'
 BLUE='\033[0;34m'
@@ -179,6 +180,42 @@ restart_backend() {
 	echo -e "${GREEN}✅ Backend restarted${NC}"
 }
 
+create_harbor_registry_secret() {
+	local harbor_user="${1:-}"
+	local harbor_pass="${2:-}"
+	local harbor_host="${3:-localhost:30003}"
+
+	if [ -z "$harbor_user" ] || [ -z "$harbor_pass" ]; then
+		echo -e "${ORANGE}⚠️  Harbor credentials not provided, skipping harbor-registry-secret creation${NC}"
+		return
+	fi
+
+	echo -e "${BLUE}🔄 Creating/Updating $HARBOR_SECRET_NAME...${NC}"
+
+	# Create the auth string (base64 of user:pass)
+	local auth=$(echo -n "$harbor_user:$harbor_pass" | base64 | tr -d '\n')
+
+	# Create the .dockerconfigjson structure
+	local docker_config_json=$(cat <<EOF
+{
+  "auths": {
+    "$harbor_host": {
+      "auth": "$auth"
+    }
+  }
+}
+EOF
+)
+
+	echo "$docker_config_json" | kubectl create secret generic "$HARBOR_SECRET_NAME" \
+		--from-literal=.dockerconfigjson=/dev/stdin \
+		--type=kubernetes.io/dockerconfigjson \
+		--namespace="$NAMESPACE" \
+		--dry-run=client -o yaml | kubectl apply -f -
+
+	echo -e "${GREEN}✅ Secret $HARBOR_SECRET_NAME synchronized${NC}"
+}
+
 # Main logic
 if [ "$USE_CLI" = true ]; then
 	sync_via_cli
@@ -216,6 +253,13 @@ else
 		fi
 	fi
 fi
+
+# Harbor Registry Secret
+HARBOR_USER=$(kubectl -n "$NAMESPACE" get secret "$SECRET_NAME" -o jsonpath="{.data.HARBOR_USERNAME}" 2>/dev/null | base64 -d 2>/dev/null || echo "admin")
+HARBOR_PASS=$(kubectl -n "$NAMESPACE" get secret "$SECRET_NAME" -o jsonpath="{.data.HARBOR_PASSWORD}" 2>/dev/null | base64 -d 2>/dev/null || echo "Harbor12345")
+HARBOR_HOST=$(kubectl -n "$NAMESPACE" get secret "$SECRET_NAME" -o jsonpath="{.data.HARBOR_HOST}" 2>/dev/null | base64 -d 2>/dev/null || echo "localhost:30003")
+
+create_harbor_registry_secret "$HARBOR_USER" "$HARBOR_PASS" "$HARBOR_HOST"
 
 # Verify secrets were synced
 echo ""

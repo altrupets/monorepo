@@ -13,7 +13,7 @@ class DebugHelper {
 
   static void logBackendStartCommand() {
     debugPrint('Para reconectar el backend, ejecuta en terminal:');
-    debugPrint('$backendStartCommand');
+    debugPrint(backendStartCommand);
   }
 
   static Future<void> restartBackend() async {

@@ -1985,10 +1985,24 @@ make verify ENV=qa        # Verificar deployment
 make clean                # Limpiar archivos temporales
 
 # Comandos Terraform/OpenTofu directos
-cd infrastructure/terraform/environments/dev
 tofu init                 # Inicializar
 make dev                  # Deploy con make (recomendado)
 ```
+
+### 🔍 Análisis Estático (MegaLinter)
+
+AltruPets utiliza **MegaLinter** para un análisis exhaustivo de todo el monorepo (Dart, TS, YAML, Shell, etc.).
+
+```bash
+# Ejecutar MegaLinter localmente (requiere Docker)
+make lint-all
+
+# Ver reporte de análisis (en el navegador)
+make lint-report
+```
+
+> [!TIP]
+> MegaLinter también se ejecuta automáticamente en cada Pull Request mediante GitHub Actions.
 
 ## 📊 Métricas de Éxito
 

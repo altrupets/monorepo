@@ -13,3 +13,5 @@ spec:
           env:
             - name: NODE_ENV
               value: "development"
+      imagePullSecrets:
+        - name: harbor-registry-secret

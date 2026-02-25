@@ -2,9 +2,7 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:dio/dio.dart';
 import 'package:altrupets/core/network/interceptors/retry_interceptor.dart';
-import 'package:altrupets/core/network/exceptions/network_exceptions.dart';
 
 void main() {
   group('RetryInterceptor', () {

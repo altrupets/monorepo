@@ -20,9 +20,9 @@ class FakeAuthRepository implements AuthRepositoryInterface {
   @override
   Future<Either<Failure, User>> register(RegisterInput input) async {
     if (shouldFailRegister || mockFailure != null) {
-      return Left(mockFailure ?? ServerFailure('Registration failed'));
+      return Left(mockFailure ?? const ServerFailure('Registration failed'));
     }
-    return Right(mockUser ?? User(id: '1', username: 'testuser'));
+    return Right(mockUser ?? const User(id: '1', username: 'testuser'));
   }
 
   @override
@@ -31,7 +31,7 @@ class FakeAuthRepository implements AuthRepositoryInterface {
     String password,
   ) async {
     if (shouldFailLogin || mockFailure != null) {
-      return Left(mockFailure ?? ServerFailure('Invalid credentials'));
+      return Left(mockFailure ?? const ServerFailure('Invalid credentials'));
     }
     return Right(mockPayload ?? const AuthPayload(accessToken: 'token123'));
   }
@@ -39,15 +39,15 @@ class FakeAuthRepository implements AuthRepositoryInterface {
   @override
   Future<Either<Failure, User>> getCurrentUser() async {
     if (shouldFailGetCurrentUser || mockFailure != null) {
-      return Left(mockFailure ?? ServerFailure('Unauthorized'));
+      return Left(mockFailure ?? const ServerFailure('Unauthorized'));
     }
-    return Right(mockUser ?? User(id: '1', username: 'testuser'));
+    return Right(mockUser ?? const User(id: '1', username: 'testuser'));
   }
 
   @override
   Future<Either<Failure, void>> logout() async {
     if (shouldFailLogout || mockFailure != null) {
-      return Left(mockFailure ?? ServerFailure('Logout failed'));
+      return Left(mockFailure ?? const ServerFailure('Logout failed'));
     }
     return const Right(null);
   }
@@ -81,7 +81,7 @@ void main() {
 
     test('should copy with user', () {
       const state = AuthState();
-      final testUser = User(
+      const testUser = User(
         id: '1',
         username: 'testuser',
         firstName: 'Test',
@@ -105,7 +105,7 @@ void main() {
 
   group('AuthNotifier', () {
     test('register - should set loading state then success', () async {
-      final testUser = User(
+      const testUser = User(
         id: '1',
         username: 'testuser',
         firstName: 'Test',
@@ -119,7 +119,7 @@ void main() {
 
       final authNotifier = container.read(authProvider.notifier);
       await authNotifier.register(
-        RegisterInput(
+        const RegisterInput(
           username: 'testuser',
           password: 'password123',
           email: 'test@example.com',
@@ -147,7 +147,7 @@ void main() {
 
       final authNotifier = container.read(authProvider.notifier);
       await authNotifier.register(
-        RegisterInput(
+        const RegisterInput(
           username: 'testuser',
           password: 'password123',
           email: 'test@example.com',
@@ -209,7 +209,7 @@ void main() {
     });
 
     test('loadCurrentUser - should load user successfully', () async {
-      final testUser = User(
+      const testUser = User(
         id: '1',
         username: 'testuser',
         firstName: 'Test',

@@ -9,6 +9,9 @@
 #
 # Usage:
 #   make <target> [ENV=<environment>]
+#   make <target> TIMEOUT=900000  # 15 minutos
+
+TIMEOUT ?= 900000
 
 .PHONY: help setup \
         dev-terraform-deploy dev-terraform-destroy \
@@ -136,6 +139,7 @@ help: ## Show this help message
 	@echo "  $(YELLOW)dev-mobile-launch-desktop$(NC)   Launch on Linux desktop"
 	@echo "  $(YELLOW)dev-mobile-launch-emulator$(NC)  Launch on Android emulator"
 	@echo "  $(YELLOW)dev-mobile-launch-device$(NC)    Launch on Android device"
+	@echo "  $(YELLOW)dev-mobile-connect-wifi$(NC)     Connect Android device via WiFi ADB"
 	@echo "  $(YELLOW)dev-mobile-widgetbook$(NC)       Launch Widgetbook (UI catalog)"
 	@echo ""
 	@echo "$(GREEN)DEV - Web Apps (managed by ArgoCD, manual fallback):$(NC)"
@@ -579,6 +583,12 @@ qa-terraform-destroy: ## Destroy QA environment
 qa-verify: ## Verify QA deployment
 	@$(SCRIPTS_DIR)/verify-deployment.sh qa
 
+lint-all: ## Run MegaLinter locally via Docker
+	docker run -it --rm -v $(shell pwd):/tmp/lint oxsecurity/megalinter-full:v8
+
+lint-report: ## Open MegaLinter report
+	xdg-open megalinter-reports/index.html || open megalinter-reports/index.html
+
 # ==========================================
 # STAGE Environment (OVHCloud)
 # ==========================================
@@ -650,7 +660,10 @@ dev-mobile-launch-emulator: ## Launch Flutter on Android emulator
 	@cd apps/mobile && ./launch_flutter_debug.sh -e
 
 dev-mobile-launch-device: ## Launch Flutter on Android device
-	@cd apps/mobile && ./launch_flutter_debug.sh -d
+	@cd apps/mobile && ./launch_flutter_debug.sh -d --native-debug
+
+dev-mobile-connect-wifi: ## Connect Android device via WiFi ADB
+	@cd apps/mobile && ./launch_flutter_debug.sh --connect-wifi --native-debug
 
 dev-mobile-widgetbook: ## Launch Widgetbook (UI catalog)
 	@cd apps/mobile && ./launch_flutter_debug.sh -w

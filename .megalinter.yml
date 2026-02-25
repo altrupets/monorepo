@@ -1,0 +1,26 @@
+# MegaLinter configuration file
+# https://megalinter.io/latest/configuration/
+APPLY_FIXES: all
+VALIDATE_ALL_CODEBASE: false # If false, only new or edited files are linted
+PRINT_ALPABETICAL_LINTERS: true
+SHOW_SUCCESS_DETAILS: true
+PARALLEL: true
+
+# Define flavors if needed, or use full
+FLAVOR: full
+
+# Disable linters that might conflict or be too slow
+DISABLE:
+  - COPYPASTE_JSCPD # Can be slow on monorepos
+  - SPELL_CSPELL    # Often too noisy on codebases
+
+# Specific configurations
+EXCLUDES:
+  - .git/
+  - node_modules/
+  - .venv/
+  - build/
+  - ".*/" # Exclude hidden directories by default
+  - "apollo-mcp-server/node_modules/"
+  - "apps/mobile/ios/"
+  - "apps/mobile/android/"
