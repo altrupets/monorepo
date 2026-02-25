@@ -19,6 +19,15 @@ y este proyecto adhiere a [Semantic Versioning](https://semver.org/lang/es/).
 
 ### Fixed - 2026-02-25
 
+#### 🐛 Bugfix: Admin Server ejecuta siempre todos los comandos
+
+- Admin server ahora ejecuta TODOS los comandos de deployment siempre
+- Ya no detecta si minikube está corriendo para hacer "modo rápido"
+- Cada comando se loggea por separado en el admin server log
+
+**Archivos modificados:**
+- `scripts/backend_admin_server.py` - Eliminado chequeo de minikube
+
 #### 🐛 Bugfix: Admin Server y Mobile Launch
 
 - **Problema 1**: El admin server (`backend_admin_server.py`) ejecutaba siempre el one-liner completo en lugar de usar la variable correcta según el estado de minikube
