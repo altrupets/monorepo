@@ -3,6 +3,7 @@ import 'package:altrupets/features/auth/presentation/pages/login_page.dart';
 import 'package:altrupets/features/auth/presentation/providers/auth_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:sentry/sentry.dart';
 
 class SettingsPage extends ConsumerWidget {
   const SettingsPage({super.key});
@@ -37,6 +38,43 @@ class SettingsPage extends ConsumerWidget {
                     leading: Icon(Icons.security_rounded),
                     title: Text('Privacidad y seguridad'),
                     subtitle: Text('Opciones de acceso y privacidad'),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 24),
+            Card(
+              child: Column(
+                children: [
+                  ListTile(
+                    leading: const Icon(Icons.bug_report_rounded),
+                    title: const Text('Debug'),
+                    subtitle: const Text('Herramientas de desarrollo'),
+                  ),
+                  const Divider(height: 1),
+                  ListTile(
+                    leading: const Icon(Icons.error_outline_rounded),
+                    title: const Text('Verificar Sentry'),
+                    subtitle: const Text('Enviar excepción de prueba'),
+                    onTap: () async {
+                      try {
+                        throw StateError(
+                          'Test exception from Settings - Sentry',
+                        );
+                      } catch (e, stackTrace) {
+                        await Sentry.captureException(
+                          e,
+                          stackTrace: stackTrace,
+                        );
+                        if (!context.mounted) return;
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            content: Text('Excepción enviada a Sentry'),
+                            backgroundColor: Colors.green,
+                          ),
+                        );
+                      }
+                    },
                   ),
                 ],
               ),

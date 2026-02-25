@@ -1,6 +1,18 @@
 # Pre-commit hooks for AltruPets monorepo
 # Install: pip install pre-commit && pre-commit install
 
+exclude: |
+  (?x)^(
+    apps/backend/dist/|
+    apps/mobile/build/|
+    apps/mobile/.dart_tool/|
+    apps/mobile/web/manifest\.json|
+    node_modules/|
+    .*\.log$|
+    logs/|
+    scripts/logs/
+  )
+
 repos:
   # Validate Mermaid diagrams
   - repo: local

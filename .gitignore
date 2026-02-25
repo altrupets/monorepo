@@ -182,3 +182,8 @@ dmypy.json
 # Minikube temp files (can be owned by root if not using rootless mode)
 .csm_*
 .s3_*
+
+# App build outputs
+apps/backend/dist/
+apps/mobile/build/
+apps/mobile/.dart_tool/

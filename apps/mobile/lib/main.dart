@@ -15,6 +15,7 @@ import 'dart:io' show Platform;
 import 'package:window_manager/window_manager.dart';
 
 import 'package:altrupets/core/theme/token_service.dart';
+import 'package:sentry_flutter/sentry_flutter.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -74,10 +75,24 @@ void main() async {
   await SharedPreferences.getInstance();
   await ProfileCacheStore.ensureInitialized();
 
-  runApp(
-    ProviderScope(
-      observers: [ErrorLoggingObserver()],
-      child: const AltruPetsApp(),
+  await SentryFlutter.init(
+    (options) {
+      options.dsn =
+          'https://2ea2fcc86c52bb528987c448c3c2a1bc@o4510946376876032.ingest.us.sentry.io/4510946378579968';
+      // Set tracesSampleRate to 1.0 to capture 100% of transactions for tracing.
+      // We recommend adjusting this value in production.
+      options.tracesSampleRate = 1.0;
+      // The sampling rate for profiling is relative to tracesSampleRate
+      // Setting to 1.0 will profile 100% of sampled transactions:
+      options.profilesSampleRate = 1.0;
+    },
+    appRunner: () => runApp(
+      SentryWidget(
+        child: ProviderScope(
+          observers: [ErrorLoggingObserver()],
+          child: const AltruPetsApp(),
+        ),
+      ),
     ),
   );
 }
