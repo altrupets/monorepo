@@ -187,3 +187,6 @@ dmypy.json
 apps/backend/dist/
 apps/mobile/build/
 apps/mobile/.dart_tool/
+
+# Sentry
+apps/mobile/sentry-wizard
