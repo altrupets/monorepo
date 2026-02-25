@@ -7,11 +7,15 @@ class Environment {
     required this.apiBaseUrl,
     this.requestTimeoutSeconds = 30,
     this.enableLogging = true,
+    this.logsPath,
   });
   final String name;
   final String apiBaseUrl;
   final int requestTimeoutSeconds;
   final bool enableLogging;
+
+  /// Custom logs directory path (optional - uses default if null)
+  final String? logsPath;
 }
 
 /// Environment manager for managing app environments

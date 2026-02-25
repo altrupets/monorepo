@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:altrupets/core/payments/latam_payments.dart';
 import 'package:altrupets/core/services/onvo_pay_service.dart';
 
 /// Widget de entrada de pago usando ONVO Pay (Costa Rica)
@@ -103,11 +104,9 @@ class _OnvoPayInputWidgetState extends State<OnvoPayInputWidget> {
         _expiryController.text.length < 5 ||
         _cvvController.text.length < 3 ||
         _cardHolderController.text.length < 3) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Por favor completa todos los campos de la tarjeta'),
-          backgroundColor: Colors.red,
-        ),
+      PaymentSnackbar.error(
+        context: context,
+        message: 'Por favor completa todos los campos de la tarjeta',
       );
       return;
     }
@@ -141,22 +140,15 @@ class _OnvoPayInputWidgetState extends State<OnvoPayInputWidget> {
       widget.onPaymentMethodAdded(paymentMethod);
 
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Tarjeta agregada exitosamente'),
-            backgroundColor: Colors.green,
-          ),
+        PaymentSnackbar.success(
+          context: context,
+          message: 'Tarjeta agregada exitosamente',
         );
         Navigator.of(context).pop();
       }
     } on OnvoPayException catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Error: ${e.message}'),
-            backgroundColor: Colors.red,
-          ),
-        );
+        PaymentSnackbar.error(context: context, message: 'Error: ${e.message}');
       }
     } finally {
       if (mounted) {
@@ -169,11 +161,9 @@ class _OnvoPayInputWidgetState extends State<OnvoPayInputWidget> {
     final phone = _sinpePhoneController.text.replaceAll(RegExp(r'\D'), '');
 
     if (phone.length != 8) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Ingresa un número de teléfono válido (8 dígitos)'),
-          backgroundColor: Colors.red,
-        ),
+      PaymentSnackbar.error(
+        context: context,
+        message: 'Ingresa un número de teléfono válido (8 dígitos)',
       );
       return;
     }
@@ -187,11 +177,9 @@ class _OnvoPayInputWidgetState extends State<OnvoPayInputWidget> {
     widget.onPaymentMethodAdded(paymentMethod);
 
     if (mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('SINPE Móvil configurado exitosamente'),
-          backgroundColor: Colors.green,
-        ),
+      PaymentSnackbar.success(
+        context: context,
+        message: 'SINPE Móvil configurado exitosamente',
       );
       Navigator.of(context).pop();
     }

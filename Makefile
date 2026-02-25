@@ -25,6 +25,10 @@
         dev-mcp-start dev-mcp-stop dev-mcp-status \
         dev-security-scan dev-security-deps dev-security-sast dev-security-secrets \
         dev-security-container dev-security-iac dev-security-fix \
+        dev-mobile-launch dev-mobile-launch-desktop dev-mobile-launch-emulator dev-mobile-launch-device \
+        dev-mobile-widgetbook dev-mobile-analyze dev-mobile-test dev-mobile-test-coverage dev-mobile-lint \
+        dev-admin-server-install dev-admin-server-start dev-admin-server-stop dev-admin-server-restart \
+        dev-admin-server-status dev-admin-server-logs dev-admin-server-test \
         qa-terraform-deploy qa-terraform-destroy qa-verify \
         qa-gateway-deploy qa-postgres-deploy \
         stage-terraform-deploy stage-terraform-destroy stage-verify \
@@ -163,6 +167,15 @@ help: ## Show this help message
 	@echo "  $(YELLOW)dev-security-iac$(NC)            Scan Infrastructure as Code"
 	@echo "  $(YELLOW)dev-security-fix$(NC)            Auto-fix vulnerabilities"
 	@echo ""
+	@echo "$(GREEN)DEV - Admin Server (Mobile → Backend):$(NC)"
+	@echo "  $(YELLOW)dev-admin-server-install$(NC)    Install Admin Server as systemd service"
+	@echo "  $(YELLOW)dev-admin-server-start$(NC)       Start Admin Server"
+	@echo "  $(YELLOW)dev-admin-server-stop$(NC)        Stop Admin Server"
+	@echo "  $(YELLOW)dev-admin-server-restart$(NC)     Restart Admin Server"
+	@echo "  $(YELLOW)dev-admin-server-status$(NC)     Show Admin Server status"
+	@echo "  $(YELLOW)dev-admin-server-logs$(NC)       Show Admin Server logs"
+	@echo "  $(YELLOW)dev-admin-server-test$(NC)       Test health endpoint"
+	@echo ""
 	@echo "$(GREEN)QA (OVHCloud):$(NC)"
 	@echo "  $(YELLOW)qa-terraform-deploy$(NC)         Deploy complete QA environment"
 	@echo "  $(YELLOW)qa-terraform-destroy$(NC)        Destroy QA environment"
@@ -212,9 +225,7 @@ setup: ## Setup local development environment
 # ==========================================
 
 dev-minikube-deploy: ## Create minikube cluster
-	@echo "$(BLUE)Starting minikube...$(NC)"
-	@minikube start --driver=podman --cpus=8 --memory=16384 --disk-size=50g
-	@echo "$(GREEN)✓ Minikube started$(NC)"
+	@$(SCRIPTS_DIR)/start-minikube.sh
 
 dev-minikube-clear: ## Clear stuck namespaces (remove finalizers)
 	@echo "$(BLUE)Clearing stuck namespaces...$(NC)"
@@ -262,6 +273,7 @@ dev-argocd-destroy: ## Remove ArgoCD namespace
 	@echo "$(GREEN)✓ ArgoCD namespace deleted$(NC)"
 
 dev-argocd-status: ## Show ArgoCD applications
+	@export PATH="$$HOME/.local/bin:$$PATH"
 	@echo "$(BLUE)ArgoCD Applications:$(NC)"
 	@kubectl get applications -n argocd 2>/dev/null || echo "$(YELLOW)No applications found or ArgoCD not installed$(NC)"
 	@echo ""
@@ -269,24 +281,25 @@ dev-argocd-status: ## Show ArgoCD applications
 	@kubectl get pods -n argocd 2>/dev/null || echo "$(YELLOW)ArgoCD not installed$(NC)"
 
 dev-argocd-password: ## Get ArgoCD admin password
+	@export PATH="$$HOME/.local/bin:$$PATH"
 	@echo "$(BLUE)ArgoCD Admin Password:$(NC)"
 	@kubectl -n argocd get secret argocd-initial-admin-secret -o jsonpath='{.data.password}' 2>/dev/null | base64 -d && echo || echo "$(YELLOW)ArgoCD not installed$(NC)"
 
 dev-argocd-push-and-deploy: ## Push changes and deploy with ArgoCD (GitOps)
-	@$(SCRIPTS_DIR)/install-argocd-cli.sh || true
+	@export PATH="$$HOME/.local/bin:$$PATH" && $(SCRIPTS_DIR)/install-argocd-cli.sh || true
 	@echo "$(BLUE)Pushing changes to origin...$(NC)"
-	@git add -A && git commit -m "chore: dev deployment $(shell date +%Y%m%d-%H%M%S)" || echo "$(YELLOW)No changes to commit$(NC)"
-	@git push origin main
+	@git add -A && git commit -m "chore: dev deployment $(shell date +%Y%m%d-%H%M%S)" 2>/dev/null || true
+	@git push origin main 2>/dev/null || echo "$(YELLOW)No changes to push or push failed, continuing with local sync...$(NC)"
 	@echo "$(BLUE)Deploying ArgoCD applications...$(NC)"
-	@$(SCRIPTS_DIR)/setup-argocd-dev.sh "$(REPO_URL)"
+	@export PATH="$$HOME/.local/bin:$$PATH" && $(SCRIPTS_DIR)/setup-argocd-dev.sh "$(REPO_URL)"
 	@echo "$(BLUE)Syncing applications...$(NC)"
-	@argocd app sync altrupets-backend-dev --grpc-web 2>/dev/null || true
-	@argocd app sync altrupets-web-superusers-dev --grpc-web 2>/dev/null || true
-	@argocd app sync altrupets-web-b2g-dev --grpc-web 2>/dev/null || true
+	@export PATH="$$HOME/.local/bin:$$PATH" && argocd app sync altrupets-backend-dev --grpc-web 2>/dev/null || true
+	@export PATH="$$HOME/.local/bin:$$PATH" && argocd app sync altrupets-web-superusers-dev --grpc-web 2>/dev/null || true
+	@export PATH="$$HOME/.local/bin:$$PATH" && argocd app sync altrupets-web-b2g-dev --grpc-web 2>/dev/null || true
 	@echo "$(GREEN)✓ GitOps deployment complete$(NC)"
 
 dev-argocd-sync-local: ## Sync ArgoCD apps from local filesystem (no push, auto-install)
-	@$(SCRIPTS_DIR)/install-argocd-cli.sh || true
+	@export PATH="$$HOME/.local/bin:$$PATH" && $(SCRIPTS_DIR)/install-argocd-cli.sh || true
 	@if ! kubectl get namespace argocd >/dev/null 2>&1; then \
 		echo "$(YELLOW)ArgoCD not installed, installing...$(NC)"; \
 		$(SCRIPTS_DIR)/setup-argocd-dev.sh "$(REPO_URL)"; \
@@ -657,3 +670,28 @@ dev-mobile-test-coverage: ## Run Flutter tests with coverage
 
 dev-mobile-lint: ## Run all Flutter linting
 	@cd apps/mobile && ./flutter-sast.sh lint
+
+# ==========================================
+# DEV - Admin Server (Mobile Backend Control)
+# ==========================================
+
+dev-admin-server-install: ## Install Admin Server as systemd service
+	@sudo ./scripts/install_admin_server.sh
+
+dev-admin-server-start: ## Start Admin Server service
+	@sudo systemctl start altrupets-admin
+
+dev-admin-server-stop: ## Stop Admin Server service
+	@sudo systemctl stop altrupets-admin
+
+dev-admin-server-restart: ## Restart Admin Server service
+	@sudo systemctl restart altrupets-admin
+
+dev-admin-server-status: ## Show Admin Server status
+	@sudo systemctl status altrupets-admin --no-pager
+
+dev-admin-server-logs: ## Show Admin Server logs
+	@sudo journalctl -u altrupets-admin -f
+
+dev-admin-server-test: ## Test Admin Server health endpoint
+	@curl -s http://localhost:3002/health

@@ -1,0 +1,5 @@
+[2026-02-24 16:44:09] 🚀 Starting AltruPets Admin Server on localhost:3002
+[2026-02-24 16:44:09] 📁 Log file: /home/kvttvrsis/Documentos/GitHub/altrupets-monorepo/scripts/logs/backend/admin-server-20260224-164409.log
+[2026-02-24 17:06:56] [bfcc73a8] 🚀 Starting backend deployment...
+[2026-02-24 17:06:56] [bfcc73a8] Command: make setup && make dev-minikube-deploy && make dev-terraform-deploy && make dev-harbor-deploy && make dev-images-build && make dev-argocd-push-and-deploy && make dev-gateway-start
+[2026-02-24 17:06:56] [bfcc73a8] ❌ Backend deployment failed (exit code 2)

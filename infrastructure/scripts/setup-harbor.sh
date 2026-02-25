@@ -42,6 +42,7 @@ helm upgrade --install harbor harbor/harbor \
 	--set persistence.enabled=true \
 	--set persistence.persistentVolumeClaim.registry.size="${STORAGE_SIZE}" \
 	--set expose.type=nodePort \
+	--set expose.tls.auto.commonName="localhost" \
 	--set expose.nodePort.ports.https.nodePort="${HTTPS_NODE_PORT}" \
 	--set externalURL="https://localhost:${HTTPS_NODE_PORT}" \
 	--set harborAdminPassword="${ADMIN_PASSWORD}" \

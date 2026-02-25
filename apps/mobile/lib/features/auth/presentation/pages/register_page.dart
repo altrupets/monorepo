@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:altrupets/core/widgets/atoms/app_snackbar.dart';
 import 'package:altrupets/features/auth/presentation/providers/auth_provider.dart';
 import 'package:altrupets/features/auth/data/models/register_input.dart';
 
@@ -64,13 +65,10 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
     if (_selectedRoles.contains('DONOR')) {
       if (_occupationController.text.trim().isEmpty ||
           _incomeSourceController.text.trim().isEmpty) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text(
+        AppSnackbar.error(
+          context: context,
+          message:
               'Para el rol de Donante, los campos Ocupación y Fuente de Ingresos son obligatorios',
-            ),
-            backgroundColor: Colors.red,
-          ),
         );
         return;
       }
@@ -122,15 +120,11 @@ class _RegisterPageState extends ConsumerState<RegisterPage> {
     final authState = ref.read(authProvider);
 
     if (authState.error != null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(authState.error!), backgroundColor: Colors.red),
-      );
+      AppSnackbar.error(context: context, message: authState.error!);
     } else if (authState.user != null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('¡Registro exitoso! Ahora puedes iniciar sesión'),
-          backgroundColor: Colors.green,
-        ),
+      AppSnackbar.success(
+        context: context,
+        message: '¡Registro exitoso! Ahora puedes iniciar sesión',
       );
 
       // Navegar a login después de un breve delay

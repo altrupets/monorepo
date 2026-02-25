@@ -1,4 +1,5 @@
 import 'package:geolocator/geolocator.dart';
+import 'package:geocoding/geocoding.dart';
 import 'dart:convert';
 import 'package:altrupets/core/models/user_model.dart';
 import 'package:altrupets/core/network/http_client_service.dart';
@@ -60,6 +61,22 @@ class GeoLocationService {
     await _cacheLocation(position);
 
     return position;
+  }
+
+  /// Get current location and automatically convert to address
+  /// Returns both Position and address information
+  Future<LocationWithAddress?> getCurrentLocationWithAddress() async {
+    final position = await getCurrentLocation();
+    final address = await getAddressFromCoordinates(
+      latitude: position.latitude,
+      longitude: position.longitude,
+    );
+
+    if (address == null) {
+      return null;
+    }
+
+    return LocationWithAddress(position: position, address: address);
   }
 
   /// Get last known location from cache
@@ -216,6 +233,38 @@ class GeoLocationService {
   bool isAccuracyAcceptable(Position position, double minAccuracyMeters) {
     return position.accuracy <= minAccuracyMeters;
   }
+
+  /// Convert coordinates to address (province, canton, district)
+  /// Returns a map with province, canton, and district
+  Future<Map<String, String>?> getAddressFromCoordinates({
+    required double latitude,
+    required double longitude,
+  }) async {
+    try {
+      final placemarks = await placemarkFromCoordinates(latitude, longitude);
+
+      if (placemarks.isEmpty) {
+        return null;
+      }
+
+      final placemark = placemarks.first;
+
+      // For Costa Rica, the administrative areas map to:
+      // administrative = Province
+      // subAdministrative = Canton
+      // locality = District (often)
+
+      return {
+        'country': placemark.country ?? '',
+        'province': placemark.administrativeArea ?? '',
+        'canton': placemark.subAdministrativeArea ?? '',
+        'district': placemark.locality ?? placemark.subLocality ?? '',
+        'street': placemark.street ?? '',
+      };
+    } catch (e) {
+      return null;
+    }
+  }
 }
 
 /// Exception thrown when location services are disabled
@@ -234,4 +283,18 @@ class LocationPermissionDeniedException implements Exception {
 
   @override
   String toString() => message;
+}
+
+/// Container for location with address information
+class LocationWithAddress {
+  LocationWithAddress({required this.position, required this.address});
+
+  final Position position;
+  final Map<String, String> address;
+
+  String get province => address['province'] ?? '';
+  String get canton => address['canton'] ?? '';
+  String get district => address['district'] ?? '';
+  String get country => address['country'] ?? '';
+  String get street => address['street'] ?? '';
 }

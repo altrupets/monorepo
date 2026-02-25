@@ -2,7 +2,10 @@ import 'dart:io';
 import 'dart:convert';
 
 import 'package:altrupets/core/providers/navigation_provider.dart';
+import 'package:altrupets/core/providers/geolocation_provider.dart';
+import 'package:altrupets/core/services/geolocation_service.dart';
 import 'package:altrupets/core/widgets/atoms/app_role_badge.dart';
+import 'package:altrupets/core/widgets/atoms/app_snackbar.dart';
 import 'package:altrupets/core/widgets/molecules/app_input_card.dart';
 import 'package:altrupets/core/widgets/molecules/section_header.dart';
 import 'package:altrupets/core/widgets/organisms/profile_header.dart';
@@ -11,6 +14,7 @@ import 'package:altrupets/core/widgets/organisms/onvo_pay_input_widget.dart';
 import 'package:altrupets/features/auth/domain/entities/user.dart';
 import 'package:altrupets/features/profile/presentation/data/costa_rica_locations.dart';
 import 'package:altrupets/features/profile/presentation/providers/profile_provider.dart';
+import 'package:altrupets/features/profile/presentation/pages/location_permission_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:image_picker/image_picker.dart';
@@ -39,6 +43,9 @@ class _EditPersonalInformationPageState
   String? _currentAvatarBase64;
 
   String _phoneCountryCode = '+506';
+
+  // Geolocation state
+  bool _isDetectingLocation = false;
 
   // Métodos de pago guardados (ONVO Pay)
   final List<OnvoPaymentMethod> _savedPaymentMethods = [];
@@ -209,8 +216,9 @@ class _EditPersonalInformationPageState
 
   Future<void> _selectCanton() async {
     if (_provinceController.text.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Selecciona primero una provincia')),
+      AppSnackbar.info(
+        context: context,
+        message: 'Selecciona primero una provincia',
       );
       return;
     }
@@ -230,8 +238,9 @@ class _EditPersonalInformationPageState
 
   Future<void> _selectDistrict() async {
     if (_provinceController.text.isEmpty || _cantonController.text.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Selecciona primero provincia y canton')),
+      AppSnackbar.info(
+        context: context,
+        message: 'Selecciona primero provincia y canton',
       );
       return;
     }
@@ -245,6 +254,91 @@ class _EditPersonalInformationPageState
       setState(() {
         _districtController.text = selected;
       });
+    }
+  }
+
+  Future<void> _detectCurrentLocation() async {
+    final allowLocation = await Navigator.of(context).push<bool>(
+      MaterialPageRoute(builder: (_) => const LocationPermissionPage()),
+    );
+
+    if (allowLocation != true) return;
+
+    setState(() {
+      _isDetectingLocation = true;
+    });
+
+    try {
+      final geoService = ref.read(geoLocationServiceProvider);
+
+      final locationWithAddress = await geoService
+          .getCurrentLocationWithAddress();
+
+      if (!mounted) return;
+
+      if (locationWithAddress != null) {
+        // Update the text fields with detected location
+        setState(() {
+          _countryController.text = locationWithAddress.country.isNotEmpty
+              ? locationWithAddress.country
+              : costaRicaCountry;
+          _provinceController.text = locationWithAddress.province;
+          _cantonController.text = locationWithAddress.canton;
+          _districtController.text = locationWithAddress.district;
+        });
+
+        if (mounted) {
+          AppSnackbar.success(
+            context: context,
+            message:
+                'Ubicación detectada: ${locationWithAddress.province}, ${locationWithAddress.canton}, ${locationWithAddress.district}',
+          );
+        }
+      } else {
+        if (mounted) {
+          AppSnackbar.error(
+            context: context,
+            message: 'No se pudo obtener la dirección desde la ubicación',
+          );
+        }
+      }
+    } on LocationServiceDisabledException catch (e) {
+      if (mounted) {
+        AppSnackbar.error(
+          context: context,
+          message: e.message,
+          actionLabel: 'Configuración',
+          onAction: () async {
+            final geoService = ref.read(geoLocationServiceProvider);
+            await geoService.openLocationSettings();
+          },
+        );
+      }
+    } on LocationPermissionDeniedException catch (e) {
+      if (mounted) {
+        AppSnackbar.error(
+          context: context,
+          message: e.message,
+          actionLabel: 'Configuración',
+          onAction: () async {
+            final geoService = ref.read(geoLocationServiceProvider);
+            await geoService.openLocationSettings();
+          },
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        AppSnackbar.error(
+          context: context,
+          message: 'Error al detectar ubicación: $e',
+        );
+      }
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isDetectingLocation = false;
+        });
+      }
     }
   }
 
@@ -298,22 +392,18 @@ class _EditPersonalInformationPageState
 
     result.fold(
       (failure) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Error al guardar: ${failure.message}'),
-            backgroundColor: Colors.red,
-          ),
+        AppSnackbar.error(
+          context: context,
+          message: 'Error al guardar: ${failure.message}',
         );
       },
       (_) {
         if (avatarBase64 != null) {
           _currentAvatarBase64 = avatarBase64;
         }
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Informacion guardada exitosamente'),
-            backgroundColor: Colors.green,
-          ),
+        AppSnackbar.success(
+          context: context,
+          message: 'Informacion guardada exitosamente',
         );
         ref.read(navigationProvider).pop(context);
       },
@@ -366,15 +456,11 @@ class _EditPersonalInformationPageState
       if (!mounted) {
         return;
       }
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(
-            source == ImageSource.camera
-                ? 'No se pudo abrir la camara en este dispositivo.'
-                : 'No se pudo abrir el selector de archivos.',
-          ),
-          backgroundColor: Colors.red,
-        ),
+      AppSnackbar.error(
+        context: context,
+        message: source == ImageSource.camera
+            ? 'No se pudo abrir la camara en este dispositivo.'
+            : 'No se pudo abrir el selector de archivos.',
       );
     }
   }
@@ -524,6 +610,30 @@ class _EditPersonalInformationPageState
                         _buildPaymentMethodsSection(),
                         const SizedBox(height: 32),
                         const SectionHeader(title: 'RESIDENCIA'),
+                        const SizedBox(height: 8),
+                        // Botón para detectar ubicación automáticamente
+                        SizedBox(
+                          width: double.infinity,
+                          child: OutlinedButton.icon(
+                            onPressed: _isDetectingLocation
+                                ? null
+                                : _detectCurrentLocation,
+                            icon: _isDetectingLocation
+                                ? const SizedBox(
+                                    width: 20,
+                                    height: 20,
+                                    child: CircularProgressIndicator(
+                                      strokeWidth: 2,
+                                    ),
+                                  )
+                                : const Icon(Icons.my_location),
+                            label: Text(
+                              _isDetectingLocation
+                                  ? 'Detectando ubicación...'
+                                  : 'Detectar mi ubicación actual',
+                            ),
+                          ),
+                        ),
                         const SizedBox(height: 16),
                         AppInputCard(
                           label: 'PAIS',
@@ -617,11 +727,9 @@ class _EditPersonalInformationPageState
                 setState(() {
                   _savedPaymentMethods.remove(method);
                 });
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(
-                    content: Text('Método de pago eliminado'),
-                    backgroundColor: Colors.orange,
-                  ),
+                AppSnackbar.info(
+                  context: context,
+                  message: 'Método de pago eliminado',
                 );
               },
             ),

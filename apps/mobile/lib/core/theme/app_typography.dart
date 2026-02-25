@@ -1,16 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:altrupets/core/theme/token_service.dart';
-import 'package:altrupets/core/theme/design_token_model.dart';
 
 /// Tipografía del Design System de AltruPets
 /// GENERADO AUTOMATICAMENTE DESDE EL SHOWCASE
 class AppTypography {
-  static DesignTokenModel get _tokens => TokenService.instance.tokens;
-
-  static String get headerFontFamily => _tokens.typography.headerFamily;
-  static String get bodyFontFamily => _tokens.typography.primaryFamily;
-  static String get uiFontFamily => _tokens.typography.tertiaryFamily;
+  static String get headerFontFamily =>
+      TokenService.instance.tokens.typography.headerFamily;
+  static String get bodyFontFamily =>
+      TokenService.instance.tokens.typography.primaryFamily;
+  static String get uiFontFamily =>
+      TokenService.instance.tokens.typography.tertiaryFamily;
 
   static TextTheme textTheme({bool isDark = false}) {
     final baseColor = isDark
@@ -20,7 +20,6 @@ class AppTypography {
     final baseStyle = TextStyle(color: baseColor);
 
     return TextTheme(
-      // Display Styles
       displayLarge: _getStyle(
         headerFontFamily,
         baseStyle.copyWith(
@@ -46,8 +45,6 @@ class AppTypography {
           height: _getLineHeight('displaySmall'),
         ),
       ),
-
-      // Headline Styles
       headlineLarge: _getStyle(
         headerFontFamily,
         baseStyle.copyWith(
@@ -72,8 +69,6 @@ class AppTypography {
           height: _getLineHeight('headlineSmall'),
         ),
       ),
-
-      // Title Styles
       titleLarge: _getStyle(
         bodyFontFamily,
         baseStyle.copyWith(
@@ -100,8 +95,6 @@ class AppTypography {
           letterSpacing: 0.1,
         ),
       ),
-
-      // Body Styles
       bodyLarge: _getStyle(
         bodyFontFamily,
         baseStyle.copyWith(
@@ -129,8 +122,6 @@ class AppTypography {
           letterSpacing: 0.4,
         ),
       ),
-
-      // Label Styles
       labelLarge: _getStyle(
         bodyFontFamily,
         baseStyle.copyWith(
@@ -163,14 +154,11 @@ class AppTypography {
 
   static TextStyle _getStyle(String fontFamily, TextStyle textStyle) {
     if (['Lemon Milk', 'Poppins'].contains(fontFamily)) {
-      // For local fonts, we use the fontFamily directly.
-      // We only include the package name if we are consuming this from an external project (like Widgetbook).
       return textStyle.copyWith(
         fontFamily: fontFamily,
         package: TokenService.instance.isExternal ? 'altrupets' : null,
       );
     }
-    // For Google Fonts (like Inter), use the dynamic getter.
     return GoogleFonts.getFont(fontFamily, textStyle: textStyle);
   }
 

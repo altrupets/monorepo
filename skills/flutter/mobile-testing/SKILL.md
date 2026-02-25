@@ -6,7 +6,7 @@
 |----------|-------|
 | **ID** | `flutter-mobile-testing` |
 | **Nivel** | 🔴 Avanzado |
-| **Versión** | 1.1.0 |
+| **Versión** | 1.2.0 |
 | **Keywords** | `mobile-testing`, `integration-test`, `flutter-mcp`, `dart-mcp`, `debugging`, `logic-analysis`, `widget-inspection`, `device-testing` |
 | **Referencia** | [Dart and Flutter MCP server](https://docs.flutter.dev/ai/mcp-server) \| [Mobile MCP](https://github.com/mobile-next/mobile-mcp) |
 
@@ -873,5 +873,37 @@ Compara los resultados y genera un reporte
 ---
 
 **Versión:** 1.0.0  
-**Última actualización:** Diciembre 2025
+**Última actualización:** Febrero 2026
+
+---
+
+## 📝 Logging de HTTP Requests
+
+El proyecto incluye un `LoggingInterceptor` que guarda logs de todas las peticiones HTTP a archivo.
+
+### Configuración
+
+**En `Environment`:**
+
+```dart
+// lib/core/config/environment_manager.dart
+
+static const development = Environment(
+  name: 'development',
+  apiBaseUrl: 'http://localhost:3000',
+  requestTimeoutSeconds: 30,
+  enableLogging: true,
+  logsPath: '/home/kvttvrsis/Documentos/GitHub/altrupets-monorepo/logs/mobile',
+);
+```
+
+### Ubicación de Logs
+
+Por defecto se guardan en: `logs/mobile/http_logs_<timestamp>.log`
+
+### Ver Logs en Tiempo Real
+
+```bash
+tail -f logs/mobile/http_logs_$(ls -t logs/mobile/ | head -1)
+```
 

@@ -1,6 +1,7 @@
 import 'package:altrupets/core/config/environment_manager.dart';
 import 'package:altrupets/core/network/circuit_breaker.dart';
 import 'package:altrupets/core/network/http_client_service.dart';
+import 'package:altrupets/core/network/interceptors/logging_interceptor.dart';
 import 'package:altrupets/core/network/interceptors/retry_interceptor.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -44,8 +45,8 @@ void main() {
           '/test/endpoint',
         );
 
-        // Simulate failures to open circuit
-        for (int i = 0; i < 5; i++) {
+        // Simulate failures to open circuit (now threshold is 7)
+        for (int i = 0; i < 7; i++) {
           breaker.recordFailure();
         }
 
@@ -53,18 +54,21 @@ void main() {
       });
 
       test('should recover after timeout in half-open state', () async {
-        final breaker = httpClientService.circuitBreakerManager.getBreaker(
-          '/test/endpoint',
+        // Create a breaker with shorter timeout for testing
+        final breaker = CircuitBreaker(
+          failureThreshold: 7,
+          successThreshold: 2,
+          timeout: const Duration(seconds: 2),
         );
 
-        // Open the circuit
-        for (int i = 0; i < 5; i++) {
+        // Open the circuit (now threshold is 7)
+        for (int i = 0; i < 7; i++) {
           breaker.recordFailure();
         }
         expect(breaker.isOpen, isTrue);
 
         // Wait for timeout
-        await Future<void>.delayed(const Duration(seconds: 31));
+        await Future<void>.delayed(const Duration(seconds: 3));
 
         // Should transition to half-open
         breaker.recordFailure();
@@ -74,16 +78,26 @@ void main() {
       test(
         'should close circuit after successful requests in half-open state',
         () async {
-          final breaker = httpClientService.circuitBreakerManager.getBreaker(
-            '/test/endpoint',
+          // Create a breaker with shorter timeout for testing
+          final breaker = CircuitBreaker(
+            failureThreshold: 7,
+            successThreshold: 2,
+            timeout: const Duration(seconds: 2),
           );
 
-          // Open the circuit
-          for (int i = 0; i < 5; i++) {
+          // Open the circuit (now threshold is 7)
+          for (int i = 0; i < 7; i++) {
             breaker.recordFailure();
           }
 
-          // Manually transition to half-open for testing
+          // Wait for timeout to transition to half-open
+          await Future<void>.delayed(const Duration(seconds: 3));
+
+          // Trigger transition to half-open
+          breaker.recordFailure();
+          expect(breaker.isHalfOpen, isTrue);
+
+          // Now successes will close the circuit
           breaker.recordSuccess();
           breaker.recordSuccess();
 
@@ -192,7 +206,7 @@ void main() {
 
     setUp(() {
       circuitBreaker = CircuitBreaker(
-        failureThreshold: 3,
+        failureThreshold: 7,
         successThreshold: 2,
         timeout: const Duration(seconds: 1),
       );
@@ -205,9 +219,10 @@ void main() {
     });
 
     test('should open after reaching failure threshold', () {
-      circuitBreaker.recordFailure();
-      circuitBreaker.recordFailure();
-      circuitBreaker.recordFailure();
+      // Now threshold is 7, so we need 7 failures
+      for (int i = 0; i < 7; i++) {
+        circuitBreaker.recordFailure();
+      }
 
       expect(circuitBreaker.isOpen, isTrue);
     });
@@ -217,19 +232,23 @@ void main() {
       circuitBreaker.recordFailure();
       circuitBreaker.recordSuccess();
 
-      // Failure count should be reset
-      circuitBreaker.recordFailure();
-      circuitBreaker.recordFailure();
-      circuitBreaker.recordFailure();
+      // Failure count should be reset - need 7 more to open
+      for (int i = 0; i < 6; i++) {
+        circuitBreaker.recordFailure();
+      }
 
+      expect(circuitBreaker.isOpen, isFalse);
+
+      // One more to reach threshold
+      circuitBreaker.recordFailure();
       expect(circuitBreaker.isOpen, isTrue);
     });
 
     test('should transition to half-open after timeout', () async {
-      // Open the circuit
-      circuitBreaker.recordFailure();
-      circuitBreaker.recordFailure();
-      circuitBreaker.recordFailure();
+      // Open the circuit (need 7 failures)
+      for (int i = 0; i < 7; i++) {
+        circuitBreaker.recordFailure();
+      }
 
       expect(circuitBreaker.isOpen, isTrue);
 
@@ -242,13 +261,22 @@ void main() {
       expect(circuitBreaker.isHalfOpen, isTrue);
     });
 
-    test('should close after successes in half-open state', () {
-      // Open the circuit
-      circuitBreaker.recordFailure();
-      circuitBreaker.recordFailure();
-      circuitBreaker.recordFailure();
+    test('should close after successes in half-open state', () async {
+      // Open the circuit (need 7 failures)
+      for (int i = 0; i < 7; i++) {
+        circuitBreaker.recordFailure();
+      }
 
-      // Manually transition to half-open
+      expect(circuitBreaker.isOpen, isTrue);
+
+      // Wait for timeout to allow transition to half-open
+      await Future<void>.delayed(const Duration(seconds: 2));
+
+      // Trigger transition to half-open
+      circuitBreaker.recordFailure();
+      expect(circuitBreaker.isHalfOpen, isTrue);
+
+      // Now successes will close the circuit (need 2 successes)
       circuitBreaker.recordSuccess();
       circuitBreaker.recordSuccess();
 
@@ -256,10 +284,10 @@ void main() {
     });
 
     test('should reopen on failure in half-open state', () async {
-      // Open the circuit
-      circuitBreaker.recordFailure();
-      circuitBreaker.recordFailure();
-      circuitBreaker.recordFailure();
+      // Open the circuit (need 7 failures)
+      for (int i = 0; i < 7; i++) {
+        circuitBreaker.recordFailure();
+      }
 
       expect(circuitBreaker.isOpen, isTrue);
 
@@ -278,9 +306,10 @@ void main() {
     });
 
     test('should reset to closed state', () {
-      circuitBreaker.recordFailure();
-      circuitBreaker.recordFailure();
-      circuitBreaker.recordFailure();
+      // Need 7 failures to open
+      for (int i = 0; i < 7; i++) {
+        circuitBreaker.recordFailure();
+      }
 
       expect(circuitBreaker.isOpen, isTrue);
 
@@ -294,7 +323,7 @@ void main() {
     late CircuitBreakerManager manager;
 
     setUp(() {
-      manager = CircuitBreakerManager(failureThreshold: 3, successThreshold: 2);
+      manager = CircuitBreakerManager(failureThreshold: 7, successThreshold: 2);
     });
 
     test('should create breaker for new endpoint', () {
@@ -312,18 +341,20 @@ void main() {
     });
 
     test('should track failures per endpoint', () {
-      manager.recordFailure('/api/users');
-      manager.recordFailure('/api/users');
-      manager.recordFailure('/api/users');
+      // Now threshold is 7, so need 7 failures
+      for (int i = 0; i < 7; i++) {
+        manager.recordFailure('/api/users');
+      }
 
       expect(manager.isAvailable('/api/users'), isFalse);
       expect(manager.isAvailable('/api/posts'), isTrue);
     });
 
     test('should reset all breakers', () {
-      manager.recordFailure('/api/users');
-      manager.recordFailure('/api/users');
-      manager.recordFailure('/api/users');
+      // Now threshold is 7, so need 7 failures
+      for (int i = 0; i < 7; i++) {
+        manager.recordFailure('/api/users');
+      }
 
       expect(manager.isAvailable('/api/users'), isFalse);
 
@@ -374,5 +405,3 @@ class MockEnvironment {
 }
 
 class ErrorInterceptor extends Interceptor {}
-
-class LoggingInterceptor extends Interceptor {}

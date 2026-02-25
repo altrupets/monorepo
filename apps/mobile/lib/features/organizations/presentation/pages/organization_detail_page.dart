@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:altrupets/core/widgets/atoms/app_snackbar.dart';
 import 'package:altrupets/features/organizations/data/models/organization.dart';
 import 'package:altrupets/features/organizations/presentation/providers/organizations_provider.dart';
 import 'package:altrupets/features/organizations/presentation/pages/manage_memberships_page.dart';
@@ -82,15 +83,11 @@ class _OrganizationDetailPageState
     final state = ref.read(organizationsProvider);
 
     if (state.error != null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(state.error!), backgroundColor: Colors.red),
-      );
+      AppSnackbar.error(context: context, message: state.error!);
     } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Solicitud enviada exitosamente'),
-          backgroundColor: Colors.green,
-        ),
+      AppSnackbar.success(
+        context: context,
+        message: 'Solicitud enviada exitosamente',
       );
     }
   }

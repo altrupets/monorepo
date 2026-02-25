@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:altrupets/core/payments/latam_payments.dart';
 
 /// Widget para ingreso seguro de tarjetas de débito/crédito
 /// Implementa tokenización PCI-compliant
@@ -109,21 +110,17 @@ class _SecureCardInputWidgetState extends State<SecureCardInputWidget> {
       widget.onCardSubmitted(result);
 
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Tarjeta agregada exitosamente'),
-            backgroundColor: Colors.green,
-          ),
+        PaymentSnackbar.success(
+          context: context,
+          message: 'Tarjeta agregada exitosamente',
         );
         Navigator.of(context).pop();
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Error al procesar tarjeta: $e'),
-            backgroundColor: Colors.red,
-          ),
+        PaymentSnackbar.error(
+          context: context,
+          message: 'Error al procesar tarjeta: $e',
         );
       }
     } finally {

@@ -165,6 +165,17 @@ final directories = <_widgetbook.WidgetbookNode>[
                 ],
               ),
               _widgetbook.WidgetbookComponent(
+                name: 'FosterHomesManagementCardButton',
+                useCases: [
+                  _widgetbook.WidgetbookUseCase(
+                    name: 'Default',
+                    builder:
+                        _widgetbook_workspace_use_cases_molecules_management_card_button_use_case
+                            .buildManagementCardButtonUseCase,
+                  ),
+                ],
+              ),
+              _widgetbook.WidgetbookComponent(
                 name: 'HomeWelcomeHeader',
                 useCases: [
                   _widgetbook.WidgetbookUseCase(
@@ -172,17 +183,6 @@ final directories = <_widgetbook.WidgetbookNode>[
                     builder:
                         _widgetbook_workspace_use_cases_molecules_home_welcome_header_use_case
                             .buildHomeWelcomeHeaderUseCase,
-                  ),
-                ],
-              ),
-              _widgetbook.WidgetbookComponent(
-                name: 'ManagementCardButton',
-                useCases: [
-                  _widgetbook.WidgetbookUseCase(
-                    name: 'Default',
-                    builder:
-                        _widgetbook_workspace_use_cases_molecules_management_card_button_use_case
-                            .buildManagementCardButtonUseCase,
                   ),
                 ],
               ),

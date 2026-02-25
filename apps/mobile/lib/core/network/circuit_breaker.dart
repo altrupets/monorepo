@@ -18,7 +18,7 @@ enum CircuitBreakerState {
 /// Prevents cascading failures by stopping requests to failing services
 class CircuitBreaker {
   CircuitBreaker({
-    this.failureThreshold = 5,
+    this.failureThreshold = 7,
     this.successThreshold = 2,
     this.timeout = const Duration(seconds: 30),
     this.onStateChange,
@@ -181,7 +181,7 @@ class CircuitBreaker {
 /// Circuit breaker manager for multiple endpoints
 class CircuitBreakerManager {
   CircuitBreakerManager({
-    this.failureThreshold = 5,
+    this.failureThreshold = 7,
     this.successThreshold = 2,
     this.timeout = const Duration(seconds: 30),
   });

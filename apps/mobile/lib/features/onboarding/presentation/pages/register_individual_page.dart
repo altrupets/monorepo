@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:altrupets/core/providers/registration_provider.dart';
 import 'package:altrupets/core/auth/roles/user_role.dart';
+import 'package:altrupets/core/widgets/atoms/app_snackbar.dart';
 import 'package:altrupets/core/widgets/molecules/app_input_card.dart';
 import 'package:altrupets/core/widgets/molecules/section_header.dart';
 import 'package:altrupets/core/widgets/organisms/sticky_action_footer.dart';
@@ -80,21 +81,17 @@ class _RegisterIndividualPageState
       );
 
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Registro exitoso. Por favor inicia sesión.'),
-            backgroundColor: Colors.green,
-          ),
+        AppSnackbar.success(
+          context: context,
+          message: 'Registro exitoso. Por favor inicia sesión.',
         );
         Navigator.pushReplacementNamed(context, '/login');
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Error en registro: ${e.toString()}'),
-            backgroundColor: Colors.red,
-          ),
+        AppSnackbar.error(
+          context: context,
+          message: 'Error en registro: ${e.toString()}',
         );
       }
     } finally {

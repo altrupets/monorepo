@@ -19,6 +19,38 @@ final hasSession = await GraphQLClientService.hasActiveSession();
 
 ## Network
 
+### Circuit Breaker
+
+Implementa el patrón **REQ-REL-002: Circuit Breaker ante fallas**. Protege contra fallos en cascada.
+
+```dart
+// Configuración (default)
+final breaker = CircuitBreaker(
+  failureThreshold: 7,    // fallos antes de abrir
+  successThreshold: 2,    // éxitos para cerrar
+  timeout: Duration(seconds: 30),
+);
+```
+
+**Estados:**
+- `closed` - Normal, permite peticiones
+- `open` - Bloquea todas las peticiones
+- `half-open` - Permite pruebas para recuperar
+
+**Uso:**
+```dart
+final manager = CircuitBreakerManager(); // usa defaults
+
+// Antes de cada petición
+if (!manager.isAvailable('/api/users')) {
+  throw Exception('Servicio no disponible');
+}
+
+// Después de cada respuesta
+manager.recordSuccess('/api/users');
+manager.recordFailure('/api/users');
+```
+
 ### Interceptors
 
 - `AuthInterceptor` - JWT headers

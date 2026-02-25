@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:altrupets/core/widgets/atoms/app_snackbar.dart';
 import 'package:altrupets/features/organizations/data/models/organization.dart';
 import 'package:altrupets/features/organizations/data/models/register_organization_input.dart';
 import 'package:altrupets/features/organizations/presentation/providers/organizations_provider.dart';
@@ -129,15 +130,11 @@ class _RegisterOrganizationPageState
     final state = ref.read(organizationsProvider);
 
     if (state.error != null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(state.error!), backgroundColor: Colors.red),
-      );
+      AppSnackbar.error(context: context, message: state.error!);
     } else if (state.selectedOrganization != null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('¡Organización registrada exitosamente!'),
-          backgroundColor: Colors.green,
-        ),
+      AppSnackbar.success(
+        context: context,
+        message: '¡Organización registrada exitosamente!',
       );
 
       await Future<void>.delayed(const Duration(seconds: 2));

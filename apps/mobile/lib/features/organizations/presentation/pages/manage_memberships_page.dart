@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:altrupets/core/widgets/atoms/app_snackbar.dart';
 import 'package:altrupets/features/organizations/data/models/organization_membership.dart';
 import 'package:altrupets/features/organizations/presentation/providers/organizations_provider.dart';
 
@@ -71,15 +72,11 @@ class _ManageMembershipsPageState extends ConsumerState<ManageMembershipsPage> {
     final state = ref.read(organizationsProvider);
 
     if (state.error != null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(state.error!), backgroundColor: Colors.red),
-      );
+      AppSnackbar.error(context: context, message: state.error!);
     } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Membresía aprobada exitosamente'),
-          backgroundColor: Colors.green,
-        ),
+      AppSnackbar.success(
+        context: context,
+        message: 'Membresía aprobada exitosamente',
       );
     }
   }
@@ -135,16 +132,9 @@ class _ManageMembershipsPageState extends ConsumerState<ManageMembershipsPage> {
     final state = ref.read(organizationsProvider);
 
     if (state.error != null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(state.error!), backgroundColor: Colors.red),
-      );
+      AppSnackbar.error(context: context, message: state.error!);
     } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Membresía rechazada'),
-          backgroundColor: Colors.orange,
-        ),
-      );
+      AppSnackbar.info(context: context, message: 'Membresía rechazada');
     }
   }
 
@@ -191,15 +181,11 @@ class _ManageMembershipsPageState extends ConsumerState<ManageMembershipsPage> {
     final state = ref.read(organizationsProvider);
 
     if (state.error != null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(state.error!), backgroundColor: Colors.red),
-      );
+      AppSnackbar.error(context: context, message: state.error!);
     } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Rol asignado exitosamente'),
-          backgroundColor: Colors.green,
-        ),
+      AppSnackbar.success(
+        context: context,
+        message: 'Rol asignado exitosamente',
       );
     }
   }

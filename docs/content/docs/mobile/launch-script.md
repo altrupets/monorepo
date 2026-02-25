@@ -484,3 +484,82 @@ make dev-backend-build
 - [Makefile Commands](../infrastructure/makefile.md) - Comandos de infraestructura
 - [Backend Setup](../backend/setup.md) - Configuración del backend
 - [Troubleshooting](getting-started.md#troubleshooting) - Solución de problemas comunes
+
+---
+
+## Admin Server (Backend desde Mobile)
+
+El **Admin Server** es un servicio HTTP que permite a la app mobile ejecutar comandos de backend (como reiniciar el backend) directamente desde el dispositivo Android.
+
+### Para qué sirve
+
+Cuando estás desarrollando en un dispositivo Android físico y el backend no está corriendo, puedes presionar "Reiniciar Backend" en la app. Esta llamada llega al Admin Server en tu laptop, que ejecuta el comando de despliegue de Minikube.
+
+### Instalación
+
+```bash
+# Una sola vez - instala el servicio systemd
+sudo ./scripts/install_admin_server.sh
+```
+
+### Verificación
+
+```bash
+# Ver estado del servicio
+sudo systemctl status altrupets-admin
+
+# Probar endpoint de salud
+curl http://localhost:3002/health
+# {"status":"ok","service":"altrupets-admin"}
+
+# Probar reinicio de backend (cuidado: ejecuta todo el pipeline)
+curl -X POST http://localhost:3002/restart-backend
+```
+
+### Comandos útiles
+
+```bash
+# Iniciar servicio
+sudo systemctl start altrupets-admin
+
+# Detener servicio
+sudo systemctl stop altrupets-admin
+
+# Reiniciar servicio
+sudo systemctl restart altrupets-admin
+
+# Ver logs en tiempo real
+sudo journalctl -u altrupets-admin -f
+```
+
+### Makefile
+
+También puedes usar el target de Makefile:
+
+```bash
+make dev-admin-server-install   # Instalar servicio
+make dev-admin-server-start      # Iniciar servicio
+make dev-admin-server-stop      # Detener servicio
+make dev-admin-server-restart  # Reiniciar servicio
+make dev-admin-server-status    # Ver estado
+```
+
+### Cómo funciona
+
+1. El script de launch (`launch_flutter_debug.sh`) configura automáticamente:
+   - `adb reverse tcp:3001 tcp:3001` - Tunnel para el backend GraphQL
+   - `adb reverse tcp:3002 tcp:3002` - Tunnel para el Admin Server
+
+2. Cuando presionas "Reiniciar Backend" en la app:
+   - La app Android llama a `http://localhost:3002/restart-backend`
+   - El request pasa por ADB reverse al Admin Server en tu laptop
+   - El Admin Server ejecuta el comando de despliegue
+   - El resultado se devuelve a la app
+
+### Logs
+
+Los logs del Admin Server se encuentran en:
+
+```
+logs/backend/admin-server-YYYYMMDD-HHMMSS.log
+```

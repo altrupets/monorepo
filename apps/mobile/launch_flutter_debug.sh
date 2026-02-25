@@ -24,12 +24,12 @@ check_and_generate_icons() {
 	# Verifica si los iconos necesitan regenerarse
 	local icon_source="assets/icon.png"
 	local android_icon="android/app/src/main/res/mipmap-hdpi/ic_launcher.png"
-	
+
 	if [ ! -f "$icon_source" ]; then
 		echo -e "${ORANGE}⚠️  icon.png no encontrado en assets/${NC}"
 		return 0
 	fi
-	
+
 	# Si no existen los iconos o el source es más nuevo, regenerar
 	if [ ! -f "$android_icon" ] || [ "$icon_source" -nt "$android_icon" ]; then
 		echo -e "${BLUE}🎨 Generando iconos de la app desde icon.png...${NC}"
@@ -84,6 +84,13 @@ setup_adb_reverse_if_needed() {
 	else
 		echo -e "${ORANGE}⚠️  No se pudo configurar adb reverse para ${DEVICE_ID}.${NC}"
 		echo -e "${ORANGE}   Verifica conexión USB y autorización de depuración.${NC}"
+	fi
+
+	echo -e "${BLUE}🔁 Configurando túnel Android: localhost:3002 -> host:3002 (admin server)...${NC}"
+	if adb -s "$DEVICE_ID" reverse tcp:3002 tcp:3002 >/dev/null 2>&1; then
+		echo -e "${GREEN}✅ adb reverse (admin) activo para ${DEVICE_ID}${NC}"
+	else
+		echo -e "${ORANGE}⚠️  No se pudo configurar adb reverse 3002 para ${DEVICE_ID}.${NC}"
 	fi
 }
 

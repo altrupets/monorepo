@@ -61,3 +61,6 @@ export 'data/gateways/costa_rica/tilopay_payment_gateway.dart';
 
 // Gateways - Colombia
 export 'data/gateways/colombia/wompi_payment_gateway.dart';
+
+// Payment UI Helpers
+export 'widgets/payment_snackbar.dart';

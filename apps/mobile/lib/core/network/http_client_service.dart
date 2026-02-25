@@ -49,7 +49,11 @@ class HttpClientService {
 
     // Add interceptors in order (REQ-FLT-031)
     // 1. Logging interceptor (first to log all requests)
-    _dio.interceptors.add(LoggingInterceptor());
+    _dio.interceptors.add(
+      LoggingInterceptor(
+        logsPath: _environmentManager.currentEnvironment.logsPath,
+      ),
+    );
 
     // 2. Auth interceptor (inject tokens) - will be added via provider
     // Note: AuthInterceptor requires SecureStorageService, injected externally
