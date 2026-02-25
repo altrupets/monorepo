@@ -45,10 +45,10 @@ def log(message: str):
     """Write log message to file and stdout."""
     ensure_log_dir()
     timestamp = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-    log_line = f"[{timestamp}] {message}\n"
+    log_line = f"[{timestamp}] {message}"
     with open(LOG_FILE, "a") as f:
-        f.write(log_line)
-    print(log_line.strip())
+        f.write(log_line + "\n")
+    print(log_line)
 
 
 BACKEND_COMMANDS = [
@@ -64,7 +64,7 @@ BACKEND_COMMANDS = [
 
 def run_command_streaming(command: str, request_id: str) -> tuple[bool, str]:
     """Run a command with streaming output to stdout."""
-    log(f"[{request_id}] ▶️  {command}")
+    log(f"[{request_id}] Running: {command}")
     try:
         process = subprocess.Popen(
             command,
@@ -84,22 +84,18 @@ def run_command_streaming(command: str, request_id: str) -> tuple[bool, str]:
         output = "".join(output_lines)
         success = process.returncode == 0
         if success:
-            log(f"[{request_id}] ✅ {command} - OK")
+            log(f"[{request_id}] OK: {command}")
         else:
-            log(
-                f"[{request_id}] ❌ {command} - FAILED (exit code {process.returncode})"
-            )
+            log(f"[{request_id}] FAILED: {command} (exit code {process.returncode})")
         return success, output
     except Exception as e:
-        log(f"[{request_id}] ❌ {command} - EXCEPTION: {str(e)}")
+        log(f"[{request_id}] EXCEPTION: {command} - {str(e)}")
         return False, str(e)
 
 
-def execute_backend_command() -> dict:
-    """Execute the backend start commands sequentially with streaming output."""
-    request_id = str(uuid.uuid4())[:8]
-
-    log(f"[{request_id}] 🚀 Starting full backend deployment...")
+def execute_backend_command_with_log(request_id: str, log_fn) -> dict:
+    """Execute the backend start commands sequentially with custom log function."""
+    log_fn(f"Starting full backend deployment...")
     commands_to_run = BACKEND_COMMANDS
 
     start_time = datetime.datetime.now()
@@ -107,7 +103,8 @@ def execute_backend_command() -> dict:
     full_output = ""
 
     for cmd in commands_to_run:
-        success, output = run_command_streaming(cmd, request_id)
+        log_fn(f"Running: {cmd}")
+        success, output = run_command_streaming_with_log(cmd, request_id, log_fn)
         full_output += output + "\n"
         if not success:
             all_success = False
@@ -117,7 +114,7 @@ def execute_backend_command() -> dict:
     cleaned_output = clean_ansi(full_output[-5000:]) if full_output else ""
 
     if all_success:
-        log(f"[{request_id}] ✅ Backend deployment completed in {duration:.1f}s")
+        log_fn(f"Backend deployment completed in {duration:.1f}s")
         return {
             "success": True,
             "request_id": request_id,
@@ -125,7 +122,7 @@ def execute_backend_command() -> dict:
             "output": cleaned_output,
         }
     else:
-        log(f"[{request_id}] ❌ Backend deployment failed after {duration:.1f}s")
+        log_fn(f"Backend deployment failed after {duration:.1f}s")
         return {
             "success": False,
             "request_id": request_id,
@@ -133,6 +130,39 @@ def execute_backend_command() -> dict:
             "error": "One or more commands failed",
             "output": cleaned_output,
         }
+
+
+def run_command_streaming_with_log(
+    command: str, request_id: str, log_fn
+) -> tuple[bool, str]:
+    """Run a command with custom log function."""
+    log_fn(f"Starting: {command}")
+    try:
+        process = subprocess.Popen(
+            command,
+            shell=True,
+            cwd=PROJECT_DIR,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.STDOUT,
+            text=True,
+            bufsize=1,
+        )
+        output_lines = []
+        if process.stdout:
+            for line in iter(process.stdout.readline, ""):
+                print(line.rstrip())
+                output_lines.append(line)
+        process.wait()
+        output = "".join(output_lines)
+        success = process.returncode == 0
+        if success:
+            log_fn(f"OK: {command}")
+        else:
+            log_fn(f"FAILED: {command} (exit code {process.returncode})")
+        return success, output
+    except Exception as e:
+        log_fn(f"EXCEPTION: {command} - {str(e)}")
+        return False, str(e)
 
 
 class AdminHandler(BaseHTTPRequestHandler):
@@ -173,11 +203,33 @@ class AdminHandler(BaseHTTPRequestHandler):
     def do_POST(self):
         """Handle POST requests."""
         if self.path == "/restart-backend":
-            result = execute_backend_command()
-            if result["success"]:
-                self.send_json_response(200, result)
-            else:
-                self.send_json_response(500, result)
+            import threading
+
+            request_id = str(uuid.uuid4())[:8]
+
+            request_log_dir = LOG_DIR / request_id
+            request_log_dir.mkdir(parents=True, exist_ok=True)
+            request_log_file = request_log_dir / "deployment.log"
+
+            def log_request(message: str):
+                timestamp = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+                with open(request_log_file, "a") as f:
+                    f.write(f"[{timestamp}] {message}\n")
+                print(f"[{timestamp}] {message}")
+
+            def run_in_background():
+                execute_backend_command_with_log(request_id, log_request)
+
+            thread = threading.Thread(target=run_in_background)
+            thread.start()
+
+            response_data = {
+                "status": "accepted",
+                "message": "Backend deployment started in background",
+                "request_id": request_id,
+                "tail_command": f"tail -f {request_log_file}",
+            }
+            self.send_json_response(202, response_data)
         else:
             self.send_json_response(404, {"error": "Not found"})
 
@@ -186,7 +238,7 @@ def main():
     """Start the admin server."""
     ensure_log_dir()
 
-    log(f"🚀 Starting AltruPets Admin Server on {HOST}:{PORT}")
+    log(f"Starting AltruPets Admin Server on {HOST}:{PORT}")
     log(f"📁 Log file: {LOG_FILE}")
 
     server = HTTPServer((HOST, PORT), AdminHandler)
