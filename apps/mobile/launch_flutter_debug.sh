@@ -17,6 +17,7 @@ NC='\033[0m'
 WIDGETBOOK_DIR="../widgetbook"
 LOG_BASE_DIR="$SCRIPT_DIR/logs/mobile"
 ADB_REVERSE_ENABLED=true
+LOG_LEVEL="debug"
 
 # ─── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -246,7 +247,7 @@ if [ "$TARGET" = "widgetbook" ]; then
 	echo "⚙️  Generando directorios (build_runner)..."
 	dart run build_runner build -d
 	echo -e "${GREEN}🚀 Abriendo Widgetbook en $DESKTOP_LABEL...${NC}"
-	flutter run -d "$DESKTOP_TARGET"
+	flutter run -d "$DESKTOP_TARGET" --dart-define=LOG_LEVEL=$LOG_LEVEL
 elif [ "$TARGET" = "desktop" ]; then
 	echo -e "${BLUE}🖥️  AltruPets – $DESKTOP_LABEL Debug${NC}"
 	init_mobile_logging "${DESKTOP_TARGET}"
@@ -254,7 +255,7 @@ elif [ "$TARGET" = "desktop" ]; then
 	flutter pub get
 	check_and_generate_icons
 	echo -e "${GREEN}🚀 Ejecutando en $DESKTOP_LABEL...${NC}"
-	flutter run -d "$DESKTOP_TARGET"
+	flutter run -d "$DESKTOP_TARGET" --dart-define=LOG_LEVEL=$LOG_LEVEL
 elif [ "$TARGET" = "android" ]; then
 	echo -e "${BLUE}📱 AltruPets – Android Debug ($DEVICE_ID)${NC}"
 	if [ -z "$ANDROID_TARGET_LABEL" ]; then
@@ -271,5 +272,5 @@ elif [ "$TARGET" = "android" ]; then
 	flutter pub get
 	check_and_generate_icons
 	echo -e "${GREEN}🚀 Ejecutando en Android ($DEVICE_ID)...${NC}"
-	flutter run -d "$DEVICE_ID"
+	flutter run -d "$DEVICE_ID" --dart-define=LOG_LEVEL=$LOG_LEVEL
 fi
