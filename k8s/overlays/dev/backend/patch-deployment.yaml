@@ -10,6 +10,9 @@ spec:
         - name: backend
           image: localhost/altrupets-backend:dev
           imagePullPolicy: Never
+          envFrom:
+            - secretRef:
+                name: backend-secret
           env:
             - name: NODE_ENV
               value: "development"

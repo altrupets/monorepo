@@ -47,7 +47,7 @@ get_dev_config() {
 		echo "local"
 		;;
 	namespace)
-		echo "default"
+		echo "altrupets-dev"
 		;;
 	postgres_type)
 		echo "container" # Self-managed in cluster
@@ -103,7 +103,7 @@ get_qa_config() {
 		echo "ovhcloud"
 		;;
 	namespace)
-		echo "qa"
+		echo "altrupets-qa"
 		;;
 	postgres_type)
 		echo "container" # Self-managed in cluster
@@ -162,7 +162,7 @@ get_staging_config() {
 		echo "ovhcloud"
 		;;
 	namespace)
-		echo "staging"
+		echo "altrupets-stage"
 		;;
 	postgres_type)
 		echo "container" # Self-managed in cluster
@@ -221,7 +221,7 @@ get_prod_config() {
 		echo "ovhcloud"
 		;;
 	namespace)
-		echo "production"
+		echo "altrupets-prod"
 		;;
 	postgres_type)
 		echo "managed" # OVH Managed PostgreSQL

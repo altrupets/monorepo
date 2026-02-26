@@ -7,6 +7,7 @@ import 'package:altrupets/core/graphql/graphql_client.dart';
 import 'package:altrupets/core/storage/profile_cache_store.dart';
 import 'package:altrupets/core/storage/app_prefs_store.dart';
 import 'package:altrupets/core/sync/profile_update_queue_store.dart';
+import 'package:altrupets/core/utils/password_utils.dart';
 import 'package:altrupets/features/auth/domain/entities/user.dart';
 import 'package:altrupets/features/auth/domain/repositories/auth_repository_interface.dart';
 import 'package:altrupets/features/auth/data/models/auth_payload.dart';
@@ -87,11 +88,10 @@ class AuthRepository implements AuthRepositoryInterface {
         String errorMessage;
 
         if (exception.graphqlErrors.isNotEmpty) {
+          // Use the error message directly from backend
           errorMessage = exception.graphqlErrors.first.message;
-          debugPrint('[AuthRepository] ❌ Error GraphQL: $errorMessage');
         } else if (exception.linkException != null) {
           errorMessage = exception.linkException.toString();
-          debugPrint('[AuthRepository] ❌ Error de conexión: $errorMessage');
         } else {
           errorMessage = 'Error desconocido en la conexión';
         }
@@ -122,25 +122,59 @@ class AuthRepository implements AuthRepositoryInterface {
     String password,
   ) async {
     try {
+      debugPrint(
+        '============================================================',
+      );
+      debugPrint('[AuthRepository] LOGIN ATTEMPT - Username: $username');
+      debugPrint(
+        '============================================================',
+      );
+
+      // Hash password before sending for security
+      // TODO(2FA): Add 2FA verification code to hash in future
+      final passwordHash = PasswordUtils.hash(password, username);
+      debugPrint(
+        '[AuthRepository] ============================================================\n'
+        '[AuthRepository] Password hash for $username: ${passwordHash.substring(0, 16)}...\n'
+        '[AuthRepository] ============================================================',
+      );
+
       final result = await _client.mutate(
         MutationOptions(
           document: gql(_loginMutation),
           variables: {
-            'loginInput': {'username': username, 'password': password},
+            'loginInput': {'username': username, 'password': passwordHash},
           },
         ),
       );
 
+      debugPrint('[AuthRepository] Raw GraphQL response received');
+      debugPrint(
+        '[AuthRepository] result.hasException: ${result.hasException}',
+      );
+      debugPrint('[AuthRepository] result.data: ${result.data}');
+
       if (result.hasException) {
         final exception = result.exception!;
+        debugPrint('[AuthRepository] result.exception: $exception');
+        debugPrint(
+          '[AuthRepository] graphqlErrors: ${exception.graphqlErrors}',
+        );
+        debugPrint(
+          '[AuthRepository] linkException: ${exception.linkException}',
+        );
         String errorMessage;
 
         if (exception.graphqlErrors.isNotEmpty) {
+          // Use error message directly from backend
           errorMessage = exception.graphqlErrors.first.message;
+          debugPrint(
+            '[AuthRepository] graphqlErrors.first.message: $errorMessage',
+          );
         } else if (exception.linkException != null) {
           errorMessage = exception.linkException.toString();
         } else {
-          errorMessage = 'Error desconocido en la conexión';
+          errorMessage = 'Error desconocido en la conexion';
         }
 
         return Left(ServerFailure(errorMessage));

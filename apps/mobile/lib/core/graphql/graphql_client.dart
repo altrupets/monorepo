@@ -6,6 +6,7 @@ import 'package:flutter/foundation.dart';
 import 'package:graphql/client.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:altrupets/core/utils/constants.dart';
+import 'package:altrupets/core/utils/network_utils.dart';
 
 class GraphQLClientService {
   static const _storage = FlutterSecureStorage();
@@ -24,6 +25,15 @@ class GraphQLClientService {
   }
 
   static GraphQLClient _createClient() {
+    final networkInfo = NetworkUtils.getDebugNetworkInfo(
+      overrideUrl: AppConstants.baseUrl.isNotEmpty
+          ? AppConstants.baseUrl
+          : null,
+    );
+    debugPrint('');
+    debugPrint(networkInfo.toString());
+    debugPrint('');
+
     final errorLink = ErrorLink(
       onGraphQLError: (request, forward, response) {
         debugPrint(
@@ -83,7 +93,7 @@ class GraphQLClientService {
               '[GraphQLClient]      └─ Port: ${originalException.port}',
             );
             debugPrint(
-              '[GraphQLClient] 💡 Backend URL: ${AppConstants.baseUrl}',
+              '[GraphQLClient] 💡 Backend URL: ${NetworkUtils.getBackendUrl(overrideUrl: AppConstants.baseUrl.isNotEmpty ? AppConstants.baseUrl : null)}',
             );
             debugPrint(
               '[GraphQLClient] 💡 Tip: Verify backend is running and reachable',
@@ -94,7 +104,7 @@ class GraphQLClientService {
               '[GraphQLClient]   └─ 🌐 Network error detected: ${originalException.toString().substring(0, originalException.toString().length > 200 ? 200 : originalException.toString().length)}',
             );
             debugPrint(
-              '[GraphQLClient] 💡 Backend URL: ${AppConstants.baseUrl}',
+              '[GraphQLClient] 💡 Backend URL: ${NetworkUtils.getBackendUrl(overrideUrl: AppConstants.baseUrl.isNotEmpty ? AppConstants.baseUrl : null)}',
             );
           }
         }
@@ -104,7 +114,13 @@ class GraphQLClientService {
     );
 
     final httpLink = HttpLink(
-      '${AppConstants.baseUrl}/graphql',
+      NetworkUtils.getGraphQLEndpoint(
+        baseUrl: NetworkUtils.getBackendUrl(
+          overrideUrl: AppConstants.baseUrl.isNotEmpty
+              ? AppConstants.baseUrl
+              : null,
+        ),
+      ),
       defaultHeaders: {'Content-Type': 'application/json'},
     );
 

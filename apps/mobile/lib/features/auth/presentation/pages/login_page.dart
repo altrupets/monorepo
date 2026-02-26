@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:altrupets/core/constants/auth_errors.dart';
 import 'package:altrupets/core/providers/navigation_provider.dart';
 import 'package:altrupets/core/widgets/atoms/app_snackbar.dart';
 import 'package:altrupets/features/auth/presentation/providers/auth_provider.dart';
@@ -72,28 +73,38 @@ class _LoginPageState extends ConsumerState<LoginPage> {
 
         debugPrint('[LoginPage] 🚀 Navegación a HomePage completada');
       } else if (next.error != null && previous?.error != next.error) {
-        // Loggear error completo para debugging
+        debugPrint(
+          '[LoginPage] ============================================================',
+        );
         debugPrint('[LoginPage] ❌ Error de login: ${next.error}');
+        debugPrint(
+          '[LoginPage] ============================================================',
+        );
 
-        // Determinar tipo de error para mensaje amigable
-        final errorMessage = next.error?.toLowerCase() ?? '';
+        final error = next.error!;
         String userMessage;
-        String title = 'Error de conexión';
+        String title = 'Error';
         bool isConnectionError = false;
 
-        if (errorMessage.contains('connection refused') ||
-            errorMessage.contains('socketexception') ||
-            errorMessage.contains('connection timeout')) {
-          userMessage =
-              'No se pudo conectar al servidor.\n\nAsegúrate de que el backend esté corriendo en http://localhost:3001';
-          isConnectionError = true;
-        } else if (errorMessage.contains('invalid credentials') ||
-            errorMessage.contains('unauthorized') ||
-            errorMessage.contains('401')) {
+        if (error.contains(AuthErrorType.ACCOUNT_LOCKED.code)) {
+          title = 'Cuenta bloqueada';
+          userMessage = error;
+        } else if (error.contains(AuthErrorType.USER_NOT_FOUND.code)) {
+          title = 'Usuario no encontrado';
+          userMessage = 'El usuario no existe en nuestra base de datos.';
+        } else if (error.contains(AuthErrorType.INVALID_PASSWORD.code)) {
           title = 'Credenciales inválidas';
           userMessage =
               'El usuario o contraseña son incorrectos. Por favor intenta de nuevo.';
-        } else if (errorMessage.contains('network')) {
+        } else if (error.contains('connection refused') ||
+            error.contains('socketexception') ||
+            error.contains('connection timeout')) {
+          title = 'Sin conexión';
+          userMessage =
+              'No se pudo conectar al servidor.\n\nAsegúrate de que el backend esté corriendo en http://localhost:3001';
+          isConnectionError = true;
+        } else if (error.contains('network')) {
+          title = 'Error de red';
           userMessage = 'Error de red. Verifica tu conexión a internet.';
           isConnectionError = true;
         } else {
@@ -101,7 +112,6 @@ class _LoginPageState extends ConsumerState<LoginPage> {
               'Ocurrió un error al iniciar sesión. Por favor intenta de nuevo.';
         }
 
-        // Mostrar SnackBar apropiado
         if (mounted) {
           if (isConnectionError) {
             AppSnackbar.connectionError(

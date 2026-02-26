@@ -30,14 +30,6 @@ export class WebAuthController {
         loginInput.password,
       );
 
-      if (!user) {
-        // @ts-ignore - inertia is added by @lapc506/nestjs-inertia middleware
-        return res.inertia.render('Auth/Login', {
-          title: 'Iniciar Sesión',
-          errors: { login: 'Credenciales inválidas' },
-        });
-      }
-
       const result = await this.authService.login(user);
 
       res.cookie('jwt', result.access_token, {
@@ -59,10 +51,22 @@ export class WebAuthController {
 
       return res.redirect('/');
     } catch (error) {
+      // Extraer mensaje de error específico o usar genérico
+      const errorMessage = error.message || 'Credenciales inválidas';
+      let userMessage = 'Credenciales inválidas. Por favor intenta de nuevo.';
+
+      if (errorMessage.includes('USER_NOT_FOUND')) {
+        userMessage = 'El usuario no existe o fue eliminado de nuestra base de datos.';
+      } else if (errorMessage.includes('INVALID_PASSWORD')) {
+        userMessage = 'La contraseña es incorrecta. Por favor intenta de nuevo.';
+      } else if (errorMessage.includes('ACCOUNT_LOCKED')) {
+        userMessage = 'Tu cuenta está temporalmente bloqueada. Intenta de nuevo más tarde.';
+      }
+
       // @ts-ignore - inertia is added by @lapc506/nestjs-inertia middleware
       return res.inertia.render('Auth/Login', {
         title: 'Iniciar Sesión',
-        errors: { login: 'Credenciales inválidas' },
+        errors: { login: userMessage },
       });
     }
   }

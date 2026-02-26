@@ -56,6 +56,7 @@ check_and_generate_icons() {
 GOOGLE_SERVICES_FILE="android/app/google-services.json"
 INFISICAL_PROJECT_ID="71bc533b-cabf-4793-9bf0-03dba6caf417"
 INFISICAL_ENV="dev"
+PASSWORD_SALT=""
 
 setup_google_services() {
 	if [ -f "$GOOGLE_SERVICES_FILE" ]; then
@@ -63,7 +64,7 @@ setup_google_services() {
 	fi
 
 	if ! command -v infisical >/dev/null 2>&1; then
-		echo -e "${RED}❌ infisical CLI no está instalado${NC}"
+		echo -e "${RED}❌ infisical CLI no esta instalado${NC}"
 		exit 1
 	fi
 
@@ -79,6 +80,28 @@ setup_google_services() {
 	fi
 }
 
+# Get password salt from Infisical for secure hashing
+# TODO(2FA): Add 2FA verification code to hash in future
+setup_password_salt() {
+	if [ -n "$PASSWORD_SALT" ]; then
+		return 0
+	fi
+
+	if ! command -v infisical >/dev/null 2>&1; then
+		echo -e "${YELLOW}⚠️ infisical CLI no esta instalado, usando valor por defecto${NC}"
+		PASSWORD_SALT="default_salt_fallback"
+		return 0
+	fi
+
+	echo -e "${BLUE}🔐 Obteniendo PASSWORD_SALT desde Infisical...${NC}"
+	PASSWORD_SALT=$(infisical secrets get MOBILE_PASSWORD_SALT \
+		--projectId="$INFISICAL_PROJECT_ID" \
+		--env="$INFISICAL_ENV" \
+		--plain 2>/dev/null) || PASSWORD_SALT="default_salt_fallback"
+
+	export PASSWORD_SALT
+}
+
 cleanup_google_services() {
 	if [ ! -f "$GOOGLE_SERVICES_FILE" ]; then
 		return 0
@@ -91,6 +114,10 @@ cleanup_google_services() {
 }
 
 trap cleanup_google_services EXIT
+
+# Setup password salt for secure password hashing
+# TODO(2FA): Add 2FA verification code to hash in future
+setup_password_salt
 
 _get_id_from_line() {
 	awk -F' • ' '{print $2}' | tr -d ' \t'
@@ -458,7 +485,7 @@ if [ "$TARGET" = "wifi-connect" ]; then
 	fi
 	flutter pub get
 	check_and_generate_icons
-	flutter run -d "$DEVICE_ID" --dart-define=LOG_LEVEL=$LOG_LEVEL
+	flutter run -d "$DEVICE_ID" --dart-define=LOG_LEVEL=$LOG_LEVEL --dart-define=PASSWORD_SALT="$PASSWORD_SALT"
 fi
 
 # ─── Execute ──────────────────────────────────────────────────────────────────
@@ -471,7 +498,7 @@ if [ "$TARGET" = "widgetbook" ]; then
 	echo "⚙️  Generando directorios (build_runner)..."
 	dart run build_runner build -d
 	echo -e "${GREEN}🚀 Abriendo Widgetbook en $DESKTOP_TARGET...${NC}"
-	flutter run -d "$DESKTOP_TARGET" --dart-define=LOG_LEVEL=$LOG_LEVEL
+	flutter run -d "$DESKTOP_TARGET" --dart-define=LOG_LEVEL=$LOG_LEVEL --dart-define=PASSWORD_SALT="$PASSWORD_SALT"
 elif [ "$TARGET" = "desktop" ]; then
 	echo -e "${BLUE}🖥️  AltruPets – $DESKTOP_LABEL Debug${NC}"
 	init_mobile_logging "${DESKTOP_TARGET}"
@@ -479,7 +506,7 @@ elif [ "$TARGET" = "desktop" ]; then
 	flutter pub get
 	check_and_generate_icons
 	echo -e "${GREEN}🚀 Ejecutando en $DESKTOP_LABEL...${NC}"
-	flutter run -d "$DESKTOP_TARGET" --dart-define=LOG_LEVEL=$LOG_LEVEL
+	flutter run -d "$DESKTOP_TARGET" --dart-define=LOG_LEVEL=$LOG_LEVEL --dart-define=PASSWORD_SALT="$PASSWORD_SALT"
 elif [ "$TARGET" = "android" ]; then
 	echo -e "${BLUE}📱 AltruPets – Android Debug ($DEVICE_ID)${NC}"
 	if [ -z "$ANDROID_TARGET_LABEL" ]; then
@@ -539,5 +566,5 @@ elif [ "$TARGET" = "android" ]; then
 			) &
 		fi
 	fi
-	flutter run -d "$DEVICE_ID" --dart-define=LOG_LEVEL=$LOG_LEVEL
+	flutter run -d "$DEVICE_ID" --dart-define=LOG_LEVEL=$LOG_LEVEL --dart-define=PASSWORD_SALT="$PASSWORD_SALT"
 fi
