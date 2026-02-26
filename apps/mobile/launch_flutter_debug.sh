@@ -423,10 +423,42 @@ if [ "$TARGET" = "wifi-connect" ]; then
 	echo ""
 	adb devices
 
-	echo -e "${GREEN}✅ Conectado por WiFi: $IP_ADDR:5555${NC}"
+	# Get the WiFi device ID (without port)
+	WIFI_DEVICE_ID=$(adb devices 2>/dev/null | grep -v "List of devices" | grep ":" | grep "device$" | head -1 | awk '{print $1}' | sed 's/:5555//')
+
+	echo -e "${GREEN}✅ Conectado por WiFi: $WIFI_DEVICE_ID${NC}"
 	echo ""
 	echo -e "${BLUE}🚀 Lanzando app...${NC}"
-	exec "$SCRIPT_DIR/launch_flutter_debug.sh" -d $NATIVE_DEBUG_FLAG
+
+	# Execute directly with the WiFi device ID instead of calling recursively
+	TARGET="android"
+	DEVICE_ID="$WIFI_DEVICE_ID"
+	ANDROID_TARGET_LABEL="android-device"
+
+	# Validate device exists in flutter
+	if ! flutter devices 2>/dev/null | grep -q "$DEVICE_ID"; then
+		echo -e "${ORANGE}⚠️  Dispositivo no detectado inmediatamente por Flutter, esperando...${NC}"
+		sleep 3
+		if ! flutter devices 2>/dev/null | grep -q "$DEVICE_ID"; then
+			echo -e "${RED}❌ Dispositivo no encontrado en flutter devices${NC}"
+			flutter devices
+			exit 1
+		fi
+	fi
+
+	echo -e "${BLUE}📱 AltruPets – Android Debug ($DEVICE_ID)${NC}"
+	init_mobile_logging "$ANDROID_TARGET_LABEL"
+	setup_google_services
+	setup_adb_reverse_if_needed
+	if [ "$DIRTY" = false ]; then
+		echo "🧹 Limpiando caché de construcción..."
+		flutter clean
+	else
+		echo "🚀 Modo DIRTY: Saltando limpieza..."
+	fi
+	flutter pub get
+	check_and_generate_icons
+	flutter run -d "$DEVICE_ID" --dart-define=LOG_LEVEL=$LOG_LEVEL
 fi
 
 # ─── Execute ──────────────────────────────────────────────────────────────────
