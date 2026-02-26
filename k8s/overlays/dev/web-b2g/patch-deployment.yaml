@@ -4,6 +4,9 @@ metadata:
   name: web-b2g
 spec:
   template:
+    metadata:
+      annotations:
+        build.id: dev
     spec:
       imagePullSecrets:
         - name: harbor-registry-secret

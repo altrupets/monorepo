@@ -4,7 +4,7 @@ kind: Kustomization
 namespace: altrupets-dev
 
 resources:
-  - ../../base/web-superusers
+  - ../../../base/web-superusers
 
 patches:
   - path: patch-deployment.yaml

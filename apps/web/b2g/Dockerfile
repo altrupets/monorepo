@@ -5,9 +5,17 @@ WORKDIR /app
 COPY apps/web/b2g/package*.json ./
 RUN npm install
 
+COPY apps/web/b2g/vite.config.ts ./
+COPY apps/web/b2g/tsconfig.json ./
+COPY apps/web/b2g/tsconfig.node.json ./
+COPY apps/web/b2g/index.html ./
+COPY apps/web/b2g/src ./src
+
+RUN npm run build:client
+
 COPY apps/web/b2g/tsconfig.server.json ./
 COPY apps/web/b2g/src/server ./src/server
-RUN npm run build
+RUN npm run build:server
 
 FROM node:20-alpine
 

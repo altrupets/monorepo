@@ -21,11 +21,10 @@ locals {
 # ============================================
 resource "null_resource" "gateway_api_crds" {
   triggers = {
-    version   = local.gateway_version
-    channel   = var.channel
-    crd_url   = local.crd_url
-    nginx_version = var.nginx_gateway_version
-    always_run = timestamp()
+    version        = local.gateway_version
+    channel        = var.channel
+    crd_url        = local.crd_url
+    nginx_version  = var.nginx_gateway_version
   }
 
   provisioner "local-exec" {

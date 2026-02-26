@@ -5,7 +5,9 @@ set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PROJECT_ROOT="$(cd "$SCRIPT_DIR/../.." && pwd)"
 BACKEND_DIR="$PROJECT_ROOT/apps/backend"
-IMAGE_TAG="localhost/altrupets-backend:dev"
+BUILD_ID="$(date +%Y%m%d-%H%M%S)"
+IMAGE_TAG="localhost/altrupets-backend:${BUILD_ID}"
+IMAGE_TAG_DEV="localhost/altrupets-backend:dev"
 
 GREEN='\033[0;32m'
 BLUE='\033[0;34m'
@@ -41,10 +43,12 @@ if ! podman build -t "${IMAGE_TAG}" -f "$BACKEND_DIR/Dockerfile" "$BACKEND_DIR" 
 	exit 1
 fi
 
+podman tag "${IMAGE_TAG}" "${IMAGE_TAG_DEV}"
+
 echo -e "${BLUE}📦 Loading image into minikube...${NC}"
-if ! podman save "${IMAGE_TAG}" | minikube image load -; then
+if ! podman save "${IMAGE_TAG_DEV}" | minikube image load -; then
 	echo -e "${RED}❌ Failed to load image into minikube${NC}"
 	exit 1
 fi
 
-echo -e "${GREEN}✅ Image built and loaded: ${IMAGE_TAG}${NC}"
+echo -e "${GREEN}✅ Image built (${BUILD_ID}) and loaded: ${IMAGE_TAG_DEV}${NC}"

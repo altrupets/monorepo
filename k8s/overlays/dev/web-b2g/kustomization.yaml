@@ -4,7 +4,7 @@ kind: Kustomization
 namespace: altrupets-dev
 
 resources:
-  - ../../base/web-b2g
+  - ../../../base/web-b2g
 
 patches:
   - path: patch-deployment.yaml
