@@ -55,6 +55,7 @@ BACKEND_COMMANDS = [
     "make setup",
     "make dev-minikube-deploy",
     "make dev-terraform-deploy",
+    "make dev-gateway-deploy",
     "make dev-harbor-deploy",
     "make dev-images-build",
     "make dev-argocd-push-and-deploy",

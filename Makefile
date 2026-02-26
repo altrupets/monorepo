@@ -71,13 +71,13 @@ help: ## Show this help message
 	@echo ""
 	@echo "$(GREEN)Quick Start (Full Setup):$(NC)"
 	@echo "  $(YELLOW)Manual (sin ArgoCD):$(NC)"
-	@echo "  make setup && make dev-minikube-deploy && make dev-terraform-deploy && make dev-images-build && make dev-backend-tf-deploy && make dev-superusers-tf-deploy && make dev-b2g-tf-deploy && make dev-gateway-start"
+	@echo "  make setup && make dev-minikube-deploy && make dev-terraform-deploy && make dev-gateway-deploy && make dev-images-build && make dev-backend-tf-deploy && make dev-superusers-tf-deploy && make dev-b2g-tf-deploy && make dev-gateway-start"
 	@echo ""
 	@echo "  $(YELLOW)GitOps/ArgoCD (push automático):$(NC)"
-	@echo "  make setup && make dev-minikube-deploy && make dev-terraform-deploy && make dev-images-build && make dev-argocd-push-and-deploy && make dev-gateway-start"
+	@echo "  make setup && make dev-minikube-deploy && make dev-terraform-deploy && make dev-gateway-deploy && make dev-images-build && make dev-argocd-push-and-deploy && make dev-gateway-start"
 	@echo ""
 	@echo "  $(YELLOW)GitOps/ArgoCD + Harbor Registry:$(NC)"
-	@echo "  make setup && make dev-minikube-deploy && make dev-terraform-deploy && make dev-harbor-deploy && make dev-images-build && make dev-argocd-push-and-deploy && make dev-gateway-start"
+	@echo "  make setup && make dev-minikube-deploy && make dev-terraform-deploy && make dev-gateway-deploy && make dev-harbor-deploy && make dev-images-build && make dev-argocd-push-and-deploy && make dev-gateway-start"
 	@echo ""
 	@echo "  $(YELLOW)Step by step (Manual):$(NC)"
 	@echo "  1. make setup                    $(BLUE)# First time setup$(NC)"
@@ -339,22 +339,10 @@ dev-gateway-deploy: ## Deploy Gateway API only
 	@$(SCRIPTS_DIR)/deploy-gateway-api.sh dev --auto-approve
 
 dev-gateway-start: ## Start port-forward to Gateway
-	@echo "$(BLUE)Starting Gateway port-forward...$(NC)"
-	@$(SCRIPTS_DIR)/dev-validate.sh || true
-	@for pid in $$(ps aux | grep "kubectl port-forward.*gateway" | grep -v grep | awk "{print $$2}"); do kill $$pid 2>/dev/null || true; done
-	@kubectl port-forward -n altrupets-dev svc/dev-gateway-nginx 3001:80 > /dev/null 2>&1 &
-	@sleep 2
-	@echo "$(GREEN)✓ Gateway at http://localhost:3001$(NC)"
-	@echo ""
-	@echo "$(BLUE)Endpoints:$(NC)"
-	@echo "  http://localhost:3001/admin/login     (CRUD Superusers)"
-	@echo "  http://localhost:3001/b2g/login       (B2G)"
-	@echo "  http://localhost:3001/graphql         (GraphQL API)"
+	@$(SCRIPTS_DIR)/gateway-start.sh dev
 
 dev-gateway-stop: ## Stop port-forward
-	@echo "$(BLUE)Stopping port-forward...$(NC)"
-	@for pid in $$(ps aux | grep "kubectl port-forward" | grep -v grep | awk "{print $$2}"); do kill $$pid 2>/dev/null || true; done
-	@echo "$(GREEN)✓ Port-forward stopped$(NC)"
+	@$(SCRIPTS_DIR)/gateway-stop.sh dev
 
 # ==========================================
 # DEV - PostgreSQL

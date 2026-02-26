@@ -51,6 +51,47 @@ check_and_generate_icons() {
 	fi
 }
 
+# ─── Firebase Config ───────────────────────────────────────────────────────────
+
+GOOGLE_SERVICES_FILE="android/app/google-services.json"
+INFISICAL_PROJECT_ID="71bc533b-cabf-4793-9bf0-03dba6caf417"
+INFISICAL_ENV="dev"
+
+setup_google_services() {
+	if [ -f "$GOOGLE_SERVICES_FILE" ]; then
+		return 0
+	fi
+
+	if ! command -v infisical >/dev/null 2>&1; then
+		echo -e "${RED}❌ infisical CLI no está instalado${NC}"
+		exit 1
+	fi
+
+	echo -e "${BLUE}📥 Descargando google-services.json desde Infisical...${NC}"
+	if infisical secrets get MOBILE_GOOGLE_SERVICES_JSON \
+		--projectId="$INFISICAL_PROJECT_ID" \
+		--env="$INFISICAL_ENV" \
+		--plain >"$GOOGLE_SERVICES_FILE"; then
+		echo -e "${GREEN}✅ google-services.json descargado${NC}"
+	else
+		echo -e "${RED}❌ Error descargando google-services.json desde Infisical${NC}"
+		exit 1
+	fi
+}
+
+cleanup_google_services() {
+	if [ ! -f "$GOOGLE_SERVICES_FILE" ]; then
+		return 0
+	fi
+
+	if git check-ignore "$GOOGLE_SERVICES_FILE" >/dev/null 2>&1; then
+		rm -f "$GOOGLE_SERVICES_FILE"
+		echo -e "${ORANGE}🧹 google-services.json eliminado (no almacenado en repo)${NC}"
+	fi
+}
+
+trap cleanup_google_services EXIT
+
 _get_id_from_line() {
 	awk -F' • ' '{print $2}' | tr -d ' \t'
 }
@@ -413,6 +454,7 @@ elif [ "$TARGET" = "android" ]; then
 		ANDROID_TARGET_LABEL="android-device"
 	fi
 	init_mobile_logging "$ANDROID_TARGET_LABEL"
+	setup_google_services
 	setup_adb_reverse_if_needed
 	if [ "$DIRTY" = false ]; then
 		echo "🧹 Limpiando caché de construcción..."

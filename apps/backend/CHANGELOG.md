@@ -7,6 +7,29 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed - 2026-02-26
+
+#### Dockerfile - Missing node_modules dependencies
+
+- **Problema**: El backend fallaba al iniciar con error `Cannot find module '@nestjs/throttler'`
+- **Causa**: El Dockerfile usaba `npm prune --omit=dev` que eliminaba dependencias necesarias en producción
+- **Solución**: Eliminado el prune, se mantiene el node_modules completo del builder stage
+- **Archivo modificado**: `apps/backend/Dockerfile`
+
+#### Users Resolver - Missing @Args() argument name
+
+- **Problema**: Error `Cannot read properties of undefined (reading 'page')` en la query paginada de usuarios
+- **Causa**: Faltaba el nombre del argumento en el decorador `@Args()`
+- **Solución**: Cambiado `@Args() pagination: PaginationArgs` por `@Args('pagination') pagination: PaginationArgs`
+- **Archivo modificado**: `apps/backend/src/users/users.resolver.ts`
+
+#### GraphQL HTTPRoute - Route not matching
+
+- **Problema**: Las requests a `/graphql` retornaban 404 a pesar de que el HTTPRoute estaba desplegado
+- **Causa**: El HTTPRoute no tenía `sectionName: http` en su `parentRefs`, causando que nginx gateway controller lo pusiera en un server block con regex que venía DESPUÉS del bloque `localhost`
+- **Solución**: Agregado `sectionName: http` al parentRef del HTTPRoute
+- **Archivo modificado**: `k8s/base/backend/httproute.yaml`
+
 ### Added
 - **Unit Tests** - 32 tests covering AuthService, UserRepository, and User entity
 - **GraphQL Pagination** - Paginated users query with `page`, `limit`, `sortBy`, `order`

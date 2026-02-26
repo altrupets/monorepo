@@ -9,6 +9,34 @@ y este proyecto adhiere a [Semantic Versioning](https://semver.org/lang/es/).
 
 ### Fixed - 2026-02-26
 
+#### Google Services JSON desde Infisical
+
+- **Problema**: `google-services.json` no debía almacenarse en el repositorio por seguridad
+- **Solución**: El script `apps/mobile/launch_flutter_debug.sh` ahora descarga el secreto `MOBILE_GOOGLE_SERVICES_JSON` desde Infisical al iniciar y lo elimina al salir (cleanup via trap)
+- **Secret en Infisical**: Proyecto `71bc533b-cabf-4793-9bf0-03dba6caf417`, entorno `dev`
+- **Archivo modificado**: `apps/mobile/launch_flutter_debug.sh`
+
+#### Gateway Start/Stop Scripts
+
+- **Problema**: El Makefile tenía lógica inline para start/stop del port-forward que era difícil de mantener
+- **Solución**: Extraídos a scripts dedicados:
+  - `infrastructure/scripts/gateway-start.sh` - Inicia port-forward al Gateway
+  - `infrastructure/scripts/gateway-stop.sh` - Detiene port-forwards existentes
+- **Archivos agregados**:
+  - `infrastructure/scripts/gateway-start.sh`
+  - `infrastructure/scripts/gateway-stop.sh`
+- **Archivos modificados**: `Makefile`
+
+#### deploy-gateway-api.sh - Environment Fixes
+
+- **Problema**: Después de desplegar el Gateway, el HTTPRoute de GraphQL necesitaba ser aplicado y el Gateway reiniciado
+- **Solución**: Agregada función `apply_environment_fixes()` que:
+  1. Aplica el HTTPRoute de GraphQL
+  2. Reinicia el deployment del Gateway para picked up los cambios de ruta
+- **Archivo modificado**: `infrastructure/scripts/deploy-gateway-api.sh`
+
+### Fixed - 2026-02-26
+
 #### fetch_stitch.sh - Path fix
 
 - Corregido path de salida duplicado (`stitch_assets/stitch_assets/` → `stitch_assets/`)

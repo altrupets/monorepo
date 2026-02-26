@@ -27,7 +27,7 @@ export class UsersResolver {
     @UseGuards(JwtAuthGuard, RolesGuard)
     @Roles(...USER_ADMIN_ROLES)
     async getUsers(
-        @Args() pagination: PaginationArgs,
+        @Args('pagination') pagination: PaginationArgs,
     ): Promise<PaginatedUsers> {
         const result = await this.userRepository.findWithPagination({
             page: pagination.page,

@@ -308,6 +308,39 @@ verify_deployment() {
 	fi
 }
 
+apply_environment_fixes() {
+	local env="$1"
+	local namespace
+	namespace=$(get_env_config "$env" "namespace")
+
+	if [[ "$env" == "dev" ]]; then
+		log_header "Applying Environment Fixes for $env"
+
+		# 1. Fix GraphQL HTTPRoute (ensuring hostnames are present)
+		local httproute_file="$PROJECT_ROOT/k8s/base/backend/httproute.yaml"
+		if [[ -f "$httproute_file" ]]; then
+			log_info "Applying $httproute_file..."
+			if kubectl apply -f "$httproute_file"; then
+				log_success "GraphQL HTTPRoute applied"
+			else
+				log_warn "Failed to apply GraphQL HTTPRoute"
+			fi
+		else
+			log_warn "GraphQL HTTPRoute file not found: $httproute_file"
+		fi
+
+		# 2. Restart Gateway to pick up route changes if needed
+		# Note: In Gateway API, restarts are usually not needed for HTTPRoute changes,
+		# but added here for consistency with the user's "fix" command.
+		log_info "Restarting NGINX Gateway deployment..."
+		if kubectl rollout restart deployment/dev-gateway-nginx -n "$namespace" 2>/dev/null; then
+			log_success "NGINX Gateway restart initiated"
+		else
+			log_warn "NGINX Gateway deployment 'dev-gateway-nginx' not found in $namespace"
+		fi
+	fi
+}
+
 main() {
 	parse_args "$@"
 	validate_prerequisites
@@ -316,6 +349,7 @@ main() {
 	start_time=$(date +%s)
 
 	deploy_gateway_api "$ENVIRONMENT"
+	apply_environment_fixes "$ENVIRONMENT"
 	verify_deployment "$ENVIRONMENT"
 
 	local end_time
