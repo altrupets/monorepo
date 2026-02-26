@@ -3,6 +3,7 @@ import { UseGuards, Inject, ForbiddenException, NotFoundException } from '@nestj
 import { User } from './entities/user.entity';
 import { CreateUserInput } from './dto/create-user.input';
 import { UpdateUserInput } from './dto/update-user.input';
+import { PaginationArgs, PaginatedUsers, SortOrder } from './dto/pagination.args';
 import type { IUserRepository } from './domain/user.repository.interface';
 import { IUSER_REPOSITORY } from './domain/user.repository.interface';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
@@ -22,12 +23,30 @@ export class UsersResolver {
         private readonly avatarStorageService: AvatarStorageService,
     ) { }
 
-    @Query(() => [User], { name: 'users' })
+    @Query(() => PaginatedUsers, { name: 'users' })
     @UseGuards(JwtAuthGuard, RolesGuard)
     @Roles(...USER_ADMIN_ROLES)
-    async getUsers(): Promise<User[]> {
-        const users = await this.userRepository.findAll();
-        return users.map((user) => this.mapUserForResponse(user));
+    async getUsers(
+        @Args() pagination: PaginationArgs,
+    ): Promise<PaginatedUsers> {
+        const result = await this.userRepository.findWithPagination({
+            page: pagination.page,
+            limit: pagination.limit,
+            sortBy: pagination.sortBy || 'createdAt',
+            order: pagination.order || 'DESC',
+        });
+
+        const items = result.items.map((user) => this.mapUserForResponse(user));
+
+        return {
+            items: items as any,
+            total: result.total,
+            page: result.page,
+            limit: result.limit,
+            totalPages: result.totalPages,
+            hasNext: result.hasNext,
+            hasPrevious: result.hasPrevious,
+        };
     }
 
     @Query(() => User, { name: 'user' })

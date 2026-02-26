@@ -15,6 +15,7 @@ import 'package:altrupets/features/auth/domain/entities/user.dart';
 import 'package:altrupets/features/profile/presentation/data/costa_rica_locations.dart';
 import 'package:altrupets/features/profile/presentation/providers/profile_provider.dart';
 import 'package:altrupets/features/profile/presentation/pages/location_permission_page.dart';
+import 'package:altrupets/core/config/environment_manager.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:image_picker/image_picker.dart';
@@ -831,13 +832,20 @@ class _EditPersonalInformationPageState
             ),
             // ONVO Pay input widget
             Expanded(
-              child: OnvoPayInputWidget(
-                apiKey: 'YOUR_ONVO_API_KEY', // TODO: Usar desde configuración
-                sandbox: true, // TODO: Cambiar a false en producción
-                onPaymentMethodAdded: (method) {
-                  setState(() {
-                    _savedPaymentMethods.add(method);
-                  });
+              child: Consumer(
+                builder: (context, ref, _) {
+                  final environment = ref
+                      .watch(environmentManagerProvider)
+                      .currentEnvironment;
+                  return OnvoPayInputWidget(
+                    apiKey: environment.onvoApiKey,
+                    sandbox: environment.onvoSandbox,
+                    onPaymentMethodAdded: (method) {
+                      setState(() {
+                        _savedPaymentMethods.add(method);
+                      });
+                    },
+                  );
                 },
               ),
             ),

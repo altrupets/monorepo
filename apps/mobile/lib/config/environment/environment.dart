@@ -27,6 +27,16 @@ abstract class Environment {
 
   /// Storage configuration
   StorageConfig get storageConfig;
+
+  /// Onvo configuration
+  OnvoConfig get onvoConfig;
+}
+
+/// Onvo configuration
+class OnvoConfig {
+  OnvoConfig({required this.apiKey, required this.sandbox});
+  final String apiKey;
+  final bool sandbox;
 }
 
 /// Firebase configuration

@@ -6,6 +6,7 @@ import { GraphQLModule } from '@nestjs/graphql';
 import { ApolloDriver, ApolloDriverConfig } from '@nestjs/apollo';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { CacheModule } from '@nestjs/cache-manager';
+import { ThrottlerModule } from '@nestjs/throttler';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { AuthModule } from './auth/auth.module';
@@ -24,6 +25,24 @@ import { OrganizationMembership } from './organizations/entities/organization-me
     SentryModule.forRoot(),
     ConfigModule.forRoot({
       isGlobal: true,
+    }),
+    ThrottlerModule.forRootAsync({
+      imports: [ConfigModule],
+      useFactory: (configService: ConfigService) => ({
+        throttlers: [
+          {
+            name: 'default',
+            ttl: configService.get<number>('THROTTLE_TTL', 60000),
+            limit: configService.get<number>('THROTTLE_LIMIT', 100),
+          },
+          {
+            name: 'short',
+            ttl: configService.get<number>('THROTTLE_SHORT_TTL', 1000),
+            limit: configService.get<number>('THROTTLE_SHORT_LIMIT', 10),
+          },
+        ],
+      }),
+      inject: [ConfigService],
     }),
     TypeOrmModule.forRootAsync({
       imports: [ConfigModule],

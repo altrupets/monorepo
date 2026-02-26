@@ -42,4 +42,10 @@ class DevelopmentEnvironment implements Environment {
     cacheExpirationHours: 24,
     encryptSensitiveData: false, // Disabled for easier debugging
   );
+
+  @override
+  OnvoConfig get onvoConfig => OnvoConfig(
+    apiKey: 'YOUR_ONVO_API_KEY', // Recommended to use environment variables
+    sandbox: true,
+  );
 }

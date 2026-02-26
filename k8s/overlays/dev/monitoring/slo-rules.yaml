@@ -1,0 +1,95 @@
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: altrupets-slo-rules
+  namespace: monitoring
+  labels:
+    release: prometheus
+spec:
+  groups:
+    - name: altruPets-slo.rules
+      interval: 30s
+      rules:
+        # SLO: API Availability (target: 99.9%)
+        - alert: APIDown
+          expr: up{job="altrupets-backend"} == 0
+          for: 2m
+          labels:
+            severity: critical
+            slo: availability
+          annotations:
+            summary: "API is down"
+            description: "The AltruPets API has been down for more than 2 minutes"
+
+        # SLO: Request Latency (target: 95% < 500ms)
+        - alert: HighRequestLatency
+          expr: |
+            histogram_quantile(0.95, rate(http_request_duration_seconds_bucket[5m])) > 0.5
+          for: 5m
+          labels:
+            severity: warning
+            slo: latency
+          annotations:
+            summary: "High request latency"
+            description: "95th percentile latency is above 500ms for more than 5 minutes"
+
+        # SLO: Error Rate (target: < 1%)
+        - alert: HighErrorRate
+          expr: |
+            sum(rate(http_requests_total{status=~"5.."}[5m]))
+            /
+            sum(rate(http_requests_total[5m])) > 0.01
+          for: 5m
+          labels:
+            severity: critical
+            slo: errors
+          annotations:
+            summary: "High error rate"
+            description: "Error rate is above 1% for more than 5 minutes"
+
+        # SLO: 99% requests under 1s
+        - alert: SLORequestDuration99
+          expr: |
+            histogram_quantile(0.99, rate(http_request_duration_seconds_bucket[5m])) > 1
+          for: 10m
+          labels:
+            severity: warning
+            slo: latency
+          annotations:
+            summary: "SLO breach: 99th percentile latency"
+            description: "99th percentile latency is above 1 second"
+
+        # SLO: Database Connection Pool
+        - alert: DatabaseConnectionPoolExhausted
+          expr: pg_stat_activity_count > 80
+          for: 2m
+          labels:
+            severity: warning
+            slo: database
+          annotations:
+            summary: "Database connection pool near capacity"
+            description: "PostgreSQL connection pool is above 80%"
+
+        # SLO: Memory Usage
+        - alert: HighMemoryUsage
+          expr: |
+            (process_resident_memory_bytes{job="altrupets-backend"} / process_max_memory_bytes{job="altrupets-backend"}) > 0.85
+          for: 5m
+          labels:
+            severity: warning
+            slo: resources
+          annotations:
+            summary: "High memory usage"
+            description: "Backend memory usage is above 85%"
+
+        # SLO: CPU Usage
+        - alert: HighCPUUsage
+          expr: |
+            rate(process_cpu_seconds_total{job="altrupets-backend"}[5m]) > 0.8
+          for: 5m
+          labels:
+            severity: warning
+            slo: resources
+          annotations:
+            summary: "High CPU usage"
+            description: "Backend CPU usage is above 80%"

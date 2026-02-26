@@ -1,0 +1,55 @@
+# Production Environment - Terraform variables
+# ============================================
+# IMPORTANTE: Los valores sensibles deben obtenerse de Infisical
+# NO hardcodear valores en este archivo
+# ============================================
+#
+# Proyecto Infisical: altrupets-prod (crear este proyecto)
+# Entorno: prod (o el que Infisical permita en el plan gratuito)
+#
+# Opción 1: Usar Infisical CLI (recomendado)
+#   infisical run --project=altrupets-prod --env=prod -- terraform apply
+#
+# Opción 2: Exportar variables desde Infisical
+#   export TF_VAR_ovh_service_name=$(infisical get -q --path /ovh/service_name --project=altrupets-prod --env=prod)
+#   export TF_VAR_ovh_application_key=$(infisical get -q --path /ovh/application_key --project=altrupets-prod --env=prod)
+#   export TF_VAR_ovh_application_secret=$(infisical get -q --path /ovh/application_secret --project=altrupets-prod --env=prod)
+#   export TF_VAR_ovh_consumer_key=$(infisical get -q --path /ovh/consumer_key --project=altrupets-prod --env=prod)
+#   export TF_VAR_cloudflare_api_token=$(infisical get -q --path /cloudflare/api_token --project=altrupets-prod --env=prod)
+#   terraform apply
+#
+# Secrets requeridos en Infisical (proyecto: altrupets-prod):
+#   /ovh/service_name
+#   /ovh/application_key
+#   /ovh/application_secret
+#   /ovh/consumer_key
+#   /cloudflare/api_token
+# ============================================
+
+# Cluster configuration (production)
+cluster_name     = "altrupets-prod"
+cluster_region  = "GRA7"
+cluster_version = "1.28"
+
+# Node pool (production - dedicated nodes)
+node_pool_name        = "default-pool"
+node_pool_flavor      = "c2-7"
+node_pool_desired_nodes = 3
+node_pool_min_nodes   = 3
+node_pool_max_nodes   = 10
+node_pool_autoscale   = true
+
+# Database (OVH Managed PostgreSQL for production)
+database_type      = "ovh-managed"
+ovh_db_description = "AltruPets Production Database"
+ovh_db_plan        = "business"
+ovh_db_version     = "15"
+ovh_db_flavor      = "db1-7"
+
+# Domain & TLS
+domain_name           = "altrupets.app"
+acme_email           = "altrupets.workspace@gmail.com"
+
+# Feature flags
+enable_https      = true
+enable_monitoring = true

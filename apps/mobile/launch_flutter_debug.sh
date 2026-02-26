@@ -339,8 +339,17 @@ if [ "$TARGET" = "wifi-connect" ]; then
 	echo "Esperando..."
 
 	WAITED=0
-	while [ $WAITED -lt 15 ]; do
-		WIFI_CHECK=$(adb devices 2>/dev/null | grep -v "List of devices" | grep ":" | head -1)
+	MAX_WAIT=30
+
+	# First, try to connect to known IP if we have it
+	if [ -n "$IP_ADDR" ]; then
+		echo "🔄 Intentando conectar a $IP_ADDR:5555..."
+		adb connect "$IP_ADDR:5555" 2>/dev/null || true
+	fi
+
+	while [ $WAITED -lt $MAX_WAIT ]; do
+		# Check for any device with colon (WiFi connection)
+		WIFI_CHECK=$(adb devices 2>/dev/null | grep -v "List of devices" | grep ":" | grep "device$" | head -1)
 		if [ -n "$WIFI_CHECK" ]; then
 			break
 		fi
@@ -351,10 +360,27 @@ if [ "$TARGET" = "wifi-connect" ]; then
 	echo ""
 
 	if [ -z "$WIFI_CHECK" ]; then
-		echo -e "${ORANGE}⚠️  No se detectó conexión WiFi${NC}"
-		echo "Ejecuta manualmente: adb connect $IP_ADDR:5555"
-		exit 1
+		# Try connecting one more time with the known IP
+		if [ -n "$IP_ADDR" ]; then
+			echo "🔄 Último intento de conexión..."
+			adb connect "$IP_ADDR:5555" 2>/dev/null || true
+
+			sleep 3
+			WIFI_CHECK=$(adb devices 2>/dev/null | grep -v "List of devices" | grep ":" | grep "device$" | head -1)
+		fi
+
+		if [ -z "$WIFI_CHECK" ]; then
+			echo -e "${ORANGE}⚠️  No se detectó conexión WiFi automáticamente${NC}"
+			echo "El dispositivo ya debería estar conectado. Verificando..."
+			adb devices
+			echo ""
+			# Don't exit with error - the connection might already exist
+		fi
 	fi
+
+	# Show final device list
+	echo ""
+	adb devices
 
 	echo -e "${GREEN}✅ Conectado por WiFi: $IP_ADDR:5555${NC}"
 	echo ""
@@ -410,15 +436,27 @@ elif [ "$TARGET" = "android" ]; then
 			echo "   3. Cuando veas 'Túnel configurado', presiona F5 en Cursor -> 'Attach Native (Android)'"
 			echo ""
 			(
-				for i in {1..30}; do
+				for i in {1..60}; do
 					PID=$(adb -s "$DEVICE_ID" shell pidof com.altrupets.altrupets 2>/dev/null | tr -d '\r\n')
 					if [ -n "$PID" ] && [ "$PID" != "0" ]; then
 						adb -s "$DEVICE_ID" forward tcp:8700 jdwp:$PID 2>/dev/null
 						if [ $? -eq 0 ]; then
 							echo ""
 							echo -e "${GREEN}🎉 TÚNEL CONFIGURADO: localhost:8700 -> JDWP:$PID${NC}"
-							echo -e "${GREEN}👉 AHORA: Presiona F5 en Cursor y selecciona 'Attach Native (Android)'${NC}"
 							echo ""
+							echo -e "${BLUE}⏳ Esperando a que conectes el depurador en Cursor (F5)...${NC}"
+
+							for wait in {1..90}; do
+								if nc -z localhost 8700 2>/dev/null; then
+									echo ""
+									echo -e "${GREEN}✅ DEPURADOR CONECTADO! Continuando con Flutter...${NC}"
+									break 3
+								fi
+								sleep 1
+							done
+							echo ""
+							echo -e "${ORANGE}⚠️  Timeout esperando depurador. Continuando sin detección automática.${NC}"
+							break 2
 						fi
 						break
 					fi

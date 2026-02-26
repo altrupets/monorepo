@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:permission_handler/permission_handler.dart';
 
 class LocationPermissionPage extends StatelessWidget {
   const LocationPermissionPage({super.key});
@@ -82,9 +83,11 @@ class LocationPermissionPage extends StatelessWidget {
                     width: double.infinity,
                     height: 56,
                     child: ElevatedButton.icon(
-                      onPressed: () {
-                        // TODO: Implement permission request logic
-                        Navigator.of(context).pop(true);
+                      onPressed: () async {
+                        final status = await Permission.location.request();
+                        if (context.mounted) {
+                          Navigator.of(context).pop(status.isGranted);
+                        }
                       },
                       icon: const Icon(Icons.near_me),
                       label: const Text('Permitir acceso a ubicación'),

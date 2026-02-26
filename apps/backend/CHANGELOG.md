@@ -5,6 +5,53 @@ All notable changes to the AltruPets Backend will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Added
+- **Unit Tests** - 32 tests covering AuthService, UserRepository, and User entity
+- **GraphQL Pagination** - Paginated users query with `page`, `limit`, `sortBy`, `order`
+- **Rate Limiting** - `@nestjs/throttler` with configurable limits (default: 100 req/min)
+- **Security Headers** - Helmet.js middleware with CSP configuration
+- **Pre-commit Hooks** - Husky + lint-staged configuration (see `scripts/setup-husky.sh`)
+
+### Security
+- **Security CI Workflow** - `.github/workflows/security.yml` with:
+  - CodeQL for static analysis
+  - Trivy for container and IaC scanning
+  - Dependency vulnerability scanning
+  - Secrets detection with TruffleHog
+  - OWASP ZAP for DAST (requires public URL)
+- **Matrix Builds** - Test on Node.js 18.x, 20.x, 22.x
+
+### Dependencies Added
+- `helmet` ^7.1.0
+- `@nestjs/throttler` ^6.4.0
+- `husky` ^9.1.0
+- `lint-staged` ^15.3.0
+
+### Documentation Added
+- `.github/workflows/security.yml`
+- `.github/workflows/uptime.yml` - UptimeRobot integration via Infisical
+- `k8s/overlays/dev/monitoring/` - Prometheus ServiceMonitor and Grafana dashboard
+
+### GitHub Actions Added
+- `.github/workflows/security.yml` - Comprehensive security scanning
+- `.github/workflows/uptime.yml` - UptimeRobot monitoring
+
+### Infrastructure
+- **Prometheus + Grafana** - Deployed via kube-prometheus-stack in Minikube
+- **Grafana Dashboard** - ConfigMap with backend metrics
+- **ServiceMonitor** - For scraping backend `/metrics` endpoint
+- **UptimeRobot** - API key stored in Infisical, workflow retrieves via Infisical CLI
+
+### Pending Tasks
+- [ ] Configure `INFISICAL_MACHINE_IDENTITY` in GitHub Secrets (for uptime.yml workflow)
+- [x] SLO tracking with Prometheus/Grafana alerts
+- [x] Performance benchmarks in pipeline
+- [ ] Audit logging and PII detection
+- [ ] Terraform environments (qa/, staging/, prod/)
+- [x] TLS with cert-manager (Let's Encrypt + Cloudflare DNS-01)
+
 ## [1.0.0] - 2025-02-19
 
 ### Added

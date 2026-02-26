@@ -2310,7 +2310,7 @@ El sistema AltruPets está diseñado como una **arquitectura de microservicios c
 
 **CI/CD y GitOps:**
 
-- **CI/CD:** GitLab CI/Jenkins con pipelines automatizados
+- **CI/CD:** GitHub Actions con pipelines automatizados
 - **GitOps:** ArgoCD para despliegue continuo
 - **IaC:** Terraform/OpenTofu para infraestructura
 - **Configuración:** Ansible para automatización

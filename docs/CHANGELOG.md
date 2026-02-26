@@ -9,6 +9,38 @@ y este proyecto adhiere a [Semantic Versioning](https://semver.org/lang/es/).
 
 ### Added - 2026-02-25
 
+#### Terraform Environments para OVHCloud
+
+- Creados environments Terraform para QA, Staging y Prod
+- QA y Staging: OVHCloud Kubernetes + self-managed PostgreSQL
+- Prod: OVHCloud Kubernetes + OVH Managed PostgreSQL
+- Integracion con Infisical para secrets (proyecto: altrupets para dev/qa/stage, altrupets-prod para prod)
+- Script `infrastructure/scripts/deploy-terraform.sh` para despliegue automatizado
+- Comandos Makefile: `qa-terraform-deploy`, `stage-terraform-deploy`, `prod-terraform-deploy`
+- Production siempre requiere aprobacion manual
+
+**Archivos agregados:**
+- `infrastructure/terraform/environments/qa/` - Configuracion QA
+- `infrastructure/terraform/environments/staging/` - Configuracion Staging
+- `infrastructure/terraform/environments/prod/` - Configuracion Production
+- `infrastructure/scripts/deploy-terraform.sh` - Script de despliegue
+
+**Archivos modificados:**
+- `Makefile` - Agregados targets qa-terraform-*, stage-terraform-*, prod-terraform-*
+- `infrastructure/terraform/README.md` - Documentacion actualizada
+
+#### Documentacion OVHCloud CLI y Terraform
+
+- Actualizado `skills/cicd/ovhcloud/SKILL.md` con:
+  - Instalacion de OVHCloud CLI (ovhcloud-cli)
+  - Comandos para crear clusters Kubernetes
+  - Configuracion de Terraform provider
+  - Recursos: ovh_cloud_project_kube, nodepool, PostgreSQL
+  - Regiones y flavors disponibles
+
+**Archivos modificados:**
+- `skills/cicd/ovhcloud/SKILL.md` - Agregado CLI y Terraform completo
+
 #### ✨ Configuración de direnv para el proyecto
 
 - Agregado `.envrc` para activar automáticamente el venv con pre-commit

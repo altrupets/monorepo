@@ -5,17 +5,26 @@
 # ==============================================================================
 # Synchronizes secrets from Infisical to Kubernetes
 # Installs Infisical operator if not present, or uses CLI as fallback
+# Also configures OVHCloud CLI credentials from Infisical
 #
 # Usage:
-#   ./infisical-sync.sh [--cli]
+#   ./infisical-sync.sh [--cli] [--ovh]
 #
 # Options:
 #   --cli    Use Infisical CLI instead of operator (useful for CI/CD)
+#   --ovh    Configure OVHCloud CLI credentials from Infisical
 #
 # Prerequisites:
 #   - kubectl configured with cluster access
 #   - infisical CLI installed (if using --cli)
 #   - Helm installed (if installing operator)
+#
+# OVHCloud CLI configuration:
+#   Secrets required in Infisical (project: altrupets, env: dev):
+#   - /ovh/application_key
+#   - /ovh/application_secret
+#   - /ovh/consumer_key
+#   - /ovh/endpoint (optional, default: ovh-eu)
 # ==============================================================================
 
 set -euo pipefail
@@ -33,12 +42,17 @@ RED='\033[0;31m'
 NC='\033[0m'
 
 USE_CLI=false
+CONFIGURE_OVH=false
 
 # Parse arguments
 for arg in "$@"; do
 	case $arg in
 	--cli)
 		USE_CLI=true
+		shift
+		;;
+	--ovh)
+		CONFIGURE_OVH=true
 		shift
 		;;
 	esac
@@ -57,6 +71,12 @@ fi
 if ! kubectl get ns "$NAMESPACE" >/dev/null 2>&1; then
 	echo -e "${BLUE}📦 Creating namespace $NAMESPACE...${NC}"
 	kubectl create ns "$NAMESPACE"
+fi
+
+# Configure OVHCloud CLI if requested
+if [ "$CONFIGURE_OVH" = true ]; then
+	configure_ovhcloud_cli
+	echo ""
 fi
 
 sync_via_cli() {
@@ -180,6 +200,58 @@ restart_backend() {
 	echo -e "${GREEN}✅ Backend restarted${NC}"
 }
 
+configure_ovhcloud_cli() {
+	echo -e "${BLUE}Configuring OVHCloud CLI from Infisical...${NC}"
+
+	if ! command -v infisical >/dev/null 2>&1; then
+		echo -e "${RED}Infisical CLI is not installed${NC}"
+		exit 1
+	fi
+
+	# Get OVH credentials from Infisical
+	local ovh_app_key=$(infisical get -q --path /ovh/application_key --project=altrupets --env=dev 2>/dev/null || echo "")
+	local ovh_app_secret=$(infisical get -q --path /ovh/application_secret --project=altrupets --env=dev 2>/dev/null || echo "")
+	local ovh_consumer_key=$(infisical get -q --path /ovh/consumer_key --project=altrupets --env=dev 2>/dev/null || echo "")
+	local ovh_endpoint=$(infisical get -q --path /ovh/endpoint --project=altrupets --env=dev 2>/dev/null || echo "ovh-eu")
+
+	if [ -z "$ovh_app_key" ] || [ -z "$ovh_app_secret" ] || [ -z "$ovh_consumer_key" ]; then
+		echo -e "${ORANGE}OVH credentials not found in Infisical (dev environment)${NC}"
+		echo "Required secrets:"
+		echo "  - /ovh/application_key"
+		echo "  - /ovh/application_secret"
+		echo "  - /ovh/consumer_key"
+		return 1
+	fi
+
+	# Create OVH config directory
+	local ovh_config_dir="$HOME/.config/ovhcloud"
+	mkdir -p "$ovh_config_dir"
+
+	# Create .ovh.conf file
+	local ovh_conf_file="$ovh_config_dir/ovh.conf"
+	cat >"$ovh_conf_file" <<EOF
+[default]
+endpoint = $ovh_endpoint
+application_key = $ovh_app_key
+application_secret = $ovh_app_secret
+consumer_key = $ovh_consumer_key
+
+EOF
+
+	chmod 600 "$ovh_conf_file"
+	echo -e "${GREEN}OVHCloud CLI configured successfully${NC}"
+	echo "Config file: $ovh_conf_file"
+
+	# Verify it works
+	if command -v ovhcloud >/dev/null 2>&1; then
+		if ovhcloud cloud project list >/dev/null 2>&1; then
+			echo -e "${GREEN}OVHCloud CLI authentication verified${NC}"
+		else
+			echo -e "${ORANGE}OVHCloud CLI configured but authentication failed${NC}"
+		fi
+	fi
+}
+
 create_harbor_registry_secret() {
 	local harbor_user="${1:-}"
 	local harbor_pass="${2:-}"
@@ -196,7 +268,8 @@ create_harbor_registry_secret() {
 	local auth=$(echo -n "$harbor_user:$harbor_pass" | base64 | tr -d '\n')
 
 	# Create the .dockerconfigjson structure
-	local docker_config_json=$(cat <<EOF
+	local docker_config_json=$(
+		cat <<EOF
 {
   "auths": {
     "$harbor_host": {
@@ -205,7 +278,7 @@ create_harbor_registry_secret() {
   }
 }
 EOF
-)
+	)
 
 	echo "$docker_config_json" | kubectl create secret generic "$HARBOR_SECRET_NAME" \
 		--from-literal=.dockerconfigjson=/dev/stdin \

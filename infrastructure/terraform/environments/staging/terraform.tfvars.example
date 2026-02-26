@@ -1,0 +1,51 @@
+# Staging Environment - Terraform variables
+# ============================================
+# IMPORTANTE: Los valores sensibles deben obtenerse de Infisical
+# NO hardcodear valores en este archivo
+# ============================================
+#
+# Proyecto Infisical: altrupets (entorno: stage)
+#
+# Opción 1: Usar Infisical CLI (recomendado)
+#   infisical run --project=altrupets --env=stage -- terraform apply
+#
+# Opción 2: Exportar variables desde Infisical
+#   export TF_VAR_ovh_service_name=$(infisical get -q --path /ovh/service_name --project=altrupets --env=stage)
+#   export TF_VAR_ovh_application_key=$(infisical get -q --path /ovh/application_key --project=altrupets --env=stage)
+#   export TF_VAR_ovh_application_secret=$(infisical get -q --path /ovh/application_secret --project=altrupets --env=stage)
+#   export TF_VAR_ovh_consumer_key=$(infisical get -q --path /ovh/consumer_key --project=altrupets --env=stage)
+#   export TF_VAR_cloudflare_api_token=$(infisical get -q --path /cloudflare/api_token --project=altrupets --env=stage)
+#   terraform apply
+#
+# Secrets requeridos en Infisical (proyecto: altrupets, entorno: stage):
+#   /ovh/service_name
+#   /ovh/application_key
+#   /ovh/application_secret
+#   /ovh/consumer_key
+#   /cloudflare/api_token
+# ============================================
+
+# Cluster configuration
+cluster_name     = "altrupets-staging"
+cluster_region  = "GRA7"
+cluster_version = "1.28"
+
+# Node pool (larger for staging)
+node_pool_name        = "default-pool"
+node_pool_flavor      = "b2-7"
+node_pool_desired_nodes = 3
+node_pool_min_nodes   = 2
+node_pool_max_nodes   = 8
+node_pool_autoscale   = true
+
+# Database
+database_type      = "self-managed"
+postgres_version   = "15-alpine"
+postgres_storage_size = "50Gi"
+
+# Domain & TLS
+domain_name           = "staging.altrupets.app"
+acme_email           = "altrupets.workspace@gmail.com"
+
+# Feature flags
+enable_https = true

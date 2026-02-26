@@ -8,12 +8,11 @@
             "cwd": "apps/mobile"
         },
         {
-            "type": "node",
+            "type": "java",
             "name": "Attach Native (Android)",
             "request": "attach",
-            "host": "localhost",
-            "port": 8700,
-            "skipFiles": ["<node_internals>/**"]
+            "hostName": "localhost",
+            "port": 8700
         }
     ]
 }

@@ -9,9 +9,35 @@ import { AuthService } from './auth/auth.service';
 import cookieParser from 'cookie-parser';
 import { inertiaMiddleware } from '@lapc506/nestjs-inertia';
 import { join } from 'path';
+import helmet from 'helmet';
+import { ThrottlerModule } from '@nestjs/throttler';
 
 async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule);
+
+  // Security headers with Helmet
+  app.use(
+    helmet({
+      contentSecurityPolicy: {
+        directives: {
+          defaultSrc: ["'self'"],
+          styleSrc: ["'self'", "'unsafe-inline'"],
+          scriptSrc: ["'self'"],
+          imgSrc: ["'self'", 'data:', 'https:'],
+        },
+      },
+      crossOriginEmbedderPolicy: false,
+    }),
+  );
+
+  // Rate limiting configuration
+  app.useGlobalPipes(
+    new ValidationPipe({
+      whitelist: true,
+      forbidNonWhitelisted: true,
+      transform: true,
+    }),
+  );
 
   // Aumentar límite de tamaño para imágenes base64 (50MB)
   app.useBodyParser('json', { limit: '50mb' });

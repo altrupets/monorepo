@@ -7,12 +7,16 @@ class Environment {
     required this.apiBaseUrl,
     this.requestTimeoutSeconds = 30,
     this.enableLogging = true,
+    this.onvoApiKey = 'YOUR_ONVO_API_KEY',
+    this.onvoSandbox = true,
     this.logsPath,
   });
   final String name;
   final String apiBaseUrl;
   final int requestTimeoutSeconds;
   final bool enableLogging;
+  final String onvoApiKey;
+  final bool onvoSandbox;
 
   /// Custom logs directory path (optional - uses default if null)
   final String? logsPath;
@@ -29,6 +33,8 @@ class EnvironmentManager {
     apiBaseUrl: 'http://localhost:3000',
     requestTimeoutSeconds: 30,
     enableLogging: true,
+    onvoApiKey: 'YOUR_ONVO_API_KEY',
+    onvoSandbox: true,
   );
 
   /// Staging environment
@@ -37,6 +43,8 @@ class EnvironmentManager {
     apiBaseUrl: 'https://staging-api.altrupets.com',
     requestTimeoutSeconds: 30,
     enableLogging: true,
+    onvoApiKey: 'YOUR_ONVO_API_KEY',
+    onvoSandbox: true,
   );
 
   /// Production environment
@@ -45,6 +53,8 @@ class EnvironmentManager {
     apiBaseUrl: 'https://api.altrupets.com',
     requestTimeoutSeconds: 30,
     enableLogging: false,
+    onvoApiKey: 'YOUR_ONVO_API_KEY',
+    onvoSandbox: false,
   );
 }
 

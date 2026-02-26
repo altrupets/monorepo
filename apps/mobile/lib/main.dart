@@ -16,15 +16,27 @@ import 'package:window_manager/window_manager.dart';
 
 import 'package:altrupets/core/theme/token_service.dart';
 import 'package:sentry_flutter/sentry_flutter.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'package:altrupets/firebase_options.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
+  // Initialize Firebase
+  try {
+    await Firebase.initializeApp(
+      options: DefaultFirebaseOptions.currentPlatform,
+    );
+    debugPrint('[Firebase] ✅ Initialized successfully');
+  } catch (e) {
+    debugPrint('[Firebase] ⚠️ Error initializing: $e');
+  }
 
   // Configurar icono de ventana para desktop
   if (Platform.isLinux || Platform.isWindows || Platform.isMacOS) {
     await windowManager.ensureInitialized();
 
-    final WindowOptions windowOptions = const WindowOptions(
+    const WindowOptions windowOptions = WindowOptions(
       title: 'AltruPets',
       center: true,
       backgroundColor: Colors.transparent,
@@ -84,6 +96,7 @@ void main() async {
       options.tracesSampleRate = 1.0;
       // The sampling rate for profiling is relative to tracesSampleRate
       // Setting to 1.0 will profile 100% of sampled transactions:
+      // ignore: experimental_member_use
       options.profilesSampleRate = 1.0;
     },
     appRunner: () => runApp(

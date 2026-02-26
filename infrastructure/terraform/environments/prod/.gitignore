@@ -1,0 +1,13 @@
+# Local kubeconfig (generated from OVH API)
+kubeconfig
+
+# Terraform state files
+*.tfstate
+*.tfstate.*
+
+# Terraform variable files (contain secrets)
+terraform.tfvars
+*.auto.tfvars
+
+# Backup files
+*.backup

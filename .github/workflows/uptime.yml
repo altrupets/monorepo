@@ -1,0 +1,75 @@
+name: Uptime Monitoring
+
+on:
+  workflow_dispatch:
+    inputs:
+      action:
+        description: 'Action to perform'
+        required: true
+        default: 'status'
+        type: choice
+        options:
+          - status
+          - create-monitors
+          - delete-monitors
+
+jobs:
+  uptime-monitor:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Infisical CLI
+        run: |
+          # Download and install Infisical CLI
+          curl -Ls https://github.com/Infisical/infisical/releases/download/$(curl -s https://api.github.com/repos/Infisical/infisical/releases/latest | jq -r '.tag_name')/infisical-linux-amd64.tar.gz | tar xz
+          sudo mv infisical /usr/local/bin/
+
+      - name: Export secrets from Infisical
+        run: |
+          # Export secrets as JSON and extract needed values
+          secrets=$(infisical export --env=dev --projectId 71bc533b-cabf-4793-9bf0-03dba6caf417 --format=json --silent)
+
+          echo "UPTIMEROBOT_API_KEY=$(echo $secrets | jq -r '.[] | select(.key=="UPTIMEROBOT_API_KEY") | .value')" >> $GITHUB_ENV
+          echo "BACKEND_DOMAIN=$(echo $secrets | jq -r '.[] | select(.key=="BACKEND_DOMAIN") | .value')" >> $GITHUB_ENV
+
+      - name: Get Uptime Status
+        if: github.event.inputs.action == 'status'
+        run: |
+          curl -s -X POST "https://api.uptimerobot.com/v2/getMonitors" \
+            -d "api_key=${{ env.UPTIMEROBOT_API_KEY }}" \
+            -d "format=json" | jq '.'
+
+      - name: Create Monitors
+        if: github.event.inputs.action == 'create-monitors'
+        run: |
+          # Backend Health Monitor
+          curl -s -X POST "https://api.uptimerobot.com/v2/newMonitor" \
+            -d "api_key=${{ env.UPTIMEROBOT_API_KEY }}" \
+            -d "url=https://${{ env.BACKEND_DOMAIN }}/health" \
+            -d "type=1" \
+            -d "friendly_name=AltruPets-Backend-Health" \
+            -d "interval=300" | jq '.'
+
+          # Backend GraphQL Monitor
+          curl -s -X POST "https://api.uptimerobot.com/v2/newMonitor" \
+            -d "api_key=${{ env.UPTIMEROBOT_API_KEY }}" \
+            -d "url=https://${{ env.BACKEND_DOMAIN }}/graphql" \
+            -d "type=1" \
+            -d "friendly_name=AltruPets-Backend-GraphQL" \
+            -d "interval=300" | jq '.'
+
+      - name: Delete All Monitors
+        if: github.event.inputs.action == 'delete-monitors'
+        run: |
+          MONITORS=$(curl -s -X POST "https://api.uptimerobot.com/v2/getMonitors" \
+            -d "api_key=${{ env.UPTIMEROBOT_API_KEY }}" \
+            -d "format=json" | jq -r '.monitors[].id')
+
+          for id in $MONITORS; do
+            echo "Deleting monitor $id"
+            curl -s -X POST "https://api.uptimerobot.com/v2/deleteMonitor" \
+              -d "api_key=${{ env.UPTIMEROBOT_API_KEY }}" \
+              -d "id=$id"
+          done

@@ -3,7 +3,7 @@ import 'package:altrupets/features/auth/presentation/pages/login_page.dart';
 import 'package:altrupets/features/auth/presentation/providers/auth_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:sentry/sentry.dart';
+import 'package:sentry_flutter/sentry_flutter.dart';
 
 class SettingsPage extends ConsumerWidget {
   const SettingsPage({super.key});
@@ -46,10 +46,10 @@ class SettingsPage extends ConsumerWidget {
             Card(
               child: Column(
                 children: [
-                  ListTile(
-                    leading: const Icon(Icons.bug_report_rounded),
-                    title: const Text('Debug'),
-                    subtitle: const Text('Herramientas de desarrollo'),
+                  const ListTile(
+                    leading: Icon(Icons.bug_report_rounded),
+                    title: Text('Debug'),
+                    subtitle: Text('Herramientas de desarrollo'),
                   ),
                   const Divider(height: 1),
                   ListTile(

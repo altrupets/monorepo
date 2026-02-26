@@ -1,0 +1,189 @@
+name: Security Scanning
+
+on:
+  push:
+    branches:
+      - main
+      - develop
+  pull_request:
+    branches:
+      - main
+      - develop
+  workflow_dispatch:
+
+jobs:
+  # ==========================================
+  # CodeQL - Static Application Security Testing
+  # ==========================================
+  codeql:
+    name: CodeQL Security Analysis
+    runs-on: ubuntu-latest
+    permissions:
+      actions: read
+      contents: read
+      security-events: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Initialize CodeQL
+        uses: github/codeql-action/init@v3
+        with:
+          languages: |
+            typescript
+            javascript
+          queries: security-extended
+
+      - name: Autobuild
+        uses: github/codeql-action/autobuild@v3
+
+      - name: Perform CodeQL Analysis
+        uses: github/codeql-action/analyze@v3
+        with:
+          category: "/language:typescript"
+
+      - name: Upload results to security tab
+        uses: github/codeql-action/upload-results@v3
+        if: always()
+
+  # ==========================================
+  # Trivy - Container Vulnerability Scanning
+  # ==========================================
+  trivy-scan:
+    name: Trivy Container Scan
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Run Trivy vulnerability scanner
+        uses: aquasecurity/trivy-action@master
+        with:
+          scan-type: 'config'
+          scan-ref: '.'
+          format: 'table'
+          exit-code: '1'
+          ignore-unfixed: true
+          severity: 'CRITICAL,HIGH'
+
+      - name: Scan Dockerfiles
+        uses: aquasecurity/trivy-action@master
+        with:
+          scan-type: 'config'
+          scan-ref: 'apps/backend/Dockerfile'
+          format: 'table'
+          exit-code: '1'
+          severity: 'CRITICAL,HIGH'
+
+      - name: Scan Infrastructure as Code
+        uses: aquasecurity/trivy-action@master
+        with:
+          scan-type: 'fs'
+          scan-ref: 'infrastructure/terraform'
+          scanners: 'misconfig,secret'
+          format: 'table'
+          exit-code: '1'
+          severity: 'CRITICAL,HIGH'
+
+  # ==========================================
+  # Dependency Scanning
+  # ==========================================
+  dependency-scan:
+    name: Dependency Vulnerability Scan
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install dependencies
+        working-directory: ./apps/backend
+        run: npm ci
+
+      - name: Audit npm dependencies
+        working-directory: ./apps/backend
+        run: npm audit --audit-level=high
+        continue-on-error: true
+
+      - name: Check for known vulnerabilities
+        working-directory: ./apps/backend
+        run: |
+          npm install -g npm-audit-ci || true
+          npx npm-audit-ci --level=high || true
+
+  # ==========================================
+  # Secrets Scanning
+  # ==========================================
+  secrets-scan:
+    name: Secrets Detection
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Run TruffleHog
+        uses: trufflesecurity/trufflehog@main
+        with:
+          path: ./
+          base: ${{ github.event.repository.default_branch }}
+          head: HEAD
+          extra_args: --regex --entropy
+
+  # ==========================================
+  # OWASP ZAP - Dynamic Application Security Testing
+  # ==========================================
+  zap-scan:
+    name: OWASP ZAP DAST
+    runs-on: ubuntu-latest
+    if: github.event_name == 'workflow_dispatch' || (github.event_name == 'push' && github.ref == 'refs/heads/main')
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: OWASP ZAP Full Scan
+        uses: zaproxy/action-full-scan@v0.3.0
+        with:
+          target: ${{ vars.ZAP_TARGET_URL || 'https://your-backend-url.com' }}
+          rule_configs: 'Main,Informed'
+
+      - name: OWASP ZAP API Scan
+        uses: zaproxy/action-api-scan@v0.3.0
+        with:
+          target: ${{ vars.ZAP_API_SPEC || 'https://your-backend-url.com/openapi.json' }}
+
+      - name: OWASP ZAP Baseline Scan
+        uses: zaproxy/action-baseline@v0.3.0
+        with:
+          target: ${{ vars.ZAP_TARGET_URL || 'https://your-backend-url.com' }}
+
+  # ==========================================
+  # Summary
+  # ==========================================
+  summary:
+    name: Security Scan Summary
+    runs-on: ubuntu-latest
+    needs: [codeql, trivy-scan, dependency-scan, secrets-scan, zap-scan]
+    if: always()
+    steps:
+      - name: Summary
+        run: |
+          echo "## 🔒 Security Scan Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "| Scan | Status |" >> $GITHUB_STEP_SUMMARY
+          echo "|-------|--------|" >> $GITHUB_STEP_SUMMARY
+          echo "| CodeQL (SAST) | ${{ needs.codeql.result }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Trivy (Container/IaC) | ${{ needs.trivy-scan.result }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Dependency Scan | ${{ needs.dependency-scan.result }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Secrets Detection | ${{ needs.secrets-scan.result }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| OWASP ZAP (DAST) | ${{ needs.zap-scan.result }} |" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Nota:** OWASP ZAP requiere configurar la variable `ZAP_TARGET_URL` para ejecutar automáticamente." >> $GITHUB_STEP_SUMMARY

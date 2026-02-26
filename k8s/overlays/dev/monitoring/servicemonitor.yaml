@@ -1,0 +1,19 @@
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: altrupets-backend
+  namespace: monitoring
+  labels:
+    release: prometheus
+spec:
+  selector:
+    matchLabels:
+      app: backend
+  namespaceSelector:
+    matchNames:
+      - altrupets-dev
+  endpoints:
+    - port: backend-service
+      path: /metrics
+      interval: 15s
+      scheme: http

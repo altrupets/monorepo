@@ -156,6 +156,7 @@ help: ## Show this help message
 	@echo "$(GREEN)DEV - Utilities:$(NC)"
 	@echo "  $(YELLOW)dev-infisical-sync$(NC)         Sync secrets from Infisical"
 	@echo "  $(YELLOW)dev-infisical-sync-cli$(NC)     Sync secrets via CLI (no operator)"
+	@echo "  $(YELLOW)dev-ovh-configure$(NC)          Configure OVHCloud CLI from Infisical"
 	@echo ""
 	@echo "$(GREEN)DEV - MCP Servers:$(NC)"
 	@echo "  $(YELLOW)dev-mcp-start$(NC)              Start all MCP servers (context7, dart, graphql, etc.)"
@@ -470,6 +471,9 @@ dev-infisical-sync: ## Sync secrets from Infisical to Kubernetes
 dev-infisical-sync-cli: ## Sync secrets using Infisical CLI (no operator needed)
 	@$(SCRIPTS_DIR)/infisical-sync.sh --cli
 
+dev-ovh-configure: ## Configure OVHCloud CLI credentials from Infisical
+	@$(SCRIPTS_DIR)/infisical-sync.sh --ovh
+
 # ==========================================
 # DEV - MCP Servers
 # ==========================================
@@ -567,18 +571,14 @@ dev-security-fix: dev-security-build ## Auto-fix vulnerabilities where possible
 # QA Environment (OVHCloud)
 # ==========================================
 
-qa-terraform-deploy: qa-gateway-deploy qa-postgres-deploy ## Deploy complete QA environment
-	@echo "$(GREEN)✓ QA deployed$(NC)"
+qa-terraform-deploy: ## Deploy complete QA environment via Terraform + Infisical
+	@$(SCRIPTS_DIR)/deploy-terraform.sh qa $(if $(AUTO_APPROVE),--auto-approve,)
 
-qa-gateway-deploy: ## Deploy Gateway API to QA
-	@$(SCRIPTS_DIR)/deploy-gateway-api.sh qa $(if $(AUTO_APPROVE),--auto-approve,)
-
-qa-postgres-deploy: ## Deploy PostgreSQL to QA
-	@$(SCRIPTS_DIR)/deploy-postgres.sh qa $(if $(AUTO_APPROVE),--auto-approve,) --storage 10Gi
+qa-terraform-plan: ## Show QA Terraform plan
+	@$(SCRIPTS_DIR)/deploy-terraform.sh qa --plan
 
 qa-terraform-destroy: ## Destroy QA environment
-	@echo "$(RED)Destroying QA...$(NC)"
-	@cd $(TF_DIR) && tofu destroy -auto-approve 2>/dev/null || true
+	@$(SCRIPTS_DIR)/deploy-terraform.sh qa --destroy
 
 qa-verify: ## Verify QA deployment
 	@$(SCRIPTS_DIR)/verify-deployment.sh qa
@@ -593,19 +593,14 @@ lint-report: ## Open MegaLinter report
 # STAGE Environment (OVHCloud)
 # ==========================================
 
-stage-terraform-deploy: stage-gateway-deploy stage-postgres-deploy ## Deploy complete STAGING environment
-	@echo "$(GREEN)✓ STAGING deployed$(NC)"
+stage-terraform-deploy: ## Deploy complete STAGING environment via Terraform + Infisical
+	@$(SCRIPTS_DIR)/deploy-terraform.sh staging $(if $(AUTO_APPROVE),--auto-approve,)
 
-stage-gateway-deploy: ## Deploy Gateway API to STAGING
-	@$(SCRIPTS_DIR)/deploy-gateway-api.sh staging $(if $(AUTO_APPROVE),--auto-approve,)
-
-stage-postgres-deploy: ## Deploy PostgreSQL to STAGING
-	@$(SCRIPTS_DIR)/deploy-postgres.sh staging $(if $(AUTO_APPROVE),--auto-approve,) --storage 20Gi
+stage-terraform-plan: ## Show STAGING Terraform plan
+	@$(SCRIPTS_DIR)/deploy-terraform.sh staging --plan
 
 stage-terraform-destroy: ## Destroy STAGING environment
-	@echo "$(RED)⚠️ WARNING: Destroying STAGING$(NC)"
-	@read -p "Type 'staging' to confirm: " confirm && [ "$$confirm" = "staging" ] || exit 1
-	@cd $(TF_DIR) && tofu destroy
+	@$(SCRIPTS_DIR)/deploy-terraform.sh staging --destroy
 
 stage-verify: ## Verify STAGING deployment
 	@$(SCRIPTS_DIR)/verify-deployment.sh staging
@@ -613,6 +608,15 @@ stage-verify: ## Verify STAGING deployment
 # ==========================================
 # PROD Environment (OVHCloud)
 # ==========================================
+
+prod-terraform-deploy: ## Deploy complete PROD environment via Terraform + Infisical (requires manual approval)
+	@$(SCRIPTS_DIR)/deploy-terraform.sh prod
+
+prod-terraform-plan: ## Show PROD Terraform plan
+	@$(SCRIPTS_DIR)/deploy-terraform.sh prod --plan
+
+prod-terraform-destroy: ## Destroy PROD environment (requires manual confirmation)
+	@$(SCRIPTS_DIR)/deploy-terraform.sh prod --destroy
 
 prod-deploy: ## Deploy to PRODUCTION (via GitHub Actions)
 	@echo "$(RED)Production deployments must be done via GitHub Actions:$(NC)"
@@ -662,8 +666,8 @@ dev-mobile-launch-emulator: ## Launch Flutter on Android emulator
 dev-mobile-launch-device: ## Launch Flutter on Android device
 	@cd apps/mobile && ./launch_flutter_debug.sh -d --native-debug
 
-dev-mobile-connect-wifi: ## Connect Android device via WiFi ADB
-	@cd apps/mobile && ./launch_flutter_debug.sh --connect-wifi --native-debug
+dev-mobile-connect-wifi: ## Connect Android device via WiFi ADB (sin native debug)
+	@cd apps/mobile && ./launch_flutter_debug.sh --connect-wifi
 
 dev-mobile-widgetbook: ## Launch Widgetbook (UI catalog)
 	@cd apps/mobile && ./launch_flutter_debug.sh -w

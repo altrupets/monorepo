@@ -78,16 +78,92 @@ tofu apply
 ```
 infrastructure/terraform/
 ├── modules/
-│   └── database/
-│       └── postgres-minikube/
-│           ├── main.tf          # Recursos Kubernetes
-│           ├── variables.tf     # Variables del módulo
-│           └── outputs.tf       # Outputs (endpoints, etc.)
+│   ├── database/
+│   │   └── postgres-minikube/    # Self-managed PostgreSQL (dev, qa, staging)
+│   └── kubernetes/
+│       ├── cert-manager/         # TLS certificates
+│       └── gateway-api/          # Gateway API + NGINX
 └── environments/
-    └── dev/
-        ├── main.tf              # Invocación del módulo
-        ├── variables.tf          # Variables de entorno
-        └── terraform.tfvars      # Valores específicos (no commitear)
+    ├── dev/                      # Minikube (desarrollo local)
+                          # OVH ├── qa/Cloud Kubernetes + self-managed PostgreSQL
+    ├── staging/                  # OVHCloud Kubernetes + self-managed PostgreSQL
+    └── prod/                     # OVHCloud Kubernetes + OVH Managed PostgreSQL
+        ├── main.tf
+        ├── variables.tf
+        ├── versions.tf
+        ├── terraform.tfvars.example
+        └── .gitignore
+```
+
+## Ambientes
+
+| Ambiente | K8s | PostgreSQL | Propósito |
+|----------|-----|------------|-----------|
+| **dev** | Minikube (local) | Self-managed | Desarrollo local |
+| **qa** | OVHCloud | Self-managed | Testing efímero |
+| **staging** | OVHCloud | Self-managed | Pre-producción |
+| **prod** | OVHCloud | OVH Managed | Producción |
+
+## Despliegue a OVHCloud (QA/Staging/Prod)
+
+### Estructura de Infisical
+
+| Proyecto Infisical | Ambientes | Uso |
+|-------------------|-----------|-----|
+| **altrupets** | dev, qa, stage | Desarrollo, QA, Staging |
+| **altrupets-prod** | prod | Producción |
+
+**Nota:** El plan gratuito de Infisical solo permite 3 ambientes por proyecto.
+
+### Secrets requeridos en Infisical
+
+Para cada proyecto, crear los siguientes secrets:
+
+```
+/ovh/service_name
+/ovh/application_key
+/ovh/application_secret
+/ovh/consumer_key
+/cloudflare/api_token
+```
+
+### Despliegue (usando script automatizado)
+
+El script `deploy-terraform.sh` maneja automáticamente:
+- Carga de secrets desde Infisical
+- Inicializacion de Terraform
+- Plan/Apply/Destroy
+
+#### QA
+
+```bash
+./infrastructure/scripts/deploy-terraform.sh qa
+# Mostrar plan sin aplicar
+./infrastructure/scripts/deploy-terraform.sh qa --plan
+```
+
+#### Staging
+
+```bash
+./infrastructure/scripts/deploy-terraform.sh staging
+./infrastructure/scripts/deploy-terraform.sh staging --plan
+```
+
+#### Prod
+
+```bash
+./infrastructure/scripts/deploy-terraform.sh prod --plan  # Siempre revisar plan primero
+./infrastructure/scripts/deploy-terraform.sh prod          # Requiere aprobacion manual
+```
+
+### Guardar kubeconfig
+
+```bash
+# El kubeconfig se genera automáticamente en kubeconfig
+export KUBECONFIG=$(pwd)/kubeconfig
+
+# Verificar conexión
+kubectl get nodes
 ```
 
 ## Variables Requeridas

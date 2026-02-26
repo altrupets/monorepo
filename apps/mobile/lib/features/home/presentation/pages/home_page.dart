@@ -8,6 +8,7 @@ import 'package:altrupets/features/profile/presentation/pages/profile_page.dart'
 import 'package:altrupets/features/rescues/presentation/pages/rescues_page.dart';
 import 'package:altrupets/features/settings/presentation/pages/settings_page.dart';
 import 'package:altrupets/features/profile/presentation/providers/profile_provider.dart';
+import 'package:altrupets/features/messages/presentation/pages/messages_page.dart';
 
 class HomePage extends ConsumerStatefulWidget {
   const HomePage({super.key});
@@ -37,10 +38,7 @@ class _HomePageState extends ConsumerState<HomePage> {
         key: ValueKey(0),
         child: Text('Comunidad', style: TextStyle(color: Colors.white)),
       ),
-      const Center(
-        key: ValueKey(1),
-        child: Text('Mensajes', style: TextStyle(color: Colors.white)),
-      ),
+      const MessagesPage(key: ValueKey(1)),
       _HomeContent(
         key: const ValueKey(2),
         onRescuesTap: () => _onPageChanged(5),
