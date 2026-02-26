@@ -471,6 +471,15 @@ dev-infisical-sync: ## Sync secrets from Infisical to Kubernetes
 dev-infisical-sync-cli: ## Sync secrets using Infisical CLI (no operator needed)
 	@$(SCRIPTS_DIR)/infisical-sync.sh --cli
 
+dev-stitch-sync: ## Sync Stitch config from Infisical to .env (GOOGLE_CLOUD_PROJECT, STITCH_PROJECT_ID)
+	@$(SCRIPTS_DIR)/infisical-sync.sh --stitch
+
+dev-stitch-setup: ## Show steps to setup Stitch OAuth
+	@$(SCRIPTS_DIR)/infisical-sync.sh --stitch-setup
+
+dev-stitch-fetch: ## Fetch Stitch assets (SCREEN_ID=screen_id) - Uses OAuth via gcloud
+	@./stitch_assets/fetch_stitch.sh $(SCREEN_ID)
+
 dev-ovh-configure: ## Configure OVHCloud CLI credentials from Infisical
 	@$(SCRIPTS_DIR)/infisical-sync.sh --ovh
 
@@ -480,7 +489,7 @@ dev-ovh-configure: ## Configure OVHCloud CLI credentials from Infisical
 
 MCP_PID_DIR := /tmp/mcp-servers
 
-dev-mcp-start: ## Start all MCP servers (context7, dart, graphql, mobile, stitch)
+dev-mcp-start: ## Start all MCP servers (context7, dart, graphql, mobile)
 	@mkdir -p $(MCP_PID_DIR)
 	@echo "$(BLUE)Starting MCP servers...$(NC)"
 	@if [ -f $(MCP_PID_DIR)/context7.pid ] && kill -0 $$(cat $(MCP_PID_DIR)/context7.pid) 2>/dev/null; then \
@@ -508,18 +517,11 @@ dev-mcp-start: ## Start all MCP servers (context7, dart, graphql, mobile, stitch
 		npx -y @mobilenext/mobile-mcp@latest & echo $$! > $(MCP_PID_DIR)/mobile.pid; \
 		echo "$(GREEN)✓ mobile-mcp started$(NC)"; \
 	fi
-	@if [ -f $(MCP_PID_DIR)/stitch.pid ] && kill -0 $$(cat $(MCP_PID_DIR)/stitch.pid) 2>/dev/null; then \
-		echo "$(YELLOW)stitch already running (PID: $$(cat $(MCP_PID_DIR)/stitch.pid))$(NC)"; \
-	else \
-		GOOGLE_CLOUD_PROJECT=$$(jq -r '.mcpServers.stitch.env.GOOGLE_CLOUD_PROJECT' mcp.json) \
-			npx -y stitch-mcp & echo $$! > $(MCP_PID_DIR)/stitch.pid; \
-		echo "$(GREEN)✓ stitch started$(NC)"; \
-	fi
 	@echo "$(GREEN)All MCP servers started. PIDs stored in $(MCP_PID_DIR)/$(NC)"
 
 dev-mcp-stop: ## Stop all MCP servers
 	@echo "$(BLUE)Stopping MCP servers...$(NC)"
-	@for server in context7 dart graphql mobile stitch; do \
+	@for server in context7 dart graphql mobile; do \
 		if [ -f $(MCP_PID_DIR)/$$server.pid ]; then \
 			kill $$(cat $(MCP_PID_DIR)/$$server.pid) 2>/dev/null || true; \
 			rm -f $(MCP_PID_DIR)/$$server.pid; \
@@ -530,7 +532,7 @@ dev-mcp-stop: ## Stop all MCP servers
 
 dev-mcp-status: ## Check MCP servers status
 	@echo "$(BLUE)MCP Servers Status:$(NC)"
-	@for server in context7 dart graphql mobile stitch; do \
+	@for server in context7 dart graphql mobile; do \
 		if [ -f $(MCP_PID_DIR)/$$server.pid ] && kill -0 $$(cat $(MCP_PID_DIR)/$$server.pid) 2>/dev/null; then \
 			echo "  $(GREEN)● $$server$(NC) running (PID: $$(cat $(MCP_PID_DIR)/$$server.pid))"; \
 		else \

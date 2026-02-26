@@ -8,11 +8,13 @@
 # Also configures OVHCloud CLI credentials from Infisical
 #
 # Usage:
-#   ./infisical-sync.sh [--cli] [--ovh]
+#   ./infisical-sync.sh [--cli] [--ovh] [--stitch] [--stitch-setup]
 #
 # Options:
-#   --cli    Use Infisical CLI instead of operator (useful for CI/CD)
-#   --ovh    Configure OVHCloud CLI credentials from Infisical
+#   --cli         Use Infisical CLI instead of operator (useful for CI/CD)
+#   --ovh         Configure OVHCloud CLI credentials from Infisical
+#   --stitch      Sync Stitch API key to .env file
+#   --stitch-setup Setup Stitch: gcloud login + create API key + save to .env + Infisical
 #
 # Prerequisites:
 #   - kubectl configured with cluster access
@@ -25,6 +27,10 @@
 #   - /ovh/application_secret
 #   - /ovh/consumer_key
 #   - /ovh/endpoint (optional, default: ovh-eu)
+#
+# Stitch configuration:
+#   Secrets required in Infisical (project: altrupets, env: dev):
+#   - /stitch/api_key
 # ==============================================================================
 
 set -euo pipefail
@@ -43,6 +49,8 @@ NC='\033[0m'
 
 USE_CLI=false
 CONFIGURE_OVH=false
+SYNC_STITCH=false
+SETUP_STITCH=false
 
 # Parse arguments
 for arg in "$@"; do
@@ -55,11 +63,106 @@ for arg in "$@"; do
 		CONFIGURE_OVH=true
 		shift
 		;;
+	--stitch)
+		SYNC_STITCH=true
+		shift
+		;;
+	--stitch-setup)
+		SETUP_STITCH=true
+		shift
+		;;
 	esac
 done
 
+setup_stitch() {
+	echo -e "${BLUE}🔧 Stitch OAuth Setup - Step by Step${NC}"
+	echo ""
+	echo "Stitch now uses OAuth (gcloud) instead of API keys."
+	echo "You need to configure the project numbers in Infisical:"
+	echo ""
+	echo "1. ${GREEN}Login to gcloud:${NC}"
+	echo "   gcloud auth login"
+	echo ""
+	echo "2. ${GREEN}Set your project (numeric-replica-487322-d7):${NC}"
+	echo "   gcloud config set project numeric-replica-487322-d7"
+	echo ""
+	echo "3. ${GREEN}Verify you can get an OAuth token:${NC}"
+	echo "   gcloud auth print-access-token"
+	echo ""
+	echo "4. ${GREEN}Add secrets to Infisical (project: altrupets, env: dev):${NC}"
+	echo "   - GOOGLE_CLOUD_PROJECT: 344341424155"
+	echo "   - STITCH_PROJECT_ID: 9064173060952920822"
+	echo ""
+	echo "   infisical secrets set --projectId=71bc533b-cabf-4793-9bf0-03dba6caf417 --env=dev"
+	echo ""
+	echo "5. ${GREEN}Sync to .env:${NC}"
+	echo "   make dev-stitch-sync"
+	echo ""
+}
+
+sync_stitch_env() {
+	echo -e "${BLUE}Syncing Stitch credentials to .env...${NC}"
+
+	if ! command -v infisical >/dev/null 2>&1; then
+		echo -e "${RED}Infisical CLI is not installed${NC}"
+		return 1
+	fi
+
+	local google_cloud_project
+	google_cloud_project=$(infisical secrets get GOOGLE_CLOUD_PROJECT --env=dev --projectId=71bc533b-cabf-4793-9bf0-03dba6caf417 --plain 2>/dev/null || echo "")
+
+	local stitch_project_id
+	stitch_project_id=$(infisical secrets get STITCH_PROJECT_ID --env=dev --projectId=71bc533b-cabf-4793-9bf0-03dba6caf417 --plain 2>/dev/null || echo "")
+
+	if [ -z "$google_cloud_project" ]; then
+		echo -e "${ORANGE}GOOGLE_CLOUD_PROJECT not found in Infisical (dev environment)${NC}"
+		return 1
+	fi
+
+	if [ -z "$stitch_project_id" ]; then
+		echo -e "${ORANGE}STITCH_PROJECT_ID not found in Infisical (dev environment)${NC}"
+		return 1
+	fi
+
+	local project_root="$SCRIPT_DIR/../.."
+	local env_file="$project_root/.env"
+
+	if [ -f "$env_file" ]; then
+		if grep -q "GOOGLE_CLOUD_PROJECT=" "$env_file"; then
+			sed -i "s|GOOGLE_CLOUD_PROJECT=.*|GOOGLE_CLOUD_PROJECT=$google_cloud_project|" "$env_file"
+		else
+			echo "" >>"$env_file"
+			echo "GOOGLE_CLOUD_PROJECT=$google_cloud_project" >>"$env_file"
+		fi
+
+		if grep -q "STITCH_PROJECT_ID=" "$env_file"; then
+			sed -i "s|STITCH_PROJECT_ID=.*|STITCH_PROJECT_ID=$stitch_project_id|" "$env_file"
+		else
+			echo "STITCH_PROJECT_ID=$stitch_project_id" >>"$env_file"
+		fi
+	else
+		echo "GOOGLE_CLOUD_PROJECT=$google_cloud_project" >"$env_file"
+		echo "STITCH_PROJECT_ID=$stitch_project_id" >>"$env_file"
+	fi
+
+	echo -e "${GREEN}✅ Stitch config synced to .env${NC}"
+	echo "   GOOGLE_CLOUD_PROJECT=$google_cloud_project"
+	echo "   STITCH_PROJECT_ID=$stitch_project_id"
+}
+
 echo -e "${BLUE}🔐 AltruPets - Infisical Secrets Sync${NC}"
 echo ""
+
+# Handle stitch-only operations (no kubectl needed)
+if [ "$SYNC_STITCH" = true ]; then
+	sync_stitch_env
+	exit 0
+fi
+
+if [ "$SETUP_STITCH" = true ]; then
+	setup_stitch
+	exit 0
+fi
 
 # Verify kubectl
 if ! command -v kubectl >/dev/null 2>&1; then
@@ -78,216 +181,6 @@ if [ "$CONFIGURE_OVH" = true ]; then
 	configure_ovhcloud_cli
 	echo ""
 fi
-
-sync_via_cli() {
-	echo -e "${BLUE}📥 Syncing secrets via Infisical CLI...${NC}"
-
-	if ! command -v infisical >/dev/null 2>&1; then
-		echo -e "${RED}❌ Infisical CLI is not installed${NC}"
-		echo -e "${ORANGE}Install with: brew install infisical${NC}"
-		exit 1
-	fi
-
-	if ! command -v jq >/dev/null 2>&1; then
-		echo -e "${RED}❌ jq is not installed${NC}"
-		echo -e "${ORANGE}Install with: sudo apt install jq${NC}"
-		exit 1
-	fi
-
-	# Export secrets and create/update Kubernetes secret
-	echo -e "${BLUE}📤 Exporting secrets from Infisical (dev environment)...${NC}"
-
-	# Create temporary file for secrets
-	TEMP_FILE=$(mktemp)
-	trap "rm -f $TEMP_FILE" EXIT
-
-	# Export secrets in JSON format and convert to env format (avoids shell quoting issues)
-	cd "$SCRIPT_DIR/../.."
-
-	if ! infisical export --env=dev --projectId 71bc533b-cabf-4793-9bf0-03dba6caf417 --format=json --silent 2>&1 | jq -r '.[] | "\(.key)=\(.value)"' >"$TEMP_FILE"; then
-		echo -e "${RED}❌ Failed to export secrets from Infisical${NC}"
-		echo -e "${ORANGE}Make sure you are logged in: infisical login${NC}"
-		exit 1
-	fi
-
-	# Check if file has content
-	if [ ! -s "$TEMP_FILE" ]; then
-		echo -e "${RED}❌ No secrets exported. Check if project exists and you have access.${NC}"
-		exit 1
-	fi
-
-	# Create/update the Kubernetes secret
-	echo -e "${BLUE}🔄 Updating Kubernetes secret $SECRET_NAME...${NC}"
-	kubectl create secret generic "$SECRET_NAME" \
-		--from-env-file="$TEMP_FILE" \
-		--namespace="$NAMESPACE" \
-		--dry-run=client -o yaml | kubectl apply -f -
-
-	echo -e "${GREEN}✅ Secret $SECRET_NAME synchronized${NC}"
-
-	# Show what was synced (keys only, not values)
-	echo -e "${BLUE}📋 Keys synced:${NC}"
-	kubectl get secret "$SECRET_NAME" -n "$NAMESPACE" -o jsonpath='{.data}' | jq -r 'keys[]' | sed 's/^/  - /'
-}
-
-check_operator() {
-	kubectl get pods -n "$OPERATOR_NAMESPACE" -l app.kubernetes.io/name=infisical-operator 2>/dev/null | grep -q "Running"
-}
-
-install_operator() {
-	echo -e "${BLUE}📦 Installing Infisical Operator...${NC}"
-
-	if ! command -v helm >/dev/null 2>&1; then
-		echo -e "${RED}❌ Helm is not installed${NC}"
-		echo -e "${ORANGE}Install with: https://helm.sh/docs/intro/install/${NC}"
-		exit 1
-	fi
-
-	# Create namespace
-	kubectl create ns "$OPERATOR_NAMESPACE" --dry-run=client -o yaml | kubectl apply -f -
-
-	# Add Infisical Helm repo
-	helm repo add infisical-helm-charts https://infisical.github.io/helm-charts 2>/dev/null || true
-	helm repo update
-
-	# Install operator
-	helm upgrade --install infisical-operator infisical-helm-charts/infisical-operator \
-		--namespace "$OPERATOR_NAMESPACE" \
-		--set controllerManager.manager.env[0].name=LOG_LEVEL \
-		--set controllerManager.manager.env[0].value=info
-
-	# Wait for operator to be ready
-	echo -e "${BLUE}⏳ Waiting for operator to be ready...${NC}"
-	kubectl rollout status deployment/infisical-operator-controller-manager -n "$OPERATOR_NAMESPACE" --timeout=120s
-
-	echo -e "${GREEN}✅ Infisical Operator installed${NC}"
-}
-
-apply_infisical_crd() {
-	echo -e "${BLUE}📝 Applying InfisicalSecret CRD...${NC}"
-
-	local CRD_FILE="$SCRIPT_DIR/../infisical/infisical-secrets.yaml"
-
-	if [ ! -f "$CRD_FILE" ]; then
-		echo -e "${RED}❌ CRD file not found: $CRD_FILE${NC}"
-		exit 1
-	fi
-
-	kubectl apply -f "$CRD_FILE"
-
-	echo -e "${GREEN}✅ InfisicalSecret CRD applied${NC}"
-}
-
-force_sync_via_annotation() {
-	echo -e "${BLUE}🔄 Forcing secret sync via annotation...${NC}"
-
-	# Add/update annotation to trigger resync
-	kubectl annotate infisicalsecret infisical-backend-secret -n "$NAMESPACE" \
-		"infisical.com/force-sync=$(date +%s)" --overwrite 2>/dev/null ||
-		kubectl annotate secret "$SECRET_NAME" -n "$NAMESPACE" \
-			"infisical.com/force-sync=$(date +%s)" --overwrite 2>/dev/null || true
-
-	# Wait a moment for sync
-	sleep 5
-
-	echo -e "${GREEN}✅ Sync triggered${NC}"
-}
-
-restart_backend() {
-	echo -e "${BLUE}🔄 Restarting backend to pick up new secrets...${NC}"
-	kubectl rollout restart deployment/backend -n "$NAMESPACE"
-	kubectl rollout status deployment/backend -n "$NAMESPACE" --timeout=120s
-	echo -e "${GREEN}✅ Backend restarted${NC}"
-}
-
-configure_ovhcloud_cli() {
-	echo -e "${BLUE}Configuring OVHCloud CLI from Infisical...${NC}"
-
-	if ! command -v infisical >/dev/null 2>&1; then
-		echo -e "${RED}Infisical CLI is not installed${NC}"
-		exit 1
-	fi
-
-	# Get OVH credentials from Infisical
-	local ovh_app_key=$(infisical get -q --path /ovh/application_key --project=altrupets --env=dev 2>/dev/null || echo "")
-	local ovh_app_secret=$(infisical get -q --path /ovh/application_secret --project=altrupets --env=dev 2>/dev/null || echo "")
-	local ovh_consumer_key=$(infisical get -q --path /ovh/consumer_key --project=altrupets --env=dev 2>/dev/null || echo "")
-	local ovh_endpoint=$(infisical get -q --path /ovh/endpoint --project=altrupets --env=dev 2>/dev/null || echo "ovh-eu")
-
-	if [ -z "$ovh_app_key" ] || [ -z "$ovh_app_secret" ] || [ -z "$ovh_consumer_key" ]; then
-		echo -e "${ORANGE}OVH credentials not found in Infisical (dev environment)${NC}"
-		echo "Required secrets:"
-		echo "  - /ovh/application_key"
-		echo "  - /ovh/application_secret"
-		echo "  - /ovh/consumer_key"
-		return 1
-	fi
-
-	# Create OVH config directory
-	local ovh_config_dir="$HOME/.config/ovhcloud"
-	mkdir -p "$ovh_config_dir"
-
-	# Create .ovh.conf file
-	local ovh_conf_file="$ovh_config_dir/ovh.conf"
-	cat >"$ovh_conf_file" <<EOF
-[default]
-endpoint = $ovh_endpoint
-application_key = $ovh_app_key
-application_secret = $ovh_app_secret
-consumer_key = $ovh_consumer_key
-
-EOF
-
-	chmod 600 "$ovh_conf_file"
-	echo -e "${GREEN}OVHCloud CLI configured successfully${NC}"
-	echo "Config file: $ovh_conf_file"
-
-	# Verify it works
-	if command -v ovhcloud >/dev/null 2>&1; then
-		if ovhcloud cloud project list >/dev/null 2>&1; then
-			echo -e "${GREEN}OVHCloud CLI authentication verified${NC}"
-		else
-			echo -e "${ORANGE}OVHCloud CLI configured but authentication failed${NC}"
-		fi
-	fi
-}
-
-create_harbor_registry_secret() {
-	local harbor_user="${1:-}"
-	local harbor_pass="${2:-}"
-	local harbor_host="${3:-localhost:30003}"
-
-	if [ -z "$harbor_user" ] || [ -z "$harbor_pass" ]; then
-		echo -e "${ORANGE}⚠️  Harbor credentials not provided, skipping harbor-registry-secret creation${NC}"
-		return
-	fi
-
-	echo -e "${BLUE}🔄 Creating/Updating $HARBOR_SECRET_NAME...${NC}"
-
-	# Create the auth string (base64 of user:pass)
-	local auth=$(echo -n "$harbor_user:$harbor_pass" | base64 | tr -d '\n')
-
-	# Create the .dockerconfigjson structure
-	local docker_config_json=$(
-		cat <<EOF
-{
-  "auths": {
-    "$harbor_host": {
-      "auth": "$auth"
-    }
-  }
-}
-EOF
-	)
-
-	echo "$docker_config_json" | kubectl create secret generic "$HARBOR_SECRET_NAME" \
-		--from-literal=.dockerconfigjson=/dev/stdin \
-		--type=kubernetes.io/dockerconfigjson \
-		--namespace="$NAMESPACE" \
-		--dry-run=client -o yaml | kubectl apply -f -
-
-	echo -e "${GREEN}✅ Secret $HARBOR_SECRET_NAME synchronized${NC}"
-}
 
 # Main logic
 if [ "$USE_CLI" = true ]; then

@@ -190,3 +190,11 @@ apps/mobile/.dart_tool/
 
 # Sentry
 apps/mobile/sentry-wizard
+
+# Firebase config (contains API keys)
+apps/mobile/android/app/google-services.json
+apps/mobile/ios/Runner/GoogleService-Info.plist
+
+# Stitch assets (generated output - keep script, ignore downloaded content)
+stitch_assets/*/
+!.gitkeep

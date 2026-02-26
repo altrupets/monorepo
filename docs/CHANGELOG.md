@@ -7,6 +7,43 @@ y este proyecto adhiere a [Semantic Versioning](https://semver.org/lang/es/).
 
 ## [Unreleased]
 
+### Fixed - 2026-02-26
+
+#### fetch_stitch.sh - Path fix
+
+- Corregido path de salida duplicado (`stitch_assets/stitch_assets/` → `stitch_assets/`)
+
+**Archivos modificados:**
+- `stitch_assets/fetch_stitch.sh`
+
+#### infisical-sync.sh - Stitch config
+
+- Corregido `sync_stitch_env()` para sincronizar `GOOGLE_CLOUD_PROJECT` y `STITCH_PROJECT_ID` en lugar de `STITCH_API_KEY`
+- Actualizado `setup_stitch()` para guiar configuración OAuth en lugar de API key
+
+**Archivos modificados:**
+- `infrastructure/scripts/infisical-sync.sh`
+
+### Changed - 2026-02-26
+
+#### Stitch Assets Fetcher - Migración a OAuth
+
+- Script `stitch_assets/fetch_stitch.sh` ahora usa OAuth de gcloud en lugar de API key
+- Eliminado `STITCH_API_KEY` de `.env` (ya no es necesario)
+- Agregado `STITCH_PROJECT_ID` como variable requerida en `.env`
+- Removido Stitch MCP de `mcp.json` (ya no se usa remote MCP)
+- Validación obligatoria de `GOOGLE_CLOUD_PROJECT` y `STITCH_PROJECT_ID`
+
+**Archivos modificados:**
+- `.env` - Removido STITCH_API_KEY, agregado STITCH_PROJECT_ID
+- `mcp.json` - Eliminado entry "stitch"
+- `stitch_assets/fetch_stitch.sh` - Migrado a OAuth, validaciones actualizadas
+- `Makefile` - Actualizadas descripciones de targets dev-stitch-*
+
+**Secrets para Infisical:**
+- `GOOGLE_CLOUD_PROJECT=344341424155`
+- `STITCH_PROJECT_ID=9064173060952920822`
+
 ### Added - 2026-02-25
 
 #### Terraform Environments para OVHCloud

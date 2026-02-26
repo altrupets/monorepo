@@ -34,16 +34,6 @@
       ],
       "env": {}
     },
-    "stitch": {
-      "command": "npx",
-      "args": [
-        "-y",
-        "stitch-mcp"
-      ],
-      "env": {
-        "GOOGLE_CLOUD_PROJECT": "9064173060952920822"
-      }
-    },
     "sequential-thinking": {
       "command": "npx",
       "args": [
