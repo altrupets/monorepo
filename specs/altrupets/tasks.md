@@ -3,6 +3,8 @@
 **Versión:** 0.3.0 (Sprint 1) → 1.0.0 (Sprint 8)
 **Duración Total:** 6 meses | **Objetivo:** MVP funcional con coordinación de rescate animal
 
+> **Nota:** Las tareas 1-10 originales (configuración base, modelos, servicios core, auth básica, organizaciones, roles) fueron completadas y removidas de este documento. La numeración continúa desde la tarea 11.
+
 ---
 
 ## 📋 Índice de Sprints
@@ -23,465 +25,54 @@
 **Duración:** 3 semanas | **Prioridad:** 🔴 CRÍTICA
 **Objetivo:** Implementar flujo completo de coordinación entre centinelas, auxiliares y rescatistas
 
-## Fase 1: Configuración del Proyecto y Arquitectura Base
+## Fase 3b: Endurecimiento del Servicio de Autenticación
 
-- [x] 1. Configurar estructura del proyecto Flutter y dependencias base
-  - Actualizar pubspec.yaml con dependencias necesarias (http, provider, geolocator, image_picker, etc.)
-  - Crear estructura de carpetas siguiendo arquitectura limpia (lib/core, lib/features, lib/shared)
-  - Configurar análisis estático y linting
-  - _Requerimientos: Todos los requerimientos requieren esta base_
+> Origen: `specs/auth-service/` — El auth básico (login/logout, JWT, secure storage, roles) funciona, pero faltan funcionalidades críticas de seguridad y robustez.
 
-- [x] 2. Implementar configuración base y constantes del sistema
-  - Crear archivo de configuración para URLs de APIs y constantes
-  - Implementar sistema de configuración externalizada siguiendo principios 12-factor
-  - Configurar diferentes entornos (desarrollo, pruebas, producción)
-  - _Requerimientos: Base para todos los servicios_
+- [ ] 5a. Implementar renovación automática de tokens JWT
+  - Crear método público `refreshToken()` en AuthService (actualmente falta)
+  - Implementar timer proactivo que renueve 5 min antes de expiración (hoy solo detecta expiración al leer)
+  - POST a `/auth/refresh` con refresh_token
+  - Actualizar tokens en Secure Storage sin interrumpir operación
+  - Implementar reintentos con backoff exponencial (1s, 2s, 4s) hasta 3 veces
+  - Si renovación falla: redirigir a login
+  - _Requisitos: REQ-AUTH-006, REQ-AUTH-007, REQ-AUTH-REL-002, REQ-AUTH-PERF-002_
 
-- [x] 3. Crear modelos de datos base y DTOs
-  - Implementar modelos para Usuario, Rol, Organización
-  - Crear modelos para Animal, SolicitudRescate, Denuncia
-  - Implementar modelos financieros y de geolocalización
-  - Añadir serialización JSON y validaciones básicas
-  - _Requerimientos: 1.1, 2.1, 3.1, 4.1, 5.1_
+- [ ] 5b. Implementar manejo de 401/403 en AuthInterceptor
+  - En `onError()` para 401: intentar renovar token, reintentar request original con nuevo token
+  - En `onError()` para 403: mostrar "Acceso denegado", NO intentar renovar
+  - Reemplazar el actual `// TODO` en auth_interceptor.dart
+  - _Requisitos: REQ-AUTH-009, REQ-AUTH-010_
 
-## Fase 2: Servicios Core y Comunicación con Backend
+- [ ] 5c. Unificar sistemas de autenticación duplicados
+  - Actualmente coexisten `AuthService` (sealed class) y `AuthNotifier`/`AuthRepository` (Freezed) con lógica duplicada
+  - Dos claves de token diferentes en secure storage (`auth_access_token` vs `auth_token`)
+  - Consolidar en un solo flujo coherente
+  - Crear `authServiceProvider` de Riverpod (actualmente AuthService no tiene provider)
+  - Mover `currentUserProvider` de profile feature a auth feature
+  - _Requisitos: REQ-AUTH-013, REQ-AUTH-014_
 
-- [x] 4. Implementar cliente HTTP base y manejo de errores
-  - Crear servicio HTTP base con interceptores
-  - Implementar manejo centralizado de errores y excepciones
-  - Añadir logging estructurado siguiendo principios cloud-native
-  - Configurar timeouts y reintentos con circuit breaker pattern
-  - _Requerimientos: Base para comunicación con microservicios_
+- [ ] 5d. Implementar flujo de password reset
+  - El botón "¿Olvidaste tu contraseña?" actualmente es no-op (`onPressed: () {}`)
+  - Crear `ForgotPasswordPage` con envío de email
+  - Crear mutation GraphQL para reset de contraseña
+  - Implementar ruta en route_names.dart
+  - _Requisitos: REQ-AUTH-UX-003_
 
-- [x] 5. Implementar servicio de autenticación y gestión de tokens JWT
-  - Crear AuthService para login/logout y gestión de tokens
-  - Implementar almacenamiento seguro de tokens
-  - Añadir renovación automática de tokens
-  - Crear interceptor para añadir tokens a requests automáticamente
-  - _Requerimientos: 1.1, 1.2, 1.3, 1.4, 1.5, 1.6, 1.7_
+- [ ] 5e. Implementar detección de actividad sospechosa
+  - Detectar múltiples logins desde ubicaciones diferentes
+  - Notificar al usuario mediante push
+  - Permitir revocación de sesiones activas
+  - _Requisitos: REQ-AUTH-012, REQ-SEC-003_
 
-- [x] 6. Implementar servicio de geolocalización
-  - Crear GeoLocationService para captura de ubicación GPS
-  - Implementar permisos de ubicación y manejo de errores
-  - Añadir funcionalidad de selección manual en mapa
-  - Crear caché local para ubicaciones offline
-  - _Requerimientos: 10.1, 10.2, 10.3, 10.4_
-
-## Fase 3: Sistema de Registro y Autenticación (RBAC)
-
-- [x] 7. Crear pantallas de onboarding y selección inicial
-  - Implementar pantalla de bienvenida con opciones: "Hacer Denuncia Anónima", "Registrarse como Usuario Individual", "Registrar Nueva Organización"
-  - Crear navegación condicional basada en selección del usuario
-  - Añadir validaciones de entrada y UX apropiada
-  - _Requerimientos: 1.1, 1.2_
-
-- [x] 8. Implementar formularios de registro individual
-  - Crear formulario de datos personales con validaciones ✅
-  - Implementar captura de fotografías de documentos ✅
-  - Añadir selector de roles deseados (Sentinela, Rescatista, Donante, Veterinario) ✅
-  - Crear formularios específicos para rol de Donante (ocupación, fuente de ingresos) ✅
-  - **Estado:** ✅ COMPLETADO - Todos los errores de compilación corregidos
-  - **Archivos Implementados:**
-    - `apps/mobile/lib/features/auth/data/models/register_input.dart` (RegisterInput model con freezed)
-    - `apps/mobile/lib/features/auth/presentation/pages/register_page.dart` (4-step registration form)
-    - `apps/mobile/lib/features/auth/data/repositories/auth_repository.dart` (register method)
-    - `apps/mobile/lib/features/auth/presentation/providers/auth_provider.dart` (register method)
-    - `apps/mobile/lib/core/services/auth_service.dart` (FIXED: SecureStorageService named parameters)
-    - `apps/mobile/lib/core/network/interceptors/auth_interceptor.dart` (FIXED: SecureStorageService named parameters)
-    - `apps/mobile/lib/core/network/http_client_service.dart` (FIXED: NetworkException abstract class)
-    - `apps/mobile/lib/core/network/interceptors/error_interceptor.dart` (FIXED: NetworkException abstract class)
-  - **Validación:** `dart analyze` ejecutado sin errores ✅
-  - _Requerimientos: 1.3, 1.4_
-
-  **GraphQL Mutations/Queries para Registro:**
-
-  ```graphql
-  # Mutation de Registro
-  mutation Register($registerInput: RegisterInput!) {
-    register(registerInput: $registerInput) {
-      id
-      username
-      email
-      firstName
-      lastName
-      phone
-      identification
-      country
-      province
-      canton
-      district
-      occupation
-      incomeSource
-      roles
-      isActive
-      isVerified
-      createdAt
-      updatedAt
-    }
-  }
-
-  # Input Type para Registro
-  input RegisterInput {
-    username: String!           # Mínimo 3 caracteres
-    email: String               # Opcional, debe ser email válido
-    password: String!           # Mínimo 8 caracteres
-    firstName: String           # Opcional
-    lastName: String            # Opcional
-    phone: String               # Opcional
-    identification: String      # Opcional (cédula/pasaporte)
-    country: String             # Opcional
-    province: String            # Opcional
-    canton: String              # Opcional
-    district: String            # Opcional
-    occupation: String          # Opcional (requerido para DONOR)
-    incomeSource: String        # Opcional (requerido para DONOR)
-    roles: [UserRole!]          # Opcional, default: [WATCHER]
-  }
-
-  # Enum de Roles Disponibles
-  enum UserRole {
-    SUPER_USER              # Super Administrador
-    GOVERNMENT_ADMIN        # Administrador Gubernamental (B2G)
-    USER_ADMIN              # Administrador de Usuarios (Staff)
-    LEGAL_REPRESENTATIVE    # Representante Legal (Staff)
-    WATCHER                 # Centinela (rol por defecto)
-    HELPER                  # Auxiliar
-    RESCUER                 # Rescatista
-    ADOPTER                 # Adoptante
-    DONOR                   # Donante
-    VETERINARIAN            # Veterinario
-  }
-
-  # Mutation de Login
-  mutation Login($loginInput: LoginInput!) {
-    login(loginInput: $loginInput) {
-      access_token
-      refresh_token
-      expires_in
-    }
-  }
-
-  input LoginInput {
-    username: String!
-    password: String!
-  }
-
-  # Query de Perfil (requiere autenticación)
-  query Profile {
-    profile {
-      userId
-      username
-      roles
-    }
-  }
-  ```
-
-  **Notas de Implementación:**
-  - El backend valida que username sea único (mínimo 3 caracteres)
-  - El email es opcional pero debe ser único si se proporciona
-  - Password debe tener mínimo 8 caracteres y se hashea con bcrypt (12 rounds)
-  - Si no se especifican roles, se asigna automáticamente `[WATCHER]`
-  - Para rol `DONOR`, los campos `occupation` e `incomeSource` son obligatorios
-  - El usuario se crea con `isActive: true` e `isVerified: false`
-  - El login retorna JWT access_token (1 hora) y refresh_token (7 días)
-  - Los tokens se deben almacenar de forma segura en el dispositivo
-
-- [x] 9. Implementar registro y gestión de organizaciones
-  - **✅ Backend Implementado:** Módulo de organizaciones completo
-  - **Archivos Backend Creados:**
-    - `apps/backend/src/organizations/entities/organization.entity.ts`
-    - `apps/backend/src/organizations/entities/organization-membership.entity.ts`
-    - `apps/backend/src/organizations/organizations.service.ts`
-    - `apps/backend/src/organizations/organizations.resolver.ts`
-    - `apps/backend/src/organizations/organizations.module.ts`
-  - **✅ Mobile Implementado:** Cliente GraphQL completo
-  - **Archivos Mobile Creados:**
-    - `apps/mobile/lib/features/organizations/data/models/organization.dart` (freezed model)
-    - `apps/mobile/lib/features/organizations/data/models/organization_membership.dart` (freezed model)
-    - `apps/mobile/lib/features/organizations/data/models/register_organization_input.dart` (freezed model)
-    - `apps/mobile/lib/features/organizations/data/models/search_organizations_input.dart` (freezed model)
-    - `apps/mobile/lib/features/organizations/data/repositories/organizations_repository.dart` (GraphQL repository)
-    - `apps/mobile/lib/features/organizations/presentation/providers/organizations_provider.dart` (Riverpod provider)
-    - `apps/mobile/lib/features/organizations/presentation/pages/register_organization_page.dart` (4-step form)
-    - `apps/mobile/lib/features/organizations/presentation/pages/search_organizations_page.dart` (search & browse)
-    - `apps/mobile/lib/features/organizations/presentation/pages/organization_detail_page.dart` (detail view)
-    - `apps/mobile/lib/features/organizations/presentation/pages/manage_memberships_page.dart` (membership management)
-  - **Funcionalidades Implementadas:**
-    - ✅ Formulario de registro de organización (4 pasos: básica, contacto, ubicación, documentación)
-    - ✅ Carga de documentación legal y estados financieros (base64)
-    - ✅ Designación automática de representante legal al creador (REQ-ADM-001)
-    - ✅ Búsqueda de organizaciones con filtros (nombre, tipo, estado, ubicación)
-    - ✅ Vista detallada de organización con toda la información
-    - ✅ Solicitud de membresía con mensaje opcional
-    - ✅ Dashboard de gestión de membresías para Legal Representative y User Admin
-    - ✅ Aprobación/rechazo de solicitudes de membresía (REQ-ADM-002)
-    - ✅ Asignación de roles organizacionales (Legal Representative, User Admin, Member)
-  - **Validación:** `dart analyze` ejecutado - 0 errores de compilación ✅
-  - _Requerimientos: 1.6, 2.1, 2.2, REQ-ADM-001, REQ-ADM-002_
-
-  **GraphQL Mutations/Queries Disponibles:**
-
-  ```graphql
-  # Mutation para registrar organización
-  mutation RegisterOrganization($registerOrganizationInput: RegisterOrganizationInput!) {
-    registerOrganization(registerOrganizationInput: $registerOrganizationInput) {
-      id
-      name
-      type
-      legalId
-      description
-      email
-      phone
-      website
-      address
-      country
-      province
-      canton
-      district
-      status
-      legalDocumentationBase64
-      financialStatementsBase64
-      legalRepresentativeId
-      memberCount
-      maxCapacity
-      isActive
-      isVerified
-      createdAt
-      updatedAt
-    }
-  }
-
-  # Input para registro de organización
-  input RegisterOrganizationInput {
-    name: String!                           # Nombre único de la organización
-    type: OrganizationType!                 # Tipo de entidad jurídica
-    legalId: String                         # Cédula jurídica
-    description: String                     # Descripción de la organización
-    email: String                           # Email de contacto
-    phone: String                           # Teléfono de contacto
-    website: String                         # Sitio web
-    address: String                         # Dirección física
-    country: String                         # País
-    province: String                        # Provincia
-    canton: String                          # Cantón
-    district: String                        # Distrito
-    legalDocumentationBase64: String        # Documentación legal en base64
-    financialStatementsBase64: String       # Estados financieros en base64
-    maxCapacity: Int                        # Capacidad máxima de animales
-  }
-
-  # Enum de tipos de organización
-  enum OrganizationType {
-    FOUNDATION                              # Fundación
-    ASSOCIATION                             # Asociación
-    NGO                                     # ONG
-    COOPERATIVE                             # Cooperativa
-    GOVERNMENT                              # Gubernamental
-    OTHER                                   # Otro
-  }
-
-  # Enum de estados de organización
-  enum OrganizationStatus {
-    PENDING_VERIFICATION                    # Pendiente de verificación
-    ACTIVE                                  # Activa
-    SUSPENDED                               # Suspendida
-    INACTIVE                                # Inactiva
-  }
-
-  # Query para buscar organizaciones
-  query SearchOrganizations($searchOrganizationsInput: SearchOrganizationsInput!) {
-    searchOrganizations(searchOrganizationsInput: $searchOrganizationsInput) {
-      id
-      name
-      type
-      description
-      country
-      province
-      canton
-      memberCount
-      maxCapacity
-      status
-    }
-  }
-
-  # Input para búsqueda de organizaciones
-  input SearchOrganizationsInput {
-    name: String                            # Búsqueda por nombre (ILIKE)
-    type: OrganizationType                  # Filtrar por tipo
-    status: OrganizationStatus              # Filtrar por estado
-    country: String                         # Filtrar por país
-    province: String                        # Filtrar por provincia
-    canton: String                          # Filtrar por cantón
-  }
-
-  # Query para obtener organización por ID
-  query Organization($id: ID!) {
-    organization(id: $id) {
-      id
-      name
-      type
-      legalId
-      description
-      email
-      phone
-      website
-      address
-      country
-      province
-      canton
-      district
-      status
-      legalRepresentativeId
-      memberCount
-      maxCapacity
-      isActive
-      isVerified
-      createdAt
-      updatedAt
-    }
-  }
-
-  # Mutation para solicitar membresía
-  mutation RequestMembership($requestMembershipInput: RequestMembershipInput!) {
-    requestMembership(requestMembershipInput: $requestMembershipInput) {
-      id
-      organizationId
-      userId
-      status
-      role
-      requestMessage
-      createdAt
-    }
-  }
-
-  # Input para solicitar membresía
-  input RequestMembershipInput {
-    organizationId: ID!                     # ID de la organización
-    requestMessage: String                  # Mensaje de solicitud
-  }
-
-  # Mutation para aprobar membresía (requiere LEGAL_REPRESENTATIVE o USER_ADMIN)
-  mutation ApproveMembership($approveMembershipInput: ApproveMembershipInput!) {
-    approveMembership(approveMembershipInput: $approveMembershipInput) {
-      id
-      organizationId
-      userId
-      status
-      role
-      approvedBy
-      approvedAt
-    }
-  }
-
-  # Input para aprobar membresía
-  input ApproveMembershipInput {
-    membershipId: ID!                       # ID de la membresía
-    role: OrganizationRole                  # Rol a asignar (opcional, default: MEMBER)
-  }
-
-  # Mutation para rechazar membresía (requiere LEGAL_REPRESENTATIVE o USER_ADMIN)
-  mutation RejectMembership($rejectMembershipInput: RejectMembershipInput!) {
-    rejectMembership(rejectMembershipInput: $rejectMembershipInput) {
-      id
-      organizationId
-      userId
-      status
-      rejectionReason
-    }
-  }
-
-  # Input para rechazar membresía
-  input RejectMembershipInput {
-    membershipId: ID!                       # ID de la membresía
-    rejectionReason: String                 # Razón del rechazo
-  }
-
-  # Mutation para asignar rol (requiere LEGAL_REPRESENTATIVE)
-  mutation AssignRole($assignRoleInput: AssignRoleInput!) {
-    assignRole(assignRoleInput: $assignRoleInput) {
-      id
-      organizationId
-      userId
-      role
-    }
-  }
-
-  # Input para asignar rol
-  input AssignRoleInput {
-    membershipId: ID!                       # ID de la membresía
-    role: OrganizationRole!                 # Nuevo rol
-  }
-
-  # Enum de roles organizacionales
-  enum OrganizationRole {
-    LEGAL_REPRESENTATIVE                    # Representante Legal (máxima autoridad)
-    USER_ADMIN                              # Administrador de Usuarios
-    MEMBER                                  # Miembro regular
-  }
-
-  # Enum de estados de membresía
-  enum MembershipStatus {
-    PENDING                                 # Pendiente de aprobación
-    APPROVED                                # Aprobada
-    REJECTED                                # Rechazada
-    REVOKED                                 # Revocada
-  }
-
-  # Query para obtener membresías de una organización
-  query OrganizationMemberships($organizationId: ID!) {
-    organizationMemberships(organizationId: $organizationId) {
-      id
-      userId
-      status
-      role
-      requestMessage
-      approvedBy
-      approvedAt
-      createdAt
-    }
-  }
-
-  # Query para obtener mis membresías (requiere autenticación)
-  query MyMemberships {
-    myMemberships {
-      id
-      organizationId
-      status
-      role
-      createdAt
-    }
-  }
-  ```
-
-  **Notas de Implementación Backend:**
-  - Al registrar una organización, el usuario que la crea automáticamente se convierte en LEGAL_REPRESENTATIVE (REQ-ADM-001)
-  - Solo LEGAL_REPRESENTATIVE y USER_ADMIN pueden aprobar/rechazar membresías
-  - Solo LEGAL_REPRESENTATIVE puede asignar roles
-  - La documentación legal y estados financieros se almacenan como bytea en PostgreSQL
-  - El backend convierte automáticamente entre base64 (GraphQL) y Buffer (PostgreSQL)
-  - Las búsquedas de organizaciones usan ILIKE para búsqueda case-insensitive por nombre
-
-- [x] 10. Crear sistema de gestión de roles organizacionales
-  - **✅ Backend Implementado:** Lógica completa de permisos y roles
-  - **Funcionalidades Backend:**
-    - ✅ Lógica de permisos para LEGAL_REPRESENTATIVE (puede asignar roles)
-    - ✅ Lógica de permisos para USER_ADMIN (puede aprobar/rechazar membresías)
-    - ✅ Query `organizationMemberships` para listar membresías de una organización
-    - ✅ Query `myMemberships` para listar membresías del usuario autenticado
-    - ✅ Mutation `approveMembership` con asignación de rol opcional
-    - ✅ Mutation `rejectMembership` con razón de rechazo opcional
-    - ✅ Mutation `assignRole` para cambiar roles (solo LEGAL_REPRESENTATIVE)
-  - **✅ Mobile Implementado:** Interfaces completas de gestión
-  - **Funcionalidades Mobile:**
-    - ✅ Dashboard de gestión de membresías (`ManageMembershipsPage`)
-    - ✅ Lista de solicitudes pendientes, aprobadas y rechazadas
-    - ✅ Interfaz de aprobación con selector de rol (Legal Representative, User Admin, Member)
-    - ✅ Interfaz de rechazo con campo de razón opcional
-    - ✅ Interfaz de cambio de rol para miembros aprobados
-    - ✅ Visualización de estado de membresías con iconos y colores
-    - ✅ Visualización de mensajes de solicitud y razones de rechazo
-  - **Validación:** `dart analyze` ejecutado - 0 errores de compilación ✅
-  - _Requerimientos: 2.3, 2.4, 2.5, REQ-ADM-002_
+- [ ] 5f. Implementar tests de autenticación
+  - Unit tests para AuthService (login, logout, refreshToken, lockout, session restore)
+  - Unit tests para AuthInterceptor (401 retry, 403 handling)
+  - Unit tests para GraphQLClientService (JWT expiry, session expired stream)
+  - Integration test: flujo completo login → uso → token refresh → logout
+  - Property tests: Login Success Invariant, Token Expiration Invariant, Logout Cleanup Invariant, Session Restoration Round-Trip, Failed Login Tracking, Token Injection Consistency
+  - Cobertura mínima 90% en AuthService
+  - _Requisitos: REQ-AUTH-001 a REQ-AUTH-014_
 
 ## Fase 4: Sistema de Denuncias Anónimas
 
@@ -755,7 +346,7 @@
 
 | Sprint | Versión | Tareas | Duración | Prioridad |
 |--------|---------|--------|----------|-----------|
-| 1 | v0.3.0 | 1-17 | 3 sem | 🔴 CRÍTICA |
+| 1 | v0.3.0 | 5a-5f, 11-17 | 3 sem | 🔴 CRÍTICA |
 | 2 | v0.4.0 | 18-20 | 2 sem | 🟠 ALTA |
 | 3 | v0.5.0 | 21-24 | 2.5 sem | 🟠 ALTA |
 | 4 | v0.6.0 | - | 2 sem | 🟡 MEDIA |
@@ -766,5 +357,5 @@
 
 ---
 
-**Última actualización:** 17 de febrero de 2026
-**Estado:** Sprint 1 en progreso (Tareas 1-3 completadas)
+**Última actualización:** 3 de marzo de 2026
+**Estado:** Sprint 1 en progreso (Tareas 1-10 completadas, auth hardening pendiente)
