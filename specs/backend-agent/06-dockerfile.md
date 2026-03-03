@@ -32,7 +32,7 @@ RUN pnpm install --prod --frozen-lockfile 2>/dev/null || pnpm install --prod
 
 COPY --from=builder /app/dist ./dist
 
-EXPOSE 3002
+EXPOSE 4000
 
 USER node
 

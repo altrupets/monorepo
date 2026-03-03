@@ -75,9 +75,9 @@ dev-agent-logs: ## Show agent logs
 dev-falkordb-logs: ## Show FalkorDB logs
 	@kubectl logs -n altrupets-dev -l app=falkordb --tail=100 -f
 
-dev-agent-port-forward: ## Port-forward agent GraphQL (localhost:3002)
+dev-agent-port-forward: ## Port-forward agent GraphQL (localhost:4000)
 	@pkill -f "kubectl port-forward.*agent-service" 2>/dev/null || true
-	@kubectl port-forward -n altrupets-dev svc/agent-service 3002:3002
+	@kubectl port-forward -n altrupets-dev svc/agent-service 4000:4000
 
 dev-falkordb-port-forward: ## Port-forward FalkorDB (localhost:6379)
 	@pkill -f "kubectl port-forward.*falkordb" 2>/dev/null || true

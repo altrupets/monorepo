@@ -83,6 +83,43 @@ Funcionarios de gobiernos locales que **autorizan y financian** la atención vet
 - 💰 **Transparencia financiera**: Trazabilidad completa del uso de donaciones
 - 🏛️ **Cumplimiento legal**: Integración con gobiernos locales de cualquier país de LATAM para subvención de atención médica veterinaria
 
+## Estado Actual de Implementación
+
+> **Madurez general: ~25-30%** — La arquitectura de infraestructura está madura; las funcionalidades de negocio están en desarrollo activo.
+
+| Área Funcional | Madurez | Detalles |
+|----------------|---------|----------|
+| Infraestructura (Minikube, Terraform, ArgoCD, Infisical, Gateway API) | 90% | Madura y funcional |
+| CI/CD (GitHub Actions, build scripts, Harbor) | 85% | Pipeline completo |
+| Autenticación (JWT, RBAC roles, rate limiting) | 60% | Funcional. Falta: 2FA, OAuth2, password reset, verificación email |
+| Gestión de Usuarios/Organizaciones | 70% | CRUD, organizaciones, membresías. Falta: federación, desactivación |
+| App Móvil (Flutter) | 60% | Auth, orgs, perfil, mensajería shell. Falta: captura, adopción, donaciones, vet, mapa |
+| Rescate Animal | 20% | Solo entidad CaptureRequest. Falta: entidad Animal, workflows, asignación, casa cuna |
+| Gobierno (B2G) | 10% | Controller shell. Falta: gestión subsidios, reportes, multi-tenant |
+| Agent AI (matching rescatistas) | 0% | Especificado (specs/backend-agent/). Implementación pendiente |
+| Sistema Veterinario | 0% | Sprint 02-03 |
+| Sistema de Adopción | 0% | Sprint 03 |
+| Subsidio Veterinario Municipal | 0% | Sprint 02 |
+| Sistema Financiero/Donaciones | 0% | Sprint 04 |
+| Geolocalización (PostGIS, proximidad) | 0% | Coordenadas almacenadas pero sin búsqueda por proximidad |
+| Notificaciones en Tiempo Real / Chat | 0% | Sprint 01 (pendiente) |
+
+### Lo que funciona hoy
+
+- **Infraestructura completa**: Minikube, Terraform/OpenTofu, ArgoCD, Infisical, NGINX Gateway Fabric
+- **Backend NestJS monolito**: JWT auth, RBAC roles definidos, GraphQL con Apollo Server 5
+- **4 entidades**: User, CaptureRequest, Organization, OrganizationMembership
+- **App Flutter**: Flujos de auth, organizaciones, perfil
+- **Hashing dual**: SHA-256 pre-hash móvil + salt desde Infisical
+
+### Lo que está planificado
+
+- Migración a pnpm + Turborepo (monorepo workspaces)
+- Agent AI Service con LangGraph + FalkorDB + Zep + Langfuse
+- PostGIS para geolocalización, Redis para cache
+- Schema-first GraphQL completo (SDL upfront, resolvers incrementales)
+- Workflows con máquina de estados por tipo de solicitud
+
 ## 🎯 Principio de Responsabilidad Única en AltruPets
 
 ### ¿Qué es el Principio de Responsabilidad Única?
@@ -1121,7 +1158,7 @@ Animal: REPORTADO → EVALUADO → EN_RESCATE → EN_CUIDADO → ADOPTABLE → A
 #### Autenticación y Autorización
 
 - **REQ-SEC-001**: JWT con expiración 24 horas + refresh tokens
-- **REQ-SEC-002**: Credenciales hasheadas con bcrypt + salt mínimo 12 rounds
+- **REQ-SEC-002**: Credenciales hasheadas con esquema dual SHA-256 (pre-hash móvil) + bcrypt (servidor)
 - **REQ-SEC-003**: Bloqueo temporal de cuentas + notificación ante actividad sospechosa
 - **REQ-SEC-005**: Rate limiting de 1000 requests por minuto por usuario
 
@@ -1314,6 +1351,7 @@ graph TB
         I[Reputation<br/>$180/mes]
         J[Government<br/>$250/mes]
         K[Analytics<br/>$380/mes - Spot]
+        L[Agent AI<br/>:4000 - LangGraph]
     end
 
     A --> B
@@ -1326,6 +1364,9 @@ graph TB
     B --> I
     B --> J
     B --> K
+    A --> L
+    L --> C
+    L --> D
 ```
 
 ## 🛠️ Stack Tecnológico Cloud-Native
@@ -1351,22 +1392,32 @@ flutter_app:
 
 ```yaml
 microservices:
-  runtime: "Node.js 20 LTS"
+  runtime: "Node.js 22 LTS"
   framework: "NestJS 11 + TypeScript"
   api:
-    graphql: "Apollo Server 5.x"
+    graphql: "Apollo Server 5.x (schema-first)"
     rest: "Express 5.2.1"
 
   databases:
-    - "PostgreSQL 15 (Multi-AZ para críticos)"
-    - "PostGIS (Geolocation Service)"
-    - "MongoDB (Notification Service)"
-    - "Redis (Distributed Cache)"
-    - "ClickHouse (Analytics)"
+    active:
+      - "PostgreSQL 15 + PostGIS (relacional + geolocalización)"
+      - "Redis (cache, refresh tokens, sesiones)"
+      - "FalkorDB (grafo de rescatistas, Redis-compatible)"
+    planned:
+      - "MongoDB (Notification Service — cuando se implemente)"
+      - "ClickHouse (Analytics — cuando se implemente)"
 
   auth:
     jwt: "passport-jwt"
-    hashing: "bcrypt (12 rounds)"
+    hashing: "Dual SHA-256 + bcrypt (pre-hash móvil + hash servidor)"
+
+  ai_agent:
+    service: "Agent AI Service (:4000)"
+    orchestration: "LangGraph (StateGraph)"
+    llm: "OpenAI GPT-4o"
+    memory: "Zep Cloud (sesiones conversacionales)"
+    observability: "Langfuse (trazas LLM)"
+    graph_db: "FalkorDB (matching de rescatistas)"
 
   frontend_integration:
     inertia: "@lapc506/nestjs-inertia@1.0.0"

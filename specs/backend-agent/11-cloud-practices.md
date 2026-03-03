@@ -199,5 +199,5 @@ make dev-agent-logs
 make dev-falkordb-logs
 
 # GraphQL playground
-make dev-agent-port-forward  # http://localhost:3002/graphql
+make dev-agent-port-forward  # http://localhost:4000/graphql
 ```

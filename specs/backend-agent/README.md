@@ -22,7 +22,7 @@
 ## Arquitectura
 
 ```
-Mobile (Flutter) ──Bearer JWT──→ Agent (NestJS :3002/graphql)
+Mobile (Flutter) ──Bearer JWT──→ Agent (NestJS :4000/graphql)
                                     ├── LangGraph (StateGraph)
                                     ├── FalkorDB (:6379) ← graph + memory
                                     ├── Langfuse (observability)
@@ -35,5 +35,5 @@ Mobile (Flutter) ──Bearer JWT──→ Agent (NestJS :3002/graphql)
 make dev-minikube-deploy && make dev-terraform-deploy
 pnpm install
 make dev-agent-build && make dev-agent-deploy
-make dev-agent-port-forward   # http://localhost:3002/graphql
+make dev-agent-port-forward   # http://localhost:4000/graphql
 ```

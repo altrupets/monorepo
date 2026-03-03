@@ -1335,9 +1335,19 @@ CUANDO se desarrolle la aplicación ENTONCES DEBERÁ funcionar correctamente en 
 
 CUANDO un usuario se autentique ENTONCES el sistema DEBERÁ utilizar JWT con expiración de 24 horas y refresh tokens
 
-**REQ-SEC-002: Hash de credenciales con bcrypt (≥12 rounds)**
+**REQ-SEC-002: Hash de credenciales — esquema dual SHA-256 + bcrypt**
 
-CUANDO se almacenen credenciales ENTONCES DEBERÁN hashearse usando bcrypt con salt mínimo de 12 rounds
+CUANDO se almacenen credenciales ENTONCES el sistema DEBERÁ implementar un esquema de hashing de dos capas:
+
+1. **Capa cliente (mobile pre-hashing):** `SHA256(SHA256(password) + PASSWORD_SALT + username.toLowerCase())` — se ejecuta en el dispositivo móvil antes de transmitir la credencial al servidor. Esto evita enviar la contraseña en texto plano incluso sobre TLS, y permite que el servidor nunca conozca la contraseña original.
+
+2. **Capa servidor (almacenamiento):** Opcionalmente, el hash SHA-256 recibido puede ser procesado adicionalmente con bcrypt (≥12 rounds) antes de almacenarlo en la base de datos, añadiendo protección contra ataques de fuerza bruta sobre la base de datos.
+
+**Justificación de la evolución:**
+- El esquema original (solo bcrypt server-side) no contemplaba la necesidad de pre-hashing en clientes móviles Flutter donde la contraseña no debe abandonar el dispositivo en texto plano.
+- La sal `PASSWORD_SALT` se gestiona como secret en Infisical, compartido entre backend y mobile.
+- El doble SHA-256 con salt y username elimina ataques de rainbow tables y garantiza unicidad por usuario.
+- bcrypt como capa adicional server-side protege contra compromiso de la base de datos.
 
 **REQ-SEC-003: Bloqueo por actividad sospechosa y notificación**
 

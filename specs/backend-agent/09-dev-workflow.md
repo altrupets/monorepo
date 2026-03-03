@@ -8,7 +8,7 @@ make dev-falkordb-port-forward
 
 # Terminal 2: Agent en modo watch
 make dev-agent-start
-# NestJS watch mode en localhost:3002/graphql
+# NestJS watch mode en localhost:4000/graphql
 ```
 
 ## 9.2 Deploy Completo en K8s
@@ -23,7 +23,7 @@ make dev-agent-build && make dev-agent-deploy
 ```bash
 # Opcion A: port-forward directo
 make dev-agent-port-forward
-# abrir http://localhost:3002/graphql
+# abrir http://localhost:4000/graphql
 
 # Opcion B: via Gateway
 make dev-gateway-start

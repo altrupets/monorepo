@@ -70,7 +70,7 @@ En `apps/mobile/lib/core/utils/network_utils.dart`, agregar helper:
 ```dart
 static String getAgentGraphQLUrl() {
   if (kDebugMode) {
-    return '${getBaseUrl().replaceAll(':3001', ':3002')}/graphql';
+    return '${getBaseUrl().replaceAll(':3001', ':4000')}/graphql';
   }
   return 'https://agent.altrupets.app/graphql';
 }

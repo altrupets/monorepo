@@ -26,7 +26,7 @@ spec:
           image: localhost/altrupets-agent:dev
           ports:
             - name: http
-              containerPort: 3002
+              containerPort: 4000
           envFrom:
             - configMapRef:
                 name: agent-config
@@ -68,7 +68,7 @@ spec:
     app: agent
   ports:
     - name: http
-      port: 3002
+      port: 4000
       targetPort: http
 ```
 
@@ -81,7 +81,7 @@ metadata:
   name: agent-config
 data:
   NODE_ENV: "development"
-  PORT: "3002"
+  PORT: "4000"
   FALKORDB_HOST: "falkordb-service.altrupets-dev.svc.cluster.local"
   FALKORDB_PORT: "6379"
   BACKEND_GRAPHQL_URL: "http://backend-service.altrupets-dev.svc.cluster.local:3001/graphql"
@@ -128,7 +128,7 @@ spec:
             value: /agent/graphql
       backendRefs:
         - name: agent-service
-          port: 3002
+          port: 4000
 ```
 
 ### kustomization.yaml

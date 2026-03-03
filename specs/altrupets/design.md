@@ -80,10 +80,10 @@ El sistema implementa una arquitectura de microservicios autocontenidos con sepa
 │ │Reputation   │ │Government       │ │
 │ │Service      │ │Service          │ │
 │ └─────────────┘ └─────────────────┘ │
-│ ┌─────────────┐                     │
-│ │Analytics    │                     │
-│ │Service      │                     │
-│ └─────────────┘                     │
+│ ┌─────────────┐ ┌─────────────────┐ │
+│ │Analytics    │ │Agent AI         │ │
+│ │Service      │ │Service (:4000)  │ │
+│ └─────────────┘ └─────────────────┘ │
 └─────────────────────────────────────┘
 ```
 
@@ -633,6 +633,123 @@ GET  /api/v1/analytics/insights
 POST /api/v1/analytics/custom-query
 GET  /health
 ```
+
+## Agent AI Service (Microservicio de IA para Matching)
+
+### Descripción
+
+Microservicio NestJS independiente (puerto 4000) con GraphQL propio que utiliza inteligencia artificial para recomendar rescatistas óptimos ante una solicitud de captura. Opera como servicio autónomo que consulta el backend principal vía GraphQL y mantiene su propio grafo de conocimiento.
+
+### Stack Tecnológico del Agent
+
+```yaml
+agent_service:
+  runtime: "Node.js 22 LTS"
+  framework: "NestJS 11 + TypeScript"
+  api: "Apollo Server 5.x (GraphQL)"
+  port: 4000
+
+  ai_stack:
+    orchestration: "LangGraph (StateGraph)"
+    llm: "OpenAI GPT-4o (vía @langchain/openai)"
+    memory: "Zep Cloud (sesiones conversacionales)"
+    observability: "Langfuse (trazas LLM, métricas, costos)"
+
+  data:
+    graph_db: "FalkorDB (Redis-compatible, grafo de rescatistas)"
+    cache: "Redis (compartido con backend)"
+
+  auth:
+    method: "JWT compartido con backend (mismo JWT_SECRET)"
+    flow: "Mobile → login en Backend → Bearer token → Agent valida"
+```
+
+### Arquitectura del Agent
+
+```
+Mobile (Flutter) ──Bearer JWT──→ Agent (NestJS :4000/graphql)
+                                    ├── LangGraph (StateGraph)
+                                    │     ├── Nodo: Fetch datos del backend
+                                    │     ├── Nodo: Consultar grafo FalkorDB
+                                    │     ├── Nodo: Razonamiento LLM
+                                    │     └── Nodo: Generar recomendaciones
+                                    ├── FalkorDB (:6379) ← grafo de rescatistas + relaciones
+                                    ├── Zep Cloud ← memoria conversacional por sesión
+                                    ├── Langfuse ← observabilidad de trazas LLM
+                                    └── Backend (:3001/graphql) ← usuarios, capturas, ubicaciones
+```
+
+### Operaciones GraphQL del Agent
+
+```graphql
+type Mutation {
+  recommendRescuers(
+    captureRequestId: String!
+    latitude: Float!
+    longitude: Float!
+    animalType: String!
+  ): RecommendationResult!
+}
+
+type RecommendationResult {
+  sessionId: String!
+  message: String!
+  recommendations: [RescuerRecommendation!]!
+}
+
+type RescuerRecommendation {
+  userId: String!
+  username: String!
+  roles: [String!]!
+  distanceKm: Float!
+  score: Float!
+  reasoning: String!
+}
+```
+
+### Especificaciones Detalladas
+
+Las especificaciones completas del Agent AI Service se encuentran en `specs/backend-agent/` (pasos 01-11), cubriendo:
+- Infraestructura Minikube y Makefile (01)
+- Migración a Turborepo + pnpm workspaces (02)
+- Scaffold NestJS + GraphQL (03)
+- FalkorDB en Kubernetes (04)
+- Integración LangGraph + Zep + Langfuse (05)
+- Dockerfile multi-stage (06)
+- Manifests Kubernetes (07)
+- Build y carga en Minikube (08)
+- Workflow de desarrollo local (09)
+- Seguridad mobile → agent (10)
+- Mejores prácticas cloud (11)
+
+## Estrategia de Bases de Datos
+
+### Bases de Datos Activas
+
+| Base de Datos | Propósito | Servicio(s) | Estado |
+|---------------|-----------|-------------|--------|
+| **PostgreSQL 15** | Base relacional principal | Backend (todos los dominios) | Activo |
+| **PostGIS** (extensión PostgreSQL) | Geolocalización y búsqueda por proximidad | Geolocation, Animal Rescue | Habilitar ahora |
+| **Redis** | Cache, refresh tokens, sesiones, memoria Zep | Backend, Agent | Desplegar ahora |
+| **FalkorDB** | Grafo de rescatistas y relaciones (Redis-compatible) | Agent AI | Desplegar ahora |
+
+### Bases de Datos Diferidas
+
+| Base de Datos | Propósito | Cuándo |
+|---------------|-----------|--------|
+| **MongoDB** | Chat y mensajería en tiempo real | Cuando se implemente Notification Service |
+| **ClickHouse** | Analytics y métricas de negocio | Cuando se implemente Analytics Service |
+
+## Estrategia GraphQL: Schema-First
+
+### Enfoque
+
+Se define el SDL (Schema Definition Language) completo basado en las especificaciones de los 9 dominios de microservicios más el Agent AI. Los resolvers se implementan incrementalmente:
+
+1. **Schema completo definido upfront** — Tipos, inputs, enums para todos los dominios
+2. **Resolvers incrementales** — Se implementan por sprint, con `throw new Error('Not implemented')` como placeholder
+3. **Mobile puede codificar contra el schema inmediatamente** — Sin esperar a que los resolvers estén listos
+4. **Prioridad de implementación:** Sprint 01 (Auth, User, Animal Rescue, Geolocation) → Sprint 02 (Vet Subsidy, Government) → Sprint 03-04 (resto)
 
 ## Comunicación entre Microservicios
 

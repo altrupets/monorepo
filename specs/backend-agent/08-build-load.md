@@ -80,5 +80,5 @@ kubectl get pods -n altrupets-dev
 
 # 5. Verificar endpoint
 make dev-agent-port-forward &
-curl http://localhost:3002/health
+curl http://localhost:4000/health
 ```

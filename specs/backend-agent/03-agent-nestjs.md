@@ -130,7 +130,7 @@ async function bootstrap() {
     credentials: true,
   });
 
-  const port = config.get<number>('PORT', 3002);
+  const port = config.get<number>('PORT', 4000);
   await app.listen(port);
   console.log(`Agent GraphQL running on http://localhost:${port}/graphql`);
 }
@@ -207,7 +207,7 @@ export class HealthController {
 
 ```ts
 export const envConfig = () => ({
-  port: parseInt(process.env.PORT, 10) || 3002,
+  port: parseInt(process.env.PORT, 10) || 4000,
   nodeEnv: process.env.NODE_ENV || 'development',
 
   falkordb: {
