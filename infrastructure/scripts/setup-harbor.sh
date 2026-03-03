@@ -17,7 +17,7 @@ INFISICAL_PROJECT_ID="71bc533b-cabf-4793-9bf0-03dba6caf417"
 
 if [ -z "$ADMIN_PASSWORD" ]; then
 	log_info "Fetching Harbor password from Infisical..."
-	require_cmd infisical "Install Infisical CLI: https://infisical.com/docs/cli/usage"
+	require_infisical_session
 
 	INFISICAL_PASS=$(infisical secrets get HARBOR_PASSWORD --env=dev --projectId=$INFISICAL_PROJECT_ID --plain 2>/dev/null || echo "")
 	if [ -z "$INFISICAL_PASS" ]; then

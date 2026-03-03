@@ -100,11 +100,22 @@ setup_stitch() {
 	echo ""
 }
 
+check_infisical_session() {
+	if ! command -v infisical >/dev/null 2>&1; then
+		echo -e "${RED}❌ Infisical CLI is not installed${NC}"
+		return 1
+	fi
+	if ! timeout 5 infisical user get token </dev/null >/dev/null 2>&1; then
+		echo -e "${RED}❌ No active Infisical CLI session detected.${NC}"
+		echo -e "${BLUE}ℹ️  Run 'infisical login' to authenticate, then retry.${NC}"
+		return 1
+	fi
+}
+
 sync_stitch_env() {
 	echo -e "${BLUE}Syncing Stitch credentials to .env...${NC}"
 
-	if ! command -v infisical >/dev/null 2>&1; then
-		echo -e "${RED}Infisical CLI is not installed${NC}"
+	if ! check_infisical_session; then
 		return 1
 	fi
 

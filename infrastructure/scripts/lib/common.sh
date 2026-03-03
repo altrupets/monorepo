@@ -118,6 +118,18 @@ require_env() {
 	log_debug "Environment variable set: $var"
 }
 
+require_infisical_session() {
+	require_cmd infisical "Install Infisical CLI: https://infisical.com/docs/cli/usage"
+	# Attempt a lightweight check with stdin closed and a timeout to prevent
+	# interactive login prompts from hanging in non-interactive contexts
+	if ! timeout 5 infisical user get token </dev/null >/dev/null 2>&1; then
+		log_error "No active Infisical CLI session detected."
+		log_info "Run 'infisical login' to authenticate, then retry."
+		exit 1
+	fi
+	log_debug "Infisical session active"
+}
+
 validate_environment() {
 	local env="$1"
 	local valid_envs=("dev" "qa" "staging" "prod")
@@ -379,7 +391,7 @@ get_image_tag() {
 # ============================================
 
 export -f log_error log_warn log_info log_success log_debug log_step log_header
-export -f require_cmd require_env validate_environment
+export -f require_cmd require_env require_infisical_session validate_environment
 export -f wait_for_resource wait_for_namespace namespace_exists resource_exists
 export -f ensure_dir get_script_dir get_project_root
 export -f get_timestamp get_iso_timestamp format_duration
