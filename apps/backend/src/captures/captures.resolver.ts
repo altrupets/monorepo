@@ -24,6 +24,7 @@ export class CapturesResolver {
     }
 
     @Mutation(() => CaptureRequest)
+    @UseGuards(JwtAuthGuard)
     async createCaptureRequest(
         @Args('input') input: CreateCaptureInput,
     ) {

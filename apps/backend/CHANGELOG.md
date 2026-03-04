@@ -7,6 +7,52 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed - 2026-03-03
+
+#### JWT_SECRET - Hardcoded fallback removed
+
+- **Problema**: JWT_SECRET tenía un fallback hardcodeado 'secret' que comprometía la seguridad
+- **Solución**: Ahora lanza error si JWT_SECRET no está configurado
+- **Archivo modificado**: `/jwt.strategyapps/backend/src/auth.ts`
+
+#### Auth Guard - Missing on createCaptureRequest
+
+- **Problema**: La mutación `createCaptureRequest` no tenía `@UseGuards(JwtAuthGuard)`
+- **Causa**: Oversight durante implementación
+- **Solución**: Agregado el guard de autenticación
+- **Archivo modificado**: `apps/backend/src/captures/captures.resolver.ts`
+
+#### Redis Warning - Misleading message removed
+
+- **Problema**: Warning incorrecto que indicaba que Redis no estaba configurado cuando sí lo estaba
+- **Solución**: Removido el mensaje engañoso
+- **Archivo modificado**: `apps/backend/src/app.module.ts`
+
+### Added - 2026-03-03
+
+#### VetProfile Entity
+
+- **Nueva entidad**: `VetProfile` para registro de clínicas veterinarias
+- **Campos**: clinicName, licenseNumber, ubicación (lat/long), dirección, horarios, servicios
+- **CRUD completo**: Resolver, Service, DTOs para create/update
+- **Archivos nuevos**:
+  - `apps/backend/src/vet-profiles/entities/vet-profile.entity.ts`
+  - `apps/backend/src/vet-profiles/dto/vet-profile.input.ts`
+  - `apps/backend/src/vet-profiles/vet-profiles.service.ts`
+  - `apps/backend/src/vet-profiles/vet-profiles.resolver.ts`
+  - `apps/backend/src/vet-profiles/vet-profiles.module.ts`
+- **Modificado**: `apps/backend/src/app.module.ts`
+
+#### Linear MCP Integration
+
+- **Configuración**: Agregado servidor MCP para Linear en `mcp.json`
+- **Permite**: Gestión de issues directamente desde el agente
+
+### Changed - 2026-03-03
+
+- **TypeScript**: Fix en test `auth.service.spec.ts` (mockUser.id optional)
+- **Build**: Actualizado Makefile con nuevos targets MCP
+
 ### Fixed - 2026-02-26
 
 #### Dockerfile - Missing node_modules dependencies

@@ -159,7 +159,7 @@ help: ## Show this help message
 	@echo "  $(YELLOW)dev-ovh-configure$(NC)          Configure OVHCloud CLI from Infisical"
 	@echo ""
 	@echo "$(GREEN)DEV - MCP Servers:$(NC)"
-	@echo "  $(YELLOW)dev-mcp-start$(NC)              Start all MCP servers (context7, dart, graphql, etc.)"
+	@echo "  $(YELLOW)dev-mcp-start$(NC)              Start all MCP servers (context7, dart, graphql, mobile, linear)"
 	@echo "  $(YELLOW)dev-mcp-stop$(NC)               Stop all MCP servers"
 	@echo "  $(YELLOW)dev-mcp-status$(NC)             Check MCP servers status"
 	@echo ""
@@ -477,7 +477,7 @@ dev-ovh-configure: ## Configure OVHCloud CLI credentials from Infisical
 
 MCP_PID_DIR := /tmp/mcp-servers
 
-dev-mcp-start: ## Start all MCP servers (context7, dart, graphql, mobile)
+dev-mcp-start: ## Start all MCP servers (context7, dart, graphql, mobile, linear)
 	@mkdir -p $(MCP_PID_DIR)
 	@echo "$(BLUE)Starting MCP servers...$(NC)"
 	@if [ -f $(MCP_PID_DIR)/context7.pid ] && kill -0 $$(cat $(MCP_PID_DIR)/context7.pid) 2>/dev/null; then \
@@ -505,11 +505,18 @@ dev-mcp-start: ## Start all MCP servers (context7, dart, graphql, mobile)
 		npx -y @mobilenext/mobile-mcp@latest & echo $$! > $(MCP_PID_DIR)/mobile.pid; \
 		echo "$(GREEN)✓ mobile-mcp started$(NC)"; \
 	fi
+	@if [ -f $(MCP_PID_DIR)/linear.pid ] && kill -0 $$(cat $(MCP_PID_DIR)/linear.pid) 2>/dev/null; then \
+		echo "$(YELLOW)linear already running (PID: $$(cat $(MCP_PID_DIR)/linear.pid))$(NC)"; \
+	else \
+		LINEAR_API_KEY=$$(jq -r '.mcpServers.linear.env.AUTHORIZATION' mcp.json | sed 's/Bearer //') \
+			npx -y mcp-remote https://mcp.linear.app/mcp & echo $$! > $(MCP_PID_DIR)/linear.pid; \
+		echo "$(GREEN)✓ linear started$(NC)"; \
+	fi
 	@echo "$(GREEN)All MCP servers started. PIDs stored in $(MCP_PID_DIR)/$(NC)"
 
 dev-mcp-stop: ## Stop all MCP servers
 	@echo "$(BLUE)Stopping MCP servers...$(NC)"
-	@for server in context7 dart graphql mobile; do \
+	@for server in context7 dart graphql mobile linear; do \
 		if [ -f $(MCP_PID_DIR)/$$server.pid ]; then \
 			kill $$(cat $(MCP_PID_DIR)/$$server.pid) 2>/dev/null || true; \
 			rm -f $(MCP_PID_DIR)/$$server.pid; \
@@ -520,7 +527,7 @@ dev-mcp-stop: ## Stop all MCP servers
 
 dev-mcp-status: ## Check MCP servers status
 	@echo "$(BLUE)MCP Servers Status:$(NC)"
-	@for server in context7 dart graphql mobile; do \
+	@for server in context7 dart graphql mobile linear; do \
 		if [ -f $(MCP_PID_DIR)/$$server.pid ] && kill -0 $$(cat $(MCP_PID_DIR)/$$server.pid) 2>/dev/null; then \
 			echo "  $(GREEN)● $$server$(NC) running (PID: $$(cat $(MCP_PID_DIR)/$$server.pid))"; \
 		else \

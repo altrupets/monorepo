@@ -19,6 +19,8 @@ import { WebModule } from './web/web.module';
 import { OrganizationsModule } from './organizations/organizations.module';
 import { Organization } from './organizations/entities/organization.entity';
 import { OrganizationMembership } from './organizations/entities/organization-membership.entity';
+import { VetProfilesModule } from './vet-profiles/vet-profiles.module';
+import { VetProfile } from './vet-profiles/entities/vet-profile.entity';
 
 @Module({
   imports: [
@@ -60,7 +62,7 @@ import { OrganizationMembership } from './organizations/entities/organization-me
           const envName = configService.get<string>('ENV_NAME', 'dev');
           return `altrupets_${envName}_database`;
         })(),
-        entities: [User, CaptureRequest, Organization, OrganizationMembership],
+        entities: [User, CaptureRequest, Organization, OrganizationMembership, VetProfile],
         synchronize: configService.get<string>('NODE_ENV') !== 'production',
         migrations: [join(__dirname, 'migrations', '*{.ts,.js}')],
         migrationsRun: false,
@@ -71,14 +73,7 @@ import { OrganizationMembership } from './organizations/entities/organization-me
       isGlobal: true,
       imports: [ConfigModule],
       useFactory: async (configService: ConfigService) => {
-        const ttlMs = configService.get<number>('CACHE_TTL', 600) * 1000; // 10 minutes default
-        const redisUrl = configService.get<string>('REDIS_URL');
-        if (redisUrl) {
-          console.warn(
-            'REDIS_URL is set but Redis cache adapter is not configured; using in-memory cache for now.',
-          );
-        }
-
+        const ttlMs = configService.get<number>('CACHE_TTL', 600) * 1000;
         return {
           ttl: ttlMs,
         };
@@ -97,6 +92,7 @@ import { OrganizationMembership } from './organizations/entities/organization-me
     CapturesModule,
     WebModule,
     OrganizationsModule,
+    VetProfilesModule,
   ],
   controllers: [AppController],
   providers: [AppService],

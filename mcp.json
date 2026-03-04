@@ -48,6 +48,17 @@
         "chrome-devtools-mcp"
       ],
       "env": {}
+    },
+    "linear": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "mcp-remote",
+        "https://mcp.linear.app/mcp"
+      ],
+      "env": {
+        "AUTHORIZATION": "Bearer ${LINEAR_API_KEY}"
+      }
     }
   }
 }

@@ -150,7 +150,7 @@ describe('AuthService', () => {
 
   describe('logout', () => {
     it('should invalidate tokens', async () => {
-      await service.logout(mockUser.id, 'refresh-token');
+      await service.logout(mockUser.id!, 'refresh-token');
 
       expect(mockCacheManager.del).toHaveBeenCalledTimes(2);
     });
