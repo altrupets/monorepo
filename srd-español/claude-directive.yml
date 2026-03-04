@@ -1,0 +1,200 @@
+# Directiva Claude — AltruPets
+# Prioridades legibles por máquina para agentes de IA y desarrolladores
+# Generado: 2026-03-03 | Objetivo: $10K MRR
+
+north_star:
+  primary: >
+    ¿Puede un rescatista con animales en su casa cuna enviar una solicitud de subsidio
+    veterinario, que se enrute automáticamente a la municipalidad correcta, sea aprobada
+    por un coordinador, Y esa municipalidad pueda ver el caso en su panel — todo dentro
+    de una sola sesión?
+  secondary: >
+    ¿Puede un usuario autenticado presentar un reporte de maltrato animal con GPS + fotos
+    y rastrear su estado mediante un código único?
+
+priority_rules:
+  # Ordenadas. La regla 1 es suprema. Nunca violar una regla superior para satisfacer una inferior.
+  - rule: 1
+    name: "Caminos de ingresos B2G primero"
+    description: >
+      El flujo de subsidio veterinario (J4) y reportes de maltrato (J5) se lanzan antes que
+      todo lo demás. Las municipalidades son el 80% de los ingresos. Cada sprint debe avanzar
+      J4 o J5.
+
+  - rule: 2
+    name: "Los animales deben existir antes de que algo funcione"
+    description: >
+      La entidad Animal + gestión de Casa Cuna (J6) es la fundación.
+      Sin animales = sin adopciones, sin subsidios, sin donaciones, sin métricas.
+
+  - rule: 3
+    name: "La autenticación debe ser sólida"
+    description: >
+      La renovación de tokens, sistema unificado de auth y correcciones de seguridad (QW-1 a QW-5)
+      son bloqueadores silenciosos de ingresos. Auth rota = todo roto.
+
+  - rule: 4
+    name: "Las clínicas veterinarias son la segunda fuente de ingresos"
+    description: >
+      El perfil veterinario, registro de clínica e integración de subsidios (J9) habilitan el
+      20% de ingresos provenientes de suscripciones de clínicas. No descuidar la UX veterinaria.
+
+  - rule: 5
+    name: "Nunca intermediar fondos"
+    description: >
+      AltruPets facilita donaciones persona a persona y pagos de gobierno a veterinario.
+      La plataforma NUNCA retiene, procesa ni enruta dinero a través de sus cuentas.
+      El cumplimiento con SUGEF (Ley 7786, Arts. 15/15 bis) es innegociable.
+
+  - rule: 6
+    name: "La coordinación de rescate es entrega de valor, no crítica para ingresos"
+    description: >
+      El pipeline centinela -> auxiliar -> rescatista (J2) es importante pero NO es
+      prerrequisito para subsidios, adopciones o reportes de maltrato. No bloquear funciones
+      de ingresos esperando J2.
+
+  - rule: 7
+    name: "El panel siempre está activo"
+    description: >
+      El panel municipal (J7) debe mostrar los datos que existan. Nunca mostrar
+      estados vacíos — poblar con métricas disponibles desde el día uno.
+
+  - rule: 8
+    name: "Los rescatistas pagan $0 para siempre"
+    description: >
+      Las organizaciones de rescate y rescatistas individuales son creadores de valor, no
+      fuentes de ingresos. Nunca agregar muros de pago para rescatistas. Son el oxígeno de la plataforma.
+
+  - rule: 9
+    name: "Los reportes de maltrato requieren autenticación"
+    description: >
+      A diferencia de otras plataformas, los reportes de maltrato de AltruPets NO son anónimos.
+      Los usuarios deben tener sesión iniciada para presentar un reporte. Esto garantiza rendición de cuentas.
+
+  - rule: 10
+    name: "Las donaciones en especie son de primera clase"
+    description: >
+      Las donaciones incluyen bienes físicos (comida, medicina, juguetes, excedentes), no solo
+      dinero. El sistema de donaciones debe soportar listas de necesidades vinculadas al inventario de casa cuna.
+
+anti_patterns:
+  - id: AP-1
+    name: "Construir pipeline de rescate antes de subsidios"
+    why_wrong: >
+      Los subsidios (J4) no dependen del flujo centinela -> auxiliar -> rescatista (J2).
+      Los animales que ya están en casa cuna pueden solicitar subsidios directamente.
+      No bloquear ingresos esperando la coordinación de rescate.
+
+  - id: AP-2
+    name: "Enrutar donaciones a través de AltruPets"
+    why_wrong: >
+      Esto activa la supervisión de SUGEF (Ley 7786, Arts. 15/15 bis). Las donaciones deben
+      ser persona a persona: donante -> cuenta bancaria de la organización vía SINPE/transferencia bancaria.
+      AltruPets registra pero nunca toca los fondos.
+
+  - id: AP-3
+    name: "Agregar funciones para organizaciones de rescate antes que para municipalidades"
+    why_wrong: >
+      Las municipalidades son el 80% de los ingresos. Las ONG usan gratis. Construir para el comprador primero.
+      Las funciones para rescatistas son entrega de valor, no críticas para ingresos.
+
+  - id: AP-4
+    name: "Descomponer en microservicios antes de que el monolito funcione"
+    why_wrong: >
+      El monolito actual de NestJS debe entregar el MVP. La descomposición en microservicios
+      ocurre después del product-market fit, no antes.
+
+  - id: AP-5
+    name: "Sobre-diseñar RBAC antes de los flujos de trabajo principales"
+    why_wrong: >
+      El sistema de auth ya tiene 10 roles. No agregar más complejidad de permisos.
+      Construir primero los flujos de trabajo que esos roles necesitan.
+
+  - id: AP-6
+    name: "Priorizar chat sobre notificaciones push"
+    why_wrong: >
+      El chat funciona parcialmente (Firebase Firestore). Las notificaciones push tienen cero
+      implementación y son críticas para alertas en tiempo real. Push > chat.
+
+  - id: AP-7
+    name: "Permitir reportes de maltrato anónimos"
+    why_wrong: >
+      AltruPets requiere autenticación para reportes de maltrato. Esto garantiza rendición de cuentas,
+      permite seguimiento y previene spam/reportes falsos.
+
+  - id: AP-8
+    name: "Cobrar a organizaciones de rescate"
+    why_wrong: >
+      Las ONG sobreviven con donaciones. Si se van, todo el ecosistema colapsa:
+      sin animales -> sin subsidios -> sin contratos municipales -> sin ingresos.
+
+persona_quick_reference:
+  revenue_anchors:
+    P01_Gabriela: "Compradora municipal, 75% de ingresos, contratos B2G a $750/mes prom."
+    P03_DrCarlos: "Clínica veterinaria pagadora, 18% de ingresos, suscripciones a $80/mes prom."
+
+  ecosystem_oxygen:
+    P05_Sofia: "Rescatista individual, usuaria avanzada diaria, 0% de ingresos, genera toda la actividad de subsidios/adopciones"
+    P06_Miguel: "Líder de ONG, mayor viralidad (10), trae redes completas a la plataforma"
+
+  top_of_funnel:
+    P07_Andrea: "Centinela, 40% de usuarios, debe reportar en <3 minutos o abandona"
+
+  critical_link:
+    P08_Diego: "Auxiliar, puente entre reportes y rescatistas, se quema si recibe demasiadas notificaciones"
+
+journey_acceptance_criteria:
+  J1_signup:
+    - "El usuario se registra y ve la pantalla de inicio apropiada a su rol en <60 segundos"
+    - "El token se renueva automáticamente sin intervención del usuario"
+
+  J4_vet_subsidy:
+    - "El rescatista crea solicitud de subsidio con municipalidad auto-detectada en <5 minutos"
+    - "El coordinador municipal puede aprobar/rechazar desde el panel web"
+    - "Expiración automática si no hay respuesta en las horas configuradas"
+    - "Pista de auditoría completa desde la solicitud hasta la resolución"
+
+  J5_abuse_report:
+    - "El usuario autenticado presenta reporte con GPS + fotos en <3 minutos"
+    - "Código de seguimiento emitido inmediatamente"
+    - "El reporte aparece en el panel municipal en 30 segundos"
+
+  J6_casa_cuna:
+    - "El rescatista registra casa cuna y agrega animales con fotos/notas médicas"
+    - "Lista de necesidades publicada y visible para donantes (efectivo + en especie)"
+
+  J7_municipal_dashboard:
+    - "El panel muestra KPIs con alcance de jurisdicción a partir de los datos disponibles"
+    - "La cola de subsidios pendientes es accionable (aprobar/rechazar en línea)"
+    - "Reporte de transparencia exportable como PDF"
+
+  J9_vet_onboarding:
+    - "El veterinario se registra con credenciales profesionales y perfil de clínica"
+    - "Aparece en búsquedas por proximidad para rescatistas"
+    - "La propuesta de mejora basada en uso aparece al alcanzar el umbral de volumen"
+
+current_top_priorities:
+  - id: "T0-1 + T0-2"
+    description: "Entidad Animal + gestión de Casa Cuna — fundación para todo"
+    revenue_at_risk: "$3,500/mes (bloquea J4, J3, J6, J8)"
+    effort: "M (días)"
+
+  - id: "T0-4 + T0-5"
+    description: "Flujo de subsidio veterinario + panel de revisión municipal — funcionalidad estrella B2G"
+    revenue_at_risk: "$5,400/mes (bloquea J4, J7)"
+    effort: "L (semanas)"
+
+  - id: "T0-6"
+    description: "Flujo de reporte de maltrato — segunda propuesta de valor B2G, camino paralelo"
+    revenue_at_risk: "$1,425/mes"
+    effort: "M (días)"
+
+  - id: "T0-3 + QW-1..5"
+    description: "Reforzamiento de auth + victorias rápidas de seguridad — bloqueadores silenciosos"
+    revenue_at_risk: "$200/mes directo, infinito indirecto"
+    effort: "M (días)"
+
+  - id: "T0-8 + T0-9"
+    description: "Perfil/clínica veterinaria + PostGIS — habilita ingresos veterinarios + proximidad para todos"
+    revenue_at_risk: "$1,000/mes"
+    effort: "M (días)"

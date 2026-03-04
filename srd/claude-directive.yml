@@ -1,0 +1,199 @@
+# Claude Directive — AltruPets
+# Machine-readable priorities for AI agents and developers
+# Generated: 2026-03-03 | Target: $10K MRR
+
+north_star:
+  primary: >
+    Can a rescuer with animals in her casa cuna submit a vet subsidy request,
+    have it auto-route to the correct municipality, get approved by a coordinator,
+    AND can that municipality view the case on their dashboard — all within a
+    single session?
+  secondary: >
+    Can an authenticated user file an animal abuse report with GPS + photos
+    and track its status via a unique code?
+
+priority_rules:
+  # Ordered. Rule 1 is supreme. Never violate a higher rule to satisfy a lower one.
+  - rule: 1
+    name: "B2G revenue paths first"
+    description: >
+      Vet subsidy workflow (J4) and abuse reporting (J5) ship before anything else.
+      Municipalities are 80% of revenue. Every sprint must move J4 or J5 forward.
+
+  - rule: 2
+    name: "Animals must exist before anything works"
+    description: >
+      The Animal entity + Casa Cuna management (J6) is the foundation.
+      No animals = no adoptions, no subsidies, no donations, no metrics.
+
+  - rule: 3
+    name: "Auth must be solid"
+    description: >
+      Token refresh, unified auth system, and security fixes (QW-1 through QW-5)
+      are silent revenue blockers. Broken auth = broken everything.
+
+  - rule: 4
+    name: "Vet clinics are the second revenue stream"
+    description: >
+      Vet profile, clinic registration, and subsidy integration (J9) enable the
+      20% of revenue from clinic subscriptions. Don't neglect vet UX.
+
+  - rule: 5
+    name: "Never intermediate funds"
+    description: >
+      AltruPets facilitates peer-to-peer donations and government-to-vet payments.
+      The platform NEVER holds, processes, or routes money through its accounts.
+      SUGEF compliance (Ley 7786, Arts. 15/15 bis) is non-negotiable.
+
+  - rule: 6
+    name: "Rescue coordination is value-delivery, not revenue-critical"
+    description: >
+      The sentinel -> auxiliary -> rescuer pipeline (J2) is important but NOT a
+      prerequisite for subsidies, adoptions, or abuse reports. Don't block revenue
+      features waiting for J2.
+
+  - rule: 7
+    name: "Dashboard is always-on"
+    description: >
+      The municipal dashboard (J7) should display whatever data exists. Never show
+      empty states — populate with available metrics from day one.
+
+  - rule: 8
+    name: "Rescuers pay $0 forever"
+    description: >
+      Rescue organizations and individual rescuers are value creators, not revenue
+      sources. Never add paywalls for rescuers. They are the oxygen of the platform.
+
+  - rule: 9
+    name: "Abuse reports require authentication"
+    description: >
+      Unlike some platforms, AltruPets abuse reports are NOT anonymous. Users must
+      be logged in to file a report. This ensures accountability.
+
+  - rule: 10
+    name: "In-kind donations are first-class"
+    description: >
+      Donations include physical goods (food, medicine, toys, surplus stock), not just
+      money. The donation system must support needs lists tied to casa cuna inventory.
+
+anti_patterns:
+  - id: AP-1
+    name: "Build rescue pipeline before subsidies"
+    why_wrong: >
+      Subsidies (J4) don't depend on sentinel -> auxiliary -> rescuer flow (J2).
+      Animals already in foster care can request subsidies directly.
+      Don't block revenue waiting for rescue coordination.
+
+  - id: AP-2
+    name: "Route donations through AltruPets"
+    why_wrong: >
+      This triggers SUGEF oversight (Ley 7786, Arts. 15/15 bis). Donations must
+      be peer-to-peer: donor -> org bank account via SINPE/bank transfer.
+      AltruPets records but never touches funds.
+
+  - id: AP-3
+    name: "Add features for rescuer orgs before municipalities"
+    why_wrong: >
+      Municipalities are 80% of revenue. NGOs use for free. Build for the buyer first.
+      Rescuer features are value-delivery, not revenue-critical.
+
+  - id: AP-4
+    name: "Decompose into microservices before monolith works"
+    why_wrong: >
+      The current NestJS monolith should deliver the MVP. Microservice decomposition
+      happens after product-market fit, not before.
+
+  - id: AP-5
+    name: "Over-engineer RBAC before core workflows"
+    why_wrong: >
+      The auth system already has 10 roles. Don't add more permission complexity.
+      Build the workflows those roles need first.
+
+  - id: AP-6
+    name: "Prioritize chat over push notifications"
+    why_wrong: >
+      Chat partially works (Firebase Firestore). Push notifications have zero
+      implementation and are critical for real-time alerts. Push > chat.
+
+  - id: AP-7
+    name: "Allow anonymous abuse reports"
+    why_wrong: >
+      AltruPets requires authentication for abuse reports. This ensures accountability,
+      enables follow-up, and prevents spam/false reports.
+
+  - id: AP-8
+    name: "Charge rescue organizations"
+    why_wrong: >
+      NGOs survive on donations. If they leave, the entire ecosystem collapses:
+      no animals -> no subsidies -> no municipal contracts -> no revenue.
+
+persona_quick_reference:
+  revenue_anchors:
+    P01_Gabriela: "Municipal buyer, 75% revenue, B2G contracts at $750/mo avg"
+    P03_DrCarlos: "Vet clinic payer, 18% revenue, subscriptions at $80/mo avg"
+
+  ecosystem_oxygen:
+    P05_Sofia: "Individual rescuer, daily power user, 0% revenue, generates all subsidy/adoption activity"
+    P06_Miguel: "NGO leader, highest virality (10), brings entire networks to platform"
+
+  top_of_funnel:
+    P07_Andrea: "Sentinel, 40% of users, must report in <3 minutes or churns"
+
+  critical_link:
+    P08_Diego: "Auxiliary, bridges reports to rescuers, burns out if over-notified"
+
+journey_acceptance_criteria:
+  J1_signup:
+    - "User registers and sees role-appropriate home screen in <60 seconds"
+    - "Token auto-refreshes without user intervention"
+
+  J4_vet_subsidy:
+    - "Rescuer creates subsidy request with auto-detected municipality in <5 minutes"
+    - "Municipal coordinator can approve/reject from web dashboard"
+    - "Auto-expires if no response within configured hours"
+    - "Complete audit trail from request to resolution"
+
+  J5_abuse_report:
+    - "Authenticated user files report with GPS + photos in <3 minutes"
+    - "Tracking code issued immediately"
+    - "Report appears in municipal dashboard within 30 seconds"
+
+  J6_casa_cuna:
+    - "Rescuer registers foster home and adds animals with photos/medical notes"
+    - "Needs list published and visible to donors (cash + in-kind)"
+
+  J7_municipal_dashboard:
+    - "Dashboard shows jurisdiction-scoped KPIs from whatever data is available"
+    - "Pending subsidy queue is actionable (approve/reject inline)"
+    - "Transparency report exportable as PDF"
+
+  J9_vet_onboarding:
+    - "Vet registers with professional credentials and clinic profile"
+    - "Appears in proximity searches for rescuers"
+    - "Usage-based upgrade prompt appears at volume threshold"
+
+current_top_priorities:
+  - id: "T0-1 + T0-2"
+    description: "Animal entity + Casa Cuna management — foundation for everything"
+    revenue_at_risk: "$3,500/mo (blocks J4, J3, J6, J8)"
+    effort: "M (days)"
+
+  - id: "T0-4 + T0-5"
+    description: "Vet subsidy workflow + municipal review dashboard — B2G killer feature"
+    revenue_at_risk: "$5,400/mo (blocks J4, J7)"
+    effort: "L (weeks)"
+
+  - id: "T0-6"
+    description: "Abuse report flow — second B2G value proposition, parallel path"
+    revenue_at_risk: "$1,425/mo"
+    effort: "M (days)"
+
+  - id: "T0-3 + QW-1..5"
+    description: "Auth hardening + security quick wins — silent blockers"
+    revenue_at_risk: "$200/mo direct, infinite indirect"
+    effort: "M (days)"
+
+  - id: "T0-8 + T0-9"
+    description: "Vet profile/clinic + PostGIS — enables vet revenue + proximity for all"
+    revenue_at_risk: "$1,000/mo"
+    effort: "M (days)"

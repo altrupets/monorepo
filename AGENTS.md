@@ -93,6 +93,58 @@ skills/
 | [GraphQL](skills/graphql/SKILL.md) | graphql | Cliente GraphQL |
 | [Static Analysis](skills/static-analysis/SKILL.md) | lint, sast | Dart Analyzer, Datadog SAST |
 
+## Linear MCP — Taxonomía Obligatoria de Labels
+
+Cuando se interactúe con Linear vía MCP (crear issues, asignar labels, buscar issues), **siempre** usar la siguiente taxonomía de labels. Esta sección es la fuente de verdad única.
+
+### Grupos Exclusivos (solo uno por grupo por issue)
+
+**Type** (requerido):
+| Label | Cuándo usarlo |
+|-------|---------------|
+| Bug | Algo está roto. Crashes, errores, violaciones de spec. |
+| Chore | Mantenimiento sin cambio visible para el usuario. Deps, CI/CD, docs. |
+| Feature | Capacidad nueva que no existe. Página, endpoint, evento, campaña. |
+| Spike | Investigación con tiempo acotado. Output = conocimiento. ADR, PoC, eval. |
+| Improvement | Mejora a funcionalidad existente. UX, perf, refactor, mejor proceso. |
+| Design | Trabajo UI/UX o creativo. Mockups, design system, branding. |
+
+**Size** (requerido, mapea a presupuesto de tokens AI):
+| Label | Tokens | Tiempo | Alcance |
+|-------|--------|--------|---------|
+| XS | <50K | ~30 min | Un archivo, cambio obvio |
+| S | 50-100K | ~2-4 hrs | 2-3 archivos, bien acotado |
+| M | 100-200K | ~1-2 días | Cross-módulo. Front + back + tests |
+| L | 200-500K | ~3-5 días | Cross-capa, afecta arquitectura |
+| XL | 500K+ | — | Scope de epic. Requiere descomposición |
+
+**Strategy** (opcional para no-engineering):
+| Label | Cuándo usarlo |
+|-------|---------------|
+| Solo | Un agente, end-to-end. Requerimientos claros. |
+| Explore | Scope desconocido — investigar ANTES de proponer solución. |
+| Team | Múltiples agentes en paralelo. Front + back + tests concurrente. |
+| Human | Requiere decisión humana. UX, lógica de negocio, arquitectura. |
+| Worktree | Aislamiento git worktree. Cambios riesgosos o experimentales. |
+| Review | Solo auditoría/revisión — sin cambios de código. Output es reporte. |
+
+### Labels Combinables (sin grupo, se pueden poner varios)
+
+**Component:** Frontend, Backend, Database, Security, Performance, Infra, Testing, Web Quality
+
+**Impact:** Critical Path, Revenue, Grant
+
+**Flags:** Blocked, Quick Win, Epic
+
+### Reglas al usar Linear MCP
+
+1. **Siempre asignar al menos Type + Size** al crear un issue
+2. **XL = descomponer** — nunca crear un issue XL sin sub-issues
+3. **Strategy determina la ejecución** — Solo→agente individual, Team→Agent Teams, Human→esperar decisión
+4. **Component es combinable** — un issue puede ser Backend + Database + Testing
+5. **Labels existentes** — verificar con `list_issue_labels` antes de crear duplicados
+6. **Asignar al proyecto correcto** — mapear al proyecto Linear que corresponda (Mobile App, Backend, Agent AI, Infrastructure & DevOps, etc.)
+
 ## MCP Servers
 
 Configurados en `mcp.json`:
@@ -105,6 +157,7 @@ Configurados en `mcp.json`:
 | Context7 | Documentación técnica |
 | Mobile | Gestión de dispositivos |
 | Stitch | Generación de UI |
+| Linear | Gestión de issues, labels, proyectos (ver taxonomía arriba) |
 
 Ver [docs/MCP_SETUP.md](./docs/MCP_SETUP.md) para configuración.
 
@@ -115,4 +168,59 @@ Ver [docs/MCP_SETUP.md](./docs/MCP_SETUP.md) para configuración.
 
 ---
 
-**Última actualización:** Febrero 2025
+## SRD Framework — Active Directive
+
+> Generated 2026-03-03 via SRD Assess | Target: $10K MRR | Full docs in `srd/`
+
+### North Star Test
+
+> Can a rescuer submit a vet subsidy request, have it auto-route to the correct municipality, get approved, AND can that municipality view it on their dashboard?
+
+### Priority Rules (ordered, #1 is supreme)
+
+1. **B2G revenue paths first** — subsidies (J4) + abuse reports (J5) before all else. Municipalities = 80% revenue.
+2. **Animals must exist** — Animal entity + Casa Cuna (J6) is the foundation for everything.
+3. **Auth must be solid** — token refresh, security fixes are silent blockers.
+4. **Vet clinics are second revenue** — vet profile + subsidy integration enables 20% of revenue.
+5. **Never intermediate funds** — peer-to-peer only. SUGEF compliance (Ley 7786) is non-negotiable.
+6. **Rescue coordination != revenue** — sentinel->auxiliary->rescuer (J2) is value-delivery, not a prerequisite for subsidies or adoptions.
+7. **Dashboard is always-on** — show whatever data exists, never empty states.
+8. **Rescuers pay $0 forever** — they are the oxygen of the platform, not revenue.
+9. **Abuse reports require auth** — accountability over anonymity.
+10. **In-kind donations are first-class** — food, medicine, toys alongside cash.
+
+### Anti-Patterns (NEVER do these)
+
+- Don't build rescue pipeline before subsidies (J4 is independent from J2)
+- Don't route donations through AltruPets (triggers SUGEF)
+- Don't prioritize rescuer features over municipality features
+- Don't decompose to microservices before monolith MVP works
+- Don't over-engineer RBAC before workflows exist
+- Don't build chat before push notifications
+- Don't allow anonymous abuse reports
+- Don't charge rescue organizations
+
+### Current Top Priority
+
+**T0-1 + T0-2**: Animal entity + Casa Cuna management — $3,500/mo at risk, blocks J4/J3/J6/J8
+
+### Revenue Anchors
+
+- **P01 Gabriela** (Municipal buyer): 75% of revenue, B2G contracts
+- **P03 Dr. Carlos** (Vet clinic): 18% of revenue, subscriptions
+- **P05 Sofia** (Rescuer): 0% revenue but generates ALL subsidy/adoption activity — the oxygen
+
+### SRD Files
+
+| File | Contents |
+|------|----------|
+| [`srd/SRD.md`](srd/SRD.md) | Combined single document |
+| [`srd/success-reality.md`](srd/success-reality.md) | KPIs, revenue breakdown, activity targets |
+| [`srd/personas.yml`](srd/personas.yml) | 10 synthetic personas with lifecycles |
+| [`srd/journeys.md`](srd/journeys.md) | 10 critical journeys with scores |
+| [`srd/gap-audit.md`](srd/gap-audit.md) | Persona x Journey matrix, fix list |
+| [`srd/claude-directive.yml`](srd/claude-directive.yml) | Machine-readable priorities |
+
+---
+
+**Última actualización:** Marzo 2026

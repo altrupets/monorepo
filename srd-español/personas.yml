@@ -1,0 +1,728 @@
+# Personas Sintéticas — AltruPets
+# Generado: 2026-03-03
+# Objetivo: $10K MRR | 10 Personas | 7 Roles de Usuario
+
+ecosystem:
+  money_flow: |
+    Municipalidades --[$7,500/mes]--> AltruPets (contratos B2G)
+    Clínicas Veterinarias ----[$2,000/mes]--> AltruPets (suscripciones)
+    Usuarios Avanzados ----[$500/mes]----> AltruPets (funciones premium)
+    Donantes --------[$25K/mes]----> Organizaciones de Rescate (directo, NO a través de AltruPets)
+    Municipalidades -[$50K/mes]---> Clínicas Veterinarias (subsidios, facilitados por AltruPets)
+
+  value_flow: |
+    Centinelas --> reportan animales --> Auxiliares --> rescatan --> Rescatistas --> acogen --> Adoptantes
+                                                        |
+                                                  Clínicas Veterinarias (atención médica)
+                                                        |
+                                                  Municipalidades (pagan subsidios)
+
+  vulnerability_chain: |
+    Si los rescatistas (P05/P06) abandonan:
+      -> no hay casas cuna -> no hay animales en el sistema
+      -> no hay listados de adopción -> no hay solicitudes de subsidio
+      -> las municipalidades no ven valor -> los ingresos colapsan
+    Los rescatistas son el oxígeno de la plataforma aunque paguen $0.
+
+  revenue_anchors:
+    - P01_Gabriela: "Compradora municipal, 75% de ingresos"
+    - P03_DrCarlos: "Clínica veterinaria pagadora, 18% de ingresos"
+
+  ecosystem_oxygen:
+    - P05_Sofia: "Rescatista individual, 0% de ingresos, genera toda la actividad de subsidios/adopciones"
+    - P06_Miguel: "Líder de ONG, mayor viralidad (10), trae redes completas"
+
+  top_of_funnel:
+    - P07_Andrea: "Centinela, 40% de usuarios, menor nivel de compromiso"
+
+  critical_link:
+    - P08_Diego: "Auxiliar, puente entre reportes y rescatistas"
+
+personas:
+  - id: P01
+    name: Gabriela
+    archetype: "Tomadora de Decisiones B2G"
+    age: 42
+    location: "San José, Costa Rica"
+    background: >
+      15 años en administración pública. Gestiona el presupuesto municipal de bienestar
+      animal (~$200K/año). Reporta al alcalde. Bajo presión para mostrar impacto
+      medible con dinero de los contribuyentes.
+    goals:
+      - Justificar el gasto en bienestar animal con datos
+      - Reducir tiempos de respuesta a reportes de maltrato
+      - Demostrar cumplimiento de la Ley 9458
+    pain_points:
+      - Rastrea subsidios en Excel, no puede demostrar que el dinero fue bien gastado
+      - Ahogada en formularios en papel de clínicas veterinarias
+      - La línea telefónica municipal para reportes de maltrato tiene tiempos de espera de 45 minutos
+    tech_stack: ["Excel", "WhatsApp", "Email", "Portal gubernamental"]
+    languages: ["es"]
+    wallet:
+      income: "$2,500/mes (salario de servidora pública)"
+      plan_progression: "Nivel B2G Mediano desde el Día 1"
+      upgrade_trigger: "Demo mostrando que la aprobación de subsidios + seguimiento de maltrato reduce la administración semanal de 15h a 2h"
+      monthly_spend: "$800/mes (partida del presupuesto municipal)"
+      ltv: "$19,200 (24 meses x $800)"
+      user_percentage: 1
+      revenue_percentage: 75
+    lifecycle:
+      - time: "Día 1"
+        actions: "Ve AltruPets en una conferencia de bienestar animal. Solicita demo."
+        features_touched: ["Sitio de marketing", "Reserva de demo"]
+        classification: "Revenue-Critical"
+      - time: "Semana 1"
+        actions: "Acuerdo piloto firmado. Incorporada con 3 cuentas de personal."
+        features_touched: ["Registro", "Configuración de organización", "Asignación de roles"]
+        classification: "Revenue-Critical"
+      - time: "Semana 2"
+        actions: "Primer subsidio veterinario procesado a través de la plataforma. 'Esto reemplazó 4 correos y un fax.'"
+        features_touched: ["Panel de subsidios", "Flujo de aprobación"]
+        classification: "Revenue-Critical"
+      - time: "Mes 1"
+        actions: "15 solicitudes de subsidio procesadas. Primer reporte de maltrato rastreado de extremo a extremo. Presenta métricas al alcalde."
+        features_touched: ["KPIs del panel", "Seguimiento de maltrato", "Generación de reportes"]
+        classification: "Revenue-Critical"
+      - time: "Mes 2"
+        actions: "Casi abandona — el departamento de TI plantea preocupaciones de seguridad. AltruPets proporciona documentación de cumplimiento."
+        features_touched: ["Documentación de seguridad", "Canal de soporte"]
+        classification: "Value-Delivery"
+      - time: "Mes 3"
+        actions: "Refiere la plataforma al director de la municipalidad vecina."
+        features_touched: ["Referencia"]
+        classification: "Revenue-Critical"
+      - time: "Mes 6"
+        actions: "Renueva contrato anual. Procesó 90 subsidios, rastreó 45 casos de maltrato. Reporte de fin de año generado desde el panel."
+        features_touched: ["Renovación de contrato", "Exportación de reporte anual"]
+        classification: "Revenue-Critical"
+    scores:
+      revenue: 10
+      engagement: 6
+      virality: 8
+    churn_risks:
+      - time: "Mes 1"
+        condition: "Objeciones de seguridad del departamento de TI sobre plataforma en la nube para datos gubernamentales"
+      - time: "Mes 6"
+        condition: "Ciclo de renovación de presupuesto — necesita prueba de ROI para justificar gasto continuo"
+      - time: "Mes 12"
+        condition: "Transición política — nuevo alcalde puede recortar presupuesto de bienestar animal"
+    primary_journeys: ["J1", "J4", "J5", "J7"]
+    conversion_trigger: "Demo mostrando flujo de subsidio + maltrato"
+    critical_note: "J4 y J7 están ambos al 0-5% de completitud. No se pueden vender contratos B2G hasta que funcionen."
+
+  - id: P02
+    name: Laura
+    archetype: "Operadora Diaria B2G"
+    age: 28
+    location: "Heredia, Costa Rica"
+    background: >
+      Recién graduada de derecho trabajando en el gobierno municipal. Maneja la revisión
+      diaria de solicitudes de subsidio. No es tomadora de decisiones pero usa la plataforma
+      2-3 horas diarias. Su eficiencia determina si Gabriela (P01) renueva.
+    goals:
+      - Procesar solicitudes de subsidio rápido y sin errores
+      - Evitar problemas regulatorios
+      - Construir una pista de auditoría limpia
+    pain_points:
+      - Hace malabares con mensajes de WhatsApp de veterinarios + formularios en papel + seguimiento en Excel
+      - Pierde solicitudes, no puede demostrar que respondió dentro del plazo
+      - Sin visibilidad de cuáles solicitudes son urgentes
+    tech_stack: ["WhatsApp", "Excel", "Email", "Visor de PDF"]
+    languages: ["es"]
+    wallet:
+      income: "$1,200/mes"
+      plan_progression: "Incluida en el contrato municipal de Gabriela"
+      upgrade_trigger: "N/A — no es pagadora"
+      monthly_spend: "$0"
+      ltv: "$0 directo (valor capturado en el contrato de P01)"
+      user_percentage: 2
+      revenue_percentage: 0
+    lifecycle:
+      - time: "Día 1"
+        actions: "Gabriela le dice 'usa este nuevo sistema.' Escéptica pero sigue instrucciones."
+        features_touched: ["Registro", "Incorporación"]
+        classification: "Value-Delivery"
+      - time: "Día 2-3"
+        actions: "Procesa la primera solicitud de subsidio. Sorprendida de que es más rápido que el correo."
+        features_touched: ["Panel de revisión de subsidios", "Flujo de aprobación"]
+        classification: "Value-Delivery"
+      - time: "Semana 1"
+        actions: "5 solicitudes procesadas. Descubre que la asignación automática de jurisdicción ahorra 20 min por caso."
+        features_touched: ["Cola de subsidios", "Auto-jurisdicción"]
+        classification: "Value-Delivery"
+      - time: "Mes 1"
+        actions: "Usuaria avanzada. Personalizó preferencias de notificación. 15-20 solicitudes/mes."
+        features_touched: ["Configuración de notificaciones", "Procesamiento por lotes"]
+        classification: "Value-Delivery"
+      - time: "Mes 3"
+        actions: "Casi abandona — el sistema está lento en hora pico y vuelve a WhatsApp por un día. El error se corrige."
+        features_touched: ["Rendimiento", "Soporte"]
+        classification: "Value-Delivery"
+      - time: "Mes 6"
+        actions: "No puede imaginar volver a Excel. El tiempo de aprobación-respuesta bajó de 72h a 8h."
+        features_touched: ["Todas las funciones del panel"]
+        classification: "Value-Delivery"
+    scores:
+      revenue: 1
+      engagement: 9
+      virality: 3
+    churn_risks:
+      - time: "Semana 1"
+        condition: "Frustración con la UX si la incorporación es pobre o el flujo de trabajo es confuso"
+      - time: "Mes 2"
+        condition: "La falta de confiabilidad del sistema causa reversión a procesos manuales"
+    primary_journeys: ["J1", "J4", "J7"]
+    conversion_trigger: "N/A — uso impulsado por mandato del empleador"
+
+  - id: P03
+    name: "Dr. Carlos"
+    archetype: "Clínica Veterinaria Pagadora"
+    age: 48
+    location: "Cartago, Costa Rica"
+    background: >
+      Dueño de una clínica de 3 veterinarios en Cartago. Hace atención animal subsidiada
+      junto con práctica privada. Los casos subsidiados son el 30% de sus ingresos. Actualmente
+      factura a las municipalidades con factura en papel con ciclos de pago de 60-90 días.
+    goals:
+      - Cobrar más rápido por trabajo subsidiado
+      - Obtener más referencias de pacientes de rescate
+      - Simplificar la facturación con municipalidades
+    pain_points:
+      - Los pagos de subsidio municipal toman 60-90 días vía papel
+      - La facturación en papel es propensa a errores y consume tiempo
+      - Sin forma de rastrear el estado de aprobación de facturas enviadas
+    tech_stack: ["WhatsApp", "Facturas en papel", "Software básico de contabilidad"]
+    languages: ["es"]
+    wallet:
+      income: "$4,000/mes (ganancia de la clínica)"
+      plan_progression: "Gratis -> Estándar ($50/mes en el Mes 2) -> Premium ($100/mes en el Mes 4)"
+      upgrade_trigger: "Después de procesar 8+ casos subsidiados, se da cuenta de que el posicionamiento premium duplica el volumen de referencias"
+      monthly_spend: "$100/mes (nivel Premium)"
+      ltv: "$1,800 (18 meses x $100 prom.)"
+      user_percentage: 3
+      revenue_percentage: 18
+    lifecycle:
+      - time: "Día 1"
+        actions: "Escucha sobre AltruPets de un cliente rescatista. Se registra gratis."
+        features_touched: ["Registro", "Configuración de perfil veterinario"]
+        classification: "Revenue-Critical"
+      - time: "Semana 1"
+        actions: "Recibe la primera solicitud de subsidio a través de la plataforma. La completa, envía factura digitalmente."
+        features_touched: ["Vista de solicitud de subsidio", "Factura digital"]
+        classification: "Revenue-Critical"
+      - time: "Semana 2"
+        actions: "Factura aprobada en 8 horas en vez de 60 días. 'Esto cambia todo.'"
+        features_touched: ["Seguimiento de factura", "Notificación de pago"]
+        classification: "Revenue-Critical"
+      - time: "Mes 1"
+        actions: "5 casos subsidiados procesados. Mejora a Estándar ($50/mes) por la gestión de pacientes."
+        features_touched: ["Suscripción", "Gestión de pacientes"]
+        classification: "Revenue-Critical"
+      - time: "Mes 2"
+        actions: "Nota que las clínicas Premium aparecen primero en búsquedas de rescatistas. Mejora a Premium ($100/mes)."
+        features_touched: ["Mejora a Premium", "Posicionamiento por proximidad"]
+        classification: "Revenue-Critical"
+      - time: "Mes 3"
+        actions: "Casi abandona — un pago de subsidio retrasado por congelamiento de presupuesto municipal. Se queda porque el resto del sistema funciona."
+        features_touched: ["Seguimiento de pagos", "Soporte"]
+        classification: "Value-Delivery"
+      - time: "Mes 6"
+        actions: "Los casos subsidiados ahora son el 45% de los ingresos de la clínica. Refiere a 2 colegas veterinarios a la plataforma."
+        features_touched: ["Analítica", "Referencia"]
+        classification: "Revenue-Critical"
+    scores:
+      revenue: 8
+      engagement: 7
+      virality: 5
+    churn_risks:
+      - time: "Mes 1"
+        condition: "El pago de subsidio más lento de lo prometido — rompe la confianza en la propuesta de valor"
+      - time: "Mes 4"
+        condition: "El volumen de referencias no justifica el costo premium — baja a Estándar o gratis"
+    primary_journeys: ["J1", "J4", "J7_vet_view", "J9"]
+    conversion_trigger: "Primera factura digital aprobada en horas en vez de meses"
+    critical_note: "J4 y J9 están ambos al 0%. No se pueden adquirir suscriptores de clínicas veterinarias hasta que funcione el flujo de subsidios."
+
+  - id: P04
+    name: "Dra. Priscilla"
+    archetype: "Colaboradora Veterinaria (no pagadora)"
+    age: 31
+    location: "San José, Costa Rica"
+    background: >
+      Trabaja en la clínica del Dr. Carlos. Maneja la mayoría de los casos de animales
+      subsidiados. Dona horas extra para casos complejos de rescate. Apasionada por
+      el bienestar animal pero abrumada por la carga administrativa.
+    goals:
+      - Gestión eficiente de expedientes médicos
+      - Menos papeleo para poder enfocarse en los animales
+      - Crecimiento profesional a través de casos complejos
+    pain_points:
+      - Dedica el 30% de su tiempo a administración/facturación en vez de medicina
+      - Sin sistema unificado de expedientes médicos entre rescatistas
+      - Diferentes rescatistas traen al mismo animal sin historial
+    tech_stack: ["WhatsApp", "Documentos de Word para expedientes", "Software de gestión de clínica"]
+    languages: ["es"]
+    wallet:
+      income: "$1,800/mes (salario de empleada)"
+      plan_progression: "Gratis (usa la suscripción de la clínica de su empleador)"
+      upgrade_trigger: "N/A — no es pagadora"
+      monthly_spend: "$0"
+      ltv: "$0 directo (impulsa el valor de la suscripción de P03)"
+      user_percentage: 3
+      revenue_percentage: 2
+    lifecycle:
+      - time: "Día 1"
+        actions: "El Dr. Carlos le pide que comience a usar AltruPets para casos subsidiados."
+        features_touched: ["Registro", "Perfil veterinario"]
+        classification: "Value-Delivery"
+      - time: "Semana 1"
+        actions: "Ingresa los primeros expedientes médicos. Aprecia los formularios estructurados vs. documentos de Word."
+        features_touched: ["Formularios de expediente médico", "Vista de paciente"]
+        classification: "Value-Delivery"
+      - time: "Mes 1"
+        actions: "Gestionando 8 pacientes animales activos en la plataforma. El historial médico ahora es continuo entre transferencias de rescatistas."
+        features_touched: ["Gestión de pacientes", "Historial de tratamientos"]
+        classification: "Value-Delivery"
+      - time: "Mes 3"
+        actions: "La veterinaria de referencia para casos complejos en su zona. Calificación de 4.8/5 por rescatistas."
+        features_touched: ["Sistema de calificación", "Referencias"]
+        classification: "Value-Delivery"
+      - time: "Mes 6"
+        actions: "Usa la plataforma diariamente. Capacita a nuevos empleados de la clínica en el sistema."
+        features_touched: ["Todas las funciones veterinarias"]
+        classification: "Value-Delivery"
+    scores:
+      revenue: 2
+      engagement: 8
+      virality: 4
+    churn_risks:
+      - time: "Semana 2"
+        condition: "Los formularios de expediente médico están mal diseñados — vuelve a documentos de Word"
+      - time: "Mes 3"
+        condition: "Cambia de clínica a una que no está en la plataforma"
+    primary_journeys: ["J1", "J4", "J9"]
+
+  - id: P05
+    name: "Sofía"
+    archetype: "Usuaria Avanzada / Creadora de Valor"
+    age: 38
+    location: "Alajuela, Costa Rica"
+    background: >
+      Ama de casa con 3 hijos y 12 animales de rescate en su casa cuna.
+      Autofinanciada con ingresos familiares. El pilar emocional de su red
+      local de rescate. Coordina todo vía WhatsApp actualmente.
+    goals:
+      - Encontrar más hogares adoptivos para sus animales
+      - Que la atención veterinaria sea subsidiada por la municipalidad
+      - Reducir la carga financiera personal ($200-400/mes en facturas veterinarias)
+      - Rastrear historiales médicos de animales en un solo lugar
+    pain_points:
+      - Gasta su propio dinero en facturas veterinarias ($200-400/mes)
+      - Abrumada gestionando 12 animales + grupos de WhatsApp
+      - Sin forma fácil de mostrar animales a potenciales adoptantes
+      - Necesita comida, suministros médicos, juguetes — no solo donaciones en efectivo
+    tech_stack: ["WhatsApp", "Facebook", "Instagram", "Teléfono inteligente básico"]
+    languages: ["es"]
+    wallet:
+      income: "$1,500/mes (salario del esposo, compartido)"
+      plan_progression: "Gratis para siempre"
+      upgrade_trigger: "N/A — los rescatistas nunca pagan"
+      monthly_spend: "$0"
+      ltv: "$0 directo — genera ~$300/mes en suscripciones de clínicas veterinarias y ~$600/mes en valor de contratos municipales vía solicitudes de subsidio"
+      user_percentage: 5
+      revenue_percentage: 0
+    lifecycle:
+      - time: "Día 1"
+        actions: "Escucha sobre AltruPets de otra rescatista en grupo de WhatsApp. Descarga la app. Se registra como Rescatista."
+        features_touched: ["Tienda de apps", "Registro", "Selección de rol"]
+        classification: "Value-Delivery"
+      - time: "Día 2-3"
+        actions: "Registra casa cuna. Ingresa 12 animales actuales con fotos. Toma 45 minutos. 'Por fin un lugar organizado.'"
+        features_touched: ["Registro de casa cuna", "Registro de animal", "Carga de fotos"]
+        classification: "Value-Delivery"
+      - time: "Semana 1"
+        actions: "Recibe la primera solicitud de rescate de un auxiliar. Acepta y acoge un nuevo gato."
+        features_touched: ["Bandeja de solicitudes de rescate", "Flujo de aceptar/rechazar"]
+        classification: "Value-Delivery"
+      - time: "Semana 2"
+        actions: "Envía la primera solicitud de subsidio veterinario para un gato con una pata rota. Aprobada en 12 horas. Primera vez que no paga de su bolsillo."
+        features_touched: ["Formulario de solicitud de subsidio", "Seguimiento de estado"]
+        classification: "Revenue-Critical"
+      - time: "Mes 1"
+        actions: "3 animales adoptados a través de la plataforma. 4 solicitudes de subsidio procesadas. Publica lista de necesidades (comida, medicina contra pulgas). Le cuenta a cada rescatista que conoce."
+        features_touched: ["Publicación de adopción", "Solicitudes de subsidio", "Lista de necesidades", "Referencia"]
+        classification: "Revenue-Critical"
+      - time: "Mes 2"
+        actions: "Casi abandona — el proceso de evaluación de adopción es muy lento, obtiene una mala coincidencia de adoptante. Se queda porque los subsidios valen la pena."
+        features_touched: ["Evaluación de adopción", "Calidad de coincidencia"]
+        classification: "Value-Delivery"
+      - time: "Mes 3"
+        actions: "Tiene 15 animales. Publica 5 para adopción. Usa el chat diariamente con auxiliares y adoptantes."
+        features_touched: ["Gestión de casa cuna", "Listados de adopción", "Chat"]
+        classification: "Value-Delivery"
+      - time: "Mes 6"
+        actions: "Procesó 20+ subsidios ahorrando ~$1,200. 8 adopciones exitosas. Trajo 5 nuevos rescatistas a la plataforma."
+        features_touched: ["Todas las funciones de rescatista"]
+        classification: "Revenue-Critical"
+    scores:
+      revenue: 1
+      engagement: 10
+      virality: 9
+    churn_risks:
+      - time: "Semana 1"
+        condition: "El registro de animales es tedioso (demasiados campos, carga de fotos lenta)"
+      - time: "Mes 2"
+        condition: "Mala coincidencia de adopción — entrega un animal a un adoptante irresponsable"
+      - time: "Mes 4"
+        condition: "La aprobación de subsidios se ralentiza debido a burocracia municipal"
+    primary_journeys: ["J1", "J2", "J3", "J4", "J6", "J8"]
+    conversion_trigger: "N/A — usuaria gratuita. Pero sus solicitudes de subsidio activan los ingresos de P01 y P03."
+    critical_note: "Sin Sofía y usuarias como ella, la plataforma entera no tiene contenido, no tiene subsidios, no tiene adopciones. Ella es el oxígeno."
+
+  - id: P06
+    name: Miguel
+    archetype: "Líder de ONG / Centro de Red"
+    age: 45
+    location: "San José, Costa Rica"
+    background: >
+      Dirige 'Patitas Felices', una ONG con 8 voluntarios, 4 casas cuna y
+      50+ animales. Coordina a través de WhatsApp, Excel y Facebook. Dedica
+      15h/semana a administración en vez de trabajo de rescate.
+    goals:
+      - Profesionalizar las operaciones
+      - Aumentar las tasas de adopción
+      - Asegurar más subsidios municipales
+      - Demostrar impacto a los donantes
+      - Recibir donaciones en especie (comida, medicina, suministros)
+    pain_points:
+      - No puede rastrear qué voluntario tiene cuál animal
+      - Los reportes para donantes son manuales y consumen tiempo
+      - 15h/semana en administración en vez de trabajo de rescate
+      - La gestión de la lista de necesidades es informal (mensajes de WhatsApp)
+    tech_stack: ["WhatsApp", "Facebook", "Excel", "Instagram", "Contabilidad básica"]
+    languages: ["es"]
+    wallet:
+      income: "$800/mes (estipendio de ONG, complementado por donaciones)"
+      plan_progression: "Gratis -> Analítica premium ($20/mes en el Mes 2)"
+      upgrade_trigger: "Necesita reportes profesionales de impacto para donantes para asegurar donaciones más grandes"
+      monthly_spend: "$20/mes"
+      ltv: "$240 (12 meses x $20)"
+      user_percentage: 3
+      revenue_percentage: 3
+    lifecycle:
+      - time: "Día 1"
+        actions: "Un contacto municipal menciona que AltruPets es requerido para el procesamiento de subsidios. Registra la organización."
+        features_touched: ["Registro", "Creación de organización"]
+        classification: "Value-Delivery"
+      - time: "Semana 1"
+        actions: "Incorpora a 5 miembros del equipo. Configura 4 casas cuna. Migra 50 animales en 2 días."
+        features_touched: ["Gestión de equipo", "Configuración de casa cuna", "Importación masiva de animales"]
+        classification: "Value-Delivery"
+      - time: "Semana 2"
+        actions: "Primer rescate coordinado usando la plataforma — del centinela a la colocación en hogar temporal en 90 min vs. las 6 horas anteriores."
+        features_touched: ["Coordinación de rescate", "Asignación", "Chat"]
+        classification: "Value-Delivery"
+      - time: "Mes 1"
+        actions: "8 subsidios procesados ahorrando $2,400 a la org. Tasa de adopción subió 40%. Publica lista de necesidades (comida, medicina contra pulgas, cobijas)."
+        features_touched: ["Subsidios", "Listados de adopción", "Lista de necesidades", "Analítica"]
+        classification: "Revenue-Critical"
+      - time: "Mes 2"
+        actions: "Se suscribe a analítica premium ($20/mes) para generar reportes de impacto para donantes."
+        features_touched: ["Mejora a premium", "Generador de reportes"]
+        classification: "Revenue-Critical"
+      - time: "Mes 3"
+        actions: "Presentado como caso de éxito en reporte municipal. Refiere 3 otras ONG."
+        features_touched: ["Métricas de impacto", "Referencia"]
+        classification: "Revenue-Critical"
+      - time: "Mes 6"
+        actions: "Completamente dependiente de la plataforma. 25 adopciones exitosas. Duplicó la capacidad de la org sin nuevo personal."
+        features_touched: ["Todas las funciones de organización"]
+        classification: "Value-Delivery"
+    scores:
+      revenue: 2
+      engagement: 9
+      virality: 10
+    churn_risks:
+      - time: "Semana 1"
+        condition: "La migración masiva de datos es dolorosa — 50 animales es mucho para ingresar manualmente"
+      - time: "Mes 3"
+        condition: "La adopción de la plataforma por los voluntarios es baja — vuelven a WhatsApp"
+    primary_journeys: ["J1", "J2", "J3", "J4", "J6", "J8"]
+    conversion_trigger: "Necesita reportes profesionales para donantes (analítica premium)"
+
+  - id: P07
+    name: Andrea
+    archetype: "Centinela Casual"
+    age: 25
+    location: "Heredia, Costa Rica"
+    background: >
+      Trabajadora de oficina, amante de los animales. Ve animales callejeros en su
+      trayecto al trabajo. Actualmente publica en Facebook o no hace nada porque
+      no sabe a quién llamar.
+    goals:
+      - Reportar animales de forma fácil y rápida
+      - Saber que su reporte efectivamente llevó a una acción
+      - Sentir que hizo una diferencia
+    pain_points:
+      - No hay un canal claro para reportar animales vulnerables
+      - Las publicaciones en Facebook se ignoran
+      - La línea telefónica de la municipalidad tiene tiempos de espera de 45 minutos
+    tech_stack: ["WhatsApp", "Instagram", "Facebook", "Teléfono inteligente"]
+    languages: ["es"]
+    wallet:
+      income: "$900/mes"
+      plan_progression: "Gratis para siempre"
+      upgrade_trigger: "N/A"
+      monthly_spend: "$0"
+      ltv: "$0 — parte superior del embudo. Sin centinelas, no suceden rescates."
+      user_percentage: 40
+      revenue_percentage: 0
+    lifecycle:
+      - time: "Día 1"
+        actions: "Ve un perro herido cerca de la oficina. Busca en Google 'reportar animal herido Costa Rica'. Encuentra AltruPets. Descarga la app."
+        features_touched: ["SEO/Tienda de apps", "Descarga"]
+        classification: "Value-Delivery"
+      - time: "Día 1 (10 min después)"
+        actions: "Crea solicitud de auxilio. GPS capturado automáticamente, toma 2 fotos, describe al perro. Listo en 3 minutos."
+        features_touched: ["Registro", "Formulario de creación de alerta"]
+        classification: "Value-Delivery"
+      - time: "Día 2"
+        actions: "Recibe notificación push: 'Un auxiliar aceptó tu solicitud.' Ve el estado en tiempo real. Se siente que hizo una diferencia por primera vez."
+        features_touched: ["Notificación push", "Rastreador de estado"]
+        classification: "Value-Delivery"
+      - time: "Semana 1"
+        actions: "Le cuenta a 3 compañeras de trabajo sobre la app."
+        features_touched: ["Boca a boca"]
+        classification: "Value-Delivery"
+      - time: "Mes 1"
+        actions: "Reporta un segundo animal. Revisa el primer reporte — el perro fue adoptado. Satisfacción emocional."
+        features_touched: ["Historial de reportes", "Seguimiento de resultados"]
+        classification: "Value-Delivery"
+      - time: "Mes 3"
+        actions: "No ha reportado en 2 meses pero recibe resumen de impacto: '45 animales rescatados este mes gracias a reportes como el tuyo.'"
+        features_touched: ["Resumen por correo", "Notificación de retención"]
+        classification: "Value-Delivery"
+      - time: "Mes 6"
+        actions: "Reporta de nuevo cuando ve una colonia de gatos. Ha contado a ~15 personas sobre la app."
+        features_touched: ["Creación de alerta", "Referencia"]
+        classification: "Value-Delivery"
+    scores:
+      revenue: 0
+      engagement: 3
+      virality: 6
+    churn_risks:
+      - time: "Día 1"
+        condition: "El flujo de reporte toma >5 minutos o requiere registro completo antes de reportar"
+      - time: "Mes 2"
+        condition: "Nunca recibe noticias sobre el resultado de su reporte — siente que su esfuerzo fue desperdiciado"
+    primary_journeys: ["J1", "J2", "J5"]
+    conversion_trigger: "N/A — usuaria gratuita"
+
+  - id: P08
+    name: Diego
+    archetype: "Auxiliar Activo"
+    age: 33
+    location: "San José, Costa Rica"
+    background: >
+      Repartidor con una camioneta pickup. Disponible por las tardes y fines de semana.
+      Ha estado rescatando animales informalmente por 3 años a través de grupos de WhatsApp.
+    goals:
+      - Responder a emergencias reales (no falsas alarmas)
+      - Obtener navegación a la ubicación exacta
+      - Entregar animales a rescatistas verificados rápidamente
+    pain_points:
+      - Las alertas de WhatsApp son desorganizadas — la mitad son duplicados, sin GPS
+      - No sabe qué rescatistas tienen espacio
+      - A veces maneja 30 min solo para encontrar que el animal ya no está
+    tech_stack: ["WhatsApp", "Waze/Google Maps", "Teléfono inteligente"]
+    languages: ["es"]
+    wallet:
+      income: "$1,100/mes"
+      plan_progression: "Gratis para siempre"
+      upgrade_trigger: "N/A"
+      monthly_spend: "$0"
+      ltv: "$0 — enlace crítico entre reportes y rescates"
+      user_percentage: 8
+      revenue_percentage: 0
+    lifecycle:
+      - time: "Día 1"
+        actions: "Un compañero rescatista comparte el enlace de AltruPets. Se registra como Auxiliar. Establece radio de disponibilidad de 10km."
+        features_touched: ["Registro", "Configuración de disponibilidad"]
+        classification: "Value-Delivery"
+      - time: "Día 3"
+        actions: "Primera notificación push: alerta de auxilio a 3km con GPS y fotos. Acepta. La navegación lo lleva directamente. Recoge un gato herido."
+        features_touched: ["Notificación push", "Detalle de alerta", "Navegación"]
+        classification: "Value-Delivery"
+      - time: "Día 3 (1 hora después)"
+        actions: "La plataforma muestra 3 rescatistas con espacio en casa cuna dentro de 15km. Transfiere el gato a Sofía (P05). Tiempo total: 90 minutos."
+        features_touched: ["Coincidencia de rescatistas", "Flujo de transferencia", "Chat"]
+        classification: "Value-Delivery"
+      - time: "Semana 1"
+        actions: "Respondió a 3 alertas. 100% de tasa de éxito vs. ~50% en WhatsApp debido a reportes falsos/duplicados."
+        features_touched: ["Cola de alertas", "Historial"]
+        classification: "Value-Delivery"
+      - time: "Mes 1"
+        actions: "Usuario regular, responde a 2-3 alertas/semana. Calificación de 4.9 por rescatistas."
+        features_touched: ["Respuesta a alertas", "Sistema de calificación"]
+        classification: "Value-Delivery"
+      - time: "Mes 3"
+        actions: "Casi se quema — recibe 5 alertas en un día. Ajusta disponibilidad a solo fines de semana."
+        features_touched: ["Horario de disponibilidad", "Preferencias de notificación"]
+        classification: "Value-Delivery"
+      - time: "Mes 6"
+        actions: "35 rescates exitosos. Auxiliar mejor calificado en San José. Mentoriza a 2 nuevos auxiliares."
+        features_touched: ["Tabla de posiciones", "Mentoría"]
+        classification: "Value-Delivery"
+    scores:
+      revenue: 0
+      engagement: 7
+      virality: 5
+    churn_risks:
+      - time: "Semana 1"
+        condition: "Las alertas son ruidosas/imprecisas — las falsas alarmas desperdician su gasolina y tiempo"
+      - time: "Mes 2"
+        condition: "Agotamiento por exceso de notificaciones — necesita horas de silencio configurables"
+      - time: "Mes 4"
+        condition: "No ve su impacto personal — necesita ciclo de retroalimentación mostrando resultados"
+    primary_journeys: ["J1", "J2", "J10"]
+    conversion_trigger: "N/A — usuario gratuito"
+
+  - id: P09
+    name: "María Elena"
+    archetype: "Buscadora de Adopción"
+    age: 35
+    location: "Escazú, Costa Rica"
+    background: >
+      Profesional de marketing. Vive en una casa con jardín. Familia de 4
+      (2 hijos, de 7 y 10 años). Quiere adoptar un perro mediano para los niños.
+    goals:
+      - Encontrar un perro saludable y compatible con niños
+      - Ver historial médico antes de comprometerse
+      - Proceso de adopción simple y confiable
+    pain_points:
+      - Las publicaciones de adopción en Facebook son caóticas — sin info médica, sin evaluación
+      - La visita al refugio local fue deprimente y abrumadora
+      - Sin forma de saber si las organizaciones de adopción son legítimas
+    tech_stack: ["Instagram", "WhatsApp", "Google", "Teléfono inteligente"]
+    languages: ["es"]
+    wallet:
+      income: "$2,200/mes"
+      plan_progression: "Gratis para siempre"
+      upgrade_trigger: "N/A"
+      monthly_spend: "$0"
+      ltv: "$0 — las adopciones exitosas son métrica clave para reportes municipales"
+      user_percentage: 20
+      revenue_percentage: 0
+    lifecycle:
+      - time: "Día 1"
+        actions: "Busca 'adoptar perro Costa Rica' en Google. Encuentra listado de AltruPets. Descarga la app."
+        features_touched: ["SEO", "Tienda de apps", "Descarga"]
+        classification: "Value-Delivery"
+      - time: "Día 1 (navegar)"
+        actions: "Navega 30 listados de adopción. Filtra por tamaño, edad, compatible con niños. Guarda 5 favoritos."
+        features_touched: ["Galería de adopción", "Filtros", "Favoritos"]
+        classification: "Value-Delivery"
+      - time: "Día 2"
+        actions: "Envía solicitud de adopción para 'Luna', una mestiza de 2 años. Llena cuestionario del hogar."
+        features_touched: ["Formulario de solicitud de adopción", "Cuestionario del hogar"]
+        classification: "Value-Delivery"
+      - time: "Semana 1"
+        actions: "La rescatista (Sofía, P05) revisa la solicitud. Videollamada agendada. Aprobada."
+        features_touched: ["Seguimiento de estado", "Programación de videollamada"]
+        classification: "Value-Delivery"
+      - time: "Semana 2"
+        actions: "Conoce a Luna en persona. Firma contrato digital de adopción. Se lleva a Luna a casa."
+        features_touched: ["Contrato de adopción", "Flujo de completación"]
+        classification: "Value-Delivery"
+      - time: "Mes 1"
+        actions: "Publica historia de éxito de adopción en la plataforma + Instagram. Etiqueta a AltruPets. 12 amigos la ven."
+        features_touched: ["Publicación de historia de éxito", "Compartir en redes sociales"]
+        classification: "Value-Delivery"
+      - time: "Mes 3"
+        actions: "Recibe notificación de seguimiento para actualizar el estado de Luna. Sube foto. Comparte historia '3 meses con Luna'."
+        features_touched: ["Notificación de seguimiento", "Actualización de estado"]
+        classification: "Value-Delivery"
+      - time: "Mes 6"
+        actions: "Refiere a una amiga para que adopte a través de la plataforma. Deja reseña de 5 estrellas para Sofía."
+        features_touched: ["Referencia", "Sistema de calificación"]
+        classification: "Value-Delivery"
+    scores:
+      revenue: 0
+      engagement: 4
+      virality: 7
+    churn_risks:
+      - time: "Día 1"
+        condition: "Los listados son escasos o mal fotografiados — nada le llama la atención"
+      - time: "Semana 1"
+        condition: "La evaluación de adopción toma >7 días — encuentra una mascota en otro lugar"
+      - time: "Semana 3"
+        condition: "El proceso se siente burocrático en vez de empático"
+    primary_journeys: ["J1", "J3"]
+    conversion_trigger: "N/A — usuaria gratuita"
+
+  - id: P10
+    name: Roberto
+    archetype: "Donante Mensual"
+    age: 50
+    location: "San José, Costa Rica"
+    background: >
+      Gerente de TI en un banco. Ama los animales pero no puede tener mascotas en su
+      apartamento. Dona $50/mes a organizaciones de rescate. Actualmente envía transferencias
+      SINPE manualmente. Ha dejado de donar a 2 organizaciones por falta de transparencia.
+    goals:
+      - Saber que su dinero hace una diferencia real
+      - Ver reportes de transparencia
+      - Donaciones recurrentes fáciles
+      - También donar en especie (suministros de mascotas sobrantes de amigos)
+    pain_points:
+      - Sin visibilidad de cómo se usan las donaciones
+      - La transferencia manual por SINPE genera fricción
+      - Dejó de donar a 2 organizaciones por falta de transparencia
+    tech_stack: ["App bancaria", "SINPE", "LinkedIn", "WhatsApp"]
+    languages: ["es"]
+    wallet:
+      income: "$3,500/mes"
+      plan_progression: "Gratis para siempre (dona a organizaciones, no a AltruPets)"
+      upgrade_trigger: "N/A"
+      monthly_spend: "$0 para AltruPets, $50-75/mes para organizaciones de rescate"
+      ltv: "$0 directo — impulsa $50/mes en volumen de donaciones de la plataforma"
+      user_percentage: 15
+      revenue_percentage: 0
+    lifecycle:
+      - time: "Día 1"
+        actions: "Ve el perfil de AltruPets de Sofía (P05) compartido en Facebook. Descarga la app para donar."
+        features_touched: ["Enlace social", "Descarga", "Registro"]
+        classification: "Value-Delivery"
+      - time: "Día 1 (donar)"
+        actions: "Configura $50/mes de donación recurrente a 'Patitas Felices' (org de P06) vía SINPE."
+        features_touched: ["Perfil de organización", "Flujo de donación", "Redirección a SINPE"]
+        classification: "Value-Delivery"
+      - time: "Semana 2"
+        actions: "Recibe primer reporte de impacto: 'Tu donación financió la vacunación de 3 gatos rescatados.'"
+        features_touched: ["Notificación de impacto", "Panel del donante"]
+        classification: "Value-Delivery"
+      - time: "Mes 1"
+        actions: "Comparte captura de pantalla del panel del donante en LinkedIn. 4 colegas descargan la app."
+        features_touched: ["Panel del donante", "Compartir en redes sociales"]
+        classification: "Value-Delivery"
+      - time: "Mes 3"
+        actions: "Casi deja de donar — la organización no envió actualización de impacto por 2 meses. El reporte auto-generado lo re-engancha."
+        features_touched: ["Reporte de impacto auto-generado"]
+        classification: "Value-Delivery"
+      - time: "Mes 6"
+        actions: "Aumentó la donación a $75/mes después de ver el reporte de impacto anual. Patrocina el tratamiento médico de un animal específico."
+        features_touched: ["Ajuste de donación", "Patrocinio de animal"]
+        classification: "Value-Delivery"
+    scores:
+      revenue: 1
+      engagement: 4
+      virality: 6
+    churn_risks:
+      - time: "Mes 2"
+        condition: "Sin retroalimentación de impacto — siente que las donaciones desaparecen en el vacío"
+      - time: "Mes 4"
+        condition: "Sospecha que el dinero no llega a los animales — preocupaciones de transparencia"
+      - time: "Mes 6"
+        condition: "La UX de donación agrega fricción (KYC excesivo para montos pequeños)"
+    primary_journeys: ["J1", "J8"]
+    conversion_trigger: "N/A — usuario gratuito"
