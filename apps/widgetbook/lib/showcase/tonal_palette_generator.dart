@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:material_color_utilities/material_color_utilities.dart';
-import 'package:material_color_utilities/scheme/scheme_tonal_spot.dart';
-import 'package:material_color_utilities/hct/hct.dart';
 import 'design_system_state.dart';
 
 class TonalPaletteGenerator extends StatelessWidget {

@@ -7,6 +7,19 @@ y este proyecto adhiere a [Semantic Versioning](https://semver.org/lang/es/).
 
 ## [Unreleased]
 
+### Added - 2026-03-08
+
+#### Adaptación Windows con Podman Desktop + WSL2 Ubuntu única
+
+- **Contexto**: Para evitar múltiples VMs en Windows, el entorno de desarrollo local ahora documenta un modelo con una sola distro `Ubuntu-24.04` en WSL2 y `Podman Desktop` como host Windows.
+- **Configuración documentada**:
+  - Instalación de WSL con `wsl.exe --install Ubuntu-24.04 --name altrupets-ubuntu --version 2 --vhd-size 50GB --no-launch`
+  - Configuración exacta de `%UserProfile%\\.wslconfig` con `processors=8` y `memory=16GB`
+  - Alineación con `infrastructure/scripts/start-minikube.sh` para `--cpus=8 --memory=16384 --disk-size=50g`
+- **Objetivo**: Mantener una sola VM Linux para el repo en Windows, sin recrear `podman-machine-default`
+- **Archivos modificados**:
+  - `docs/content/docs/development/local-setup.md`
+
 ### Fixed - 2026-02-26
 
 #### Google Services JSON desde Infisical

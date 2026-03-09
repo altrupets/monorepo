@@ -1,0 +1,83 @@
+# Windows proxy Makefile
+# Uses native Windows implementation for Minikube setup, and delegates the rest
+# to the original Makefile through Git Bash for parity.
+
+POWERSHELL := pwsh -NoProfile -ExecutionPolicy Bypass
+RUN_MAKE := $(POWERSHELL) -File infrastructure/scripts/run-make-in-git-bash.ps1
+
+.PHONY: help \
+        setup windows-dev-env-setup windows-podman-connect \
+        dev-minikube-deploy dev-terraform-deploy dev-gateway-deploy dev-harbor-deploy \
+        dev-images-build dev-argocd-push-and-deploy dev-gateway-start \
+        dev-mobile-launch dev-mobile-launch-desktop \
+        dev-mobile-launch-emulator dev-mobile-launch-device \
+        bootstrap-dev
+
+help:
+	@echo "Windows targets: native cluster setup + proxied Makefile commands"
+	@echo "  setup"
+	@echo "  windows-dev-env-setup"
+	@echo "  windows-podman-connect"
+	@echo "  dev-minikube-deploy"
+	@echo "  dev-terraform-deploy"
+	@echo "  dev-gateway-deploy"
+	@echo "  dev-harbor-deploy"
+	@echo "  dev-images-build"
+	@echo "  dev-argocd-push-and-deploy"
+	@echo "  dev-gateway-start"
+	@echo "  dev-mobile-launch"
+	@echo "  dev-mobile-launch-desktop"
+	@echo "  dev-mobile-launch-emulator"
+	@echo "  dev-mobile-launch-device"
+	@echo "  bootstrap-dev"
+	@echo ""
+	@echo "Any other target is proxied to Makefile through Git Bash."
+
+setup:
+	@$(POWERSHELL) -File infrastructure/scripts/setup-windows-dev-env.ps1
+	@$(RUN_MAKE) -Target setup
+
+windows-dev-env-setup:
+	@$(POWERSHELL) -File infrastructure/scripts/setup-windows-dev-env.ps1
+
+windows-podman-connect:
+	@$(POWERSHELL) -File infrastructure/scripts/setup-podman-wsl-connection.ps1
+
+dev-minikube-deploy:
+	@$(POWERSHELL) -File infrastructure/scripts/dev-setup-windows.ps1
+
+dev-terraform-deploy:
+	@$(RUN_MAKE) -Target dev-terraform-deploy
+
+dev-gateway-deploy:
+	@$(RUN_MAKE) -Target dev-gateway-deploy
+
+dev-harbor-deploy:
+	@$(RUN_MAKE) -Target dev-harbor-deploy
+
+dev-images-build:
+	@$(RUN_MAKE) -Target dev-images-build
+
+dev-argocd-push-and-deploy:
+	@$(RUN_MAKE) -Target dev-argocd-push-and-deploy
+
+dev-gateway-start:
+	@$(RUN_MAKE) -Target dev-gateway-start
+
+dev-mobile-launch:
+	@$(POWERSHELL) -File apps/mobile/launch_flutter_debug_windows.ps1 -Target desktop
+
+dev-mobile-launch-desktop:
+	@$(POWERSHELL) -File apps/mobile/launch_flutter_debug_windows.ps1 -Target desktop
+
+dev-mobile-launch-emulator:
+	@$(POWERSHELL) -File apps/mobile/launch_flutter_debug_windows.ps1 -Target emulator
+
+dev-mobile-launch-device:
+	@$(POWERSHELL) -File apps/mobile/launch_flutter_debug_windows.ps1 -Target device
+
+bootstrap-dev:
+	@$(POWERSHELL) -File infrastructure/scripts/bootstrap-dev-windows.ps1
+
+%:
+	@$(RUN_MAKE) -Target $@

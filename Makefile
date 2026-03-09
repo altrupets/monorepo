@@ -13,7 +13,7 @@
 
 TIMEOUT ?= 900000
 
-.PHONY: help setup \
+.PHONY: help setup dev-setup bootstrap-dev \
         dev-terraform-deploy dev-terraform-destroy \
         dev-minikube-deploy dev-minikube-clear dev-minikube-destroy \
         dev-argocd-deploy dev-argocd-destroy dev-argocd-status dev-argocd-password \
@@ -28,7 +28,7 @@ TIMEOUT ?= 900000
         dev-mcp-start dev-mcp-stop dev-mcp-status \
         dev-security-scan dev-security-deps dev-security-sast dev-security-secrets \
         dev-security-container dev-security-iac dev-security-fix \
-        dev-mobile-launch dev-mobile-launch-desktop dev-mobile-launch-emulator dev-mobile-launch-device \
+        dev-mobile-launch dev-mobile-desktop dev-mobile-launch-desktop dev-mobile-launch-emulator dev-mobile-launch-device \
         dev-mobile-widgetbook dev-mobile-analyze dev-mobile-test dev-mobile-test-coverage dev-mobile-lint \
         dev-admin-server-install dev-admin-server-start dev-admin-server-stop dev-admin-server-restart \
         dev-admin-server-status dev-admin-server-logs dev-admin-server-test \
@@ -77,7 +77,7 @@ help: ## Show this help message
 	@echo "  make setup && make dev-minikube-deploy && make dev-terraform-deploy && make dev-gateway-deploy && make dev-images-build && make dev-argocd-push-and-deploy && make dev-gateway-start"
 	@echo ""
 	@echo "  $(YELLOW)GitOps/ArgoCD + Harbor Registry:$(NC)"
-	@echo "  make setup && make dev-minikube-deploy && make dev-terraform-deploy && make dev-gateway-deploy && make dev-harbor-deploy && make dev-images-build && make dev-argocd-push-and-deploy && make dev-gateway-start"
+	@echo "  make bootstrap-dev"
 	@echo ""
 	@echo "  $(YELLOW)Step by step (Manual):$(NC)"
 	@echo "  1. make setup                    $(BLUE)# First time setup$(NC)"
@@ -101,6 +101,7 @@ help: ## Show this help message
 	@echo "$(GREEN)DEV - Terraform:$(NC)"
 	@echo "  $(YELLOW)dev-terraform-deploy$(NC)        Deploy all terraform resources"
 	@echo "  $(YELLOW)dev-terraform-destroy$(NC)       Destroy all terraform resources"
+	@echo "  $(YELLOW)dev-terraform-clean$(NC)         Clean local terraform state"
 	@echo ""
 	@echo "$(GREEN)DEV - ArgoCD:$(NC)"
 	@echo "  $(YELLOW)dev-argocd-deploy$(NC)           Install ArgoCD + all apps (backend, superusers, b2g)"
@@ -226,6 +227,24 @@ setup: ## Setup local development environment
 	@echo "$(GREEN)✓ Setup complete$(NC)"
 
 # ==========================================
+# DEV - Bootstrap
+# ==========================================
+
+bootstrap-dev: ## Full setup with GitOps/ArgoCD and Harbor Registry
+	@echo "$(RED)Cleaning previous DEV environment...$(NC)"
+	@$(MAKE) dev-minikube-destroy || true
+	@$(MAKE) dev-terraform-clean
+	@$(MAKE) setup
+	@$(MAKE) dev-minikube-deploy
+	@$(MAKE) dev-infisical-sync-cli || true
+	@$(MAKE) dev-terraform-deploy
+	@$(MAKE) dev-gateway-deploy
+	@$(MAKE) dev-harbor-deploy
+	@$(MAKE) dev-images-build
+	@$(MAKE) dev-argocd-push-and-deploy
+	@$(MAKE) dev-gateway-start
+
+# ==========================================
 # DEV - Minikube
 # ==========================================
 
@@ -251,13 +270,19 @@ dev-minikube-destroy: ## Delete minikube cluster
 # DEV - Terraform
 # ==========================================
 
-dev-terraform-deploy: ## Deploy all terraform resources (PostgreSQL + Gateway)
-	@echo "$(BLUE)Deploying DEV terraform resources...$(NC)"
-	@cd $(TF_DIR) && tofu init && tofu apply -auto-approve
+dev-terraform-deploy: ## Deploy all terraform resources (two-phase for Gateway CRDs)
+	@echo "$(BLUE)Deploying DEV terraform resources (phase 1/2: CRDs bootstrap)...$(NC)"
+	@cd $(TF_DIR) && tofu init && tofu apply -replace=module.gateway_api.null_resource.gateway_api_crds -target=module.gateway_api.null_resource.gateway_api_crds -target=module.gateway_api.time_sleep.wait_for_crd_discovery -auto-approve -compact-warnings
+	@echo "$(BLUE)Deploying DEV terraform resources (phase 2/2: full apply)...$(NC)"
+	@cd $(TF_DIR) && tofu import module.gateway_api.kubernetes_namespace.app_namespace altrupets-dev 2>/dev/null || true
+	@cd $(TF_DIR) && tofu apply -auto-approve -compact-warnings
 
 dev-terraform-destroy: ## Destroy all terraform resources
 	@echo "$(RED)Destroying DEV terraform resources...$(NC)"
 	@cd $(TF_DIR) && tofu destroy
+
+dev-terraform-clean: ## Clean local terraform state
+	@$(SCRIPTS_DIR)/dev-terraform-clean.sh
 
 # ==========================================
 # DEV - ArgoCD
@@ -709,3 +734,22 @@ dev-admin-server-logs: ## Show Admin Server logs
 
 dev-admin-server-test: ## Test Admin Server health endpoint
 	@curl -s http://localhost:3002/health
+
+
+# ==========================================
+# DEV - Windows Compatibility
+# ==========================================
+
+dev-setup: ## Windows setup for local cluster (Minikube + Podman + WSL2)
+	@if [ "$$OS" = "Windows_NT" ]; then \
+		pwsh -NoProfile -ExecutionPolicy Bypass -File $(SCRIPTS_DIR)/dev-setup-windows.ps1; \
+	else \
+		$(MAKE) setup && $(MAKE) dev-minikube-deploy; \
+	fi
+
+dev-mobile-desktop: ## Launch Flutter desktop app (Windows native / Linux fallback)
+	@if [ "$$OS" = "Windows_NT" ]; then \
+		pwsh -NoProfile -ExecutionPolicy Bypass -File apps/mobile/launch_flutter_debug_windows.ps1 -Target desktop; \
+	else \
+		cd apps/mobile && ./launch_flutter_debug.sh -l; \
+	fi

@@ -33,7 +33,14 @@ class FakeAuthRepository implements AuthRepositoryInterface {
     if (shouldFailLogin || mockFailure != null) {
       return Left(mockFailure ?? const ServerFailure('Invalid credentials'));
     }
-    return Right(mockPayload ?? const AuthPayload(accessToken: 'token123'));
+    return Right(
+      mockPayload ??
+          const AuthPayload(
+            accessToken: 'token123',
+            refreshToken: 'refresh123',
+            expiresIn: 3600,
+          ),
+    );
   }
 
   @override
@@ -42,6 +49,17 @@ class FakeAuthRepository implements AuthRepositoryInterface {
       return Left(mockFailure ?? const ServerFailure('Unauthorized'));
     }
     return Right(mockUser ?? const User(id: '1', username: 'testuser'));
+  }
+
+  @override
+  Future<Either<Failure, AuthPayload>> refreshToken(String refreshToken) async {
+    return const Right(
+      AuthPayload(
+        accessToken: 'new_token',
+        refreshToken: 'new_refresh',
+        expiresIn: 3600,
+      ),
+    );
   }
 
   @override
@@ -95,7 +113,11 @@ void main() {
 
     test('should copy with payload', () {
       const state = AuthState();
-      const payload = AuthPayload(accessToken: 'token123');
+      const payload = AuthPayload(
+        accessToken: 'token123',
+        refreshToken: 'refresh123',
+        expiresIn: 3600,
+      );
       final newState = state.copyWith(payload: payload);
 
       expect(newState.payload, isNotNull);
@@ -168,7 +190,11 @@ void main() {
     test(
       'login - should set loading state then success with payload',
       () async {
-        const testPayload = AuthPayload(accessToken: 'token123');
+        const testPayload = AuthPayload(
+          accessToken: 'token123',
+          refreshToken: 'refresh123',
+          expiresIn: 3600,
+        );
         fakeRepository.mockPayload = testPayload;
 
         final container = ProviderContainer(

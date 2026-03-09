@@ -38,7 +38,7 @@ module "postgres" {
   name                = "postgres-dev"
   namespace           = "altrupets-dev"
   postgres_version    = "15-alpine"
-  secret_name         = "backend-secret"  # Managed by Infisical
+  secret_name         = "backend-secret"  # We now guarantee this exists
   storage_class_name  = "standard"  # Minikube default
   storage_size        = "20Gi"
   enable_nodeport     = true         # Para acceso externo con DBeaver

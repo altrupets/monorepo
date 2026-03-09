@@ -6,9 +6,9 @@ part of 'register_organization_input.dart';
 // JsonSerializableGenerator
 // **************************************************************************
 
-_$RegisterOrganizationInputImpl _$$RegisterOrganizationInputImplFromJson(
+_RegisterOrganizationInput _$RegisterOrganizationInputFromJson(
   Map<String, dynamic> json,
-) => _$RegisterOrganizationInputImpl(
+) => _RegisterOrganizationInput(
   name: json['name'] as String,
   type: $enumDecode(_$OrganizationTypeEnumMap, json['type']),
   legalId: json['legalId'] as String?,
@@ -26,8 +26,8 @@ _$RegisterOrganizationInputImpl _$$RegisterOrganizationInputImplFromJson(
   maxCapacity: (json['maxCapacity'] as num?)?.toInt(),
 );
 
-Map<String, dynamic> _$$RegisterOrganizationInputImplToJson(
-  _$RegisterOrganizationInputImpl instance,
+Map<String, dynamic> _$RegisterOrganizationInputToJson(
+  _RegisterOrganizationInput instance,
 ) => <String, dynamic>{
   'name': instance.name,
   'type': _$OrganizationTypeEnumMap[instance.type]!,

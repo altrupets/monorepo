@@ -8,6 +8,10 @@ locals {
 
   # Environment-specific values
   environment = var.environment
+  repo_root   = abspath("${path.module}/../../../../../")
+
+  # OS detection for local-exec interpreter
+  is_windows = can(regex("^[A-Za-z]:", pathexpand("~")))
 
   # Gateway API version
   gateway_version = var.gateway_version
@@ -28,15 +32,10 @@ resource "null_resource" "gateway_api_crds" {
   }
 
   provisioner "local-exec" {
-    command = <<-EOT
-      echo "Installing Gateway API CRDs from NGINX (v${var.nginx_gateway_version})..."
-      kubectl kustomize "${local.crd_url}" | kubectl apply --server-side -f -
-      echo "Waiting for CRDs to be established..."
-      kubectl wait --for condition=established --timeout=60s crd/gatewayclasses.gateway.networking.k8s.io || echo "CRD may still be establishing..."
-      echo "Gateway API CRDs installation completed!"
-    EOT
+    working_dir = local.repo_root
+    interpreter = local.is_windows ? ["pwsh", "-NoProfile", "-ExecutionPolicy", "Bypass", "-Command"] : ["/usr/bin/env", "bash", "-lc"]
+    command     = local.is_windows ? "& '${local.repo_root}/infrastructure/scripts/install-gateway-crds.ps1' -CrdUrl '${local.crd_url}' -NginxVersion '${var.nginx_gateway_version}'" : "bash '${local.repo_root}/infrastructure/scripts/install-gateway-crds.sh' '${local.crd_url}' '${var.nginx_gateway_version}'"
   }
-
   provisioner "local-exec" {
     when    = destroy
     command = <<-EOT
@@ -47,6 +46,11 @@ resource "null_resource" "gateway_api_crds" {
   }
 }
 
+resource "time_sleep" "wait_for_crd_discovery" {
+  depends_on = [null_resource.gateway_api_crds]
+
+  create_duration = "20s"
+}
 # ============================================
 # STEP 2: Deploy Istio Service Mesh (Optional)
 # ============================================
@@ -134,7 +138,7 @@ resource "kubernetes_manifest" "istio_gateway_class" {
   count = var.enable_istio_service_mesh ? 1 : 0
 
   depends_on = [
-    null_resource.gateway_api_crds,
+    time_sleep.wait_for_crd_discovery,
     helm_release.istiod
   ]
 
@@ -427,7 +431,7 @@ resource "kubernetes_manifest" "main_gateway" {
   count = var.deploy_gateway ? 1 : 0
 
   depends_on = [
-    null_resource.gateway_api_crds,
+    time_sleep.wait_for_crd_discovery,
     helm_release.nginx_gateway_fabric,
     kubernetes_namespace.app_namespace
   ]

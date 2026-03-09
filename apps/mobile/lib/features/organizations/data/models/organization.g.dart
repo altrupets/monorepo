@@ -6,11 +6,18 @@ part of 'organization.dart';
 // JsonSerializableGenerator
 // **************************************************************************
 
-_$OrganizationImpl _$$OrganizationImplFromJson(Map<String, dynamic> json) =>
-    _$OrganizationImpl(
+_Organization _$OrganizationFromJson(Map<String, dynamic> json) =>
+    _Organization(
       id: json['id'] as String,
       name: json['name'] as String,
       type: $enumDecode(_$OrganizationTypeEnumMap, json['type']),
+      status: $enumDecode(_$OrganizationStatusEnumMap, json['status']),
+      memberCount: (json['memberCount'] as num).toInt(),
+      maxCapacity: (json['maxCapacity'] as num).toInt(),
+      isActive: json['isActive'] as bool,
+      isVerified: json['isVerified'] as bool,
+      createdAt: DateTime.parse(json['createdAt'] as String),
+      updatedAt: DateTime.parse(json['updatedAt'] as String),
       legalId: json['legalId'] as String?,
       description: json['description'] as String?,
       email: json['email'] as String?,
@@ -21,21 +28,21 @@ _$OrganizationImpl _$$OrganizationImplFromJson(Map<String, dynamic> json) =>
       province: json['province'] as String?,
       canton: json['canton'] as String?,
       district: json['district'] as String?,
-      status: $enumDecode(_$OrganizationStatusEnumMap, json['status']),
       legalRepresentativeId: json['legalRepresentativeId'] as String?,
-      memberCount: (json['memberCount'] as num).toInt(),
-      maxCapacity: (json['maxCapacity'] as num).toInt(),
-      isActive: json['isActive'] as bool,
-      isVerified: json['isVerified'] as bool,
-      createdAt: DateTime.parse(json['createdAt'] as String),
-      updatedAt: DateTime.parse(json['updatedAt'] as String),
     );
 
-Map<String, dynamic> _$$OrganizationImplToJson(_$OrganizationImpl instance) =>
+Map<String, dynamic> _$OrganizationToJson(_Organization instance) =>
     <String, dynamic>{
       'id': instance.id,
       'name': instance.name,
       'type': _$OrganizationTypeEnumMap[instance.type]!,
+      'status': _$OrganizationStatusEnumMap[instance.status]!,
+      'memberCount': instance.memberCount,
+      'maxCapacity': instance.maxCapacity,
+      'isActive': instance.isActive,
+      'isVerified': instance.isVerified,
+      'createdAt': instance.createdAt.toIso8601String(),
+      'updatedAt': instance.updatedAt.toIso8601String(),
       'legalId': instance.legalId,
       'description': instance.description,
       'email': instance.email,
@@ -46,14 +53,7 @@ Map<String, dynamic> _$$OrganizationImplToJson(_$OrganizationImpl instance) =>
       'province': instance.province,
       'canton': instance.canton,
       'district': instance.district,
-      'status': _$OrganizationStatusEnumMap[instance.status]!,
       'legalRepresentativeId': instance.legalRepresentativeId,
-      'memberCount': instance.memberCount,
-      'maxCapacity': instance.maxCapacity,
-      'isActive': instance.isActive,
-      'isVerified': instance.isVerified,
-      'createdAt': instance.createdAt.toIso8601String(),
-      'updatedAt': instance.updatedAt.toIso8601String(),
     };
 
 const _$OrganizationTypeEnumMap = {

@@ -1,16 +1,20 @@
 import 'package:dio/dio.dart';
 import 'package:altrupets/core/storage/secure_storage_service.dart';
+import 'package:altrupets/core/graphql/graphql_client.dart';
 
 /// Authentication interceptor for HTTP requests
 ///
 /// Automatically injects JWT token into request headers from secure storage
 class AuthInterceptor extends Interceptor {
-  AuthInterceptor(this._secureStorage);
+  AuthInterceptor({required SecureStorageService secureStorage})
+    : _secureStorage = secureStorage;
   final SecureStorageService _secureStorage;
 
   static const String _authorizationHeader = 'Authorization';
   static const String _bearerPrefix = 'Bearer ';
   static const String _keyAccessToken = 'auth_access_token';
+  static const String _keyRefreshToken = 'auth_refresh_token';
+  static const String _retryFlag = 'x-is-retry';
 
   @override
   Future<void> onRequest(
@@ -41,15 +45,45 @@ class AuthInterceptor extends Interceptor {
     final response = err.response;
 
     // Handle 401 Unauthorized - token expired or invalid
-    // Backend should implement refresh token endpoint
-    if (response?.statusCode == 401) {
-      // TODO: Implement token refresh when backend supports it
-      // For now, just clear the invalid token
-      await _secureStorage.delete(key: _keyAccessToken);
-    }
+    if (response?.statusCode == 401 &&
+        err.requestOptions.headers[_retryFlag] == null) {
+      final refreshResult = await GraphQLClientService.refreshToken();
 
-    // Handle 403 Forbidden - insufficient permissions
-    // The UI should handle this by showing appropriate error message
+      return refreshResult.fold(
+        (error) async {
+          // If refresh fails, clear everything and fail
+          await _secureStorage.delete(key: _keyAccessToken);
+          await _secureStorage.delete(key: _keyRefreshToken);
+          return handler.next(err);
+        },
+        (newToken) async {
+          // If refresh succeeds, retry the original request
+          final options = err.requestOptions;
+          options.headers[_authorizationHeader] = '$_bearerPrefix$newToken';
+          options.headers[_retryFlag] = 'true';
+
+          // Use a new Dio instance or the current one (if available) to retry
+          // For simplicity and to avoid circular deps, we can just use the options to re-execute
+          final dio = Dio(); // Basic dio for retry
+          try {
+            final response = await dio.request<dynamic>(
+              options.path,
+              data: options.data,
+              queryParameters: options.queryParameters,
+              options: Options(
+                method: options.method,
+                headers: options.headers,
+              ),
+            );
+            return handler.resolve(response);
+          } catch (e) {
+            return handler.next(err);
+          } finally {
+            dio.close();
+          }
+        },
+      );
+    }
 
     handler.next(err);
   }

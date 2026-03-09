@@ -40,6 +40,32 @@ class _LoginPageState extends ConsumerState<LoginPage> {
     );
   }
 
+  Future<void> _handleGoogleSignIn() async {
+    // TODO: Implement Google Sign-In
+    // Steps:
+    // 1. Add google_sign_in to pubspec.yaml
+    // 2. Configure Firebase/Google Console
+    // 3. Implement the logic:
+    /*
+    try {
+      final GoogleSignIn googleSignIn = GoogleSignIn();
+      final GoogleSignInAccount? account = await googleSignIn.signIn();
+      if (account != null) {
+        final GoogleSignInAuthentication auth = await account.authentication;
+        final String? idToken = auth.idToken;
+        // Call backend with idToken
+      }
+    } catch (e) {
+      debugPrint('Google Sign-In Error: $e');
+    }
+    */
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text('Google Sign-In implementation pending configuration'),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
@@ -86,13 +112,13 @@ class _LoginPageState extends ConsumerState<LoginPage> {
         String title = 'Error';
         bool isConnectionError = false;
 
-        if (error.contains(AuthErrorType.ACCOUNT_LOCKED.code)) {
+        if (error.contains(AuthErrorType.accountLocked.code)) {
           title = 'Cuenta bloqueada';
           userMessage = error;
-        } else if (error.contains(AuthErrorType.USER_NOT_FOUND.code)) {
+        } else if (error.contains(AuthErrorType.userNotFound.code)) {
           title = 'Usuario no encontrado';
           userMessage = 'El usuario no existe en nuestra base de datos.';
-        } else if (error.contains(AuthErrorType.INVALID_PASSWORD.code)) {
+        } else if (error.contains(AuthErrorType.invalidPassword.code)) {
           title = 'Credenciales inválidas';
           userMessage =
               'El usuario o contraseña son incorrectos. Por favor intenta de nuevo.';
@@ -316,17 +342,9 @@ class _LoginPageState extends ConsumerState<LoginPage> {
                     children: [
                       Expanded(
                         child: OutlinedButton.icon(
-                          onPressed: () {
-                            // TODO: Implement Google Sign-In
-                            // Resources:
-                            // https://context7.com/websites/pub_dev_google_sign_in
-                            // https://firebase.google.com/docs/auth/flutter/start?hl=es-419
-                            AppSnackbar.info(
-                              context: context,
-                              message:
-                                  'Implementar Google Sign-In (Ver URLs en código).',
-                            );
-                          },
+                          onPressed: authState.isLoading
+                              ? null
+                              : _handleGoogleSignIn,
                           icon: const Text(
                             'G',
                             style: TextStyle(

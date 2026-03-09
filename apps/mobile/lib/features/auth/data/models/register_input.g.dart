@@ -6,8 +6,8 @@ part of 'register_input.dart';
 // JsonSerializableGenerator
 // **************************************************************************
 
-_$RegisterInputImpl _$$RegisterInputImplFromJson(Map<String, dynamic> json) =>
-    _$RegisterInputImpl(
+_RegisterInput _$RegisterInputFromJson(Map<String, dynamic> json) =>
+    _RegisterInput(
       username: json['username'] as String,
       password: json['password'] as String,
       email: json['email'] as String?,
@@ -26,7 +26,7 @@ _$RegisterInputImpl _$$RegisterInputImplFromJson(Map<String, dynamic> json) =>
           .toList(),
     );
 
-Map<String, dynamic> _$$RegisterInputImplToJson(_$RegisterInputImpl instance) =>
+Map<String, dynamic> _$RegisterInputToJson(_RegisterInput instance) =>
     <String, dynamic>{
       'username': instance.username,
       'password': instance.password,

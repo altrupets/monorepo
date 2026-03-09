@@ -6,8 +6,15 @@ part of 'auth_payload.dart';
 // JsonSerializableGenerator
 // **************************************************************************
 
-_$AuthPayloadImpl _$$AuthPayloadImplFromJson(Map<String, dynamic> json) =>
-    _$AuthPayloadImpl(accessToken: json['access_token'] as String);
+_AuthPayload _$AuthPayloadFromJson(Map<String, dynamic> json) => _AuthPayload(
+  accessToken: json['access_token'] as String,
+  refreshToken: json['refresh_token'] as String,
+  expiresIn: (json['expires_in'] as num).toInt(),
+);
 
-Map<String, dynamic> _$$AuthPayloadImplToJson(_$AuthPayloadImpl instance) =>
-    <String, dynamic>{'access_token': instance.accessToken};
+Map<String, dynamic> _$AuthPayloadToJson(_AuthPayload instance) =>
+    <String, dynamic>{
+      'access_token': instance.accessToken,
+      'refresh_token': instance.refreshToken,
+      'expires_in': instance.expiresIn,
+    };

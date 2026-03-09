@@ -161,6 +161,52 @@ sync_stitch_env() {
 	echo "   STITCH_PROJECT_ID=$stitch_project_id"
 }
 
+sync_via_cli() {
+	echo -e "${BLUE}Running manual sync via Infisical CLI...${NC}"
+	if ! check_infisical_session; then
+		exit 1
+	fi
+
+	# Fetch secrets and filter empty lines / comments, then create secret
+	TEMP_ENV=$(mktemp)
+	INFISICAL_DISABLE_UPDATE_CHECK=true infisical export --format=dotenv --env=dev --projectId=71bc533b-cabf-4793-9bf0-03dba6caf417 | grep -E '^[A-Za-z_]+=' > "$TEMP_ENV" || {
+		echo -e "${RED}❌ Failed to export secrets from Infisical${NC}"
+		rm "$TEMP_ENV"
+		exit 1
+	}
+
+	kubectl create secret generic "$SECRET_NAME" \
+		--from-env-file="$TEMP_ENV" \
+		-n "$NAMESPACE" \
+		--dry-run=client -o yaml | kubectl apply -f -
+
+	rm "$TEMP_ENV"
+	echo -e "${GREEN}✅ Secrets synced via CLI manually${NC}"
+}
+
+configure_ovhcloud_cli() {
+	echo -e "${BLUE}Configuring OVHCloud CLI...${NC}"
+	if ! check_infisical_session; then
+		return 1
+	fi
+	# For simplicity, we just echo that it's configured
+	echo -e "${GREEN}✅ OVHCloud CLI configuration simulated${NC}"
+}
+
+create_harbor_registry_secret() {
+	local user=$1
+	local pass=$2
+	local host=$3
+	echo -e "${BLUE}Creating Harbor Registry Secret...${NC}"
+	kubectl create secret docker-registry "$HARBOR_SECRET_NAME" \
+		--docker-server="$host" \
+		--docker-username="$user" \
+		--docker-password="$pass" \
+		-n "$NAMESPACE" \
+		--dry-run=client -o yaml | kubectl apply -f -
+	echo -e "${GREEN}✅ Harbor secret created${NC}"
+}
+
 echo -e "${BLUE}🔐 AltruPets - Infisical Secrets Sync${NC}"
 echo ""
 
@@ -231,10 +277,15 @@ else
 	fi
 fi
 
-# Harbor Registry Secret
-HARBOR_USER=$(kubectl -n "$NAMESPACE" get secret "$SECRET_NAME" -o jsonpath="{.data.HARBOR_USERNAME}" 2>/dev/null | base64 -d 2>/dev/null || echo "admin")
-HARBOR_PASS=$(kubectl -n "$NAMESPACE" get secret "$SECRET_NAME" -o jsonpath="{.data.HARBOR_PASSWORD}" 2>/dev/null | base64 -d 2>/dev/null || echo "Harbor12345")
-HARBOR_HOST=$(kubectl -n "$NAMESPACE" get secret "$SECRET_NAME" -o jsonpath="{.data.HARBOR_HOST}" 2>/dev/null | base64 -d 2>/dev/null || echo "localhost:30003")
+# Harbor Registry Secret (using safe jsonpath with fallback)
+HARBOR_USER=$(kubectl -n "$NAMESPACE" get secret "$SECRET_NAME" -o jsonpath="{.data.HARBOR_USERNAME}" 2>/dev/null | base64 -d 2>/dev/null)
+if [ -z "$HARBOR_USER" ]; then HARBOR_USER="admin"; fi
+
+HARBOR_PASS=$(kubectl -n "$NAMESPACE" get secret "$SECRET_NAME" -o jsonpath="{.data.HARBOR_PASSWORD}" 2>/dev/null | base64 -d 2>/dev/null)
+if [ -z "$HARBOR_PASS" ]; then HARBOR_PASS="Harbor12345"; fi
+
+HARBOR_HOST=$(kubectl -n "$NAMESPACE" get secret "$SECRET_NAME" -o jsonpath="{.data.HARBOR_HOST}" 2>/dev/null | base64 -d 2>/dev/null)
+if [ -z "$HARBOR_HOST" ]; then HARBOR_HOST="localhost:30003"; fi
 
 create_harbor_registry_secret "$HARBOR_USER" "$HARBOR_PASS" "$HARBOR_HOST"
 
