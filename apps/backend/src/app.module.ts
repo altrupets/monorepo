@@ -95,13 +95,20 @@ import { SubsidyRequest } from './subsidies/entities/subsidy-request.entity';
         const redisUrl = configService.get<string>('REDIS_URL');
 
         if (redisHost || redisUrl) {
+          const storeConfig = redisUrl
+            ? { url: redisUrl }
+            : {
+                socket: {
+                  host: redisHost,
+                  port: configService.get<number>('REDIS_PORT', 6379),
+                },
+              };
+
           const store = await redisStore({
-            socket: {
-              host: redisHost || 'localhost',
-              port: configService.get<number>('REDIS_PORT', 6379),
-            },
+            ...storeConfig,
             ttl: configService.get<number>('CACHE_TTL', 600) * 1000,
           });
+
           return { store: () => store };
         }
 
