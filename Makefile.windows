@@ -1,0 +1,56 @@
+# Windows proxy Makefile
+# Uses native Windows implementation for Minikube setup, and delegates the rest
+# to the original Makefile through Git Bash for parity.
+
+POWERSHELL := pwsh -NoProfile -ExecutionPolicy Bypass
+RUN_MAKE := $(POWERSHELL) -File infrastructure/scripts/run-make-in-git-bash.ps1
+
+.PHONY: help \
+        setup dev-minikube-deploy dev-terraform-deploy dev-gateway-deploy dev-harbor-deploy \
+        dev-images-build dev-argocd-push-and-deploy dev-gateway-start bootstrap-dev
+
+help:
+	@echo "Windows targets: native cluster setup + proxied Makefile commands"
+	@echo "  setup"
+	@echo "  dev-minikube-deploy"
+	@echo "  dev-terraform-deploy"
+	@echo "  dev-gateway-deploy"
+	@echo "  dev-harbor-deploy"
+	@echo "  dev-images-build"
+	@echo "  dev-argocd-push-and-deploy"
+	@echo "  dev-gateway-start"
+	@echo "  bootstrap-dev"
+
+setup:
+	@$(RUN_MAKE) -Target setup
+
+dev-minikube-deploy:
+	@$(POWERSHELL) -File infrastructure/scripts/dev-setup-windows.ps1
+
+dev-terraform-deploy:
+	@$(RUN_MAKE) -Target dev-terraform-deploy
+
+dev-gateway-deploy:
+	@$(RUN_MAKE) -Target dev-gateway-deploy
+
+dev-harbor-deploy:
+	@$(RUN_MAKE) -Target dev-harbor-deploy
+
+dev-images-build:
+	@$(RUN_MAKE) -Target dev-images-build
+
+dev-argocd-push-and-deploy:
+	@$(RUN_MAKE) -Target dev-argocd-push-and-deploy
+
+dev-gateway-start:
+	@$(RUN_MAKE) -Target dev-gateway-start
+
+bootstrap-dev:
+	@$(RUN_MAKE) -Target setup
+	@$(POWERSHELL) -File infrastructure/scripts/dev-setup-windows.ps1
+	@$(RUN_MAKE) -Target dev-terraform-deploy
+	@$(RUN_MAKE) -Target dev-gateway-deploy
+	@$(RUN_MAKE) -Target dev-harbor-deploy
+	@$(RUN_MAKE) -Target dev-images-build
+	@$(RUN_MAKE) -Target dev-argocd-push-and-deploy
+	@$(RUN_MAKE) -Target dev-gateway-start

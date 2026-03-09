@@ -13,7 +13,7 @@
 
 TIMEOUT ?= 900000
 
-.PHONY: help setup \
+.PHONY: help setup dev-setup \
         dev-terraform-deploy dev-terraform-destroy \
         dev-minikube-deploy dev-minikube-clear dev-minikube-destroy \
         dev-argocd-deploy dev-argocd-destroy dev-argocd-status dev-argocd-password \
@@ -28,7 +28,7 @@ TIMEOUT ?= 900000
         dev-mcp-start dev-mcp-stop dev-mcp-status \
         dev-security-scan dev-security-deps dev-security-sast dev-security-secrets \
         dev-security-container dev-security-iac dev-security-fix \
-        dev-mobile-launch dev-mobile-launch-desktop dev-mobile-launch-emulator dev-mobile-launch-device \
+        dev-mobile-launch dev-mobile-desktop dev-mobile-launch-desktop dev-mobile-launch-emulator dev-mobile-launch-device \
         dev-mobile-widgetbook dev-mobile-analyze dev-mobile-test dev-mobile-test-coverage dev-mobile-lint \
         dev-admin-server-install dev-admin-server-start dev-admin-server-stop dev-admin-server-restart \
         dev-admin-server-status dev-admin-server-logs dev-admin-server-test \
@@ -251,10 +251,11 @@ dev-minikube-destroy: ## Delete minikube cluster
 # DEV - Terraform
 # ==========================================
 
-dev-terraform-deploy: ## Deploy all terraform resources (PostgreSQL + Gateway)
-	@echo "$(BLUE)Deploying DEV terraform resources...$(NC)"
-	@cd $(TF_DIR) && tofu init && tofu apply -auto-approve
-
+dev-terraform-deploy: ## Deploy all terraform resources (two-phase for Gateway CRDs)
+	@echo "$(BLUE)Deploying DEV terraform resources (phase 1/2: CRDs bootstrap)...$(NC)"
+	@cd $(TF_DIR) && tofu init && tofu apply -replace=module.gateway_api.null_resource.gateway_api_crds -target=module.gateway_api.null_resource.gateway_api_crds -target=module.gateway_api.time_sleep.wait_for_crd_discovery -auto-approve
+	@echo "$(BLUE)Deploying DEV terraform resources (phase 2/2: full apply)...$(NC)"
+	@cd $(TF_DIR) && tofu apply -auto-approve
 dev-terraform-destroy: ## Destroy all terraform resources
 	@echo "$(RED)Destroying DEV terraform resources...$(NC)"
 	@cd $(TF_DIR) && tofu destroy
@@ -709,3 +710,25 @@ dev-admin-server-logs: ## Show Admin Server logs
 
 dev-admin-server-test: ## Test Admin Server health endpoint
 	@curl -s http://localhost:3002/health
+
+
+# ==========================================
+# DEV - Windows Compatibility
+# ==========================================
+
+dev-setup: ## Windows setup for local cluster (Minikube + Podman + WSL2)
+	@if [ "$$OS" = "Windows_NT" ]; then \
+		pwsh -NoProfile -ExecutionPolicy Bypass -File $(SCRIPTS_DIR)/dev-setup-windows.ps1; \
+	else \
+		$(MAKE) setup && $(MAKE) dev-minikube-deploy; \
+	fi
+
+dev-mobile-desktop: ## Launch Flutter desktop app (Windows native / Linux fallback)
+	@if [ "$$OS" = "Windows_NT" ]; then \
+		pwsh -NoProfile -ExecutionPolicy Bypass -File apps/mobile/launch_flutter_debug_windows.ps1 -Target desktop; \
+	else \
+		cd apps/mobile && ./launch_flutter_debug.sh -l; \
+	fi
+
+
+
