@@ -7,7 +7,10 @@ RUN_MAKE := $(POWERSHELL) -File infrastructure/scripts/run-make-in-git-bash.ps1
 
 .PHONY: help \
         setup dev-minikube-deploy dev-terraform-deploy dev-gateway-deploy dev-harbor-deploy \
-        dev-images-build dev-argocd-push-and-deploy dev-gateway-start bootstrap-dev
+        dev-images-build dev-argocd-push-and-deploy dev-gateway-start \
+        dev-mobile-launch dev-mobile-desktop dev-mobile-launch-desktop \
+        dev-mobile-launch-emulator dev-mobile-launch-device \
+        bootstrap-dev
 
 help:
 	@echo "Windows targets: native cluster setup + proxied Makefile commands"
@@ -19,7 +22,14 @@ help:
 	@echo "  dev-images-build"
 	@echo "  dev-argocd-push-and-deploy"
 	@echo "  dev-gateway-start"
+	@echo "  dev-mobile-launch"
+	@echo "  dev-mobile-desktop"
+	@echo "  dev-mobile-launch-desktop"
+	@echo "  dev-mobile-launch-emulator"
+	@echo "  dev-mobile-launch-device"
 	@echo "  bootstrap-dev"
+	@echo ""
+	@echo "Any other target is proxied to Makefile through Git Bash."
 
 setup:
 	@$(RUN_MAKE) -Target setup
@@ -45,6 +55,21 @@ dev-argocd-push-and-deploy:
 dev-gateway-start:
 	@$(RUN_MAKE) -Target dev-gateway-start
 
+dev-mobile-launch:
+	@$(POWERSHELL) -File apps/mobile/launch_flutter_debug_windows.ps1 -Target desktop
+
+dev-mobile-desktop:
+	@$(POWERSHELL) -File apps/mobile/launch_flutter_debug_windows.ps1 -Target desktop
+
+dev-mobile-launch-desktop:
+	@$(POWERSHELL) -File apps/mobile/launch_flutter_debug_windows.ps1 -Target desktop
+
+dev-mobile-launch-emulator:
+	@$(POWERSHELL) -File apps/mobile/launch_flutter_debug_windows.ps1 -Target emulator
+
+dev-mobile-launch-device:
+	@$(POWERSHELL) -File apps/mobile/launch_flutter_debug_windows.ps1 -Target device
+
 bootstrap-dev:
 	@$(RUN_MAKE) -Target setup
 	@$(POWERSHELL) -File infrastructure/scripts/dev-setup-windows.ps1
@@ -54,3 +79,6 @@ bootstrap-dev:
 	@$(RUN_MAKE) -Target dev-images-build
 	@$(RUN_MAKE) -Target dev-argocd-push-and-deploy
 	@$(RUN_MAKE) -Target dev-gateway-start
+
+%:
+	@$(RUN_MAKE) -Target $@
