@@ -4,7 +4,7 @@ part 'register_input.freezed.dart';
 part 'register_input.g.dart';
 
 @freezed
-class RegisterInput with _$RegisterInput {
+abstract class RegisterInput with _$RegisterInput {
   const factory RegisterInput({
     required String username,
     required String password,

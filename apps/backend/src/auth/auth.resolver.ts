@@ -2,14 +2,14 @@ import { Resolver, Mutation, Args, Query, registerEnumType } from '@nestjs/graph
 import { User } from '../users/entities/user.entity';
 import { UseGuards, HttpException, HttpStatus } from '@nestjs/common';
 import { AuthService } from './auth.service';
-import { AuthPayload, UserProfile } from './dto/auth.types';
+import { AuthPayload, UserProfile, RefreshTokenInput } from './dto/auth.types';
 import { LoginInput } from './dto/login.input';
 import { RegisterInput } from './dto/register.input';
+import { GqlUser } from './gql-user.decorator';
 import { JwtAuthGuard } from './jwt-auth.guard';
 import { RolesGuard } from './roles/roles.guard';
 import { Roles } from './roles/roles.decorator';
 import { UserRole } from './roles/user-role.enum';
-import { GqlUser } from './gql-user.decorator';
 
 export enum LoginError {
   USER_NOT_FOUND = 'USER_NOT_FOUND',
@@ -21,7 +21,7 @@ registerEnumType(LoginError, { name: 'LoginError' });
 
 @Resolver()
 export class AuthResolver {
-  constructor(private authService: AuthService) {}
+  constructor(private authService: AuthService) { }
 
   @Mutation(() => User)
   async register(@Args('registerInput') registerInput: RegisterInput) {
@@ -62,6 +62,18 @@ export class AuthResolver {
 
       throw new HttpException(
         'Error de autenticación. Por favor intenta de nuevo.',
+        HttpStatus.UNAUTHORIZED,
+      );
+    }
+  }
+
+  @Mutation(() => AuthPayload)
+  async refreshToken(@Args('refreshTokenInput') refreshTokenInput: RefreshTokenInput) {
+    try {
+      return await this.authService.refreshToken(refreshTokenInput.refresh_token);
+    } catch (error) {
+      throw new HttpException(
+        error.message,
         HttpStatus.UNAUTHORIZED,
       );
     }

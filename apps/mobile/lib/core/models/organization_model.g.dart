@@ -6,51 +6,49 @@ part of 'organization_model.dart';
 // JsonSerializableGenerator
 // **************************************************************************
 
-_$OrganizationModelImpl _$$OrganizationModelImplFromJson(
-  Map<String, dynamic> json,
-) => _$OrganizationModelImpl(
-  id: json['id'] as String,
-  name: json['name'] as String,
-  type: $enumDecode(_$OrganizationTypeEnumMap, json['type']),
-  description: json['description'] as String?,
-  logoUrl: json['logoUrl'] as String?,
-  website: json['website'] as String?,
-  email: json['email'] as String?,
-  phoneNumber: json['phoneNumber'] as String?,
-  address: json['address'] as String?,
-  latitude: (json['latitude'] as num?)?.toDouble(),
-  longitude: (json['longitude'] as num?)?.toDouble(),
-  legalRepresentativeId: json['legalRepresentativeId'] as String,
-  isVerified: json['isVerified'] as bool,
-  isActive: json['isActive'] as bool,
-  createdAt: DateTime.parse(json['createdAt'] as String),
-  updatedAt: DateTime.parse(json['updatedAt'] as String),
-  taxId: json['taxId'] as String?,
-  registrationNumber: json['registrationNumber'] as String?,
-);
+_OrganizationModel _$OrganizationModelFromJson(Map<String, dynamic> json) =>
+    _OrganizationModel(
+      id: json['id'] as String,
+      name: json['name'] as String,
+      type: $enumDecode(_$OrganizationTypeEnumMap, json['type']),
+      description: json['description'] as String?,
+      logoUrl: json['logoUrl'] as String?,
+      website: json['website'] as String?,
+      email: json['email'] as String?,
+      phoneNumber: json['phoneNumber'] as String?,
+      address: json['address'] as String?,
+      latitude: (json['latitude'] as num?)?.toDouble(),
+      longitude: (json['longitude'] as num?)?.toDouble(),
+      legalRepresentativeId: json['legalRepresentativeId'] as String,
+      isVerified: json['isVerified'] as bool,
+      isActive: json['isActive'] as bool,
+      createdAt: DateTime.parse(json['createdAt'] as String),
+      updatedAt: DateTime.parse(json['updatedAt'] as String),
+      taxId: json['taxId'] as String?,
+      registrationNumber: json['registrationNumber'] as String?,
+    );
 
-Map<String, dynamic> _$$OrganizationModelImplToJson(
-  _$OrganizationModelImpl instance,
-) => <String, dynamic>{
-  'id': instance.id,
-  'name': instance.name,
-  'type': _$OrganizationTypeEnumMap[instance.type]!,
-  'description': instance.description,
-  'logoUrl': instance.logoUrl,
-  'website': instance.website,
-  'email': instance.email,
-  'phoneNumber': instance.phoneNumber,
-  'address': instance.address,
-  'latitude': instance.latitude,
-  'longitude': instance.longitude,
-  'legalRepresentativeId': instance.legalRepresentativeId,
-  'isVerified': instance.isVerified,
-  'isActive': instance.isActive,
-  'createdAt': instance.createdAt.toIso8601String(),
-  'updatedAt': instance.updatedAt.toIso8601String(),
-  'taxId': instance.taxId,
-  'registrationNumber': instance.registrationNumber,
-};
+Map<String, dynamic> _$OrganizationModelToJson(_OrganizationModel instance) =>
+    <String, dynamic>{
+      'id': instance.id,
+      'name': instance.name,
+      'type': _$OrganizationTypeEnumMap[instance.type]!,
+      'description': instance.description,
+      'logoUrl': instance.logoUrl,
+      'website': instance.website,
+      'email': instance.email,
+      'phoneNumber': instance.phoneNumber,
+      'address': instance.address,
+      'latitude': instance.latitude,
+      'longitude': instance.longitude,
+      'legalRepresentativeId': instance.legalRepresentativeId,
+      'isVerified': instance.isVerified,
+      'isActive': instance.isActive,
+      'createdAt': instance.createdAt.toIso8601String(),
+      'updatedAt': instance.updatedAt.toIso8601String(),
+      'taxId': instance.taxId,
+      'registrationNumber': instance.registrationNumber,
+    };
 
 const _$OrganizationTypeEnumMap = {
   OrganizationType.individual: 'INDIVIDUAL',
@@ -60,9 +58,9 @@ const _$OrganizationTypeEnumMap = {
   OrganizationType.rescueCenter: 'RESCUE_CENTER',
 };
 
-_$OrganizationCreateRequestImpl _$$OrganizationCreateRequestImplFromJson(
+_OrganizationCreateRequest _$OrganizationCreateRequestFromJson(
   Map<String, dynamic> json,
-) => _$OrganizationCreateRequestImpl(
+) => _OrganizationCreateRequest(
   name: json['name'] as String,
   type: $enumDecode(_$OrganizationTypeEnumMap, json['type']),
   description: json['description'] as String?,
@@ -77,8 +75,8 @@ _$OrganizationCreateRequestImpl _$$OrganizationCreateRequestImplFromJson(
   registrationNumber: json['registrationNumber'] as String?,
 );
 
-Map<String, dynamic> _$$OrganizationCreateRequestImplToJson(
-  _$OrganizationCreateRequestImpl instance,
+Map<String, dynamic> _$OrganizationCreateRequestToJson(
+  _OrganizationCreateRequest instance,
 ) => <String, dynamic>{
   'name': instance.name,
   'type': _$OrganizationTypeEnumMap[instance.type]!,
@@ -94,9 +92,9 @@ Map<String, dynamic> _$$OrganizationCreateRequestImplToJson(
   'registrationNumber': instance.registrationNumber,
 };
 
-_$OrganizationMembershipImpl _$$OrganizationMembershipImplFromJson(
+_OrganizationMembership _$OrganizationMembershipFromJson(
   Map<String, dynamic> json,
-) => _$OrganizationMembershipImpl(
+) => _OrganizationMembership(
   id: json['id'] as String,
   organizationId: json['organizationId'] as String,
   userId: json['userId'] as String,
@@ -109,8 +107,8 @@ _$OrganizationMembershipImpl _$$OrganizationMembershipImplFromJson(
   approvedBy: json['approvedBy'] as String?,
 );
 
-Map<String, dynamic> _$$OrganizationMembershipImplToJson(
-  _$OrganizationMembershipImpl instance,
+Map<String, dynamic> _$OrganizationMembershipToJson(
+  _OrganizationMembership instance,
 ) => <String, dynamic>{
   'id': instance.id,
   'organizationId': instance.organizationId,
@@ -135,16 +133,16 @@ const _$UserRoleEnumMap = {
   UserRole.veterinarian: 'VETERINARIAN',
 };
 
-_$OrganizationMembershipRequestImpl
-_$$OrganizationMembershipRequestImplFromJson(Map<String, dynamic> json) =>
-    _$OrganizationMembershipRequestImpl(
-      organizationId: json['organizationId'] as String,
-      userId: json['userId'] as String,
-      role: $enumDecode(_$UserRoleEnumMap, json['role']),
-    );
+_OrganizationMembershipRequest _$OrganizationMembershipRequestFromJson(
+  Map<String, dynamic> json,
+) => _OrganizationMembershipRequest(
+  organizationId: json['organizationId'] as String,
+  userId: json['userId'] as String,
+  role: $enumDecode(_$UserRoleEnumMap, json['role']),
+);
 
-Map<String, dynamic> _$$OrganizationMembershipRequestImplToJson(
-  _$OrganizationMembershipRequestImpl instance,
+Map<String, dynamic> _$OrganizationMembershipRequestToJson(
+  _OrganizationMembershipRequest instance,
 ) => <String, dynamic>{
   'organizationId': instance.organizationId,
   'userId': instance.userId,

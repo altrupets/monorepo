@@ -6,9 +6,9 @@ part of 'search_organizations_input.dart';
 // JsonSerializableGenerator
 // **************************************************************************
 
-_$SearchOrganizationsInputImpl _$$SearchOrganizationsInputImplFromJson(
+_SearchOrganizationsInput _$SearchOrganizationsInputFromJson(
   Map<String, dynamic> json,
-) => _$SearchOrganizationsInputImpl(
+) => _SearchOrganizationsInput(
   name: json['name'] as String?,
   type: $enumDecodeNullable(_$OrganizationTypeEnumMap, json['type']),
   status: $enumDecodeNullable(_$OrganizationStatusEnumMap, json['status']),
@@ -17,8 +17,8 @@ _$SearchOrganizationsInputImpl _$$SearchOrganizationsInputImplFromJson(
   canton: json['canton'] as String?,
 );
 
-Map<String, dynamic> _$$SearchOrganizationsInputImplToJson(
-  _$SearchOrganizationsInputImpl instance,
+Map<String, dynamic> _$SearchOrganizationsInputToJson(
+  _SearchOrganizationsInput instance,
 ) => <String, dynamic>{
   'name': instance.name,
   'type': _$OrganizationTypeEnumMap[instance.type],

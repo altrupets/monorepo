@@ -20,6 +20,18 @@ class AuthRepository implements AuthRepositoryInterface {
     mutation Login(\$loginInput: LoginInput!) {
       login(loginInput: \$loginInput) {
         access_token
+        refresh_token
+        expires_in
+      }
+    }
+  ''';
+
+  static const String _refreshTokenMutation = '''
+    mutation RefreshToken(\$refreshTokenInput: RefreshTokenInput!) {
+      refreshToken(refreshTokenInput: \$refreshTokenInput) {
+        access_token
+        refresh_token
+        expires_in
       }
     }
   ''';
@@ -191,8 +203,11 @@ class AuthRepository implements AuthRepositoryInterface {
         '[AuthRepository] ✅ Login exitoso - token recibido (len: ${payload.accessToken.length})',
       );
 
-      // Guardar token
-      await GraphQLClientService.saveToken(payload.accessToken);
+      // Guardar tokens
+      await GraphQLClientService.saveToken(
+        payload.accessToken,
+        refreshToken: payload.refreshToken,
+      );
 
       debugPrint('[AuthRepository] ✅ Token guardado exitosamente');
 
@@ -247,6 +262,44 @@ class AuthRepository implements AuthRepositoryInterface {
       return Right(user);
     } catch (e) {
       debugPrint('[AuthRepository] ❌ Error: $e');
+      return Left(ServerFailure(e.toString()));
+    }
+  }
+
+  @override
+  Future<Either<Failure, AuthPayload>> refreshToken(String refreshToken) async {
+    try {
+      debugPrint('[AuthRepository] 🔄 Intentando refrescar token...');
+
+      final result = await _client.mutate(
+        MutationOptions(
+          document: gql(_refreshTokenMutation),
+          variables: {
+            'refreshTokenInput': {'refresh_token': refreshToken},
+          },
+        ),
+      );
+
+      if (result.hasException) {
+        final exception = result.exception!;
+        debugPrint('[AuthRepository] ❌ Error al refrescar token: $exception');
+        return Left(ServerFailure(exception.graphqlErrors.first.message));
+      }
+
+      final data = result.data?['refreshToken'] as Map<String, dynamic>?;
+      if (data == null) {
+        return const Left(ServerFailure('Invalid response during refresh'));
+      }
+
+      final payload = AuthPayload.fromJson(data);
+      debugPrint('[AuthRepository] ✅ Token refrescado exitosamente');
+
+      // Guardar nuevo token
+      await GraphQLClientService.saveToken(payload.accessToken);
+
+      return Right(payload);
+    } catch (e) {
+      debugPrint('[AuthRepository] ❌ Error inesperado al refrescar: $e');
       return Left(ServerFailure(e.toString()));
     }
   }

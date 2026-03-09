@@ -4,13 +4,15 @@ import 'dart:io';
 
 import 'package:flutter/foundation.dart';
 import 'package:graphql/client.dart';
+import 'package:dartz/dartz.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:altrupets/core/utils/constants.dart';
 import 'package:altrupets/core/utils/network_utils.dart';
 
 class GraphQLClientService {
   static const _storage = FlutterSecureStorage();
-  static const _tokenKey = 'auth_token';
+  static const _tokenKey = 'auth_access_token';
+  static const _refreshTokenKey = 'auth_refresh_token';
   static GraphQLClient? _client;
   static final StreamController<void> _sessionExpiredController =
       StreamController<void>.broadcast();
@@ -143,9 +145,12 @@ class GraphQLClientService {
     );
   }
 
-  static Future<void> saveToken(String token) async {
+  static Future<void> saveToken(String token, {String? refreshToken}) async {
     debugPrint('[GraphQLClient] 💾 Guardando token (len: ${token.length})...');
     await _storage.write(key: _tokenKey, value: token);
+    if (refreshToken != null) {
+      await _storage.write(key: _refreshTokenKey, value: refreshToken);
+    }
     debugPrint('[GraphQLClient] ✅ Token guardado exitosamente');
     // Recrear cliente con nuevo token
     _client = _createClient();
@@ -154,6 +159,7 @@ class GraphQLClientService {
 
   static Future<void> clearToken() async {
     await _storage.delete(key: _tokenKey);
+    await _storage.delete(key: _refreshTokenKey);
     // Recrear cliente sin token
     _client = _createClient();
   }
@@ -175,9 +181,59 @@ class GraphQLClientService {
     return token;
   }
 
+  static Future<String?> getRefreshToken() async {
+    return await _storage.read(key: _refreshTokenKey);
+  }
+
   static Future<bool> hasActiveSession() async {
     final token = await getToken();
     return token != null;
+  }
+
+  static Future<Either<String, String>> refreshToken() async {
+    final refreshToken = await getRefreshToken();
+    if (refreshToken == null) {
+      return const Left('No refresh token available');
+    }
+
+    final client = getClient();
+    const String mutation = r'''
+      mutation RefreshToken($input: RefreshTokenInput!) {
+        refreshToken(refreshTokenInput: $input) {
+          access_token
+          refresh_token
+          expires_in
+        }
+      }
+    ''';
+
+    try {
+      final result = await client.mutate(
+        MutationOptions(
+          document: gql(mutation),
+          variables: {
+            'input': {'refresh_token': refreshToken},
+          },
+        ),
+      );
+
+      if (result.hasException) {
+        return Left(result.exception.toString());
+      }
+
+      final data = result.data?['refreshToken'];
+      if (data == null) {
+        return const Left('Invalid refresh response');
+      }
+
+      final accessToken = data['access_token'] as String;
+      final newRefreshToken = data['refresh_token'] as String;
+
+      await saveToken(accessToken, refreshToken: newRefreshToken);
+      return Right(accessToken);
+    } catch (e) {
+      return Left(e.toString());
+    }
   }
 
   static Future<void> _handleSessionExpired() async {

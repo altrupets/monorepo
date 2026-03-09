@@ -6,7 +6,7 @@ part of 'user.dart';
 // JsonSerializableGenerator
 // **************************************************************************
 
-_$UserImpl _$$UserImplFromJson(Map<String, dynamic> json) => _$UserImpl(
+_User _$UserFromJson(Map<String, dynamic> json) => _User(
   id: json['id'] as String,
   username: json['username'] as String,
   roles: _rolesFromJson(json['roles']),
@@ -28,25 +28,24 @@ _$UserImpl _$$UserImplFromJson(Map<String, dynamic> json) => _$UserImpl(
   updatedAt: _dateTimeFromJson(json['updatedAt']),
 );
 
-Map<String, dynamic> _$$UserImplToJson(_$UserImpl instance) =>
-    <String, dynamic>{
-      'id': instance.id,
-      'username': instance.username,
-      'roles': instance.roles,
-      'email': instance.email,
-      'firstName': instance.firstName,
-      'lastName': instance.lastName,
-      'phone': instance.phone,
-      'identification': instance.identification,
-      'country': instance.country,
-      'province': instance.province,
-      'canton': instance.canton,
-      'district': instance.district,
-      'occupation': instance.occupation,
-      'incomeSource': instance.incomeSource,
-      'isActive': instance.isActive,
-      'isVerified': instance.isVerified,
-      'avatarBase64': instance.avatarBase64,
-      'createdAt': instance.createdAt?.toIso8601String(),
-      'updatedAt': instance.updatedAt?.toIso8601String(),
-    };
+Map<String, dynamic> _$UserToJson(_User instance) => <String, dynamic>{
+  'id': instance.id,
+  'username': instance.username,
+  'roles': instance.roles,
+  'email': instance.email,
+  'firstName': instance.firstName,
+  'lastName': instance.lastName,
+  'phone': instance.phone,
+  'identification': instance.identification,
+  'country': instance.country,
+  'province': instance.province,
+  'canton': instance.canton,
+  'district': instance.district,
+  'occupation': instance.occupation,
+  'incomeSource': instance.incomeSource,
+  'isActive': instance.isActive,
+  'isVerified': instance.isVerified,
+  'avatarBase64': instance.avatarBase64,
+  'createdAt': instance.createdAt?.toIso8601String(),
+  'updatedAt': instance.updatedAt?.toIso8601String(),
+};

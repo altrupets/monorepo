@@ -8,5 +8,6 @@ abstract class AuthRepositoryInterface {
   Future<Either<Failure, User>> register(RegisterInput input);
   Future<Either<Failure, AuthPayload>> login(String username, String password);
   Future<Either<Failure, User>> getCurrentUser();
+  Future<Either<Failure, AuthPayload>> refreshToken(String refreshToken);
   Future<Either<Failure, void>> logout();
 }

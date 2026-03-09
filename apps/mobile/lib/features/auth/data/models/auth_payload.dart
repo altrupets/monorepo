@@ -4,9 +4,11 @@ part 'auth_payload.freezed.dart';
 part 'auth_payload.g.dart';
 
 @freezed
-class AuthPayload with _$AuthPayload {
+abstract class AuthPayload with _$AuthPayload {
   const factory AuthPayload({
     @JsonKey(name: 'access_token') required String accessToken,
+    @JsonKey(name: 'refresh_token') required String refreshToken,
+    @JsonKey(name: 'expires_in') required int expiresIn,
   }) = _AuthPayload;
 
   factory AuthPayload.fromJson(Map<String, dynamic> json) =>
