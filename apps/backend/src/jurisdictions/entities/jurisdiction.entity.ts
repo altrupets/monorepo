@@ -8,7 +8,8 @@ import {
   JoinColumn,
   Index,
 } from 'typeorm';
-import { ObjectType, Field, ID, Float } from '@nestjs/graphql';
+import { ObjectType, Field, ID } from '@nestjs/graphql';
+import { MultiPolygon, Point } from '../../types/geometry.types';
 
 export enum JurisdictionLevel {
   PROVINCE = 'PROVINCE',
@@ -56,13 +57,28 @@ export class Jurisdiction {
   @Column({ nullable: true })
   district?: string;
 
-  @Field({ nullable: true })
-  @Column({ type: 'float', nullable: true })
-  latitude?: number;
+  @Field(() => MultiPolygon, { nullable: true })
+  @Column({
+    type: 'geometry',
+    spatialFeatureType: 'MultiPolygon',
+    srid: 4326,
+    nullable: true,
+  })
+  geometry?: any;
 
-  @Field({ nullable: true })
-  @Column({ type: 'float', nullable: true })
-  longitude?: number;
+  @Field(() => String, { nullable: true })
+  @Column({ nullable: true })
+  @Index()
+  organizationId?: string;
+
+  @Field(() => Point, { nullable: true })
+  @Column({
+    type: 'geometry',
+    spatialFeatureType: 'Point',
+    srid: 4326,
+    nullable: true,
+  })
+  centerPoint?: any;
 
   @Field()
   @CreateDateColumn()

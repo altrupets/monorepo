@@ -9,7 +9,9 @@ import {
   OneToMany,
   Index,
 } from 'typeorm';
-import { ObjectType, Field, ID, Float } from '@nestjs/graphql';
+import { ObjectType, Field, ID } from '@nestjs/graphql';
+import { Point } from '../../types/geometry.types';
+import { CasaCuna } from '../../organizations/entities/casa-cuna.entity';
 
 export enum AnimalSpecies {
   DOG = 'DOG',
@@ -70,13 +72,14 @@ export class Animal {
   @Column({ nullable: true })
   imageUrl?: string;
 
-  @Field(() => Float, { nullable: true })
-  @Column({ type: 'decimal', precision: 10, scale: 7, nullable: true })
-  latitude?: number;
-
-  @Field(() => Float, { nullable: true })
-  @Column({ type: 'decimal', precision: 10, scale: 7, nullable: true })
-  longitude?: number;
+  @Field(() => Point, { nullable: true })
+  @Column({
+    type: 'geometry',
+    spatialFeatureType: 'Point',
+    srid: 4326,
+    nullable: true,
+  })
+  location?: any;
 
   @Field({ nullable: true })
   @Column({ nullable: true })
@@ -86,6 +89,11 @@ export class Animal {
   @Column({ type: 'uuid', nullable: true })
   @Index()
   casaCunaId?: string;
+
+  @Field(() => CasaCuna, { nullable: true })
+  @ManyToOne(() => CasaCuna, (casa) => casa.animals, { nullable: true })
+  @JoinColumn({ name: 'casaCunaId' })
+  casaCuna?: CasaCuna;
 
   @Field(() => String, { nullable: true })
   @Column({ type: 'uuid', nullable: true })

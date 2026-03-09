@@ -9,6 +9,7 @@ import {
 } from 'typeorm';
 import { ObjectType, Field, ID } from '@nestjs/graphql';
 import { OrganizationMembership } from './organization-membership.entity';
+import { CasaCuna } from './casa-cuna.entity';
 
 export enum OrganizationType {
   FOUNDATION = 'FOUNDATION',
@@ -135,6 +136,10 @@ export class Organization {
     (membership) => membership.organization,
   )
   memberships: OrganizationMembership[];
+
+  @Field(() => [CasaCuna], { nullable: true })
+  @OneToMany(() => CasaCuna, (casa) => casa.organization)
+  casaCunas?: CasaCuna[];
 
   @Field()
   @CreateDateColumn()

@@ -12,10 +12,10 @@ export class WishlistService {
 
   async findAll(): Promise<WishlistItem[]> {
     return this.wishlistRepository.find({
-      order: [
-        { priority: 'DESC' },
-        { createdAt: 'DESC' },
-      ],
+      order: {
+        priority: 'DESC',
+        createdAt: 'DESC',
+      },
     });
   }
 
@@ -32,10 +32,10 @@ export class WishlistService {
   async findByCasaCuna(casaCunaId: string): Promise<WishlistItem[]> {
     return this.wishlistRepository.find({
       where: { casaCunaId, isPurchased: false },
-      order: [
-        { priority: 'DESC' },
-        { createdAt: 'DESC' },
-      ],
+      order: {
+        priority: 'DESC',
+        createdAt: 'DESC',
+      },
     });
   }
 

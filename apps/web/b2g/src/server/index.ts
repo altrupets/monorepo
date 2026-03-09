@@ -79,6 +79,63 @@ app.get('/b2g/api/user', async (req, res) => {
   }
 });
 
+app.get('/b2g/api/dashboard-stats', async (req, res) => {
+  const token = req.cookies.jwt;
+  if (!token) return res.status(401).json({ error: 'No autenticado' });
+
+  try {
+    // 1. Get user to identifying the municipality
+    const userResponse = await fetch(`${BACKEND_URL}/users/me`, {
+      headers: { 'Authorization': `Bearer ${token}` }
+    });
+    if (!userResponse.ok) return res.status(401).json({ error: 'Sesión expirada' });
+    const user = await userResponse.json();
+    const municipalityId = user.organizationId;
+
+    if (!municipalityId) {
+      return res.json({ stats: { abuseReportsCount: 0, activeSubsidiesCount: 0, animalsInJurisdictionCount: 0 }, recentReports: [], expiringSubsidies: [] });
+    }
+
+    // 2. Query GraphQL for aggregated data (Simplified for brevity, ideally use a single query)
+    const gqlQuery = {
+      query: `
+        query GetDashboardStats($municipalityId: ID!) {
+          abuseReportsByMunicipality(municipalityId: $municipalityId) {
+            id trackingCode type status createdAt
+          }
+          # Note: We need to implement animals search by jurisdiction in backend next
+        }
+      `,
+      variables: { municipalityId }
+    };
+
+    const gqlResponse = await fetch(`${BACKEND_URL}/graphql`, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(gqlQuery)
+    });
+
+    const gqlData = await gqlResponse.json();
+    const abuseReports = gqlData.data?.abuseReportsByMunicipality || [];
+
+    res.json({
+      stats: {
+        abuseReportsCount: abuseReports.length,
+        activeSubsidiesCount: 0, // Placeholder for ALT-10 query
+        animalsInJurisdictionCount: 0
+      },
+      recentReports: abuseReports.slice(0, 5),
+      expiringSubsidies: []
+    });
+  } catch (error) {
+    console.error('B2G Dashboard Proxy Error:', error);
+    res.status(500).json({ error: 'Error agregando datos del dashboard' });
+  }
+});
+
 app.get('/b2g/api/captures', async (req, res) => {
   const token = req.cookies.jwt;
   if (!token) {

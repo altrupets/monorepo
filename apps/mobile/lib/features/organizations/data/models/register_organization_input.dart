@@ -5,7 +5,7 @@ part 'register_organization_input.freezed.dart';
 part 'register_organization_input.g.dart';
 
 @freezed
-class RegisterOrganizationInput with _$RegisterOrganizationInput {
+abstract class RegisterOrganizationInput with _$RegisterOrganizationInput {
   const factory RegisterOrganizationInput({
     required String name,
     required OrganizationType type,

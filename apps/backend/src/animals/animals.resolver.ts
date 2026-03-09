@@ -62,8 +62,10 @@ export class AnimalsResolver {
       age,
       gender,
       description,
-      latitude,
-      longitude,
+      location:
+        latitude !== undefined && longitude !== undefined
+          ? { type: 'Point', coordinates: [longitude, latitude] }
+          : undefined,
       rescueLocation,
       status: AnimalStatus.RESCUED,
     });

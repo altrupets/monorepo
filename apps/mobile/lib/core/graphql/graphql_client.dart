@@ -242,8 +242,20 @@ class GraphQLClientService {
     }
     _sessionExpiryHandlingInProgress = true;
     try {
-      await clearToken();
-      _sessionExpiredController.add(null);
+      debugPrint('[GraphQLClient] ⏰ Sesión expirada - Intentando refrescar...');
+      final result = await refreshToken();
+      result.fold(
+        (error) async {
+          debugPrint(
+            '[GraphQLClient] ❌ Error al refrescar: $error - Cerrando sesión',
+          );
+          await clearToken();
+          _sessionExpiredController.add(null);
+        },
+        (newToken) {
+          debugPrint('[GraphQLClient] ✅ Token refrescado exitosamente');
+        },
+      );
     } finally {
       _sessionExpiryHandlingInProgress = false;
     }

@@ -24,7 +24,7 @@ enum OrganizationRole {
 }
 
 @freezed
-class OrganizationMembership with _$OrganizationMembership {
+abstract class OrganizationMembership with _$OrganizationMembership {
   const factory OrganizationMembership({
     required String id,
     required String organizationId,

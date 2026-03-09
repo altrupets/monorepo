@@ -7,6 +7,7 @@ import { ApolloDriver, ApolloDriverConfig } from '@nestjs/apollo';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { CacheModule } from '@nestjs/cache-manager';
 import { ThrottlerModule } from '@nestjs/throttler';
+import { ScheduleModule } from '@nestjs/schedule';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { AuthModule } from './auth/auth.module';
@@ -23,6 +24,10 @@ import { VetProfilesModule } from './vet-profiles/vet-profiles.module';
 import { VetProfile } from './vet-profiles/entities/vet-profile.entity';
 import { JurisdictionsModule } from './jurisdictions/jurisdictions.module';
 import { Jurisdiction } from './jurisdictions/entities/jurisdiction.entity';
+import { AbuseReportsModule } from './abuse-reports/abuse-reports.module';
+import { AbuseReport } from './abuse-reports/entities/abuse-report.entity';
+import { SubsidiesModule } from './subsidies/subsidies.module';
+import { SubsidyRequest } from './subsidies/entities/subsidy-request.entity';
 
 @Module({
   imports: [
@@ -30,6 +35,7 @@ import { Jurisdiction } from './jurisdictions/entities/jurisdiction.entity';
     ConfigModule.forRoot({
       isGlobal: true,
     }),
+    ScheduleModule.forRoot(),
     ThrottlerModule.forRootAsync({
       imports: [ConfigModule],
       useFactory: (configService: ConfigService) => ({
@@ -64,7 +70,16 @@ import { Jurisdiction } from './jurisdictions/entities/jurisdiction.entity';
           const envName = configService.get<string>('ENV_NAME', 'dev');
           return `altrupets_${envName}_database`;
         })(),
-        entities: [User, CaptureRequest, Organization, OrganizationMembership, VetProfile, Jurisdiction],
+        entities: [
+          User,
+          CaptureRequest,
+          Organization,
+          OrganizationMembership,
+          VetProfile,
+          Jurisdiction,
+          AbuseReport,
+          SubsidyRequest,
+        ],
         synchronize: configService.get<string>('NODE_ENV') !== 'production',
         migrations: [join(__dirname, 'migrations', '*{.ts,.js}')],
         migrationsRun: false,
@@ -96,8 +111,10 @@ import { Jurisdiction } from './jurisdictions/entities/jurisdiction.entity';
     OrganizationsModule,
     VetProfilesModule,
     JurisdictionsModule,
+    AbuseReportsModule,
+    SubsidiesModule,
   ],
   controllers: [AppController],
   providers: [AppService],
 })
-export class AppModule { }
+export class AppModule {}

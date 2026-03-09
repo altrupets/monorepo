@@ -38,9 +38,11 @@ class AuthServiceAuthenticated extends AuthServiceState {
   const AuthServiceAuthenticated({
     required this.user,
     required this.accessToken,
+    required this.refreshToken,
   });
   final UserModel user;
   final String accessToken;
+  final String refreshToken;
 }
 
 /// Authentication error occurred
@@ -88,6 +90,7 @@ class AuthService {
 
   // Storage keys
   static const String _keyAccessToken = 'auth_access_token';
+  static const String _keyRefreshToken = 'auth_refresh_token';
   static const String _keyUserData = 'auth_user_data';
   static const String _keyFailedAttempts = 'auth_failed_attempts';
   static const String _keyLockoutUntil = 'auth_lockout_until';
@@ -126,9 +129,10 @@ class AuthService {
 
       // Try to restore session
       final accessToken = await _secureStorage.read(key: _keyAccessToken);
+      final refreshToken = await _secureStorage.read(key: _keyRefreshToken);
       final userDataJson = await _secureStorage.read(key: _keyUserData);
 
-      if (accessToken != null && userDataJson != null) {
+      if (accessToken != null && refreshToken != null && userDataJson != null) {
         final userData = UserModel.fromJson(
           jsonDecode(userDataJson) as Map<String, dynamic>,
         );
@@ -137,7 +141,11 @@ class AuthService {
         final isValid = await _verifyToken(accessToken);
         if (isValid) {
           _updateState(
-            AuthServiceAuthenticated(user: userData, accessToken: accessToken),
+            AuthServiceAuthenticated(
+              user: userData,
+              accessToken: accessToken,
+              refreshToken: refreshToken,
+            ),
           );
           developer.log('Session restored successfully', name: 'AuthService');
         } else {
@@ -213,6 +221,7 @@ class AuthService {
         mutation Login($loginInput: LoginInput!) {
           login(loginInput: $loginInput) {
             access_token
+            refresh_token
           }
         }
       ''';
@@ -236,18 +245,27 @@ class AuthService {
       }
 
       final accessToken = result.data!['login']['access_token'] as String;
+      final refreshToken = result.data!['login']['refresh_token'] as String;
 
       // Fetch user profile
       final user = await _fetchUserProfile();
 
       // Store tokens and user data
-      await _storeAuthData(accessToken: accessToken, user: user);
+      await _storeAuthData(
+        accessToken: accessToken,
+        refreshToken: refreshToken,
+        user: user,
+      );
 
       // Clear failed attempts on successful login
       await _clearFailedAttempts();
 
       _updateState(
-        AuthServiceAuthenticated(user: user, accessToken: accessToken),
+        AuthServiceAuthenticated(
+          user: user,
+          accessToken: accessToken,
+          refreshToken: refreshToken,
+        ),
       );
 
       developer.log('Login successful', name: 'AuthService');
@@ -315,6 +333,87 @@ class AuthService {
     return UserModel.fromJson(profileData);
   }
 
+  /// Refresh the access token using the refresh token
+  Future<String> refreshToken() async {
+    try {
+      developer.log('Refreshing token', name: 'AuthService');
+
+      final currentRefreshToken = await _secureStorage.read(
+        key: _keyRefreshToken,
+      );
+      if (currentRefreshToken == null) {
+        throw AuthServiceException(
+          'No refresh token available',
+          code: 'NO_REFRESH_TOKEN',
+        );
+      }
+
+      const mutation = r'''
+        mutation RefreshToken($refreshTokenInput: RefreshTokenInput!) {
+          refreshToken(refreshTokenInput: $refreshTokenInput) {
+            access_token
+            refresh_token
+          }
+        }
+      ''';
+
+      final result = await _graphQLClient.mutate(
+        MutationOptions(
+          document: gql(mutation),
+          variables: {
+            'refreshTokenInput': {'refresh_token': currentRefreshToken},
+          },
+        ),
+      );
+
+      if (result.hasException) {
+        developer.log(
+          'Token refresh failed',
+          name: 'AuthService',
+          error: result.exception,
+        );
+        await logout();
+        throw AuthServiceException(
+          'Token refresh failed',
+          code: 'REFRESH_FAILED',
+          originalError: result.exception,
+        );
+      }
+
+      final accessToken =
+          result.data!['refreshToken']['access_token'] as String;
+      final newRefreshToken =
+          result.data!['refreshToken']['refresh_token'] as String;
+
+      // Update stored data (preserve user data)
+      final userDataJson = await _secureStorage.read(key: _keyUserData);
+      if (userDataJson != null) {
+        final userData = UserModel.fromJson(
+          jsonDecode(userDataJson) as Map<String, dynamic>,
+        );
+        await _storeAuthData(
+          accessToken: accessToken,
+          refreshToken: newRefreshToken,
+          user: userData,
+        );
+        _updateState(
+          AuthServiceAuthenticated(
+            user: userData,
+            accessToken: accessToken,
+            refreshToken: newRefreshToken,
+          ),
+        );
+      }
+
+      return accessToken;
+    } catch (e) {
+      if (e is! AuthServiceException) {
+        await logout();
+      }
+      rethrow;
+    }
+  }
+
   /// Logout and clear all stored authentication data
   Future<void> logout() async {
     try {
@@ -342,9 +441,11 @@ class AuthService {
   /// Store authentication data securely
   Future<void> _storeAuthData({
     required String accessToken,
+    required String refreshToken,
     required UserModel user,
   }) async {
     await _secureStorage.write(key: _keyAccessToken, value: accessToken);
+    await _secureStorage.write(key: _keyRefreshToken, value: refreshToken);
     await _secureStorage.write(
       key: _keyUserData,
       value: jsonEncode(user.toJson()),
@@ -354,6 +455,7 @@ class AuthService {
   /// Clear all authentication data
   Future<void> _clearAuthData() async {
     await _secureStorage.delete(key: _keyAccessToken);
+    await _secureStorage.delete(key: _keyRefreshToken);
     await _secureStorage.delete(key: _keyUserData);
   }
 

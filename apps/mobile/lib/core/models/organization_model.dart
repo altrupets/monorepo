@@ -20,7 +20,7 @@ enum OrganizationType {
 
 /// Organization model
 @freezed
-class OrganizationModel with _$OrganizationModel {
+abstract class OrganizationModel with _$OrganizationModel {
   const factory OrganizationModel({
     required String id,
     required String name,
@@ -48,7 +48,7 @@ class OrganizationModel with _$OrganizationModel {
 
 /// Organization creation request
 @freezed
-class OrganizationCreateRequest with _$OrganizationCreateRequest {
+abstract class OrganizationCreateRequest with _$OrganizationCreateRequest {
   const factory OrganizationCreateRequest({
     required String name,
     required OrganizationType type,
@@ -70,7 +70,7 @@ class OrganizationCreateRequest with _$OrganizationCreateRequest {
 
 /// Organization membership model
 @freezed
-class OrganizationMembership with _$OrganizationMembership {
+abstract class OrganizationMembership with _$OrganizationMembership {
   const factory OrganizationMembership({
     required String id,
     required String organizationId,
@@ -88,7 +88,8 @@ class OrganizationMembership with _$OrganizationMembership {
 
 /// Organization membership request
 @freezed
-class OrganizationMembershipRequest with _$OrganizationMembershipRequest {
+abstract class OrganizationMembershipRequest
+    with _$OrganizationMembershipRequest {
   const factory OrganizationMembershipRequest({
     required String organizationId,
     required String userId,

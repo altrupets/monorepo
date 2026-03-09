@@ -5,7 +5,7 @@ part 'search_organizations_input.freezed.dart';
 part 'search_organizations_input.g.dart';
 
 @freezed
-class SearchOrganizationsInput with _$SearchOrganizationsInput {
+abstract class SearchOrganizationsInput with _$SearchOrganizationsInput {
   const factory SearchOrganizationsInput({
     String? name,
     OrganizationType? type,

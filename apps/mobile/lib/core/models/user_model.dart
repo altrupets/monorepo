@@ -1,3 +1,4 @@
+import 'package:altrupets/features/auth/domain/entities/user.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
 part 'user_model.freezed.dart';
@@ -70,7 +71,7 @@ enum UserRole {
 
 /// User model - DTO that maps backend User entity (apps/backend/src/users/entities/user.entity.ts)
 @freezed
-class UserModel with _$UserModel {
+abstract class UserModel with _$UserModel {
   const factory UserModel({
     required String id,
     required String username,
@@ -97,11 +98,35 @@ class UserModel with _$UserModel {
 
   factory UserModel.fromJson(Map<String, dynamic> json) =>
       _$UserModelFromJson(json);
+
+  factory UserModel.fromEntity(User user) {
+    return UserModel(
+      id: user.id,
+      username: user.username,
+      roles: (user.roles ?? [])
+          .map((r) => UserRole.fromString(r.toString()))
+          .toList(),
+      isActive: user.isActive ?? true,
+      isVerified: user.isVerified ?? false,
+      createdAt: user.createdAt ?? DateTime.now(),
+      updatedAt: user.updatedAt ?? DateTime.now(),
+      email: user.email,
+      firstName: user.firstName,
+      lastName: user.lastName,
+      phone: user.phone,
+      identification: user.identification,
+      country: user.country,
+      province: user.province,
+      canton: user.canton,
+      district: user.district,
+      avatarBase64: user.avatarBase64,
+    );
+  }
 }
 
 /// User login request - maps to backend LoginInput
 @freezed
-class UserLoginRequest with _$UserLoginRequest {
+abstract class UserLoginRequest with _$UserLoginRequest {
   const factory UserLoginRequest({
     required String username,
     required String password,
@@ -113,7 +138,7 @@ class UserLoginRequest with _$UserLoginRequest {
 
 /// User login response - maps to backend AuthPayload
 @freezed
-class UserLoginResponse with _$UserLoginResponse {
+abstract class UserLoginResponse with _$UserLoginResponse {
   const factory UserLoginResponse({required String accessToken}) =
       _UserLoginResponse;
 

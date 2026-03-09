@@ -30,7 +30,7 @@ enum OrganizationStatus {
 }
 
 @freezed
-class Organization with _$Organization {
+abstract class Organization with _$Organization {
   const factory Organization({
     required String id,
     required String name,
