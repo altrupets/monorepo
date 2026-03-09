@@ -108,5 +108,3 @@ Write-Host "[make-windows] run : $makeCmd" -ForegroundColor Cyan
 
 & $bash -lc $makeCmd
 exit $LASTEXITCODE
-
-
