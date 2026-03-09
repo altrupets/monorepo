@@ -58,6 +58,51 @@ make dev-b2g-deploy
 kubectl get pods -n altrupets-dev
 ```
 
+## Windows + Podman Desktop + WSL2 Ubuntu 24.04
+
+### Modelo recomendado para este repo en Windows
+
+En Windows, este repo puede operar con la siguiente topologia:
+
+- `Podman Desktop` instalado en Windows
+- una sola distro `Ubuntu-24.04` en `WSL2`
+- sin recrear `podman-machine-default`
+
+### Instalacion de la distro
+
+```powershell
+wsl.exe --install Ubuntu-24.04 --name altrupets-ubuntu --version 2 --vhd-size 50GB --no-launch
+```
+
+### Configuracion exacta de recursos
+
+Crear `%UserProfile%\.wslconfig` con:
+
+```ini
+[wsl2]
+processors=8
+memory=16GB
+swap=4GB
+```
+
+Aplicar la configuracion:
+
+```powershell
+wsl.exe --shutdown
+```
+
+### Alineacion con la configuracion del repo
+
+Esta VM queda alineada con la referencia usada en `infrastructure/scripts/start-minikube.sh`:
+
+```bash
+minikube start --driver=podman --cpus=8 --memory=16384 --disk-size=50g
+```
+
+### Objetivo
+
+Mantener una sola VM Linux para desarrollo local en Windows y conservar `Podman Desktop` como host del entorno.
+
 ## Configuración
 
 Ver [Instalación](../getting-started/installation.md) y [Configuración](../getting-started/setup.md)
