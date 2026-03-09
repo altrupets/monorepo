@@ -22,7 +22,7 @@ export class VetProfile {
   clinicName: string;
 
   @Field({ nullable: true })
-  @Column({ nullable: true })
+  @Column({ nullable: true, unique: true })
   licenseNumber?: string;
 
   @Field({ nullable: true })

@@ -42,14 +42,20 @@ export class VetProfilesService {
     return this.vetProfileRepository.save(profile);
   }
 
-  async update(id: string, input: UpdateVetProfileInput): Promise<VetProfile> {
+  async update(id: string, input: UpdateVetProfileInput, userId?: string): Promise<VetProfile> {
     const profile = await this.findOne(id);
+    if (userId && profile.userId !== userId) {
+      throw new NotFoundException(`VetProfile with ID ${id} not found`);
+    }
     Object.assign(profile, input);
     return this.vetProfileRepository.save(profile);
   }
 
-  async remove(id: string): Promise<void> {
+  async remove(id: string, userId?: string): Promise<void> {
     const profile = await this.findOne(id);
+    if (userId && profile.userId !== userId) {
+      throw new NotFoundException(`VetProfile with ID ${id} not found`);
+    }
     await this.vetProfileRepository.remove(profile);
   }
 
