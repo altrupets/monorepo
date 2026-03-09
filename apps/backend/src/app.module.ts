@@ -6,6 +6,7 @@ import { GraphQLModule } from '@nestjs/graphql';
 import { ApolloDriver, ApolloDriverConfig } from '@nestjs/apollo';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { CacheModule } from '@nestjs/cache-manager';
+import { redisStore } from 'cache-manager-redis-yet';
 import { ThrottlerModule } from '@nestjs/throttler';
 import { ScheduleModule } from '@nestjs/schedule';
 import { AppController } from './app.controller';
@@ -90,9 +91,30 @@ import { SubsidyRequest } from './subsidies/entities/subsidy-request.entity';
       isGlobal: true,
       imports: [ConfigModule],
       useFactory: async (configService: ConfigService) => {
-        const ttlMs = configService.get<number>('CACHE_TTL', 600) * 1000;
+        const redisHost = configService.get<string>('REDIS_HOST');
+        const redisUrl = configService.get<string>('REDIS_URL');
+
+        if (redisHost || redisUrl) {
+          const storeConfig = redisUrl
+            ? { url: redisUrl }
+            : {
+                socket: {
+                  host: redisHost,
+                  port: configService.get<number>('REDIS_PORT', 6379),
+                },
+              };
+
+          const store = await redisStore({
+            ...storeConfig,
+            ttl: configService.get<number>('CACHE_TTL', 600) * 1000,
+          });
+
+          return { store: () => store };
+        }
+
+        // Fall back to in-memory cache (no Redis configured)
         return {
-          ttl: ttlMs,
+          ttl: configService.get<number>('CACHE_TTL', 600) * 1000,
         };
       },
       inject: [ConfigService],
