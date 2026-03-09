@@ -8,6 +8,10 @@ locals {
 
   # Environment-specific values
   environment = var.environment
+  repo_root   = abspath("${path.module}/../../../../../")
+
+  # OS detection for local-exec interpreter
+  is_windows = can(regex("^[A-Za-z]:", pathexpand("~")))
 
   # Gateway API version
   gateway_version = var.gateway_version
@@ -28,18 +32,10 @@ resource "null_resource" "gateway_api_crds" {
   }
 
   provisioner "local-exec" {
-    command = <<-EOT
-      echo "Installing Gateway API CRDs from NGINX (v${var.nginx_gateway_version})..."
-      kubectl kustomize "${local.crd_url}" | kubectl apply --server-side -f -
-      echo "Waiting for CRDs to be established..."
-      kubectl wait --for=condition=established --timeout=180s crd/gatewayclasses.gateway.networking.k8s.io
-      kubectl wait --for=condition=established --timeout=180s crd/gateways.gateway.networking.k8s.io
-      kubectl wait --for=condition=established --timeout=180s crd/httproutes.gateway.networking.k8s.io
-      kubectl wait --for=condition=established --timeout=180s crd/referencegrants.gateway.networking.k8s.io
-      echo "Gateway API CRDs installation completed!"
-    EOT
+    working_dir = local.repo_root
+    interpreter = local.is_windows ? ["pwsh", "-NoProfile", "-ExecutionPolicy", "Bypass", "-Command"] : ["/usr/bin/env", "bash", "-lc"]
+    command     = local.is_windows ? "& '${local.repo_root}/infrastructure/scripts/install-gateway-crds.ps1' -CrdUrl '${local.crd_url}' -NginxVersion '${var.nginx_gateway_version}'" : "bash '${local.repo_root}/infrastructure/scripts/install-gateway-crds.sh' '${local.crd_url}' '${var.nginx_gateway_version}'"
   }
-
   provisioner "local-exec" {
     when    = destroy
     command = <<-EOT
@@ -513,8 +509,3 @@ resource "time_sleep" "wait_for_gateway" {
 
   create_duration = "60s"
 }
-
-
-
-
-
