@@ -99,13 +99,6 @@ class AuthService {
   static const int _maxFailedAttempts = 5;
   static const Duration _lockoutDuration = Duration(minutes: 15);
 
-  /// Retry backoff delays: 1s, 2s, 4s (max 3 retries)
-  static const List<Duration> _retryDelays = [
-    Duration(seconds: 1),
-    Duration(seconds: 2),
-    Duration(seconds: 4),
-  ];
-
   // State management
   final StreamController<AuthServiceState> _stateController =
       StreamController<AuthServiceState>.broadcast();

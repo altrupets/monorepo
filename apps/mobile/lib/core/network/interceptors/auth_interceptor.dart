@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:dio/dio.dart';
 import 'package:altrupets/core/services/auth_service.dart';
 import 'package:altrupets/core/storage/secure_storage_service.dart';
@@ -22,7 +24,6 @@ class AuthInterceptor extends Interceptor {
   static const String _authorizationHeader = 'Authorization';
   static const String _bearerPrefix = 'Bearer ';
   static const String _keyAccessToken = 'auth_access_token';
-  static const String _retryCountHeader = 'x-retry-count';
 
   /// Retry backoff delays: 1s, 2s, 4s (max 3 retries)
   static const List<Duration> _retryDelays = [
@@ -30,6 +31,9 @@ class AuthInterceptor extends Interceptor {
     Duration(seconds: 2),
     Duration(seconds: 4),
   ];
+
+  /// Concurrency guard: prevents parallel refresh token calls
+  Completer<String>? _refreshCompleter;
 
   @override
   Future<void> onRequest(
@@ -77,8 +81,22 @@ class AuthInterceptor extends Interceptor {
       final retryCount = _getRetryCount(err.requestOptions);
 
       try {
-        // Refresh token through AuthService
-        final newToken = await _authService.refreshToken();
+        // Concurrency guard: if a refresh is already in progress, wait for it
+        final String newToken;
+        if (_refreshCompleter != null) {
+          newToken = await _refreshCompleter!.future;
+        } else {
+          _refreshCompleter = Completer<String>();
+          try {
+            newToken = await _authService.refreshToken();
+            _refreshCompleter!.complete(newToken);
+          } catch (e) {
+            _refreshCompleter!.completeError(e);
+            rethrow;
+          } finally {
+            _refreshCompleter = null;
+          }
+        }
 
         // Wait before retry with exponential backoff
         await Future<void>.delayed(_retryDelays[retryCount]);
@@ -86,7 +104,7 @@ class AuthInterceptor extends Interceptor {
         // Retry the original request
         final options = err.requestOptions;
         options.headers[_authorizationHeader] = '$_bearerPrefix$newToken';
-        options.headers[_retryCountHeader] = retryCount + 1;
+        options.extra['retryCount'] = retryCount + 1;
 
         final retryResponse = await _dio.request<dynamic>(
           options.path,
@@ -97,6 +115,7 @@ class AuthInterceptor extends Interceptor {
             headers: options.headers,
             responseType: options.responseType,
             contentType: options.contentType,
+            extra: options.extra,
           ),
         );
         return handler.resolve(retryResponse);
@@ -114,9 +133,9 @@ class AuthInterceptor extends Interceptor {
     return retryCount < _retryDelays.length;
   }
 
-  /// Get the current retry count from request headers
+  /// Get the current retry count from request extra data
   int _getRetryCount(RequestOptions options) {
-    final count = options.headers[_retryCountHeader];
+    final count = options.extra['retryCount'];
     if (count is int) return count;
     return 0;
   }
