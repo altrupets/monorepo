@@ -1,3 +1,0 @@
-[submodule "apollo-mcp-server"]
-	path = apollo-mcp-server
-	url = https://github.com/apollographql/apollo-mcp-server.git
