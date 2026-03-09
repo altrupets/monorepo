@@ -1,20 +1,35 @@
 import 'package:dio/dio.dart';
+import 'package:altrupets/core/services/auth_service.dart';
 import 'package:altrupets/core/storage/secure_storage_service.dart';
-import 'package:altrupets/core/graphql/graphql_client.dart';
 
 /// Authentication interceptor for HTTP requests
 ///
-/// Automatically injects JWT token into request headers from secure storage
+/// Automatically injects JWT token into request headers from secure storage.
+/// Handles 401 (token refresh + retry) and 403 (immediate rejection).
 class AuthInterceptor extends Interceptor {
-  AuthInterceptor({required SecureStorageService secureStorage})
-    : _secureStorage = secureStorage;
+  AuthInterceptor({
+    required SecureStorageService secureStorage,
+    required AuthService authService,
+    required Dio dio,
+  }) : _secureStorage = secureStorage,
+       _authService = authService,
+       _dio = dio;
+
   final SecureStorageService _secureStorage;
+  final AuthService _authService;
+  final Dio _dio;
 
   static const String _authorizationHeader = 'Authorization';
   static const String _bearerPrefix = 'Bearer ';
   static const String _keyAccessToken = 'auth_access_token';
-  static const String _keyRefreshToken = 'auth_refresh_token';
-  static const String _retryFlag = 'x-is-retry';
+  static const String _retryCountHeader = 'x-retry-count';
+
+  /// Retry backoff delays: 1s, 2s, 4s (max 3 retries)
+  static const List<Duration> _retryDelays = [
+    Duration(seconds: 1),
+    Duration(seconds: 2),
+    Duration(seconds: 4),
+  ];
 
   @override
   Future<void> onRequest(
@@ -43,48 +58,66 @@ class AuthInterceptor extends Interceptor {
     ErrorInterceptorHandler handler,
   ) async {
     final response = err.response;
+    final statusCode = response?.statusCode;
 
-    // Handle 401 Unauthorized - token expired or invalid
-    if (response?.statusCode == 401 &&
-        err.requestOptions.headers[_retryFlag] == null) {
-      final refreshResult = await GraphQLClientService.refreshToken();
-
-      return refreshResult.fold(
-        (error) async {
-          // If refresh fails, clear everything and fail
-          await _secureStorage.delete(key: _keyAccessToken);
-          await _secureStorage.delete(key: _keyRefreshToken);
-          return handler.next(err);
-        },
-        (newToken) async {
-          // If refresh succeeds, retry the original request
-          final options = err.requestOptions;
-          options.headers[_authorizationHeader] = '$_bearerPrefix$newToken';
-          options.headers[_retryFlag] = 'true';
-
-          // Use a new Dio instance or the current one (if available) to retry
-          // For simplicity and to avoid circular deps, we can just use the options to re-execute
-          final dio = Dio(); // Basic dio for retry
-          try {
-            final response = await dio.request<dynamic>(
-              options.path,
-              data: options.data,
-              queryParameters: options.queryParameters,
-              options: Options(
-                method: options.method,
-                headers: options.headers,
-              ),
-            );
-            return handler.resolve(response);
-          } catch (e) {
-            return handler.next(err);
-          } finally {
-            dio.close();
-          }
-        },
+    // Handle 403 Forbidden — do NOT retry, reject immediately
+    if (statusCode == 403) {
+      return handler.next(
+        DioException(
+          requestOptions: err.requestOptions,
+          response: err.response,
+          type: DioExceptionType.badResponse,
+          message: 'Acceso denegado',
+        ),
       );
     }
 
+    // Handle 401 Unauthorized — attempt token refresh and retry
+    if (statusCode == 401 && _shouldRetry(err.requestOptions)) {
+      final retryCount = _getRetryCount(err.requestOptions);
+
+      try {
+        // Refresh token through AuthService
+        final newToken = await _authService.refreshToken();
+
+        // Wait before retry with exponential backoff
+        await Future<void>.delayed(_retryDelays[retryCount]);
+
+        // Retry the original request
+        final options = err.requestOptions;
+        options.headers[_authorizationHeader] = '$_bearerPrefix$newToken';
+        options.headers[_retryCountHeader] = retryCount + 1;
+
+        final retryResponse = await _dio.request<dynamic>(
+          options.path,
+          data: options.data,
+          queryParameters: options.queryParameters,
+          options: Options(
+            method: options.method,
+            headers: options.headers,
+            responseType: options.responseType,
+            contentType: options.contentType,
+          ),
+        );
+        return handler.resolve(retryResponse);
+      } catch (e) {
+        return handler.next(err);
+      }
+    }
+
     handler.next(err);
+  }
+
+  /// Check if the request should be retried (has not exceeded max retries)
+  bool _shouldRetry(RequestOptions options) {
+    final retryCount = _getRetryCount(options);
+    return retryCount < _retryDelays.length;
+  }
+
+  /// Get the current retry count from request headers
+  int _getRetryCount(RequestOptions options) {
+    final count = options.headers[_retryCountHeader];
+    if (count is int) return count;
+    return 0;
   }
 }
