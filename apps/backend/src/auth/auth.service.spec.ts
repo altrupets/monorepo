@@ -1,18 +1,27 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { AuthService } from './auth.service';
 import { JwtService } from '@nestjs/jwt';
+import { ConfigService } from '@nestjs/config';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { User } from '../users/entities/user.entity';
 import { UserRole } from './roles/user-role.enum';
 import { UnauthorizedException } from '@nestjs/common';
 import { Cache } from 'cache-manager';
-import * as bcrypt from 'bcrypt';
+import { createHash } from 'crypto';
 
 describe('AuthService', () => {
   let service: AuthService;
   let mockUserRepository: any;
   let mockJwtService: any;
   let mockCacheManager: any;
+
+  const PASSWORD_SALT = 'test-salt-for-testing';
+
+  const hashPassword = (password: string, username: string): string => {
+    const firstHash = createHash('sha256').update(password).digest('hex');
+    const combined = firstHash + PASSWORD_SALT + username.toLowerCase();
+    return createHash('sha256').update(combined).digest('hex');
+  };
 
   const mockUser: Partial<User> = {
     id: '123e4567-e89b-12d3-a456-426614174000',
@@ -46,6 +55,18 @@ describe('AuthService', () => {
       del: jest.fn(),
     };
 
+    const mockConfigService = {
+      get: jest.fn((key: string, defaultValue?: string) => {
+        const config: Record<string, string> = {
+          JWT_SECRET: 'test-secret-key',
+          PASSWORD_SALT: 'test-salt',
+          ACCESS_TOKEN_EXPIRY: '1h',
+          REFRESH_TOKEN_EXPIRY: '7d',
+        };
+        return config[key] || defaultValue;
+      }),
+    };
+
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         AuthService,
@@ -61,6 +82,10 @@ describe('AuthService', () => {
           provide: 'CACHE_MANAGER',
           useValue: mockCacheManager,
         },
+        {
+          provide: ConfigService,
+          useValue: mockConfigService,
+        },
       ],
     }).compile();
 
@@ -75,7 +100,7 @@ describe('AuthService', () => {
     it('should return user without password when credentials are valid', async () => {
       mockUserRepository.findByUsername.mockResolvedValue({
         ...mockUser,
-        passwordHash: await bcrypt.hash('password123', 12),
+        passwordHash: hashPassword('password123', 'testuser'),
       });
 
       const result = await service.validateUser('testuser', 'password123');
@@ -85,23 +110,23 @@ describe('AuthService', () => {
       expect(result.passwordHash).toBeUndefined();
     });
 
-    it('should return null when user not found', async () => {
+    it('should throw error when user not found', async () => {
       mockUserRepository.findByUsername.mockResolvedValue(null);
 
-      const result = await service.validateUser('nonexistent', 'password');
-
-      expect(result).toBeNull();
+      await expect(
+        service.validateUser('nonexistent', 'password'),
+      ).rejects.toThrow('USER_NOT_FOUND');
     });
 
-    it('should return null when password is invalid', async () => {
+    it('should throw error when password is invalid', async () => {
       mockUserRepository.findByUsername.mockResolvedValue({
         ...mockUser,
-        passwordHash: await bcrypt.hash('correctpassword', 12),
+        passwordHash: hashPassword('correctpassword', 'testuser'),
       });
 
-      const result = await service.validateUser('testuser', 'wrongpassword');
-
-      expect(result).toBeNull();
+      await expect(
+        service.validateUser('testuser', 'wrongpassword'),
+      ).rejects.toThrow('INVALID_PASSWORD');
     });
   });
 

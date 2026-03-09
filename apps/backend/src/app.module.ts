@@ -21,6 +21,8 @@ import { Organization } from './organizations/entities/organization.entity';
 import { OrganizationMembership } from './organizations/entities/organization-membership.entity';
 import { VetProfilesModule } from './vet-profiles/vet-profiles.module';
 import { VetProfile } from './vet-profiles/entities/vet-profile.entity';
+import { JurisdictionsModule } from './jurisdictions/jurisdictions.module';
+import { Jurisdiction } from './jurisdictions/entities/jurisdiction.entity';
 
 @Module({
   imports: [
@@ -62,7 +64,7 @@ import { VetProfile } from './vet-profiles/entities/vet-profile.entity';
           const envName = configService.get<string>('ENV_NAME', 'dev');
           return `altrupets_${envName}_database`;
         })(),
-        entities: [User, CaptureRequest, Organization, OrganizationMembership, VetProfile],
+        entities: [User, CaptureRequest, Organization, OrganizationMembership, VetProfile, Jurisdiction],
         synchronize: configService.get<string>('NODE_ENV') !== 'production',
         migrations: [join(__dirname, 'migrations', '*{.ts,.js}')],
         migrationsRun: false,
@@ -93,6 +95,7 @@ import { VetProfile } from './vet-profiles/entities/vet-profile.entity';
     WebModule,
     OrganizationsModule,
     VetProfilesModule,
+    JurisdictionsModule,
   ],
   controllers: [AppController],
   providers: [AppService],

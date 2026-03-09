@@ -30,6 +30,25 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added - 2026-03-03
 
+#### PostGIS Extension
+
+- **Habilitación**: Extensión PostGIS para soporte geoespacial
+- **Migration**: `1709750000000-EnablePostGIS.ts`
+- **Tabla**: `jurisdictions` con geometría para界限 administrativas
+
+#### Jurisdiction Entity
+
+- **Nueva entidad**: `Jurisdiction` para gestionar divisiones administrativas de Costa Rica
+- **Niveles**: PROVINCE, CANTON, DISTRICT
+- **Campos**: name, level, parentId, coordinates (lat/long)
+- **GraphQL**: Queries para provincias, cantones, distritos
+- **Archivos nuevos**:
+  - `apps/backend/src/jurisdictions/entities/jurisdiction.entity.ts`
+  - `apps/backend/src/jurisdictions/jurisdictions.service.ts`
+  - `apps/backend/src/jurisdictions/jurisdictions.resolver.ts`
+  - `apps/backend/src/jurisdictions/jurisdictions.module.ts`
+- **Modificado**: `apps/backend/src/app.module.ts`
+
 #### VetProfile Entity
 
 - **Nueva entidad**: `VetProfile` para registro de clínicas veterinarias
@@ -50,8 +69,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed - 2026-03-03
 
-- **TypeScript**: Fix en test `auth.service.spec.ts` (mockUser.id optional)
+- **Tests**: Fix completo de AuthService tests
+  - Agregado `jest.setup.js` para variables de entorno
+  - Corregido hashing de passwords (SHA256 + salt)
+  - Tests ahora esperan errores correctamente
 - **Build**: Actualizado Makefile con nuevos targets MCP
+- **Package.json**: Configuración de Jest setupFilesAfterEnv
 
 ### Fixed - 2026-02-26
 
