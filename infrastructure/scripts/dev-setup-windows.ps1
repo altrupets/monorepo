@@ -27,17 +27,29 @@ Invoke-WslBash -DistroName $DistroName -Description "[dev-setup] Ensuring ssh an
 
 Invoke-ExternalCommand -Description "[dev-setup] Verifying Podman remote connection..." -FilePath "podman.exe" -Arguments @("version")
 
-Write-Host "[dev-setup] Starting Minikube ($Profile) with Podman driver..." -ForegroundColor Cyan
-minikube start --profile $Profile --driver=podman --cpus=$CPUs --memory=$MemoryMB --disk-size=$DiskSize
+Invoke-ExternalCommand `
+    -Description "[dev-setup] Starting Minikube ($Profile) with Podman driver..." `
+    -FilePath "minikube.exe" `
+    -Arguments @("start", "--profile", $Profile, "--driver=podman", "--cpus=$CPUs", "--memory=$MemoryMB", "--disk-size=$DiskSize")
 
-Write-Host "[dev-setup] Enabling ingress addon..." -ForegroundColor Cyan
-minikube addons enable ingress --profile $Profile | Out-Null
+Invoke-ExternalCommand `
+    -Description "[dev-setup] Enabling ingress addon..." `
+    -FilePath "minikube.exe" `
+    -Arguments @("addons", "enable", "ingress", "--profile", $Profile)
 
-Write-Host "[dev-setup] Setting kubectl context..." -ForegroundColor Cyan
-kubectl config use-context "$Profile" | Out-Null
+Invoke-ExternalCommand `
+    -Description "[dev-setup] Setting kubectl context..." `
+    -FilePath "kubectl.exe" `
+    -Arguments @("config", "use-context", $Profile)
 
-Write-Host "[dev-setup] Cluster status:" -ForegroundColor Cyan
-minikube status --profile $Profile
-kubectl get nodes -o wide
+Invoke-ExternalCommand `
+    -Description "[dev-setup] Cluster status..." `
+    -FilePath "minikube.exe" `
+    -Arguments @("status", "--profile", $Profile)
+
+Invoke-ExternalCommand `
+    -Description "[dev-setup] Listing nodes..." `
+    -FilePath "kubectl.exe" `
+    -Arguments @("get", "nodes", "-o", "wide")
 
 Write-Host "[dev-setup] Done." -ForegroundColor Green
