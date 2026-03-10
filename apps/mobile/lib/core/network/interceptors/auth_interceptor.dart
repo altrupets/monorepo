@@ -25,13 +25,6 @@ class AuthInterceptor extends Interceptor {
   static const String _bearerPrefix = 'Bearer ';
   static const String _keyAccessToken = 'auth_access_token';
 
-  /// Retry backoff delays: 1s, 2s, 4s (max 3 retries)
-  static const List<Duration> _retryDelays = [
-    Duration(seconds: 1),
-    Duration(seconds: 2),
-    Duration(seconds: 4),
-  ];
-
   /// Concurrency guard: prevents parallel refresh token calls
   Completer<String>? _refreshCompleter;
 
@@ -76,9 +69,15 @@ class AuthInterceptor extends Interceptor {
       );
     }
 
-    // Handle 401 Unauthorized — attempt token refresh and retry
-    if (statusCode == 401 && _shouldRetry(err.requestOptions)) {
-      final retryCount = _getRetryCount(err.requestOptions);
+    // Handle 401 Unauthorized — attempt token refresh and retry once
+    if (statusCode == 401) {
+      final alreadyRefreshed =
+          err.requestOptions.extra['tokenRefreshed'] == true;
+
+      // If we already refreshed the token and still got 401, give up
+      if (alreadyRefreshed) {
+        return handler.next(err);
+      }
 
       try {
         // Concurrency guard: if a refresh is already in progress, wait for it
@@ -98,13 +97,10 @@ class AuthInterceptor extends Interceptor {
           }
         }
 
-        // Wait before retry with exponential backoff
-        await Future<void>.delayed(_retryDelays[retryCount]);
-
-        // Retry the original request
+        // Retry with new token (one attempt only)
         final options = err.requestOptions;
         options.headers[_authorizationHeader] = '$_bearerPrefix$newToken';
-        options.extra['retryCount'] = retryCount + 1;
+        options.extra['tokenRefreshed'] = true;
 
         final retryResponse = await _dio.request<dynamic>(
           options.path,
@@ -125,18 +121,5 @@ class AuthInterceptor extends Interceptor {
     }
 
     handler.next(err);
-  }
-
-  /// Check if the request should be retried (has not exceeded max retries)
-  bool _shouldRetry(RequestOptions options) {
-    final retryCount = _getRetryCount(options);
-    return retryCount < _retryDelays.length;
-  }
-
-  /// Get the current retry count from request extra data
-  int _getRetryCount(RequestOptions options) {
-    final count = options.extra['retryCount'];
-    if (count is int) return count;
-    return 0;
   }
 }
