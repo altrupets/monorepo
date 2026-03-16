@@ -1,18 +1,21 @@
+import 'dart:async';
+
 import 'package:dio/dio.dart';
+import 'package:altrupets/core/services/auth_service.dart';
 import 'package:altrupets/core/storage/secure_storage_service.dart';
-import '../../services/auth_service.dart';
 
 /// Authentication interceptor for HTTP requests
 ///
-/// Automatically injects JWT token into request headers from secure storage
+/// Automatically injects JWT token into request headers from secure storage.
+/// Handles 401 (token refresh + retry) and 403 (immediate rejection).
 class AuthInterceptor extends Interceptor {
   AuthInterceptor({
     required SecureStorageService secureStorage,
     required AuthService authService,
-    Dio? dio,
+    required Dio dio,
   }) : _secureStorage = secureStorage,
        _authService = authService,
-       _dio = dio ?? Dio();
+       _dio = dio;
 
   final SecureStorageService _secureStorage;
   final AuthService _authService;
@@ -21,14 +24,9 @@ class AuthInterceptor extends Interceptor {
   static const String _authorizationHeader = 'Authorization';
   static const String _bearerPrefix = 'Bearer ';
   static const String _keyAccessToken = 'auth_access_token';
-  static const String _retryCountHeader = 'x-retry-count';
-  static const int _maxRetries = 3;
 
-  static const List<Duration> _retryDelays = [
-    Duration(seconds: 1),
-    Duration(seconds: 3),
-    Duration(seconds: 10),
-  ];
+  /// Concurrency guard: prevents parallel refresh token calls
+  Completer<String>? _refreshCompleter;
 
   @override
   Future<void> onRequest(
@@ -59,24 +57,52 @@ class AuthInterceptor extends Interceptor {
     final response = err.response;
     final statusCode = response?.statusCode;
 
-    // Handle 401 Unauthorized (expired token) or 403 Forbidden (unexpected but worth one retry)
-    if ((statusCode == 401 || statusCode == 403) &&
-        _shouldRetry(err.requestOptions)) {
-      final retryCount = _getRetryCount(err.requestOptions);
+    // Handle 403 Forbidden — do NOT retry, reject immediately
+    if (statusCode == 403) {
+      return handler.next(
+        DioException(
+          requestOptions: err.requestOptions,
+          response: err.response,
+          type: DioExceptionType.badResponse,
+          message: 'Acceso denegado',
+        ),
+      );
+    }
+
+    // Handle 401 Unauthorized — attempt token refresh and retry once
+    if (statusCode == 401) {
+      final alreadyRefreshed =
+          err.requestOptions.extra['tokenRefreshed'] == true;
+
+      // If we already refreshed the token and still got 401, give up
+      if (alreadyRefreshed) {
+        return handler.next(err);
+      }
 
       try {
-        // Refresh token through AuthService
-        final newToken = await _authService.refreshToken();
+        // Concurrency guard: if a refresh is already in progress, wait for it
+        final String newToken;
+        if (_refreshCompleter != null) {
+          newToken = await _refreshCompleter!.future;
+        } else {
+          _refreshCompleter = Completer<String>();
+          try {
+            newToken = await _authService.refreshToken();
+            _refreshCompleter!.complete(newToken);
+          } catch (e) {
+            _refreshCompleter!.completeError(e);
+            rethrow;
+          } finally {
+            _refreshCompleter = null;
+          }
+        }
 
-        // Wait before retry with exponential backoff
-        await Future<void>.delayed(_retryDelays[retryCount]);
-
-        // Retry the original request
+        // Retry with new token (one attempt only)
         final options = err.requestOptions;
         options.headers[_authorizationHeader] = '$_bearerPrefix$newToken';
-        options.headers[_retryCountHeader] = retryCount + 1;
+        options.extra['tokenRefreshed'] = true;
 
-        final response = await _dio.request<dynamic>(
+        final retryResponse = await _dio.request<dynamic>(
           options.path,
           data: options.data,
           queryParameters: options.queryParameters,
@@ -85,27 +111,15 @@ class AuthInterceptor extends Interceptor {
             headers: options.headers,
             responseType: options.responseType,
             contentType: options.contentType,
+            extra: options.extra,
           ),
         );
-        return handler.resolve(response);
+        return handler.resolve(retryResponse);
       } catch (e) {
-        // If refresh fails fatally or all retries fail, continue with error
         return handler.next(err);
       }
     }
 
     handler.next(err);
-  }
-
-  bool _shouldRetry(RequestOptions options) {
-    final retryCount = _getRetryCount(options);
-    return retryCount < _maxRetries;
-  }
-
-  int _getRetryCount(RequestOptions options) {
-    final count = options.headers[_retryCountHeader];
-    if (count is int) return count;
-    if (count is String) return int.tryParse(count) ?? 0;
-    return 0;
   }
 }
