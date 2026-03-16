@@ -16,10 +16,17 @@ import { UsersModule } from '../users/users.module';
     JwtModule.registerAsync({
       imports: [ConfigModule],
       useFactory: (configService: ConfigService) => ({
-        secret: configService.get<string>(
-          'JWT_SECRET',
-          'super-secret-altrupets-key-2026',
-        ),
+        secret: (() => {
+          const secret = configService.get<string>('JWT_SECRET');
+          if (!secret || secret === 'super-secret-altrupets-key-2026') {
+            const isProd = configService.get<string>('NODE_ENV') === 'production';
+            if (isProd) {
+              throw new Error('FATAL: JWT_SECRET MUST be set in production!');
+            }
+            console.warn('WARNING: JWT_SECRET is not set or using insecure default. Use for dev only.');
+          }
+          return secret || 'super-secret-altrupets-key-2026';
+        })(),
         signOptions: {
           expiresIn: (() => {
             const raw = configService.get<string>('JWT_EXPIRATION', '24h');

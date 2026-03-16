@@ -6,6 +6,7 @@ import { GraphQLModule } from '@nestjs/graphql';
 import { ApolloDriver, ApolloDriverConfig } from '@nestjs/apollo';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { CacheModule } from '@nestjs/cache-manager';
+import { redisStore } from 'cache-manager-redis-yet';
 import { ThrottlerModule } from '@nestjs/throttler';
 import { ScheduleModule } from '@nestjs/schedule';
 import { AppController } from './app.controller';
@@ -90,9 +91,16 @@ import { SubsidyRequest } from './subsidies/entities/subsidy-request.entity';
       isGlobal: true,
       imports: [ConfigModule],
       useFactory: async (configService: ConfigService) => {
-        const ttlMs = configService.get<number>('CACHE_TTL', 600) * 1000;
+        const store = await redisStore({
+          socket: {
+            host: configService.get<string>('REDIS_HOST', 'localhost'),
+            port: configService.get<number>('REDIS_PORT', 6379),
+          },
+          ttl: configService.get<number>('CACHE_TTL', 600) * 1000,
+        });
+
         return {
-          ttl: ttlMs,
+          store: () => store,
         };
       },
       inject: [ConfigService],

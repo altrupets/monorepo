@@ -1,5 +1,6 @@
 import { InputType, Field, Float, Int } from '@nestjs/graphql';
-import { IsNotEmpty, IsOptional, IsString, IsBoolean, IsNumber, Min, Max } from 'class-validator';
+import { IsNotEmpty, IsOptional, IsString, IsBoolean, IsNumber, Min, Max, IsArray } from 'class-validator';
+import { PricingTier } from '../entities/vet-profile.entity';
 
 @InputType()
 export class CreateVetProfileInput {
@@ -76,6 +77,20 @@ export class CreateVetProfileInput {
   @IsOptional()
   @IsString()
   services?: string;
+
+  @Field(() => [String], { nullable: true })
+  @IsOptional()
+  @IsArray()
+  specialties?: string[];
+
+  @Field(() => [String], { nullable: true })
+  @IsOptional()
+  @IsArray()
+  clinicPhotos?: string[];
+
+  @Field(() => PricingTier, { nullable: true })
+  @IsOptional()
+  pricingTier?: PricingTier;
 }
 
 @InputType()
@@ -154,4 +169,18 @@ export class UpdateVetProfileInput {
   @IsOptional()
   @IsBoolean()
   isActive?: boolean;
+
+  @Field(() => [String], { nullable: true })
+  @IsOptional()
+  @IsArray()
+  specialties?: string[];
+
+  @Field(() => [String], { nullable: true })
+  @IsOptional()
+  @IsArray()
+  clinicPhotos?: string[];
+
+  @Field(() => PricingTier, { nullable: true })
+  @IsOptional()
+  pricingTier?: PricingTier;
 }

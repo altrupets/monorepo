@@ -29,6 +29,7 @@ abstract class AuthState with _$AuthState {
   const factory AuthState({
     @Default(false) bool isLoading,
     @Default(false) bool isLocked,
+    @Default(false) bool isForbidden,
     DateTime? lockoutUntil,
     AuthPayload? payload,
     UserModel? user,
@@ -45,14 +46,34 @@ class AuthNotifier extends Notifier<AuthState> {
   @override
   AuthState build() {
     // Listen to AuthService state changes
-    _authService.stateStream.listen((serviceState) {
-      _onServiceStateChanged(serviceState);
+    final authSub = _authService.stateStream.listen(_onServiceStateChanged);
+
+    // Listen for session expiry events (401/403 from server)
+    final sessionSub = GraphQLClientService.sessionExpiredStream.listen((_) {
+      // If we were authenticated, mark as forbidden / session expired
+      if (state.user != null) {
+        state = state.copyWith(
+          isForbidden: true,
+          error:
+              'Tu sesión ha expirado o no tienes acceso. Inicia sesión de nuevo.',
+        );
+      }
+    });
+
+    ref.onDispose(() {
+      authSub.cancel();
+      sessionSub.cancel();
     });
 
     // Initialize state from service
     _onServiceStateChanged(_authService.state);
 
     return const AuthState();
+  }
+
+  /// Clear the forbidden/access-denied flag (e.g. after the user acknowledges the error)
+  void clearForbidden() {
+    state = state.copyWith(isForbidden: false, error: null);
   }
 
   void _onServiceStateChanged(AuthServiceState serviceState) {

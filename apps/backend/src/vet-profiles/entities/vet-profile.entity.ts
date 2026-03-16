@@ -8,7 +8,17 @@ import {
   JoinColumn,
   Index,
 } from 'typeorm';
-import { ObjectType, Field, ID, Float } from '@nestjs/graphql';
+import { ObjectType, Field, ID, Float, registerEnumType } from '@nestjs/graphql';
+import { User } from '../../users/entities/user.entity';
+
+export enum PricingTier {
+  LOW = 'LOW',
+  MEDIUM = 'MEDIUM',
+  HIGH = 'HIGH',
+  PREMIUM = 'PREMIUM',
+}
+
+registerEnumType(PricingTier, { name: 'PricingTier' });
 
 @ObjectType()
 @Entity('vet_profiles')
@@ -81,10 +91,30 @@ export class VetProfile {
   @Column({ default: false })
   isVerified: boolean;
 
-  @Field(() => String, { nullable: true })
+  @Field(() => User, { nullable: true })
+  @OneToOne(() => User, { nullable: true })
+  @JoinColumn({ name: 'userId' })
+  user?: User;
+
   @Column({ type: 'uuid', nullable: true })
   @Index()
   userId?: string;
+
+  @Field(() => [String], { nullable: true })
+  @Column({ type: 'jsonb', nullable: true })
+  specialties?: string[];
+
+  @Field(() => [String], { nullable: true })
+  @Column({ type: 'text', array: true, nullable: true })
+  clinicPhotos?: string[];
+
+  @Field(() => PricingTier, { nullable: true })
+  @Column({
+    type: 'enum',
+    enum: PricingTier,
+    nullable: true,
+  })
+  pricingTier?: PricingTier;
 
   @Field()
   @CreateDateColumn()

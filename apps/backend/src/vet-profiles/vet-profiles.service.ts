@@ -59,4 +59,27 @@ export class VetProfilesService {
       order: { createdAt: 'DESC' },
     });
   }
+
+  async searchByProximity(
+    lat: number,
+    lng: number,
+    radiusKm: number,
+  ): Promise<VetProfile[]> {
+    return this.vetProfileRepository
+      .createQueryBuilder('vet')
+      .where(
+        'ST_DistanceSphere(ST_MakePoint(vet.longitude, vet.latitude), ST_MakePoint(:lng, :lat)) <= :radius',
+        {
+          lng,
+          lat,
+          radius: radiusKm * 1000,
+        },
+      )
+      .andWhere('vet.isActive = :isActive', { isActive: true })
+      .orderBy(
+        'ST_DistanceSphere(ST_MakePoint(vet.longitude, vet.latitude), ST_MakePoint(:lng, :lat))',
+        'ASC',
+      )
+      .getMany();
+  }
 }

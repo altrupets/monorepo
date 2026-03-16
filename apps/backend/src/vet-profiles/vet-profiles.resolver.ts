@@ -1,4 +1,4 @@
-import { Resolver, Query, Mutation, Args, ID } from '@nestjs/graphql';
+import { Resolver, Query, Mutation, Args, ID, Float } from '@nestjs/graphql';
 import { UseGuards } from '@nestjs/common';
 import { VetProfile } from './entities/vet-profile.entity';
 import { CreateVetProfileInput, UpdateVetProfileInput } from './dto/vet-profile.input';
@@ -57,5 +57,14 @@ export class VetProfilesResolver {
   ): Promise<boolean> {
     await this.vetProfilesService.remove(id);
     return true;
+  }
+
+  @Query(() => [VetProfile], { name: 'searchVetsByProximity' })
+  async searchByProximity(
+    @Args('latitude', { type: () => Float }) latitude: number,
+    @Args('longitude', { type: () => Float }) longitude: number,
+    @Args('radiusKm', { type: () => Float, defaultValue: 10 }) radiusKm: number,
+  ): Promise<VetProfile[]> {
+    return this.vetProfilesService.searchByProximity(latitude, longitude, radiusKm);
   }
 }
