@@ -4,7 +4,10 @@ import {
     PrimaryGeneratedColumn,
     Column,
     CreateDateColumn,
+    ManyToOne,
+    JoinColumn,
 } from 'typeorm';
+import { User } from '../../users/entities/user.entity';
 
 @ObjectType()
 @Entity('capture_requests')
@@ -40,4 +43,12 @@ export class CaptureRequest {
     @Field()
     @CreateDateColumn()
     createdAt: Date;
+
+    @Field(() => User)
+    @ManyToOne(() => User, { nullable: true })
+    @JoinColumn({ name: 'reportedById' })
+    reportedBy: User;
+
+    @Column({ nullable: true })
+    reportedById: string;
 }

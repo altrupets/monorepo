@@ -26,7 +26,7 @@ export class LocalStorageService implements IStorageWrapper {
         }
     }
 
-    async saveCapture(data: CreateCaptureDto, image: Buffer): Promise<CaptureRequest> {
+    async saveCapture(data: CreateCaptureDto, image: Buffer, userId?: string): Promise<CaptureRequest> {
         const fileName = `${uuid()}.jpg`;
         const filePath = join(this.uploadPath, fileName);
 
@@ -38,6 +38,7 @@ export class LocalStorageService implements IStorageWrapper {
             ...data,
             imageUrl: `/uploads/${fileName}`,
             status: 'PENDING',
+            reportedById: userId,
         });
 
         return this.repository.save(capture);

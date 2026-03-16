@@ -8,7 +8,7 @@ export interface CreateCaptureDto {
 }
 
 export interface IStorageWrapper {
-    saveCapture(data: CreateCaptureDto, image: Buffer): Promise<CaptureRequest>;
+    saveCapture(data: CreateCaptureDto, image: Buffer, userId?: string): Promise<CaptureRequest>;
     getCaptures(): Promise<CaptureRequest[]>;
 }
 

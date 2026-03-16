@@ -16,10 +16,15 @@ import { UsersModule } from '../users/users.module';
     JwtModule.registerAsync({
       imports: [ConfigModule],
       useFactory: (configService: ConfigService) => ({
-        secret: configService.get<string>(
-          'JWT_SECRET',
-          'super-secret-altrupets-key-2026',
-        ),
+        secret: (() => {
+          const secret = configService.get<string>('JWT_SECRET');
+          if (!secret) {
+            throw new Error(
+              'FATAL: JWT_SECRET environment variable is required. Set it before starting the application.',
+            );
+          }
+          return secret;
+        })(),
         signOptions: {
           expiresIn: (() => {
             const raw = configService.get<string>('JWT_EXPIRATION', '24h');

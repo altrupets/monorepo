@@ -34,7 +34,7 @@ export class VetProfilesService {
     });
   }
 
-  async create(input: CreateVetProfileInput, userId?: string): Promise<VetProfile> {
+  async create(input: CreateVetProfileInput, userId: string): Promise<VetProfile> {
     const profile = this.vetProfileRepository.create({
       ...input,
       userId,
@@ -42,14 +42,20 @@ export class VetProfilesService {
     return this.vetProfileRepository.save(profile);
   }
 
-  async update(id: string, input: UpdateVetProfileInput): Promise<VetProfile> {
+  async update(id: string, input: UpdateVetProfileInput, userId: string): Promise<VetProfile> {
     const profile = await this.findOne(id);
+    if (profile.userId !== null && profile.userId !== userId) {
+      throw new NotFoundException(`VetProfile with ID ${id} not found`);
+    }
     Object.assign(profile, input);
     return this.vetProfileRepository.save(profile);
   }
 
-  async remove(id: string): Promise<void> {
+  async remove(id: string, userId: string): Promise<void> {
     const profile = await this.findOne(id);
+    if (profile.userId !== null && profile.userId !== userId) {
+      throw new NotFoundException(`VetProfile with ID ${id} not found`);
+    }
     await this.vetProfileRepository.remove(profile);
   }
 
@@ -58,5 +64,28 @@ export class VetProfilesService {
       where: { isActive: true, isVerified: true },
       order: { createdAt: 'DESC' },
     });
+  }
+
+  async searchByProximity(
+    lat: number,
+    lng: number,
+    radiusKm: number,
+  ): Promise<VetProfile[]> {
+    return this.vetProfileRepository
+      .createQueryBuilder('vet')
+      .where(
+        'ST_DistanceSphere(ST_MakePoint(vet.longitude, vet.latitude), ST_MakePoint(:lng, :lat)) <= :radius',
+        {
+          lng,
+          lat,
+          radius: radiusKm * 1000,
+        },
+      )
+      .andWhere('vet.isActive = :isActive', { isActive: true })
+      .orderBy(
+        'ST_DistanceSphere(ST_MakePoint(vet.longitude, vet.latitude), ST_MakePoint(:lng, :lat))',
+        'ASC',
+      )
+      .getMany();
   }
 }

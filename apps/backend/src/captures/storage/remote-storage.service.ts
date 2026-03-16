@@ -16,7 +16,7 @@ export class RemoteStorageService implements IStorageWrapper {
         private readonly configService: ConfigService,
     ) { }
 
-    async saveCapture(data: CreateCaptureDto, image: Buffer): Promise<CaptureRequest> {
+    async saveCapture(data: CreateCaptureDto, image: Buffer, userId?: string): Promise<CaptureRequest> {
         this.logger.log('Saving capture to OVH S3 (not fully implemented in this step)...');
 
         // Placeholder for S3 upload logic
@@ -26,6 +26,7 @@ export class RemoteStorageService implements IStorageWrapper {
             ...data,
             imageUrl,
             status: 'PENDING',
+            reportedById: userId,
         });
 
         return this.repository.save(capture);

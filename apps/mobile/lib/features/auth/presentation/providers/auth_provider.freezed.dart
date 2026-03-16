@@ -14,7 +14,7 @@ T _$identity<T>(T value) => value;
 /// @nodoc
 mixin _$AuthState {
 
- bool get isLoading; bool get isLocked; DateTime? get lockoutUntil; AuthPayload? get payload; UserModel? get user; String? get error;
+ bool get isLoading; bool get isLocked; bool get isForbidden; DateTime? get lockoutUntil; AuthPayload? get payload; UserModel? get user; String? get error;
 /// Create a copy of AuthState
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -25,16 +25,16 @@ $AuthStateCopyWith<AuthState> get copyWith => _$AuthStateCopyWithImpl<AuthState>
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is AuthState&&(identical(other.isLoading, isLoading) || other.isLoading == isLoading)&&(identical(other.isLocked, isLocked) || other.isLocked == isLocked)&&(identical(other.lockoutUntil, lockoutUntil) || other.lockoutUntil == lockoutUntil)&&(identical(other.payload, payload) || other.payload == payload)&&(identical(other.user, user) || other.user == user)&&(identical(other.error, error) || other.error == error));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is AuthState&&(identical(other.isLoading, isLoading) || other.isLoading == isLoading)&&(identical(other.isLocked, isLocked) || other.isLocked == isLocked)&&(identical(other.isForbidden, isForbidden) || other.isForbidden == isForbidden)&&(identical(other.lockoutUntil, lockoutUntil) || other.lockoutUntil == lockoutUntil)&&(identical(other.payload, payload) || other.payload == payload)&&(identical(other.user, user) || other.user == user)&&(identical(other.error, error) || other.error == error));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,isLoading,isLocked,lockoutUntil,payload,user,error);
+int get hashCode => Object.hash(runtimeType,isLoading,isLocked,isForbidden,lockoutUntil,payload,user,error);
 
 @override
 String toString() {
-  return 'AuthState(isLoading: $isLoading, isLocked: $isLocked, lockoutUntil: $lockoutUntil, payload: $payload, user: $user, error: $error)';
+  return 'AuthState(isLoading: $isLoading, isLocked: $isLocked, isForbidden: $isForbidden, lockoutUntil: $lockoutUntil, payload: $payload, user: $user, error: $error)';
 }
 
 
@@ -45,7 +45,7 @@ abstract mixin class $AuthStateCopyWith<$Res>  {
   factory $AuthStateCopyWith(AuthState value, $Res Function(AuthState) _then) = _$AuthStateCopyWithImpl;
 @useResult
 $Res call({
- bool isLoading, bool isLocked, DateTime? lockoutUntil, AuthPayload? payload, UserModel? user, String? error
+ bool isLoading, bool isLocked, bool isForbidden, DateTime? lockoutUntil, AuthPayload? payload, UserModel? user, String? error
 });
 
 
@@ -62,10 +62,11 @@ class _$AuthStateCopyWithImpl<$Res>
 
 /// Create a copy of AuthState
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? isLoading = null,Object? isLocked = null,Object? lockoutUntil = freezed,Object? payload = freezed,Object? user = freezed,Object? error = freezed,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? isLoading = null,Object? isLocked = null,Object? isForbidden = null,Object? lockoutUntil = freezed,Object? payload = freezed,Object? user = freezed,Object? error = freezed,}) {
   return _then(_self.copyWith(
 isLoading: null == isLoading ? _self.isLoading : isLoading // ignore: cast_nullable_to_non_nullable
 as bool,isLocked: null == isLocked ? _self.isLocked : isLocked // ignore: cast_nullable_to_non_nullable
+as bool,isForbidden: null == isForbidden ? _self.isForbidden : isForbidden // ignore: cast_nullable_to_non_nullable
 as bool,lockoutUntil: freezed == lockoutUntil ? _self.lockoutUntil : lockoutUntil // ignore: cast_nullable_to_non_nullable
 as DateTime?,payload: freezed == payload ? _self.payload : payload // ignore: cast_nullable_to_non_nullable
 as AuthPayload?,user: freezed == user ? _self.user : user // ignore: cast_nullable_to_non_nullable
@@ -179,10 +180,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( bool isLoading,  bool isLocked,  DateTime? lockoutUntil,  AuthPayload? payload,  UserModel? user,  String? error)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( bool isLoading,  bool isLocked,  bool isForbidden,  DateTime? lockoutUntil,  AuthPayload? payload,  UserModel? user,  String? error)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _AuthState() when $default != null:
-return $default(_that.isLoading,_that.isLocked,_that.lockoutUntil,_that.payload,_that.user,_that.error);case _:
+return $default(_that.isLoading,_that.isLocked,_that.isForbidden,_that.lockoutUntil,_that.payload,_that.user,_that.error);case _:
   return orElse();
 
 }
@@ -200,10 +201,10 @@ return $default(_that.isLoading,_that.isLocked,_that.lockoutUntil,_that.payload,
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( bool isLoading,  bool isLocked,  DateTime? lockoutUntil,  AuthPayload? payload,  UserModel? user,  String? error)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( bool isLoading,  bool isLocked,  bool isForbidden,  DateTime? lockoutUntil,  AuthPayload? payload,  UserModel? user,  String? error)  $default,) {final _that = this;
 switch (_that) {
 case _AuthState():
-return $default(_that.isLoading,_that.isLocked,_that.lockoutUntil,_that.payload,_that.user,_that.error);case _:
+return $default(_that.isLoading,_that.isLocked,_that.isForbidden,_that.lockoutUntil,_that.payload,_that.user,_that.error);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -220,10 +221,10 @@ return $default(_that.isLoading,_that.isLocked,_that.lockoutUntil,_that.payload,
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( bool isLoading,  bool isLocked,  DateTime? lockoutUntil,  AuthPayload? payload,  UserModel? user,  String? error)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( bool isLoading,  bool isLocked,  bool isForbidden,  DateTime? lockoutUntil,  AuthPayload? payload,  UserModel? user,  String? error)?  $default,) {final _that = this;
 switch (_that) {
 case _AuthState() when $default != null:
-return $default(_that.isLoading,_that.isLocked,_that.lockoutUntil,_that.payload,_that.user,_that.error);case _:
+return $default(_that.isLoading,_that.isLocked,_that.isForbidden,_that.lockoutUntil,_that.payload,_that.user,_that.error);case _:
   return null;
 
 }
@@ -235,11 +236,12 @@ return $default(_that.isLoading,_that.isLocked,_that.lockoutUntil,_that.payload,
 
 
 class _AuthState implements AuthState {
-  const _AuthState({this.isLoading = false, this.isLocked = false, this.lockoutUntil, this.payload, this.user, this.error});
+  const _AuthState({this.isLoading = false, this.isLocked = false, this.isForbidden = false, this.lockoutUntil, this.payload, this.user, this.error});
 
 
 @override@JsonKey() final  bool isLoading;
 @override@JsonKey() final  bool isLocked;
+@override@JsonKey() final  bool isForbidden;
 @override final  DateTime? lockoutUntil;
 @override final  AuthPayload? payload;
 @override final  UserModel? user;
@@ -255,16 +257,16 @@ _$AuthStateCopyWith<_AuthState> get copyWith => __$AuthStateCopyWithImpl<_AuthSt
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _AuthState&&(identical(other.isLoading, isLoading) || other.isLoading == isLoading)&&(identical(other.isLocked, isLocked) || other.isLocked == isLocked)&&(identical(other.lockoutUntil, lockoutUntil) || other.lockoutUntil == lockoutUntil)&&(identical(other.payload, payload) || other.payload == payload)&&(identical(other.user, user) || other.user == user)&&(identical(other.error, error) || other.error == error));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _AuthState&&(identical(other.isLoading, isLoading) || other.isLoading == isLoading)&&(identical(other.isLocked, isLocked) || other.isLocked == isLocked)&&(identical(other.isForbidden, isForbidden) || other.isForbidden == isForbidden)&&(identical(other.lockoutUntil, lockoutUntil) || other.lockoutUntil == lockoutUntil)&&(identical(other.payload, payload) || other.payload == payload)&&(identical(other.user, user) || other.user == user)&&(identical(other.error, error) || other.error == error));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,isLoading,isLocked,lockoutUntil,payload,user,error);
+int get hashCode => Object.hash(runtimeType,isLoading,isLocked,isForbidden,lockoutUntil,payload,user,error);
 
 @override
 String toString() {
-  return 'AuthState(isLoading: $isLoading, isLocked: $isLocked, lockoutUntil: $lockoutUntil, payload: $payload, user: $user, error: $error)';
+  return 'AuthState(isLoading: $isLoading, isLocked: $isLocked, isForbidden: $isForbidden, lockoutUntil: $lockoutUntil, payload: $payload, user: $user, error: $error)';
 }
 
 
@@ -275,7 +277,7 @@ abstract mixin class _$AuthStateCopyWith<$Res> implements $AuthStateCopyWith<$Re
   factory _$AuthStateCopyWith(_AuthState value, $Res Function(_AuthState) _then) = __$AuthStateCopyWithImpl;
 @override @useResult
 $Res call({
- bool isLoading, bool isLocked, DateTime? lockoutUntil, AuthPayload? payload, UserModel? user, String? error
+ bool isLoading, bool isLocked, bool isForbidden, DateTime? lockoutUntil, AuthPayload? payload, UserModel? user, String? error
 });
 
 
@@ -292,10 +294,11 @@ class __$AuthStateCopyWithImpl<$Res>
 
 /// Create a copy of AuthState
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? isLoading = null,Object? isLocked = null,Object? lockoutUntil = freezed,Object? payload = freezed,Object? user = freezed,Object? error = freezed,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? isLoading = null,Object? isLocked = null,Object? isForbidden = null,Object? lockoutUntil = freezed,Object? payload = freezed,Object? user = freezed,Object? error = freezed,}) {
   return _then(_AuthState(
 isLoading: null == isLoading ? _self.isLoading : isLoading // ignore: cast_nullable_to_non_nullable
 as bool,isLocked: null == isLocked ? _self.isLocked : isLocked // ignore: cast_nullable_to_non_nullable
+as bool,isForbidden: null == isForbidden ? _self.isForbidden : isForbidden // ignore: cast_nullable_to_non_nullable
 as bool,lockoutUntil: freezed == lockoutUntil ? _self.lockoutUntil : lockoutUntil // ignore: cast_nullable_to_non_nullable
 as DateTime?,payload: freezed == payload ? _self.payload : payload // ignore: cast_nullable_to_non_nullable
 as AuthPayload?,user: freezed == user ? _self.user : user // ignore: cast_nullable_to_non_nullable

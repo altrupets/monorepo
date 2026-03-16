@@ -99,10 +99,20 @@ class AuthService {
   static const int _maxFailedAttempts = 5;
   static const Duration _lockoutDuration = Duration(minutes: 15);
 
+  // Reintentos
+  static const int _maxRefreshRetries = 3;
+  static const List<Duration> _retryDelays = [
+    Duration(seconds: 2),
+    Duration(seconds: 5),
+    Duration(seconds: 15),
+  ];
+
   // State management
   final StreamController<AuthServiceState> _stateController =
       StreamController<AuthServiceState>.broadcast();
   AuthServiceState _currentState = const AuthServiceUnauthenticated();
+  Timer? _refreshTimer;
+  int _refreshRetryCount = 0;
 
   /// Current authentication state
   AuthServiceState get state => _currentState;
@@ -268,6 +278,8 @@ class AuthService {
         ),
       );
 
+      _scheduleTokenRefresh();
+
       developer.log('Login successful', name: 'AuthService');
     } catch (e) {
       developer.log('Login failed', name: 'AuthService', error: e);
@@ -336,7 +348,10 @@ class AuthService {
   /// Refresh the access token using the refresh token
   Future<String> refreshToken() async {
     try {
-      developer.log('Refreshing token', name: 'AuthService');
+      developer.log(
+        'Refreshing token (Attempt: ${_refreshRetryCount + 1})',
+        name: 'AuthService',
+      );
 
       final currentRefreshToken = await _secureStorage.read(
         key: _keyRefreshToken,
@@ -367,19 +382,40 @@ class AuthService {
       );
 
       if (result.hasException) {
-        developer.log(
-          'Token refresh failed',
-          name: 'AuthService',
-          error: result.exception,
-        );
-        await logout();
-        throw AuthServiceException(
-          'Token refresh failed',
-          code: 'REFRESH_FAILED',
-          originalError: result.exception,
-        );
+        final isAuthError =
+            result.exception?.graphqlErrors.any(
+              (e) =>
+                  e.extensions?['code'] == 'UNAUTHENTICATED' ||
+                  e.message.contains('Unauthorized'),
+            ) ??
+            false;
+
+        if (isAuthError || _refreshRetryCount >= _maxRefreshRetries) {
+          developer.log(
+            'Token refresh failed fatally or max retries reached',
+            name: 'AuthService',
+            error: result.exception,
+          );
+          await logout();
+          throw AuthServiceException(
+            'Token refresh failed',
+            code: 'REFRESH_FAILED',
+            originalError: result.exception,
+          );
+        } else {
+          // Retry with exponential backoff
+          final delay = _retryDelays[_refreshRetryCount];
+          _refreshRetryCount++;
+          developer.log(
+            'Retrying token refresh in ${delay.inSeconds}s...',
+            name: 'AuthService',
+          );
+          await Future<void>.delayed(delay);
+          return refreshToken();
+        }
       }
 
+      _refreshRetryCount = 0; // Reset count on success
       final accessToken =
           result.data!['refreshToken']['access_token'] as String;
       final newRefreshToken =
@@ -405,6 +441,8 @@ class AuthService {
         );
       }
 
+      _scheduleTokenRefresh(); // Schedule next refresh
+
       return accessToken;
     } catch (e) {
       if (e is! AuthServiceException) {
@@ -414,10 +452,39 @@ class AuthService {
     }
   }
 
+  void _scheduleTokenRefresh() {
+    _refreshTimer?.cancel();
+    // Assuming 1 hour expiry (3600s), refresh 5 mins before.
+    // In a real app, we should parse the JWT to get the exact exp.
+    // For now, using a safe default of 55 minutes if not known.
+    const refreshDelay = Duration(minutes: 55);
+
+    _refreshTimer = Timer(refreshDelay, () {
+      if (_currentState is AuthServiceAuthenticated) {
+        refreshToken()
+            .then((_) {
+              developer.log(
+                'Scheduled token refresh successful',
+                name: 'AuthService',
+              );
+            })
+            .catchError((Object e) {
+              developer.log(
+                'Scheduled token refresh failed',
+                name: 'AuthService',
+                error: e,
+              );
+            });
+      }
+    });
+  }
+
   /// Logout and clear all stored authentication data
   Future<void> logout() async {
     try {
       developer.log('Logging out', name: 'AuthService');
+
+      _refreshTimer?.cancel();
 
       // Clear all stored data
       await _clearAuthData();
