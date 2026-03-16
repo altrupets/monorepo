@@ -91,16 +91,31 @@ import { SubsidyRequest } from './subsidies/entities/subsidy-request.entity';
       isGlobal: true,
       imports: [ConfigModule],
       useFactory: async (configService: ConfigService) => {
-        const store = await redisStore({
-          socket: {
-            host: configService.get<string>('REDIS_HOST', 'localhost'),
-            port: configService.get<number>('REDIS_PORT', 6379),
-          },
-          ttl: configService.get<number>('CACHE_TTL', 600) * 1000,
-        });
+        const redisHost = configService.get<string>('REDIS_HOST');
+        const redisUrl = configService.get<string>('REDIS_URL');
 
+        if (redisHost || redisUrl) {
+          const storeConfig = redisUrl
+            ? { url: redisUrl }
+            : {
+                socket: {
+                  host: redisHost,
+                  port: configService.get<number>('REDIS_PORT', 6379),
+                },
+              };
+
+          const store = await redisStore({
+            ...storeConfig,
+            ttl: configService.get<number>('CACHE_TTL', 600) * 1000,
+          });
+
+          return { store: () => store };
+        }
+
+        // Fall back to in-memory cache (no Redis configured)
         return {
-          store: () => store,
+          ttl: configService.get<number>('CACHE_TTL', 600) * 1000,
+        };
         };
       },
       inject: [ConfigService],

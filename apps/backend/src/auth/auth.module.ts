@@ -18,14 +18,12 @@ import { UsersModule } from '../users/users.module';
       useFactory: (configService: ConfigService) => ({
         secret: (() => {
           const secret = configService.get<string>('JWT_SECRET');
-          if (!secret || secret === 'super-secret-altrupets-key-2026') {
-            const isProd = configService.get<string>('NODE_ENV') === 'production';
-            if (isProd) {
-              throw new Error('FATAL: JWT_SECRET MUST be set in production!');
-            }
-            console.warn('WARNING: JWT_SECRET is not set or using insecure default. Use for dev only.');
+          if (!secret) {
+            throw new Error(
+              'FATAL: JWT_SECRET environment variable is required. Set it before starting the application.',
+            );
           }
-          return secret || 'super-secret-altrupets-key-2026';
+          return secret;
         })(),
         signOptions: {
           expiresIn: (() => {
