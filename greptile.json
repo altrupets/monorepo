@@ -1,0 +1,13 @@
+{
+  "strictness": "medium",
+  "statusCheck": true,
+  "comment": false,
+  "summarySection": {
+    "included": true,
+    "collapsible": false
+  },
+  "issuesTableSection": {
+    "included": true,
+    "collapsible": false
+  }
+}
