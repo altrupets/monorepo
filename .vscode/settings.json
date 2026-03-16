@@ -1,4 +1,7 @@
 {
+    "dart.mcpServer": true,
+    "mcp.configPath": "${workspaceFolder}/mcp.json",
+    "cline.mcpConfigPath": "${workspaceFolder}/mcp.json",
     "java.compile.nullAnalysis.mode": "automatic",
     "kiroAgent.configureMCP": "Enabled",
     "yaml.schemas": {
