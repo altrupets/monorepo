@@ -1,8 +1,17 @@
 # Spec: Sistema Financiero
 
-## Resumen
+**Dominio**: `financial`
+**Sprint**: 04 (Sistema Financiero Completo)
+**Servicios afectados**: Financial Service, Government Service, Veterinary Service, Notification Service
+**Ingresos en riesgo**: $92/mes (J8) + vinculo critico con $3,500/mes (J4) y $1,000/mes (J9)
 
-AltruPets es una **plataforma de coordinacion**, NO un intermediario financiero. Las donaciones fluyen de persona a persona (donante -> organizacion de rescate). Los pagos de subsidios veterinarios fluyen de gobierno -> clinica. AltruPets facilita y registra pero NUNCA retiene fondos. Esta decision de diseno evita la supervision de SUGEF (Ley 7786, Arts. 15/15 bis) en Costa Rica y reguladores financieros equivalentes en otros paises de LATAM.
+---
+
+## Vision General
+
+AltruPets es una **plataforma de coordinacion, NO un intermediario financiero.** Las donaciones fluyen de persona a persona: donante -> cuenta bancaria de la organizacion de rescate (via SINPE o transferencia bancaria). Los pagos de subsidios veterinarios fluyen de gobierno -> clinica veterinaria (facilitados por AltruPets). AltruPets facilita, registra y genera transparencia pero NUNCA retiene, procesa ni enruta fondos a traves de sus cuentas.
+
+Esta decision de diseno evita la supervision de SUGEF (Ley 7786, Arts. 15/15 bis) en Costa Rica y reguladores financieros equivalentes en otros paises de LATAM (CNBV en Mexico, SUPERFINANCIERA en Colombia, BCRA en Argentina).
 
 El Financial Service es un microservicio dedicado que gestiona:
 - Procesamiento de donaciones y pagos (PCI DSS compliant)
@@ -11,18 +20,31 @@ El Financial Service es un microservicio dedicado que gestiona:
 - Integracion con ONVOPay mediante patron Adapter
 - Cumplimiento regulatorio y KYC
 - Gestion de obligaciones de pago municipales vs rescatistas
+- Generacion de reportes de transparencia con exportacion PDF/Excel
 
 **Personas involucradas:** P10 (Donante), P06 (Rescatista), P03/P04 (Veterinarios), P01/P02 (Gobierno)
 **Etiqueta de ingresos (J8):** Value-Delivery
 **Ingresos en riesgo (J8 SRD):** $92/mes
-**Sprint planificado:** Sprint 04 (Sistema Financiero Completo)
 **Estado actual (J8):** 8% construido — infraestructura de pasarela de pago existe (4 implementaciones), perfiles de organizaciones existen, sin UI de donacion, entidad ni seguimiento de impacto.
 
 ### Dependencias
 
-- **J1 (Registro/Incorporacion):** Todos los usuarios deben estar autenticados.
-- **J6 (Casa Cuna y Gestion Animal):** Necesita listados del inventario de casa cuna para lista de necesidades.
-- **J9 (Incorporacion Veterinaria):** Alimenta el flujo de subsidios (J4).
+- **J1 (Registro/Incorporacion):** Todos los usuarios deben estar autenticados (REQ-SEC-001).
+- **J6 (Casa Cuna y Gestion Animal):** Necesita listados del inventario de casa cuna para la lista de necesidades visible a donantes.
+- **J9 (Incorporacion Veterinaria):** Alimenta el flujo de subsidios veterinarios (J4).
+- **J4 (Subsidio Veterinario):** El Financial Service emite facturas duales (municipal vs rescatista) segun resolucion de subvencion.
+- **J7 (Panel Municipal):** Consume reportes de transparencia generados por el Financial Service.
+
+### Grafo de Dependencia
+
+```
+J1 (Registro/Incorporacion) <- RAIZ
+  +-- J6 (Gestion Casa Cuna)
+  |     +-- J8 (Donacion) <- depende de J1 + J6 (necesita listados del inventario de casa cuna)
+  |     +-- J4 (Subsidio Vet) <- depende de J1 + J6 + J9
+  +-- J9 (Incorporacion Vet) <- depende de J1, alimenta J4
+  +-- J7 (Panel Municipal) <- consume reportes financieros
+```
 
 ---
 
@@ -30,12 +52,14 @@ El Financial Service es un microservicio dedicado que gestiona:
 
 ### Tipos de Donacion
 
-1. **Donaciones Monetarias (P2P):** El donante transfiere directamente a la organizacion de rescate via SINPE o transferencia bancaria. AltruPets NO toca los fondos.
-2. **Donaciones de Insumos:** El donante ofrece insumos fisicos (comida, medicina, suministros) que las casas cuna necesitan.
-3. **Donaciones Recurrentes (Suscripciones):** El donante configura frecuencia, monto y casas cuna beneficiarias.
-4. **Donaciones de Emergencia:** Para casos urgentes de rescate.
+| Tipo | Descripcion | Flujo de Fondos | Requisito |
+|------|-------------|-----------------|-----------|
+| **Monetaria P2P** | El donante transfiere directamente a la organizacion de rescate via SINPE o transferencia bancaria. AltruPets NO toca los fondos. | Donante -> Cuenta bancaria de la org | REQ-DON-002 |
+| **De Insumos** | El donante ofrece insumos fisicos (comida, medicina, suministros) que las casas cuna necesitan. | Donante -> Entrega fisica a la org | REQ-DON-003 |
+| **Recurrente (Suscripcion)** | El donante configura frecuencia, monto y casas cuna beneficiarias para donaciones automaticas. | Donante -> Cuenta bancaria de la org (periodico) | REQ-DON-004 |
+| **De Emergencia** | Para casos urgentes de rescate que requieren fondos inmediatos. | Donante -> Cuenta bancaria de la org (urgente) | REQ-DON-002 |
 
-### Requisitos Funcionales
+### Requisitos Funcionales de Donaciones
 
 **REQ-DON-001:** CUANDO una persona desee donar ENTONCES el sistema DEBERA permitir registro con informacion KYC segun el tipo y monto de donacion.
 
@@ -67,11 +91,14 @@ El Financial Service es un microservicio dedicado que gestiona:
 class DonationProcessingService {
   async processDonation(donationRequest: DonationRequest): Promise<DonationResult> {
     // 1. Validar que donante y receptor esten en el mismo pais (NO cross-border)
+    if (donationRequest.donorCountry !== donationRequest.recipientCountry) {
+      throw new Error('Donaciones cross-border no soportadas inicialmente');
+    }
     // 2. Validar configuracion del pais
     // 3. Determinar si requiere KYC
     // 4. Seleccionar proveedor de pago del pais
     // 5. Convertir moneda solo si es USD -> moneda local o viceversa
-    // 6. Procesar pago
+    // 6. Procesar pago via ONVOPay (o fallback)
     // 7. Registrar transaccion (mismo pais)
   }
 }
@@ -82,6 +109,8 @@ interface DonationRequest {
   amount: number;
   currency: string;        // Solo moneda local o USD
   country: string;          // Mismo pais para donante y receptor
+  donorCountry: string;
+  recipientCountry: string;
   kycCompleted?: boolean;
   purpose?: string;
   animalId?: string;        // Si es para un animal especifico
@@ -94,21 +123,19 @@ interface DonationRequest {
 - Transferir automaticamente donaciones recurrentes al nuevo cuidador
 - Notificar a donantes sobre el cambio con transparencia completa
 - Honrar compromisos financieros existentes del usuario anterior
-- Activar fondo de emergencia para casos criticos sin cobertura
 
 **REQ-DEATH-007:** CUANDO un usuario fallezca ENTONCES el sistema DEBERA:
 - Transferir donaciones recurrentes a rescatistas padrinos designados
 - Notificar a donantes sobre el fallecimiento y nueva asignacion
-- Honrar compromisos financieros pendientes del usuario fallecido
 - Proporcionar reporte financiero completo a familiares/albacea
 
 ---
 
-## Procesamiento de Pagos (Integracion ONVOPay)
+## Procesamiento de Pagos (Delegacion ONVOPay)
 
 ### Modelo de Delegacion
 
-AltruPets delega el procesamiento directo de pagos con tarjetas a ONVOPay. El patron Adapter permite intercambiar proveedores sin afectar la logica de negocio.
+AltruPets delega el procesamiento directo de pagos con tarjetas a ONVOPay. El patron Adapter permite intercambiar proveedores sin afectar la logica de negocio. AltruPets NO es procesador de pagos; ONVOPay asume esa responsabilidad.
 
 **REQ-SW-001:** CUANDO se procesen pagos ENTONCES el sistema DEBERA integrarse con la API de ONVOPay usando protocolo HTTPS y autenticacion mediante API keys.
 
@@ -145,6 +172,15 @@ GET  /api/v1/financial/reports
 POST /api/v1/kyc/validate
 GET  /api/v1/transactions/history
 POST /api/v1/webhooks/onvopay
+
+# Subvencion Municipal Veterinaria
+POST /api/v1/veterinary-subsidy/request
+GET  /api/v1/veterinary-subsidy/{id}/status
+PUT  /api/v1/veterinary-subsidy/{id}/approve
+PUT  /api/v1/veterinary-subsidy/{id}/reject
+GET  /api/v1/veterinary-subsidy/municipal/{tenantId}
+POST /api/v1/veterinary-subsidy/{id}/invoice
+GET  /api/v1/veterinary-subsidy/reports/{tenantId}
 ```
 
 ### Patrones de Resiliencia
@@ -168,7 +204,7 @@ FinancialService:
   - rescuer.invoice.issued
 ```
 
-### Subvencion Municipal Veterinaria (vinculo con J4)
+### Vinculo con Subvencion Municipal Veterinaria (J4)
 
 **REQ-SW-FIN-010:** CUANDO una solicitud de subvencion cambie a `APROBADA` ENTONCES el Financial Service DEBERA crear la obligacion de pago municipal y preparar el flujo de pago (via ONVOPay o metodo alternativo REQ-INT-002).
 
@@ -177,6 +213,8 @@ FinancialService:
 **REQ-FIN-VET-004:** CUANDO una solicitud sea `APROBADA` ENTONCES el sistema DEBERA emitir la factura a nombre de la municipalidad aprobadora y registrar la obligacion de pago municipal (subvencion total).
 
 **REQ-FIN-VET-005:** CUANDO una solicitud sea `RECHAZADA` o `EXPIRADA` ENTONCES el sistema DEBERA emitir la factura a nombre del rescatista y registrar su obligacion de pago.
+
+**REQ-FIN-VET-008:** La subvencion NO condiciona la realizacion de procedimientos medicos. Los rescatistas pueden actuar libremente. La subvencion afecta unicamente la facturacion y el sujeto obligado de pago.
 
 **REQ-FIN-VET-013:** CUANDO se gestione subvencion ENTONCES el sistema DEBERA registrar auditoria completa (solicitante, aprobador, fechas, montos, ubicacion) con retencion minima de 7 anos (REQ-REG-004).
 
@@ -188,6 +226,8 @@ FinancialService:
 
 **REQ-DIS-004:** CUANDO se procesen pagos ENTONCES el sistema DEBERA cumplir obligatoriamente con PCI DSS nivel 1.
 
+El alcance PCI se aisla estrictamente al Financial Service y los endpoints de pago del API Gateway. Todos los demas microservicios quedan fuera del alcance PCI.
+
 ```yaml
 pci-scope:
   in-scope:
@@ -198,6 +238,10 @@ pci-scope:
     - user-management-service
     - animal-rescue-service
     - notification-service
+    - government-service
+    - veterinary-service
+    - geolocation-service
+    - reputation-service
 ```
 
 ### Estrategia de Tokenizacion
@@ -205,7 +249,7 @@ pci-scope:
 **REQ-REG-003:** CUANDO se almacenen datos de tarjetas ENTONCES el sistema DEBERA utilizar unicamente tokenizacion sin almacenar PAN completo.
 
 - **Payment Tokens:** Almacenamiento seguro de referencias (solo token, nunca datos de tarjeta)
-- **Vault Integration:** HashiCorp Vault para secrets
+- **Vault Integration:** HashiCorp Vault para gestion de secrets
 - **Token Rotation:** Rotacion automatica de tokens
 
 ### Seguridad de Datos Financieros
@@ -216,7 +260,7 @@ pci-scope:
 - **Confidencial:** Transacciones financieras, registros medicos
 - **Restringido:** Tokens de pago, documentos KYC
 
-### Network Policy (Aislamiento Kubernetes)
+### Aislamiento de Red (Kubernetes)
 
 ```yaml
 apiVersion: networking.k8s.io/v1
@@ -260,6 +304,23 @@ spec:
 
 **REQ-SEC-004:** CUANDO se procesen datos KYC ENTONCES DEBERAN encriptarse punto a punto y almacenarse en bases de datos segregadas.
 
+### Umbrales por Periodo
+
+| Periodo | Umbral por Defecto | Requiere Verificacion |
+|---------|-------------------|----------------------|
+| Diario | $1,000 USD | Identidad + Direccion |
+| Mensual | $5,000 USD | Identidad + Direccion |
+| Anual | $50,000 USD | Identidad + Direccion + Origen de fondos |
+
+### Entidades Reguladoras por Pais
+
+| Pais | Codigo | Entidad Reguladora | Codigo Entidad |
+|------|--------|-------------------|----------------|
+| Costa Rica | CRI | Superintendencia General de Entidades Financieras | SUGEF |
+| Mexico | MEX | Comision Nacional Bancaria y de Valores | CNBV |
+| Colombia | COL | Superintendencia Financiera de Colombia | SUPERFINANCIERA |
+| Argentina | ARG | Banco Central de la Republica Argentina | BCRA |
+
 ### Validacion KYC Multi-Pais
 
 ```typescript
@@ -284,16 +345,15 @@ class MultiCurrencyService {
     };
   }
 }
+
+interface KycValidationResult {
+  requiresKyc: boolean;
+  threshold: number;
+  thresholdCurrency: string;
+  regulatoryEntity: string;
+  requiredDocuments: string[];
+}
 ```
-
-### Entidades Reguladoras por Pais
-
-| Pais | Codigo | Entidad Reguladora | Codigo Entidad |
-|------|--------|-------------------|----------------|
-| Costa Rica | CRI | Superintendencia General de Entidades Financieras | SUGEF |
-| Mexico | MEX | Comision Nacional Bancaria y de Valores | CNBV |
-| Colombia | COL | Superintendencia Financiera de Colombia | SUPERFINANCIERA |
-| Argentina | ARG | Banco Central de la Republica Argentina | BCRA |
 
 ### Deteccion de Patrones Sospechosos
 
@@ -309,7 +369,19 @@ class MultiCurrencyService {
 
 ## Reportes de Transparencia
 
+### Exportacion PDF/Excel
+
 **REQ-PER-007:** CUANDO se generen reportes financieros ENTONCES DEBERAN procesarse en menos de 10 segundos para periodos de hasta 1 ano.
+
+El panel gubernamental (J7) y los perfiles de organizaciones permiten generar reportes de transparencia con las siguientes capacidades:
+
+| Funcionalidad | Descripcion | Requisito |
+|---------------|-------------|-----------|
+| Rango de fechas | Configurable por periodo (dia, semana, mes, ano) | REQ-PER-007 |
+| Seleccion de metricas | Rescates, subsidios, donaciones, reportes de maltrato | J7 |
+| Exportacion PDF | Documento formateado para impresion y archivo | J7 |
+| Exportacion Excel | Datos tabulares para analisis externo | J7 |
+| Metricas de impacto | Animales ayudados, donaciones procesadas, subsidios aprobados | REQ-DON-005 |
 
 ### Componentes Frontend
 
@@ -317,14 +389,6 @@ class MultiCurrencyService {
 - **DonationInterface:** Multiples metodos de pago con WebView seguro
 - **KYCForms:** Formularios de debida diligencia
 - **SubscriptionManager:** Gestion de donaciones recurrentes
-
-### Funcionalidad de Reportes
-
-El panel gubernamental (J7) permite generar reportes de transparencia:
-- Configurable por rango de fechas
-- Seleccion de metricas (rescates, subsidios, donaciones, maltrato)
-- Exportar PDF/Excel
-- Metricas de impacto: animales ayudados, donaciones procesadas, subsidios aprobados
 
 ### Logs y Auditoria
 
@@ -340,25 +404,51 @@ El panel gubernamental (J7) permite generar reportes de transparencia:
 
 | Fuente | MRR | % | Economia Unitaria |
 |--------|-----|---|----------------|
-| Contratos Municipales B2G | $7,500 | 75% | 10 municipalidades x $750/mes prom. |
-| Suscripciones de Clinicas Veterinarias | $2,000 | 20% | 25 clinicas x $80/mes prom. |
-| Funciones Premium | $500 | 5% | Analitica, acceso API, soporte prioritario |
+| **Contratos Municipales B2G** | **$7,500** | 75% | 10 municipalidades x $750/mes prom. |
+| **Suscripciones de Clinicas Veterinarias** | **$2,000** | 20% | 25 clinicas x $80/mes prom. |
+| **Funciones Premium** | **$500** | 5% | Analitica, acceso API, soporte prioritario |
 
-### Niveles de Contratos Municipales
+### Flujo de Dinero del Ecosistema
 
-- **Pequeno** (<50K hab.): $500/mes — flujo de subsidios + reportes basicos
-- **Mediano** (50-200K hab.): $800/mes — panel completo + reportes de maltrato + analitica
-- **Grande** (>200K hab.): $1,500/mes — multi-departamento + API + soporte prioritario
+```
+Municipalidades --[$7,500/mes]--> AltruPets (contratos B2G)
+Clinicas Veterinarias ----[$2,000/mes]--> AltruPets (suscripciones)
+Usuarios Avanzados ----[$500/mes]----> AltruPets (funciones premium)
+Donantes --------[$25K/mes]----> Organizaciones de Rescate (directo, NO a traves de AltruPets)
+Municipalidades -[$50K/mes]---> Clinicas Veterinarias (subsidios, facilitados por AltruPets)
+```
 
-### Niveles de Clinicas Veterinarias
+### Niveles de Contratos Municipales ($7,500/mes)
 
-- **Gratis:** Listado en directorio, recibir solicitudes de subsidio
-- **Estandar** ($50/mes): Gestion de pacientes, facturacion de subsidios, analitica
-- **Premium** ($100/mes): Posicionamiento preferente, multiples ubicaciones, procesamiento prioritario
+| Nivel | Poblacion | Precio | Incluye |
+|-------|-----------|--------|---------|
+| **Pequeno** | <50K hab. | $500/mes | Flujo de subsidios + reportes basicos |
+| **Mediano** | 50-200K hab. | $800/mes | Panel completo + reportes de maltrato + analitica |
+| **Grande** | >200K hab. | $1,500/mes | Multi-departamento + integraciones API + soporte prioritario |
+
+**Distribucion geografica objetivo:** 7 municipalidades en Costa Rica, 3 en segundo pais (Colombia o Mexico).
+
+### Niveles de Clinicas Veterinarias ($2,000/mes)
+
+| Nivel | Precio | Incluye |
+|-------|--------|---------|
+| **Gratis** | $0/mes | Listado en directorio, recibir solicitudes de subsidio, perfil basico |
+| **Estandar** | $50/mes | Gestion de pacientes, herramientas de facturacion de subsidios, analitica |
+| **Premium** | $100/mes | Posicionamiento preferente por proximidad, multiples ubicaciones, reportes avanzados, procesamiento prioritario |
+
+### Funciones Premium ($500/mes)
+
+- Paneles de analitica avanzada
+- Acceso API para integraciones
+- Soporte prioritario
 
 ### Decision Regulatoria
 
-AltruPets es una **plataforma de coordinacion**, NO un intermediario financiero. Las donaciones fluyen de persona a persona (donante -> organizacion). Los pagos de subsidios veterinarios fluyen de gobierno -> clinica. AltruPets facilita y registra pero NUNCA retiene fondos. Esto evita la supervision de SUGEF (Ley 7786, Arts. 15/15 bis).
+AltruPets es una **plataforma de coordinacion**, NO un intermediario financiero:
+- Las donaciones fluyen de persona a persona (donante -> organizacion via SINPE/banco)
+- Los pagos de subsidios veterinarios fluyen de gobierno -> clinica (facilitado por AltruPets)
+- AltruPets NUNCA retiene, procesa ni enruta fondos a traves de sus cuentas
+- Esto evita la supervision de SUGEF (Ley 7786, Arts. 15/15 bis) y los costos de cumplimiento asociados
 
 ### Metricas Objetivo
 
@@ -387,8 +477,12 @@ AltruPets es una **plataforma de coordinacion**, NO un intermediario financiero.
 - La subvencion NO condiciona la realizacion de procedimientos medicos (REQ-FIN-VET-008)
 - Si aprobada: factura a la municipalidad (REQ-FIN-VET-004)
 - Si rechazada/expirada: factura al rescatista (REQ-FIN-VET-005)
+- Subvencion total; cofinanciamiento parcial NO habilitado (REQ-FIN-VET-010)
 - Aprobacion financiera exclusiva por jurisdiccion (REQ-JUR-010)
 - SLA de respuesta configurable por municipalidad en horas (REQ-FIN-VET-014)
+- Proveedor debe estar validado por Veterinary Service (REQ-FIN-VET-011)
+- Sin subvencion fuera de jurisdiccion (REQ-FIN-VET-012)
+- Auditoria completa con retencion 7 anos (REQ-FIN-VET-013)
 
 ### Rendimiento
 
@@ -405,45 +499,30 @@ AltruPets es una **plataforma de coordinacion**, NO un intermediario financiero.
 
 ## Modelos de Datos
 
-### Tabla: financial_transactions (Event Sourcing)
-
-```sql
-CREATE TABLE financial_transactions (
-  id UUID PRIMARY KEY,
-  event_type VARCHAR(50),
-  aggregate_id UUID,
-  original_amount DECIMAL(15,2) NOT NULL,
-  original_currency VARCHAR(3) NOT NULL,
-  usd_amount DECIMAL(15,2) NOT NULL,       -- Siempre convertir a USD para reportes
-  exchange_rate DECIMAL(18,8),
-  exchange_rate_date DATE,
-  country_code VARCHAR(3) NOT NULL,
-  payment_provider VARCHAR(50),
-  provider_transaction_id VARCHAR(255),
-  event_data JSONB,
-  encrypted_pii BYTEA,
-  timestamp TIMESTAMP DEFAULT NOW(),
-  version INTEGER
-);
-```
-
-### Tabla: donations (Multi-Moneda)
+### Donation
 
 ```sql
 CREATE TABLE donations (
   id UUID PRIMARY KEY,
   donor_id UUID NOT NULL,
   recipient_id UUID NOT NULL,              -- rescatista o casa cuna
+
+  -- Montos multi-moneda
   requested_amount DECIMAL(15,2) NOT NULL,
   requested_currency VARCHAR(3) NOT NULL,
   final_amount DECIMAL(15,2) NOT NULL,     -- Despues de fees y conversiones
   final_currency VARCHAR(3) NOT NULL,
+
+  -- Informacion geografica (mismo pais inicialmente)
   country_code VARCHAR(3) NOT NULL,        -- Donante y receptor en el mismo pais
   requires_kyc BOOLEAN DEFAULT FALSE,
   kyc_completed BOOLEAN DEFAULT FALSE,
+
+  -- Metadatos de la donacion
   donation_type donation_type_enum DEFAULT 'ONE_TIME',  -- ONE_TIME, RECURRING, EMERGENCY
   purpose TEXT,
   animal_id UUID,                          -- Si es para un animal especifico
+
   status donation_status_enum DEFAULT 'PENDING',
   payment_method VARCHAR(50),
   transaction_id UUID REFERENCES financial_transactions(id),
@@ -455,7 +534,64 @@ CREATE TYPE donation_type_enum AS ENUM ('ONE_TIME', 'RECURRING', 'EMERGENCY');
 CREATE TYPE donation_status_enum AS ENUM ('PENDING', 'PROCESSING', 'COMPLETED', 'FAILED', 'REFUNDED');
 ```
 
-### Tabla: payment_tokens (PCI DSS Compliant)
+### Invoice (Facturacion Dual)
+
+```typescript
+interface Invoice {
+  id: string;
+  solicitudSubvencionId?: string;  // Vinculo con subvencion veterinaria
+  emitidaA: 'MUNICIPALIDAD' | 'RESCATISTA';
+  tenantMunicipalId?: string;      // Si es factura municipal
+  rescatistaId?: string;           // Si es factura al rescatista
+  veterinarioId: string;           // Proveedor del servicio
+
+  // Detalle financiero
+  montoTotal: number;
+  moneda: string;
+  desgloceServicios: ServicioVeterinario[];
+
+  // Estado de la factura
+  estado: 'EMITIDA' | 'PAGADA' | 'VENCIDA' | 'CANCELADA';
+  fechaEmision: Date;
+  fechaVencimiento: Date;
+  fechaPago?: Date;
+
+  // Auditoria (REQ-FIN-VET-013)
+  solicitanteId: string;
+  aprobadorId?: string;
+  ubicacionAnimal: Coordenadas;
+  retencionHasta: Date;            // Minimo 7 anos desde emision
+}
+```
+
+### Ledger (financial_transactions con Event Sourcing)
+
+```sql
+CREATE TABLE financial_transactions (
+  id UUID PRIMARY KEY,
+  event_type VARCHAR(50),
+  aggregate_id UUID,
+
+  -- Montos en moneda original y USD para auditoria
+  original_amount DECIMAL(15,2) NOT NULL,
+  original_currency VARCHAR(3) NOT NULL,
+  usd_amount DECIMAL(15,2) NOT NULL,       -- Siempre convertir a USD para reportes
+  exchange_rate DECIMAL(18,8),
+  exchange_rate_date DATE,
+
+  -- Informacion del pais y proveedor
+  country_code VARCHAR(3) NOT NULL,
+  payment_provider VARCHAR(50),
+  provider_transaction_id VARCHAR(255),
+
+  event_data JSONB,
+  encrypted_pii BYTEA,
+  timestamp TIMESTAMP DEFAULT NOW(),
+  version INTEGER
+);
+```
+
+### payment_tokens (PCI DSS Compliant)
 
 ```sql
 CREATE TABLE payment_tokens (
@@ -472,7 +608,7 @@ CREATE TABLE payment_tokens (
 );
 ```
 
-### Tabla: kyc_thresholds (Configuracion por Pais)
+### kyc_thresholds (Configuracion por Pais)
 
 ```sql
 CREATE TABLE kyc_thresholds (
@@ -490,7 +626,7 @@ CREATE TABLE kyc_thresholds (
 );
 ```
 
-### Tabla: country_payment_config
+### country_payment_config
 
 ```sql
 CREATE TABLE country_payment_config (
@@ -505,42 +641,30 @@ CREATE TABLE country_payment_config (
 );
 ```
 
-### Funcion: requires_kyc_validation
-
-```sql
-CREATE OR REPLACE FUNCTION requires_kyc_validation(
-  donor_country VARCHAR(3),
-  donation_amount DECIMAL(15,2),
-  donation_currency VARCHAR(3)
-) RETURNS BOOLEAN;
-```
-
-### Estructura de Carpetas (Flutter)
+### Estructura de Carpetas
 
 ```
+# Flutter (Mobile)
 features/
   donaciones/
     presentation/    # UI: donacion, suscripciones, impacto
     domain/
       entities/      # Donation, Invoice, Ledger
       repositories/  # Interfaces de repositorio
-      use_cases/     # Casos de uso especificos
+      use_cases/     # ProcesarDonacion, ValidarKYC, GenerarReporte
     data/
       models/        # Modelos de datos
       repositories/  # Implementaciones de repositorio
       data_sources/  # Fuentes de datos (remote/local)
-```
 
-### Microservicio Backend
-
-```
+# Backend (Microservicio)
 services/
   financial/         # Servicio financiero y pagos
 ```
 
 **Patrones implementados:**
-- **Adapter Pattern:** Integracion flexible con multiples pasarelas de pago
-- **Event Sourcing:** Auditoria completa de transacciones financieras
+- **Adapter Pattern:** Integracion flexible con multiples pasarelas de pago (REQ-INT-001)
+- **Event Sourcing:** Auditoria completa de transacciones financieras (REQ-REG-004)
 - **CQRS:** Separacion de comandos (pagos) y consultas (reportes)
 - **Saga Pattern:** Transacciones distribuidas para donaciones
 - **Circuit Breaker:** Tolerancia a fallos en pagos externos
@@ -560,8 +684,8 @@ services/
 - Calificar rescatistas
 
 **Requisitos de registro:**
-- Informacion KYC segun monto de donacion
-- Verificacion de origen licito de fondos
+- Informacion KYC segun monto de donacion (REQ-DON-001)
+- Verificacion de origen licito de fondos para montos > $1,000 USD (REQ-REG-001)
 - Datos bancarios para donaciones recurrentes
 
 ### Tabla de Permisos (extracto)
@@ -569,6 +693,9 @@ services/
 | Funcionalidad | Centinela | Auxiliar | Rescatista | Adoptante | Donante | Veterinario |
 |---|---|---|---|---|---|---|
 | Realizar donaciones | Si | Si | Si | Si | Si | Si |
+| Ver reportes de transparencia | No | No | Si | No | Si | No |
+| Gestionar suscripciones | No | No | No | No | Si | No |
+| Generar facturas de subsidio | No | No | No | No | No | Si |
 
 ---
 
@@ -581,7 +708,7 @@ services/
 
 ---
 
-## Referencia SRD: J8 — Donacion y Seguimiento de Impacto
+## Referencia SRD: J8 — Donacion y Seguimiento de Impacto ($92/mes)
 
 **Puntuacion actual:** 8% | **Ingresos en riesgo:** $92/mes
 
@@ -596,3 +723,44 @@ J1 (Registro/Incorporacion) <- RAIZ
 **Etiqueta:** Value-Delivery
 
 Infraestructura de pasarela de pago existe (4 implementaciones). Perfiles de organizaciones existen. Sin UI de donacion, entidad ni seguimiento de impacto. El sistema financiero completo esta planificado para Sprint 04.
+
+### IDs de Requisitos Referenciados
+
+| ID | Descripcion |
+|----|-------------|
+| REQ-DON-001 | Registro de donantes con KYC |
+| REQ-DON-002 | Donaciones monetarias via ONVOPay |
+| REQ-DON-003 | Donaciones de insumos |
+| REQ-DON-004 | Suscripciones recurrentes |
+| REQ-DON-005 | Transparencia de donaciones |
+| REQ-RES-003 | Registro de gastos por categorias |
+| REQ-RES-006 | Recepcion de donaciones y agradecimiento |
+| REQ-VET-005 | Facturacion de servicios veterinarios |
+| REQ-FIN-VET-001 | Crear solicitud de subvencion municipal |
+| REQ-FIN-VET-004 | Factura a municipalidad si aprobada |
+| REQ-FIN-VET-005 | Factura al rescatista si rechazada/expirada |
+| REQ-FIN-VET-008 | Procedimiento no condicionado por aprobacion |
+| REQ-FIN-VET-010 | Subvencion total (sin cofinanciamiento) |
+| REQ-FIN-VET-011 | Validacion de proveedor por Veterinary Service |
+| REQ-FIN-VET-012 | Sin subvencion fuera de jurisdiccion |
+| REQ-FIN-VET-013 | Auditoria completa con retencion 7 anos |
+| REQ-FIN-VET-014 | SLA de respuesta configurable |
+| REQ-SW-001 | Integracion ONVOPay via HTTPS/API Keys |
+| REQ-SW-FIN-010 | Obligacion municipal al aprobar subvencion |
+| REQ-SW-FIN-011 | Obligacion del rescatista si rechazada/expirada |
+| REQ-INT-001 | Adapter para ONVOPay |
+| REQ-INT-002 | Metodo alternativo si ONVOPay no esta |
+| REQ-REG-001 | KYC extendido > USD 1000 |
+| REQ-REG-002 | Reportes automaticos por patrones sospechosos |
+| REQ-REG-003 | Tokenizacion sin PAN completo |
+| REQ-REG-004 | Logs inmutables 7 anos |
+| REQ-REG-005 | Retencion de evidencias de auditoria |
+| REQ-DIS-004 | Cumplimiento PCI DSS nivel 1 |
+| REQ-DIS-005 | Cifrado AES-256 en reposo y TLS 1.3 en transito |
+| REQ-SEC-003 | Bloqueo por actividad sospechosa |
+| REQ-SEC-004 | KYC cifrado E2E y BD segregada |
+| REQ-SEC-007-C | Break-glass financiero/PCI |
+| REQ-PER-002 | 100+ TPS en transacciones financieras |
+| REQ-PER-007 | Reportes financieros <10s |
+| REQ-CONT-011 | Transferencia de donaciones activas |
+| REQ-DEATH-007 | Continuidad financiera por fallecimiento |
