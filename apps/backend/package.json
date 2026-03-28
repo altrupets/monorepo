@@ -29,6 +29,7 @@
     "@as-integrations/express5": "^1.1.2",
     "@godaddy/terminus": "^4.12.1",
     "@lapc506/nestjs-inertia": "^1.0.0",
+    "@modelcontextprotocol/sdk": "^1.28.0",
     "@nestjs-modules/mailer": "^2.3.4",
     "@nestjs/apollo": "^13.2.3",
     "@nestjs/cache-manager": "^3.1.0",
@@ -61,7 +62,8 @@
     "pg": "^8.16.3",
     "reflect-metadata": "^0.2.2",
     "rxjs": "^7.8.1",
-    "typeorm": "^0.3.19"
+    "typeorm": "^0.3.19",
+    "zod": "^4.3.6"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3.2.0",

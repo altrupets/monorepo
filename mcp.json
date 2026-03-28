@@ -59,6 +59,17 @@
       "env": {
         "AUTHORIZATION": "Bearer ${LINEAR_API_KEY}"
       }
+    },
+    "altrupets-backend": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "mcp-remote",
+        "http://localhost:3001/mcp"
+      ],
+      "env": {
+        "AUTHORIZATION": "Bearer ${ALTRUPETS_JWT_TOKEN}"
+      }
     }
   }
 }
