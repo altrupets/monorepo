@@ -9,9 +9,11 @@ import {
   OneToMany,
   Index,
 } from 'typeorm';
-import { ObjectType, Field, ID } from '@nestjs/graphql';
+import { ObjectType, Field, ID, registerEnumType } from '@nestjs/graphql';
 import { Point } from '../../types/geometry.types';
 import { CasaCuna } from '../../organizations/entities/casa-cuna.entity';
+import { AnimalSize } from '../../adoptions/enums/animal-size.enum';
+import { AgeCategory } from '../../adoptions/enums/age-category.enum';
 
 export enum AnimalSpecies {
   DOG = 'DOG',
@@ -22,9 +24,13 @@ export enum AnimalSpecies {
 export enum AnimalStatus {
   RESCUED = 'RESCUED',
   IN_CASA_CUNA = 'IN_CASA_CUNA',
+  READY_FOR_ADOPTION = 'READY_FOR_ADOPTION',
   ADOPTED = 'ADOPTED',
   RETURNED = 'RETURNED',
 }
+
+registerEnumType(AnimalSpecies, { name: 'AnimalSpecies' });
+registerEnumType(AnimalStatus, { name: 'AnimalStatus' });
 
 @ObjectType()
 @Entity('animals')
@@ -111,6 +117,26 @@ export class Animal {
   @Field({ nullable: true })
   @Column({ nullable: true })
   microchipId?: string;
+
+  @Field(() => AnimalSize, { nullable: true })
+  @Column({
+    type: 'enum',
+    enum: AnimalSize,
+    nullable: true,
+  })
+  size?: AnimalSize;
+
+  @Field(() => AgeCategory, { nullable: true })
+  @Column({
+    type: 'enum',
+    enum: AgeCategory,
+    nullable: true,
+  })
+  ageCategory?: AgeCategory;
+
+  @Field()
+  @Column({ default: false })
+  isSterilized: boolean;
 
   @Field()
   @CreateDateColumn()
