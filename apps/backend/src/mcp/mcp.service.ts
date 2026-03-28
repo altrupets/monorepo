@@ -221,7 +221,30 @@ export class McpService implements OnModuleInit {
           UserRole.GOVERNMENT_ADMIN,
         ]);
 
-        const casasCunas = await this.casasCunasService.findAll();
+        let casasCunas = await this.casasCunasService.findAll();
+
+        // Filter by jurisdiction's geographic area when jurisdictionId is provided
+        if (args.jurisdictionId) {
+          const jurisdiction = await this.jurisdictionsService.findOne(
+            args.jurisdictionId,
+          );
+          casasCunas = casasCunas.filter((cc) => {
+            if (jurisdiction.district) {
+              return (
+                cc.province === jurisdiction.province &&
+                cc.canton === jurisdiction.canton &&
+                cc.district === jurisdiction.district
+              );
+            }
+            if (jurisdiction.canton) {
+              return (
+                cc.province === jurisdiction.province &&
+                cc.canton === jurisdiction.canton
+              );
+            }
+            return cc.province === jurisdiction.province;
+          });
+        }
 
         const capacityData = casasCunas.map((cc) => ({
           id: cc.id,
@@ -304,9 +327,33 @@ export class McpService implements OnModuleInit {
           args.jurisdictionId,
         );
 
-        // Aggregate KPI data from multiple sources
-        const casasCunas = await this.casasCunasService.findAll();
-        const animals = await this.animalsService.findAll();
+        // Aggregate KPI data filtered by jurisdiction's geographic area
+        const allCasasCunas = await this.casasCunasService.findAll();
+        const allAnimals = await this.animalsService.findAll();
+
+        // Filter casas cunas by jurisdiction geography
+        const casasCunas = allCasasCunas.filter((cc) => {
+          if (jurisdiction.district) {
+            return (
+              cc.province === jurisdiction.province &&
+              cc.canton === jurisdiction.canton &&
+              cc.district === jurisdiction.district
+            );
+          }
+          if (jurisdiction.canton) {
+            return (
+              cc.province === jurisdiction.province &&
+              cc.canton === jurisdiction.canton
+            );
+          }
+          return cc.province === jurisdiction.province;
+        });
+
+        // Filter animals: those in a matching casa cuna within the jurisdiction
+        const casaCunaIds = new Set(casasCunas.map((cc) => cc.id));
+        const animals = allAnimals.filter(
+          (a) => a.casaCunaId && casaCunaIds.has(a.casaCunaId),
+        );
 
         const totalCapacity = casasCunas.reduce(
           (sum, cc) => sum + (cc.capacity ?? 0),
