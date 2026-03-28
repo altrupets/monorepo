@@ -6,13 +6,16 @@ import type { StringValue } from 'ms';
 import { AuthService } from './auth.service';
 import { JwtStrategy } from './jwt.strategy';
 import { AuthResolver } from './auth.resolver';
+import { AuthController } from './auth.controller';
 import { UsersModule } from '../users/users.module';
+import { MailModule } from '../mail/mail.module';
 
 @Module({
   imports: [
     PassportModule,
     ConfigModule,
     UsersModule,
+    MailModule,
     JwtModule.registerAsync({
       imports: [ConfigModule],
       useFactory: (configService: ConfigService) => ({
@@ -35,6 +38,7 @@ import { UsersModule } from '../users/users.module';
       inject: [ConfigService],
     }),
   ],
+  controllers: [AuthController],
   providers: [AuthService, JwtStrategy, AuthResolver],
   exports: [AuthService],
 })

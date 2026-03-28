@@ -5,15 +5,18 @@ import { ConfigService } from '@nestjs/config';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { User } from '../users/entities/user.entity';
 import { UserRole } from './roles/user-role.enum';
-import { UnauthorizedException } from '@nestjs/common';
+import { BadRequestException, UnauthorizedException } from '@nestjs/common';
 import { Cache } from 'cache-manager';
 import { createHash } from 'crypto';
+import { MailService } from '../mail/mail.service';
 
 describe('AuthService', () => {
   let service: AuthService;
   let mockUserRepository: any;
   let mockJwtService: any;
   let mockCacheManager: any;
+  let mockMailService: any;
+  let mockConfigService: any;
 
   const PASSWORD_SALT = 'test-salt-for-testing';
 
@@ -55,15 +58,23 @@ describe('AuthService', () => {
       del: jest.fn(),
     };
 
-    const mockConfigService = {
-      get: jest.fn((key: string, defaultValue?: string) => {
-        const config: Record<string, string> = {
+    mockMailService = {
+      sendVerificationEmail: jest.fn().mockResolvedValue(undefined),
+      sendPasswordResetEmail: jest.fn().mockResolvedValue(undefined),
+    };
+
+    mockConfigService = {
+      get: jest.fn((key: string, defaultValue?: any) => {
+        const config: Record<string, any> = {
           JWT_SECRET: 'test-secret-key',
           PASSWORD_SALT: 'test-salt',
           ACCESS_TOKEN_EXPIRY: '1h',
           REFRESH_TOKEN_EXPIRY: '7d',
+          APP_URL: 'http://localhost:3000',
+          EMAIL_VERIFICATION_TTL: 86400,
+          PASSWORD_RESET_TTL: 3600,
         };
-        return config[key] || defaultValue;
+        return config[key] ?? defaultValue;
       }),
     };
 
@@ -81,6 +92,10 @@ describe('AuthService', () => {
         {
           provide: 'CACHE_MANAGER',
           useValue: mockCacheManager,
+        },
+        {
+          provide: MailService,
+          useValue: mockMailService,
         },
         {
           provide: ConfigService,
@@ -228,6 +243,136 @@ describe('AuthService', () => {
       await expect(
         service.validateToken('invalid-token'),
       ).rejects.toThrow('Invalid token');
+    });
+  });
+
+  describe('sendVerificationEmail', () => {
+    it('should store token in cache and send email', async () => {
+      mockUserRepository.findById.mockResolvedValue({
+        ...mockUser,
+        email: 'test@example.com',
+      });
+
+      const result = await service.sendVerificationEmail(mockUser.id!);
+
+      expect(result).toBe(true);
+      expect(mockCacheManager.set).toHaveBeenCalledWith(
+        expect.stringMatching(/^verify:/),
+        mockUser.id,
+        86400000, // 86400 * 1000
+      );
+      // Mail is fire-and-forget so we wait a tick for the promise chain
+      await new Promise((r) => setTimeout(r, 10));
+      expect(mockMailService.sendVerificationEmail).toHaveBeenCalledWith(
+        'test@example.com',
+        mockUser.username,
+        expect.any(String),
+        'http://localhost:3000',
+      );
+    });
+
+    it('should return false when user has no email', async () => {
+      mockUserRepository.findById.mockResolvedValue({
+        ...mockUser,
+        email: undefined,
+      });
+
+      const result = await service.sendVerificationEmail(mockUser.id!);
+      expect(result).toBe(false);
+    });
+
+    it('should return false when user not found', async () => {
+      mockUserRepository.findById.mockResolvedValue(null);
+
+      const result = await service.sendVerificationEmail('non-existent-id');
+      expect(result).toBe(false);
+    });
+  });
+
+  describe('verifyEmailToken', () => {
+    it('should validate token and update user isVerified', async () => {
+      const userToVerify = { ...mockUser, isVerified: false };
+      mockCacheManager.get.mockResolvedValue(mockUser.id);
+      mockUserRepository.findById.mockResolvedValue(userToVerify);
+      mockUserRepository.save.mockResolvedValue({
+        ...userToVerify,
+        isVerified: true,
+      });
+
+      const result = await service.verifyEmailToken('valid-token');
+
+      expect(result).toBe(true);
+      expect(mockUserRepository.save).toHaveBeenCalledWith(
+        expect.objectContaining({ isVerified: true }),
+      );
+      expect(mockCacheManager.del).toHaveBeenCalledWith('verify:valid-token');
+    });
+
+    it('should throw BadRequestException for invalid token', async () => {
+      mockCacheManager.get.mockResolvedValue(null);
+
+      await expect(
+        service.verifyEmailToken('invalid-token'),
+      ).rejects.toThrow(BadRequestException);
+    });
+  });
+
+  describe('requestPasswordReset', () => {
+    it('should return true even when email does not exist', async () => {
+      mockUserRepository.findByEmail.mockResolvedValue(null);
+
+      const result = await service.requestPasswordReset('nonexistent@example.com');
+
+      expect(result).toBe(true);
+      expect(mockCacheManager.set).not.toHaveBeenCalled();
+    });
+
+    it('should store reset token in cache when user exists', async () => {
+      mockUserRepository.findByEmail.mockResolvedValue({
+        ...mockUser,
+        email: 'test@example.com',
+      });
+
+      const result = await service.requestPasswordReset('test@example.com');
+
+      expect(result).toBe(true);
+      expect(mockCacheManager.set).toHaveBeenCalledWith(
+        expect.stringMatching(/^reset:/),
+        mockUser.id,
+        3600000, // 3600 * 1000
+      );
+    });
+  });
+
+  describe('resetPasswordWithToken', () => {
+    it('should validate token and update password hash', async () => {
+      const userToReset = { ...mockUser, passwordHash: 'old-hash' };
+      mockCacheManager.get.mockResolvedValue(mockUser.id);
+      mockUserRepository.findById.mockResolvedValue(userToReset);
+      mockUserRepository.save.mockResolvedValue(userToReset);
+
+      const result = await service.resetPasswordWithToken(
+        'valid-reset-token',
+        'newPassword123',
+      );
+
+      expect(result).toBe(true);
+      expect(mockUserRepository.save).toHaveBeenCalledWith(
+        expect.objectContaining({
+          passwordHash: expect.not.stringMatching(/^old-hash$/),
+        }),
+      );
+      expect(mockCacheManager.del).toHaveBeenCalledWith(
+        'reset:valid-reset-token',
+      );
+    });
+
+    it('should throw BadRequestException for invalid token', async () => {
+      mockCacheManager.get.mockResolvedValue(null);
+
+      await expect(
+        service.resetPasswordWithToken('invalid-token', 'newPassword'),
+      ).rejects.toThrow(BadRequestException);
     });
   });
 });
