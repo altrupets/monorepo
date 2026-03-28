@@ -8,6 +8,7 @@ import { LoginInput } from './dto/login.input';
 import { RegisterInput } from './dto/register.input';
 import { ResetPasswordInput } from './dto/reset-password.input';
 import { GqlUser } from './gql-user.decorator';
+import { GqlThrottlerGuard } from './guards/gql-throttler.guard';
 import { JwtAuthGuard } from './jwt-auth.guard';
 import { RolesGuard } from './roles/roles.guard';
 import { Roles } from './roles/roles.decorator';
@@ -97,7 +98,7 @@ export class AuthResolver {
   // -- Email Verification --
 
   @Mutation(() => Boolean)
-  @UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard, GqlThrottlerGuard)
   @Throttle({ short: { ttl: 1000, limit: 3 } })
   async requestEmailVerification(@GqlUser() user: User) {
     return this.authService.sendVerificationEmail(user.id);
@@ -106,12 +107,15 @@ export class AuthResolver {
   // -- Password Reset --
 
   @Mutation(() => Boolean)
+  @UseGuards(GqlThrottlerGuard)
   @Throttle({ short: { ttl: 1000, limit: 3 } })
   async requestPasswordReset(@Args('email') email: string) {
     return this.authService.requestPasswordReset(email);
   }
 
   @Mutation(() => Boolean)
+  @UseGuards(GqlThrottlerGuard)
+  @Throttle({ short: { ttl: 1000, limit: 3 } })
   async resetPassword(
     @Args('input') input: ResetPasswordInput,
   ) {
