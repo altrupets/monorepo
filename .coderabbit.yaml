@@ -1,0 +1,25 @@
+language: es
+reviews:
+  auto_review:
+    enabled: true
+    drafts: false
+  request_changes_workflow: true
+  high_level_summary: true
+  poem: false
+  review_status: true
+  path_filters:
+    - "!**/*.lock"
+    - "!**/node_modules/**"
+    - "!**/.dart_tool/**"
+    - "!**/build/**"
+  path_instructions:
+    - path: "apps/backend/**"
+      instructions: "NestJS 11 + TypeORM + PostgreSQL + GraphQL code-first. Follow CLAUDE.md conventions."
+    - path: "apps/mobile/**"
+      instructions: "Flutter + Riverpod + Clean Architecture. Follow CLAUDE.md conventions."
+    - path: "k8s/**"
+      instructions: "Kustomize base/overlays pattern. Check for resource limits, probes, and security contexts."
+    - path: "openspec/**"
+      instructions: "OpenSpec spec library and change artifacts. Verify Mermaid diagrams render correctly."
+chat:
+  auto_reply: true
