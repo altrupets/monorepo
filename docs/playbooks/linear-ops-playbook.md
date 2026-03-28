@@ -177,9 +177,11 @@ Un solo team con 8 proyectos que cubren todo el stack:
 | **Mobile App** | Flutter, Riverpod, Clean Architecture |
 | **Agent AI** | agentic-core sidecar, LangGraph, FalkorDB |
 | **Infrastructure & DevOps** | K8s, Terraform, ArgoCD, CI/CD |
-| **Web -- B2G** | Vue 3 panel gubernamental (migración a Flutter Web/Jaspr evaluándose) |
-| **Web -- CRUD Superusers** | Vue 3 panel admin (migración a Flutter Web/Jaspr evaluándose) |
-| **Diseño y Control Calidad** | UX/UI, QA |
+| **Web -- B2G** | Vue 3 panel gubernamental |
+|   | Migración a Flutter Web/Jaspr en evaluación (ALT-40) |
+| **Web -- CRUD Superusers** | Vue 3 panel admin |
+|   | Migración a Flutter Web/Jaspr en evaluación (ALT-41) |
+| **Diseño y Control de Calidad** | UX/UI, QA |
 | **Operaciones** | Admin, legal, partnerships |
 
 ---
@@ -214,17 +216,21 @@ Y también: **Canceled** (documentar por qué) + **Duplicate** (linkear original
 
 # Principios de Diseño de Labels
 
-- **Labels agregan lo que Linear no tiene** -- Linear ya tiene Priority, Status, Estimates, Projects, Cycles. Labels agregan: Type, Component, Business Impact, y AI Strategy.
-
-- **Grupos = mutuamente exclusivos** -- Label Groups fuerzan UN label por grupo por issue. Un issue es UN tipo, UN tamaño, UNA estrategia.
-
-- **Sin grupo = combinables** -- Labels de Component pueden superponerse (Frontend + Security + Testing).
-
-- **Cada label tiene descripción** -- Las descripciones definen CUÁNDO y CUÁNDO NO usar cada label.
-
-- **A nivel de workspace** -- Los 31 labels son visibles para todos los proyectos.
-
-- **El color codifica la categoría** -- Cada grupo tiene una familia de colores.
+- **Labels agregan lo que Linear no tiene**
+  - Linear ya tiene Priority, Status, Estimates, Projects, Cycles
+  - Labels agregan: Type, Component, Business Impact, y AI Strategy
+- **Grupos = mutuamente exclusivos**
+  - Label Groups fuerzan UN label por grupo por issue
+  - Un issue es UN tipo, UN tamaño, UNA estrategia
+- **Sin grupo = combinables**
+  - Labels de Component pueden superponerse
+  - Ejemplo: Frontend + Security + Testing en un mismo issue
+- **Cada label tiene descripción**
+  - Las descripciones definen CUÁNDO y CUÁNDO NO usar cada label
+- **A nivel de workspace**
+  - Los 31 labels son visibles para todos los proyectos
+- **El color codifica la categoría**
+  - Cada grupo tiene una familia de colores para identificación visual
 
 ---
 
@@ -239,39 +245,39 @@ Y también: **Canceled** (documentar por qué) + **Duplicate** (linkear original
 
 | Label | Descripción |
 |-------|-------------|
-| **Bug** | Algo está roto |
-| **Feature** | Capacidad nueva |
-| **Improvement** | Mejora existente |
-| **Chore** | Mantenimiento |
-| **Spike** | Investigación |
-| **Design** | UI/UX, creativo |
+| **Bug** | Algo está roto. Crashes, errores, violaciones de spec. |
+| **Feature** | Capacidad nueva que no existe. Endpoint, página, evento. |
+| **Improvement** | Mejora a funcionalidad existente. UX, perf, refactor. |
+| **Chore** | Mantenimiento. Sin cambio visible. Deps, CI/CD, docs. |
+| **Spike** | Investigación acotada. Output = conocimiento. ADR, PoC. |
+| **Design** | UI/UX o creativo. Mockups, design system, branding. |
 
 </div>
 <div>
 
 ### Size (exclusivo, tokens IA)
 
-| Label | Tokens | Tiempo |
-|-------|--------|--------|
-| **XS** | <50K | ~30 min |
-| **S** | 50-100K | ~2-4 hrs |
-| **M** | 100-200K | ~1-2 días |
-| **L** | 200-500K | ~3-5 días |
-| **XL** | 500K+ | Descomponer |
+| Label | Tokens | Tiempo | Ejemplo |
+|-------|--------|--------|---------|
+| **XS** | <50K | ~30 min | Un archivo, typo, config |
+| **S** | 50-100K | ~2-4 hrs | Componente, hook, migración |
+| **M** | 100-200K | ~1-2 días | Frontend + backend + tests |
+| **L** | 200-500K | ~3-5 días | Cross-layer, arquitectura |
+| **XL** | 500K+ | Descomponer | Epic, múltiples PRs |
 
 </div>
 <div>
 
 ### Strategy (exclusivo, agente IA)
 
-| Label | Cuándo |
-|-------|--------|
-| **Solo** | Reqs claros, ejecutar |
-| **Team** | Paralelo multi-agente |
-| **Worktree** | Aislamiento riesgoso |
-| **Explore** | Investigar primero |
-| **Human** | Decisión humana |
-| **Review** | Solo auditoría |
+| Label | Cuándo usarlo |
+|-------|---------------|
+| **Solo** | Reqs claros, un agente end-to-end |
+| **Team** | Múltiples agentes en paralelo |
+| **Worktree** | Aislamiento. Cambios riesgosos |
+| **Explore** | Investigar codebase primero |
+| **Human** | Requiere decisión humana |
+| **Review** | Solo auditoría, sin código |
 
 </div>
 </div>
@@ -318,10 +324,11 @@ Issues pueden tener múltiples labels de estas categorías.
 | **Quick Win** | <2 horas, alto impacto |
 | **Epic** | Contenedor padre con sub-issues |
 
-**Total: 31 labels** = 3 Grupos (17) + Component (8) + Impact (3) + Flags (3)
 
 </div>
 </div>
+
+**Total: 31 labels** = 3 Grupos (17) + Component (8) + Impact (3) + Flags (3)
 
 ---
 
@@ -343,7 +350,7 @@ ALT-XX -- Feature -- Human -- Revenue
 # 03
 
 ## Escribiendo Buenos Issues
-El Template Bilingüe -- diseñado para humanos Y agentes IA
+El template bilingüe -- diseñado para humanos Y agentes IA
 
 ---
 
@@ -356,22 +363,32 @@ Cada issue debe ser legible y valioso para humanos que orquestan Y agentes que e
 
 ### Capa Humana
 
-- **User Story** -- Como [rol], quiero [X] para que [Y]
-- **Background / Por qué** -- 2-3 párrafos, lenguaje llano
-- **Analogía** -- Comparar con algo familiar
-- **UX / Referencia Visual** -- Screenshots, links Figma
-- **Pitfalls Conocidos** -- Edge cases, data legacy
+- **User Story**
+  - Como [rol], quiero [X] para que [Y]
+- **Background / Por qué**
+  - 2-3 párrafos, lenguaje llano
+- **Analogía**
+  - Comparar con algo familiar
+- **UX / Referencia Visual**
+  - Screenshots, links Figma
+- **Pitfalls Conocidos**
+  - Edge cases, data legacy
 
 </div>
 <div>
 
 ### Capa Agente
 
-- **Objetivo** -- 1-2 oraciones, outcome técnico
-- **Context Files** -- Paths exactos con descripción
-- **Acceptance Criteria** -- Checkboxes, testeables
-- **Technical Constraints** -- Patrones a seguir
-- **Verification Commands** -- Comandos bash exactos
+- **Objetivo**
+  - 1-2 oraciones, outcome técnico
+- **Context Files**
+  - Paths exactos con descripción
+- **Acceptance Criteria**
+  - Checkboxes, testeables
+- **Technical Constraints**
+  - Patrones a seguir
+- **Verification Commands**
+  - Comandos bash exactos
 - **Context Budget + Agent Strategy**
 
 </div>
@@ -443,13 +460,11 @@ Al implementar y archivar, las deltas se fusionan de vuelta en la spec library.
 
 # El Flujo OpenSpec
 
-```
-1. /opsx:propose "descripción"    --> Crea proposal + design + tasks
-
-2. /opsx:apply nombre-del-change  --> Lee artefactos, implementa task por task
-
-3. /opsx:archive nombre-del-change --> Fusiona deltas en spec library
-```
+| Comando | Acción |
+|---------|--------|
+| `/opsx:propose "descripción"` | Crea proposal + design + tasks |
+| `/opsx:apply nombre-del-change` | Lee artefactos, implementa task por task |
+| `/opsx:archive nombre-del-change` | Fusiona deltas en spec library |
 
 ### Integración con Linear
 
@@ -513,11 +528,13 @@ Ningún issue debería requerir más contexto que una ventana de Claude (200K to
 
 ### Mapeo Size a Mecanismo
 
-- **XS/S** --> Solo (sin paralelización)
-- **M con un componente** --> Solo o Subagents para research
-- **M con múltiples componentes** --> Agent Teams (2 teammates)
-- **L** --> Agent Teams (2-3 teammates) o Worktree si riesgoso
-- **XL** --> Descomponer primero, luego Agent Teams por sub-issue
+| Size | --> | Mecanismo |
+|------|-----|-----------|
+| **XS/S** | --> | Solo (sin paralelización) |
+| **M** (un componente) | --> | Solo o Subagents para research |
+| **M** (múltiples componentes) | --> | Agent Teams (2 teammates) |
+| **L** | --> | Agent Teams (2-3) o Worktree si riesgoso |
+| **XL** | --> | Descomponer primero, Agent Teams por sub-issue |
 
 ---
 
@@ -548,15 +565,24 @@ Triage semanal, gobernanza de labels, y reglas del camino
 
 ### Triage Semanal (Viernes)
 
-Revisar top 10 issues sin asignar. Aplicar template bilingüe a issues de alta prioridad. Asignar a ciclo de sprint. Re-verificar conteo de Urgent -- máx 5-7 en todo el workspace.
+- Revisar top 10 issues sin asignar
+- Aplicar template bilingüe a issues de alta prioridad
+- Asignar a ciclo de sprint
+- Re-verificar conteo de Urgent
+  - Máx 5-7 en todo el workspace
 
 ### Auditoría de Labels (Mensual)
 
-Ejecutar `/linear-projects-setup audit`. Verificar que no se crearon labels no autorizados. Confirmar que todos los issues abiertos tienen label Type. Archivar labels en desuso.
+- Ejecutar `/linear-projects-setup audit`
+- Verificar que no se crearon labels no autorizados
+- Confirmar que todos los issues abiertos tienen label Type
+- Archivar labels en desuso
 
 ### Poda de Backlog (Trimestral)
 
-Cancelar issues stale >90 días sin actividad. Re-priorizar issues Urgent (matar inflación). Descomponer cualquier issue XL restante.
+- Cancelar issues stale >90 días sin actividad
+- Re-priorizar issues Urgent (matar inflación)
+- Descomponer cualquier issue XL restante
 
 ---
 
@@ -579,7 +605,9 @@ Todos los commits siguen el estándar [Conventional Commits](https://gist.github
 
 ### Formato
 
-`<tipo>[scope opcional]: <descripción>`
+| Elemento | Separador | Elemento | Resultado |
+|----------|-----------|----------|-----------|
+| `<tipo>` | `(scope):` | `<descripción>` | `feat(backend): add subsidy endpoint` |
 
 ### Tipos permitidos
 
@@ -609,20 +637,23 @@ Agregar `!` después del tipo o `BREAKING CHANGE:` en el footer:
 
 ### Scopes comunes en AltruPets
 
-| Scope | Cuándo |
-|-------|--------|
-| `backend` | Cambios en `apps/backend/` |
-| `mobile` | Cambios en `apps/mobile/` |
-| `infra` | Cambios en `k8s/`, `infrastructure/` |
-| `web` | Cambios en `apps/web/` |
-| `openspec` | Cambios en `openspec/` |
-| `agent` | Cambios en `apps/agent-sidecar/` |
+- **`backend`**
+  - Cambios en `apps/backend/`
+- **`mobile`**
+  - Cambios en `apps/mobile/`
+- **`infra`**
+  - Cambios en `k8s/`, `infrastructure/`
+- **`web`**
+  - Cambios en `apps/web/`
+- **`openspec`**
+  - Cambios en `openspec/`
+- **`agent`**
+  - Cambios en `apps/agent-sidecar/`
 
-#### Ejemplo completo
+### Ejemplos completos
 
-`feat(backend): add veterinary subsidy request endpoint`
-
-`fix(mobile)!: replace dual auth system with unified AuthNotifier`
+- `feat(backend): add veterinary subsidy request endpoint`
+- `fix(mobile)!: replace dual auth system with unified AuthNotifier`
 
 ---
 
