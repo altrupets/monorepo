@@ -11,42 +11,39 @@
 
 Representa un animal publicado como disponible para adopcion. Se crea cuando el rescatista marca un animal existente (entidad `Animal`, status `IN_CASA_CUNA`) como listo para adoptar.
 
-```
-AdoptionListing
-├── id: UUID (PK)
-├── animalId: UUID (FK -> animals.id, UNIQUE)
-├── publishedByUserId: UUID (FK -> users.id)
-├── casaCunaId: UUID (FK -> casas_cunas.id)
-├── status: AdoptionListingStatus (enum)
-│
-├── // Datos de presentacion
-├── title: string
-├── description: text
-├── photos: string[] (URLs, min 1, max 10)
-├── temperament: string[] (ej: ['tranquilo', 'jugueton', 'bueno_con_ninos'])
-├── specialNeeds: text (nullable)
-├── medicalSummary: text (resumen del historial medico)
-│
-├── // Filtros de busqueda
-├── species: AnimalSpecies (DOG, CAT, OTHER) — derivado de Animal
-├── size: AnimalSize (SMALL, MEDIUM, LARGE) — nuevo campo
-├── ageCategory: AgeCategory (PUPPY_KITTEN, YOUNG, ADULT, SENIOR)
-├── isChildFriendly: boolean
-├── isGoodWithOtherPets: boolean
-├── isSterilized: boolean
-├── location: Point (geometry, SRID 4326) — heredado de CasaCuna
-│
-├── // Requisitos del adoptante
-├── requirements: text (condiciones que pone el rescatista)
-├── requiresYard: boolean (default false)
-├── requiresExperience: boolean (default false)
-│
-├── // Auditoria
-├── publishedAt: timestamp
-├── closedAt: timestamp (nullable)
-├── createdAt: timestamp
-└── updatedAt: timestamp
-```
+**AdoptionListing**
+
+| Campo | Tipo | Notas |
+|-------|------|-------|
+| id | UUID (PK) | |
+| animalId | UUID (FK -> animals.id, UNIQUE) | |
+| publishedByUserId | UUID (FK -> users.id) | |
+| casaCunaId | UUID (FK -> casas_cunas.id) | |
+| status | AdoptionListingStatus (enum) | |
+| **Datos de presentacion** | | |
+| title | string | |
+| description | text | |
+| photos | string[] | URLs, min 1, max 10 |
+| temperament | string[] | ej: ['tranquilo', 'jugueton', 'bueno_con_ninos'] |
+| specialNeeds | text (nullable) | |
+| medicalSummary | text | resumen del historial medico |
+| **Filtros de busqueda** | | |
+| species | AnimalSpecies (DOG, CAT, OTHER) | derivado de Animal |
+| size | AnimalSize (SMALL, MEDIUM, LARGE) | nuevo campo |
+| ageCategory | AgeCategory (PUPPY_KITTEN, YOUNG, ADULT, SENIOR) | |
+| isChildFriendly | boolean | |
+| isGoodWithOtherPets | boolean | |
+| isSterilized | boolean | |
+| location | Point (geometry, SRID 4326) | heredado de CasaCuna |
+| **Requisitos del adoptante** | | |
+| requirements | text | condiciones que pone el rescatista |
+| requiresYard | boolean (default false) | |
+| requiresExperience | boolean (default false) | |
+| **Auditoria** | | |
+| publishedAt | timestamp | |
+| closedAt | timestamp (nullable) | |
+| createdAt | timestamp | |
+| updatedAt | timestamp | |
 
 **Enum AdoptionListingStatus:**
 - `DRAFT` — Listado creado pero no publicado
@@ -66,47 +63,44 @@ AdoptionListing
 
 Representa la solicitud de adopcion enviada por un adoptante para un listado especifico.
 
-```
-AdoptionApplication
-├── id: UUID (PK)
-├── listingId: UUID (FK -> adoption_listings.id)
-├── applicantUserId: UUID (FK -> users.id)
-├── reviewerUserId: UUID (FK -> users.id, nullable)
-├── status: ApplicationStatus (enum)
-│
-├── // Cuestionario del hogar
-├── housingType: HousingType (HOUSE, APARTMENT, FARM, OTHER)
-├── hasYard: boolean
-├── yardSize: string (nullable)
-├── householdMembers: int
-├── hasChildren: boolean
-├── childrenAges: string (nullable, descripcion)
-├── hasOtherPets: boolean
-├── otherPetsDescription: string (nullable)
-├── previousPetExperience: text
-├── dailyHoursAlone: int (horas que el animal estaria solo)
-├── adoptionMotivation: text
-├── additionalNotes: text (nullable)
-│
-├── // Datos de contacto del solicitante
-├── contactPhone: string
-├── contactEmail: string
-├── preferredContactMethod: ContactMethod (PHONE, EMAIL, WHATSAPP)
-│
-├── // Proceso de revision
-├── reviewNotes: text (nullable, notas internas del rescatista)
-├── visitScheduledAt: timestamp (nullable)
-├── visitCompletedAt: timestamp (nullable)
-├── visitNotes: text (nullable)
-├── rejectionReason: text (nullable)
-│
-├── // Auditoria
-├── submittedAt: timestamp
-├── reviewedAt: timestamp (nullable)
-├── resolvedAt: timestamp (nullable)
-├── createdAt: timestamp
-└── updatedAt: timestamp
-```
+**AdoptionApplication**
+
+| Campo | Tipo | Notas |
+|-------|------|-------|
+| id | UUID (PK) | |
+| listingId | UUID (FK -> adoption_listings.id) | |
+| applicantUserId | UUID (FK -> users.id) | |
+| reviewerUserId | UUID (FK -> users.id, nullable) | |
+| status | ApplicationStatus (enum) | |
+| **Cuestionario del hogar** | | |
+| housingType | HousingType (HOUSE, APARTMENT, FARM, OTHER) | |
+| hasYard | boolean | |
+| yardSize | string (nullable) | |
+| householdMembers | int | |
+| hasChildren | boolean | |
+| childrenAges | string (nullable) | descripcion |
+| hasOtherPets | boolean | |
+| otherPetsDescription | string (nullable) | |
+| previousPetExperience | text | |
+| dailyHoursAlone | int | horas que el animal estaria solo |
+| adoptionMotivation | text | |
+| additionalNotes | text (nullable) | |
+| **Datos de contacto del solicitante** | | |
+| contactPhone | string | |
+| contactEmail | string | |
+| preferredContactMethod | ContactMethod (PHONE, EMAIL, WHATSAPP) | |
+| **Proceso de revision** | | |
+| reviewNotes | text (nullable) | notas internas del rescatista |
+| visitScheduledAt | timestamp (nullable) | |
+| visitCompletedAt | timestamp (nullable) | |
+| visitNotes | text (nullable) | |
+| rejectionReason | text (nullable) | |
+| **Auditoria** | | |
+| submittedAt | timestamp | |
+| reviewedAt | timestamp (nullable) | |
+| resolvedAt | timestamp (nullable) | |
+| createdAt | timestamp | |
+| updatedAt | timestamp | |
 
 **Enum ApplicationStatus:**
 - `SUBMITTED` — Solicitud enviada, pendiente de revision
@@ -139,26 +133,16 @@ AdoptionApplication
 
 ### 2.1 Flujo del Listado (AdoptionListing)
 
-```
-                  publicar()
-  ┌───────┐     ───────────>    ┌────────┐
-  │ DRAFT │                     │ ACTIVE │<──────────┐
-  └───────┘                     └────────┘           │
-                                  │    │             │ reactivar()
-                                  │    │  pausar()   │
-                                  │    └─────> ┌────────┐
-                                  │            │ PAUSED │
-                                  │            └────────┘
-                                  │
-                    ┌─────────────┼──────────────┐
-                    │ cerrar()    │              │ cerrar()
-                    v             │              v
-           ┌────────────────┐    │    ┌───────────────────┐
-           │ CLOSED_ADOPTED │    │    │ CLOSED_WITHDRAWN  │
-           └────────────────┘    │    └───────────────────┘
-                                 │
-                        (el listado ACTIVE
-                         recibe solicitudes)
+```mermaid
+stateDiagram-v2
+    DRAFT --> ACTIVE : publicar()
+    ACTIVE --> PAUSED : pausar()
+    PAUSED --> ACTIVE : reactivar()
+    ACTIVE --> CLOSED_ADOPTED : cerrar()
+    ACTIVE --> CLOSED_WITHDRAWN : cerrar()
+    PAUSED --> CLOSED_WITHDRAWN : cerrar()
+
+    note right of ACTIVE : El listado ACTIVE recibe solicitudes
 ```
 
 **Transiciones validas:**
@@ -178,23 +162,14 @@ AdoptionApplication
 
 ### 2.2 Flujo de Solicitud (AdoptionApplication)
 
-```
-                    revisar()           agendar_visita()
-  ┌───────────┐   ──────────>  ┌───────────┐  ──────────>  ┌──────────────────┐
-  │ SUBMITTED │                │ IN_REVIEW │                │ VISIT_SCHEDULED  │
-  └───────────┘                └───────────┘                └──────────────────┘
-                                    │                              │
-                                    │ rechazar()                   │ completar_visita()
-                                    │                              v
-                                    │                    ┌──────────────────┐
-                                    │                    │ VISIT_COMPLETED  │
-                                    │                    └──────────────────┘
-                                    │                       │            │
-                                    v                       │ aprobar()  │ rechazar()
-                              ┌──────────┐                  v            v
-                              │ REJECTED │<────────    ┌──────────┐ ┌──────────┐
-                              └──────────┘             │ APPROVED │ │ REJECTED │
-                                                       └──────────┘ └──────────┘
+```mermaid
+stateDiagram-v2
+    SUBMITTED --> IN_REVIEW : revisar()
+    IN_REVIEW --> VISIT_SCHEDULED : agendar_visita()
+    IN_REVIEW --> REJECTED : rechazar()
+    VISIT_SCHEDULED --> VISIT_COMPLETED : completar_visita()
+    VISIT_COMPLETED --> APPROVED : aprobar()
+    VISIT_COMPLETED --> REJECTED : rechazar()
 ```
 
 **Transiciones validas:**
@@ -298,36 +273,13 @@ rejectAdoptionApplication(id: ID!, reason: String!): AdoptionApplication!
 
 **Pantalla principal para adoptantes.** Accesible desde el tab de navegacion principal.
 
-```
-┌──────────────────────────────────┐
-│ [<]  Adopciones          [filtro]│
-├──────────────────────────────────┤
-│ ┌──────────────────────────────┐ │
-│ │ [Perros] [Gatos] [Todos]    │ │  <- Chips de especie
-│ └──────────────────────────────┘ │
-│                                  │
-│ ┌─────────────┐ ┌─────────────┐ │
-│ │  ┌───────┐  │ │  ┌───────┐  │ │
-│ │  │ foto  │  │ │  │ foto  │  │ │
-│ │  └───────┘  │ │  └───────┘  │ │
-│ │  Luna       │ │  Max        │ │  <- Grid de cards
-│ │  Perra, 2a  │ │  Gato, 1a   │ │
-│ │  San Jose   │ │  Heredia    │ │
-│ │  ♡          │ │  ♡          │ │
-│ └─────────────┘ └─────────────┘ │
-│                                  │
-│ ┌─────────────┐ ┌─────────────┐ │
-│ │  ┌───────┐  │ │  ┌───────┐  │ │
-│ │  │ foto  │  │ │  │ foto  │  │ │
-│ │  └───────┘  │ │  └───────┘  │ │
-│ │  Rocky      │ │  Mimi       │ │
-│ │  Perro, 5a  │ │  Gata, 3a   │ │
-│ │  Cartago    │ │  Alajuela   │ │
-│ └─────────────┘ └─────────────┘ │
-│                                  │
-│         [Cargar mas...]          │
-└──────────────────────────────────┘
-```
+**Layout:** Pantalla con AppBar (titulo "Adopciones", icono filtro), fila de chips de especie (Perros / Gatos / Todos), grid de 2 columnas con cards. Cada card muestra: foto del animal, nombre, especie y edad, ubicacion, icono de favorito. Al final: boton "Cargar mas..."
+
+**Ejemplo de cards:**
+- Luna, Perra 2a, San Jose
+- Max, Gato 1a, Heredia
+- Rocky, Perro 5a, Cartago
+- Mimi, Gata 3a, Alajuela
 
 **Bottom sheet de filtros (al tocar icono filtro):**
 - Especie (chips)
@@ -341,195 +293,72 @@ rejectAdoptionApplication(id: ID!, reason: String!): AdoptionApplication!
 
 ### 4.2 Detalle del Listado — `/adoptions/{id}`
 
-```
-┌──────────────────────────────────┐
-│ [<]                       [...]  │
-├──────────────────────────────────┤
-│ ┌──────────────────────────────┐ │
-│ │                              │ │
-│ │     Carrusel de fotos        │ │  <- PageView con indicador
-│ │     (swipe horizontal)       │ │
-│ │                              │ │
-│ └──────────────────────────────┘ │
-│  . o . . .                       │  <- Indicador de pagina
-│                                  │
-│  Luna                            │
-│  Perra mestiza · 2 anos · Mediana│
-│  San Jose, Costa Rica            │
-│                                  │
-│  ── Temperamento ──              │
-│  [Tranquila] [Juguetona]         │
-│  [Buena con ninos]               │
-│                                  │
-│  ── Sobre Luna ──                │
-│  Luna fue rescatada en febrero   │
-│  de 2026. Es una perra muy       │
-│  carinosa que adora los ninos... │
-│                                  │
-│  ── Historial Medico ──          │
-│  Vacunas al dia, esterilizada,   │
-│  desparasitada. Sin condiciones  │
-│  especiales.                     │
-│                                  │
-│  ── Requisitos ──                │
-│  Hogar con patio. Experiencia    │
-│  previa con perros preferible.   │
-│                                  │
-│  Casa cuna: Patitas Felices      │
-│  Publicado hace 3 dias           │
-│                                  │
-│ ┌──────────────────────────────┐ │
-│ │    [Solicitar Adopcion]      │ │  <- Sticky bottom button
-│ └──────────────────────────────┘ │
-└──────────────────────────────────┘
-```
+**Layout:** Pantalla con AppBar (boton back, menu overflow). Componentes de arriba hacia abajo:
+
+1. **Carrusel de fotos** (PageView con indicador de pagina, swipe horizontal)
+2. **Info basica**: Nombre (Luna), especie/edad/tamano (Perra mestiza, 2 anos, Mediana), ubicacion (San Jose, Costa Rica)
+3. **Seccion Temperamento**: Chips (Tranquila, Juguetona, Buena con ninos)
+4. **Seccion Sobre Luna**: Descripcion textual del animal
+5. **Seccion Historial Medico**: Resumen de vacunas, esterilizacion, condiciones
+6. **Seccion Requisitos**: Condiciones del rescatista para el adoptante
+7. **Info adicional**: Casa cuna (Patitas Felices), fecha de publicacion (hace 3 dias)
+8. **Boton sticky inferior**: "Solicitar Adopcion"
 
 ### 4.3 Formulario de Solicitud — `/adoptions/{id}/apply`
 
-```
-┌──────────────────────────────────┐
-│ [<]  Solicitud de Adopcion       │
-├──────────────────────────────────┤
-│                                  │
-│  Estas solicitando adoptar a:    │
-│  ┌──────────────────────────────┐│
-│  │ [foto] Luna · Perra, 2a     ││
-│  └──────────────────────────────┘│
-│                                  │
-│  ── Tu Hogar ──                  │
-│                                  │
-│  Tipo de vivienda               │
-│  [Casa ▼]                        │
-│                                  │
-│  Tiene patio?  [Si] [No]        │
-│  Tamano del patio: [________]    │
-│                                  │
-│  ── Tu Familia ──               │
-│                                  │
-│  Miembros del hogar: [___]       │
-│  Hay ninos?  [Si] [No]          │
-│  Edades de los ninos: [________] │
-│                                  │
-│  Tiene otras mascotas? [Si] [No]│
-│  Cuales: [____________________]  │
-│                                  │
-│  ── Experiencia ──              │
-│                                  │
-│  Experiencia previa con mascotas │
-│  [____________________________]  │
-│  [____________________________]  │
-│                                  │
-│  Horas diarias que el animal     │
-│  estaria solo: [___]             │
-│                                  │
-│  Motivacion para adoptar         │
-│  [____________________________]  │
-│  [____________________________]  │
-│                                  │
-│  ── Contacto ──                 │
-│                                  │
-│  Telefono: [_______________]     │
-│  Email: [___________________]    │
-│  Contacto preferido:             │
-│  [Telefono] [Email] [WhatsApp]   │
-│                                  │
-│  Notas adicionales (opcional)    │
-│  [____________________________]  │
-│                                  │
-│ ┌──────────────────────────────┐ │
-│ │     [Enviar Solicitud]       │ │
-│ └──────────────────────────────┘ │
-└──────────────────────────────────┘
-```
+**Layout:** Pantalla con AppBar (titulo "Solicitud de Adopcion"). Componentes de arriba hacia abajo:
+
+1. **Resumen del animal**: Card con foto, nombre y datos (Luna, Perra 2a)
+2. **Seccion Tu Hogar**:
+   - Tipo de vivienda (dropdown: Casa, Apartamento, etc.)
+   - Tiene patio? (toggle Si/No)
+   - Tamano del patio (campo de texto condicional)
+3. **Seccion Tu Familia**:
+   - Miembros del hogar (campo numerico)
+   - Hay ninos? (toggle Si/No)
+   - Edades de los ninos (campo de texto condicional)
+   - Tiene otras mascotas? (toggle Si/No)
+   - Cuales (campo de texto condicional)
+4. **Seccion Experiencia**:
+   - Experiencia previa con mascotas (textarea)
+   - Horas diarias que el animal estaria solo (campo numerico)
+   - Motivacion para adoptar (textarea)
+5. **Seccion Contacto**:
+   - Telefono (campo de texto)
+   - Email (campo de texto)
+   - Contacto preferido (chips: Telefono, Email, WhatsApp)
+6. **Notas adicionales** (textarea opcional)
+7. **Boton inferior**: "Enviar Solicitud"
 
 ### 4.4 Revision de Solicitudes (Rescatista) — `/casa-cuna/adoptions/{id}/review`
 
-```
-┌──────────────────────────────────┐
-│ [<]  Solicitudes para Luna       │
-├──────────────────────────────────┤
-│                                  │
-│  3 solicitudes recibidas         │
-│                                  │
-│  ┌──────────────────────────────┐│
-│  │ Maria Elena Vargas           ││
-│  │ Enviada hace 2 dias          ││
-│  │ Estado: SUBMITTED            ││
-│  │ Casa con patio · Sin ninos   ││
-│  │ Experiencia: 5 anos          ││
-│  │              [Ver detalle >] ││
-│  └──────────────────────────────┘│
-│                                  │
-│  ┌──────────────────────────────┐│
-│  │ Carlos Jimenez               ││
-│  │ Enviada hace 1 dia           ││
-│  │ Estado: IN_REVIEW            ││
-│  │ Apartamento · 2 ninos        ││
-│  │ Experiencia: 2 anos          ││
-│  │              [Ver detalle >] ││
-│  └──────────────────────────────┘│
-│                                  │
-│  ┌──────────────────────────────┐│
-│  │ Ana Mora                     ││
-│  │ Enviada hoy                  ││
-│  │ Estado: SUBMITTED            ││
-│  │ Casa con patio · 1 perro     ││
-│  │ Experiencia: 10 anos         ││
-│  │              [Ver detalle >] ││
-│  └──────────────────────────────┘│
-└──────────────────────────────────┘
-```
+**Layout:** Pantalla con AppBar (titulo "Solicitudes para Luna"). Muestra contador ("3 solicitudes recibidas") seguido de lista vertical de cards. Cada card muestra:
+
+- Nombre del solicitante
+- Tiempo desde envio
+- Estado (badge con color)
+- Resumen del hogar (tipo vivienda, ninos, mascotas)
+- Experiencia
+- Boton "Ver detalle >"
+
+**Ejemplo de solicitudes:**
+- Maria Elena Vargas: hace 2 dias, SUBMITTED, casa con patio, sin ninos, 5 anos experiencia
+- Carlos Jimenez: hace 1 dia, IN_REVIEW, apartamento, 2 ninos, 2 anos experiencia
+- Ana Mora: hoy, SUBMITTED, casa con patio, 1 perro, 10 anos experiencia
 
 ### 4.5 Detalle de Solicitud + Acciones — `/casa-cuna/adoptions/{appId}`
 
-```
-┌──────────────────────────────────┐
-│ [<]  Solicitud de Maria Elena    │
-├──────────────────────────────────┤
-│                                  │
-│  Estado: IN_REVIEW               │
-│  Animal: Luna (Perra, 2a)        │
-│  Enviada: 26 marzo 2026          │
-│                                  │
-│  ── Datos del Hogar ──          │
-│  Vivienda: Casa                  │
-│  Patio: Si, 50 m2               │
-│  Miembros: 2 adultos             │
-│  Ninos: No                       │
-│  Otras mascotas: No              │
-│                                  │
-│  ── Experiencia ──              │
-│  "He tenido perros toda mi vida. │
-│   Mi ultimo perro vivio 14 anos  │
-│   conmigo..."                    │
-│                                  │
-│  Horas solo: 4                   │
-│                                  │
-│  ── Motivacion ──               │
-│  "Quiero darle un hogar amoroso  │
-│   a un animal que lo necesita..."│
-│                                  │
-│  ── Contacto ──                 │
-│  Tel: +506 8888-1234             │
-│  Email: maria@email.com          │
-│  Preferido: WhatsApp             │
-│                                  │
-│  ── Notas del Rescatista ──     │
-│  [____________________________]  │
-│  [____________________________]  │
-│                                  │
-│ ┌──────────────────────────────┐ │
-│ │   [Agendar Visita]           │ │
-│ │   [Rechazar]                 │ │
-│ └──────────────────────────────┘ │
-│                                  │
-│  (Despues de visita completada:) │
-│ ┌──────────────────────────────┐ │
-│ │   [Aprobar Adopcion]         │ │
-│ │   [Rechazar]                 │ │
-│ └──────────────────────────────┘ │
-└──────────────────────────────────┘
-```
+**Layout:** Pantalla con AppBar (titulo "Solicitud de Maria Elena"). Componentes de arriba hacia abajo:
+
+1. **Header**: Estado (IN_REVIEW), animal (Luna, Perra 2a), fecha de envio (26 marzo 2026)
+2. **Seccion Datos del Hogar**: Vivienda (Casa), patio (Si, 50 m2), miembros (2 adultos), ninos (No), otras mascotas (No)
+3. **Seccion Experiencia**: Texto de experiencia previa, horas solo (4)
+4. **Seccion Motivacion**: Texto de motivacion del adoptante
+5. **Seccion Contacto**: Telefono (+506 8888-1234), email (maria@email.com), contacto preferido (WhatsApp)
+6. **Seccion Notas del Rescatista**: Textarea editable para notas internas
+7. **Botones de accion** (contextuales segun estado):
+   - En IN_REVIEW: "Agendar Visita" + "Rechazar"
+   - Despues de visita completada: "Aprobar Adopcion" + "Rechazar"
 
 ### 4.6 Navegacion
 

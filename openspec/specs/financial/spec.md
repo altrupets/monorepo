@@ -25,7 +25,7 @@ El Financial Service es un microservicio dedicado que gestiona:
 **Personas involucradas:** P10 (Donante), P06 (Rescatista), P03/P04 (Veterinarios), P01/P02 (Gobierno)
 **Etiqueta de ingresos (J8):** Value-Delivery
 **Ingresos en riesgo (J8 SRD):** $92/mes
-**Estado actual (J8):** 8% construido — infraestructura de pasarela de pago existe (4 implementaciones), perfiles de organizaciones existen, sin UI de donacion, entidad ni seguimiento de impacto.
+**Estado actual (J8):** 8% construido -- infraestructura de pasarela de pago existe (4 implementaciones), perfiles de organizaciones existen, sin UI de donacion, entidad ni seguimiento de impacto.
 
 ### Dependencias
 
@@ -37,13 +37,21 @@ El Financial Service es un microservicio dedicado que gestiona:
 
 ### Grafo de Dependencia
 
-```
-J1 (Registro/Incorporacion) <- RAIZ
-  +-- J6 (Gestion Casa Cuna)
-  |     +-- J8 (Donacion) <- depende de J1 + J6 (necesita listados del inventario de casa cuna)
-  |     +-- J4 (Subsidio Vet) <- depende de J1 + J6 + J9
-  +-- J9 (Incorporacion Vet) <- depende de J1, alimenta J4
-  +-- J7 (Panel Municipal) <- consume reportes financieros
+```mermaid
+flowchart TD
+    J1["J1 (Registro/Incorporacion) - RAIZ"]
+    J6["J6 (Gestion Casa Cuna)"]
+    J8["J8 (Donacion) - depende de J1 + J6"]
+    J9["J9 (Incorporacion Vet) - depende de J1, alimenta J4"]
+    J4["J4 (Subsidio Vet) - depende de J1 + J6 + J9"]
+    J7["J7 (Panel Municipal) - consume reportes financieros"]
+
+    J1 --> J6
+    J1 --> J9
+    J1 --> J7
+    J6 --> J8
+    J6 --> J4
+    J9 --> J4
 ```
 
 ---
@@ -410,12 +418,13 @@ El panel gubernamental (J7) y los perfiles de organizaciones permiten generar re
 
 ### Flujo de Dinero del Ecosistema
 
-```
-Municipalidades --[$7,500/mes]--> AltruPets (contratos B2G)
-Clinicas Veterinarias ----[$2,000/mes]--> AltruPets (suscripciones)
-Usuarios Avanzados ----[$500/mes]----> AltruPets (funciones premium)
-Donantes --------[$25K/mes]----> Organizaciones de Rescate (directo, NO a traves de AltruPets)
-Municipalidades -[$50K/mes]---> Clinicas Veterinarias (subsidios, facilitados por AltruPets)
+```mermaid
+flowchart LR
+    Muni["Municipalidades"] -->|"$7,500/mes"| AP1["AltruPets (contratos B2G)"]
+    Clinicas["Clinicas Veterinarias"] -->|"$2,000/mes"| AP2["AltruPets (suscripciones)"]
+    Usuarios["Usuarios Avanzados"] -->|"$500/mes"| AP3["AltruPets (funciones premium)"]
+    Donantes["Donantes"] -->|"$25K/mes"| Orgs["Organizaciones de Rescate (directo, NO a traves de AltruPets)"]
+    Muni2["Municipalidades"] -->|"$50K/mes"| ClinicasVet["Clinicas Veterinarias (subsidios, facilitados por AltruPets)"]
 ```
 
 ### Niveles de Contratos Municipales ($7,500/mes)
@@ -701,22 +710,27 @@ services/
 
 ## Criterios de Aceptacion (de J8)
 
-- [ ] FALLA: El donante ve la lista de necesidades de la org (efectivo + en especie) (fix: T0-2 lista de necesidades)
-- [ ] FALLA: Donacion persona a persona sin que AltruPets toque fondos (fix: T1-8)
-- [ ] FALLA: Donacion registrada en la plataforma (fix: T1-8)
-- [ ] FALLA: Reporte de impacto muestra animales ayudados por donacion (fix: T2-3)
+- [FAIL] El donante ve la lista de necesidades de la org (efectivo + en especie) (fix: T0-2 lista de necesidades)
+- [FAIL] Donacion persona a persona sin que AltruPets toque fondos (fix: T1-8)
+- [FAIL] Donacion registrada en la plataforma (fix: T1-8)
+- [FAIL] Reporte de impacto muestra animales ayudados por donacion (fix: T2-3)
 
 ---
 
-## Referencia SRD: J8 — Donacion y Seguimiento de Impacto ($92/mes)
+## Referencia SRD: J8 -- Donacion y Seguimiento de Impacto ($92/mes)
 
 **Puntuacion actual:** 8% | **Ingresos en riesgo:** $92/mes
 
 **Grafo de dependencia:**
-```
-J1 (Registro/Incorporacion) <- RAIZ
-  +-- J6 (Gestion Casa Cuna)
-        +-- J8 (Donacion) <- depende de J1 + J6 (necesita listados del inventario de casa cuna)
+
+```mermaid
+flowchart TD
+    J1["J1 (Registro/Incorporacion) - RAIZ"]
+    J6["J6 (Gestion Casa Cuna)"]
+    J8["J8 (Donacion) - depende de J1 + J6"]
+
+    J1 --> J6
+    J6 --> J8
 ```
 
 **Personas:** P10 (Donante), P06 (Rescatista)

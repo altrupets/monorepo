@@ -219,17 +219,17 @@
 
 ## Resumen de Dependencias entre Fases
 
-```
-Fase 1 (Infra)
-  └── Fase 2 (Grafo LangGraph)
-       └── Fase 4 (Servidor gRPC)
-            └── Fase 5 (Integracion NestJS)
-  └── Fase 3 (FalkorDB)
-       └── Fase 2 (nodo enrich_from_graph)
-  └── Fase 6 (K8s Manifests)
-       └── Fase 8 (Tests integracion)
-  └── Fase 7 (Observabilidad)
-       └── Fase 8 (Tests trazabilidad)
+```mermaid
+graph TD
+    F1["Fase 1 (Infra)"] --> F2["Fase 2 (Grafo LangGraph)"]
+    F2 --> F4["Fase 4 (Servidor gRPC)"]
+    F4 --> F5["Fase 5 (Integracion NestJS)"]
+    F1 --> F3["Fase 3 (FalkorDB)"]
+    F3 --> F2
+    F1 --> F6["Fase 6 (K8s Manifests)"]
+    F6 --> F8["Fase 8 (Tests integracion)"]
+    F1 --> F7["Fase 7 (Observabilidad)"]
+    F7 --> F8
 ```
 
 Fases 1, 3 y 7 pueden ejecutarse en paralelo. Fase 2 depende de Fase 1 y parcialmente de Fase 3. Fase 5 depende de Fase 4. Fase 8 depende de todas las anteriores.

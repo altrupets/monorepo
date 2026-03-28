@@ -37,14 +37,22 @@ apps/mobile/lib/features/rescues/  <-- MODIFICAR: reemplazar stubs con UI funcio
 
 ### Diagrama de transiciones
 
-```
-CREATED ──────> ASSIGNED ──────> ACCEPTED ──────> IN_PROGRESS ──────> TRANSFERRED ──────> COMPLETED
-   │               │                │                  │                    │
-   │               │                │                  │                    └──> CANCELLED
-   │               │                │                  └──> CANCELLED
-   │               │                └──> REJECTED ──> (re-asignar auxiliar)
-   │               └──> EXPIRED ──> (re-buscar auxiliares, expandir radio)
-   └──> CANCELLED
+```mermaid
+stateDiagram-v2
+    CREATED --> ASSIGNED
+    CREATED --> CANCELLED
+    ASSIGNED --> ACCEPTED
+    ASSIGNED --> REJECTED
+    ASSIGNED --> EXPIRED
+    ASSIGNED --> CANCELLED
+    ACCEPTED --> IN_PROGRESS
+    ACCEPTED --> CANCELLED
+    IN_PROGRESS --> TRANSFERRED
+    IN_PROGRESS --> CANCELLED
+    TRANSFERRED --> COMPLETED
+    TRANSFERRED --> CANCELLED
+    REJECTED --> ASSIGNED : re-asignar auxiliar
+    EXPIRED --> ASSIGNED : re-buscar auxiliares, expandir radio
 ```
 
 ### Definicion de estados
@@ -557,15 +565,14 @@ class PushNotificationService {
 
 ### Arbol de pantallas
 
-```
-/rescues/
-  ├── rescues_page.dart              (MODIFICAR: lista de alertas activas + boton crear)
-  ├── create_alert_page.dart         (NUEVO: formulario GPS + fotos + urgencia)
-  ├── alert_detail_page.dart         (NUEVO: detalle completo, acciones segun rol)
-  ├── alert_navigation_page.dart     (NUEVO: mapa con ruta hacia ubicacion)
-  ├── update_progress_page.dart      (NUEVO: fotos + evaluacion del auxiliar)
-  └── transfer_confirmation_page.dart (NUEVO: aceptar/rechazar transferencia)
-```
+| Archivo | Accion |
+|---------|--------|
+| `/rescues/rescues_page.dart` | MODIFICAR: lista de alertas activas + boton crear |
+| `/rescues/create_alert_page.dart` | NUEVO: formulario GPS + fotos + urgencia |
+| `/rescues/alert_detail_page.dart` | NUEVO: detalle completo, acciones segun rol |
+| `/rescues/alert_navigation_page.dart` | NUEVO: mapa con ruta hacia ubicacion |
+| `/rescues/update_progress_page.dart` | NUEVO: fotos + evaluacion del auxiliar |
+| `/rescues/transfer_confirmation_page.dart` | NUEVO: aceptar/rechazar transferencia |
 
 ### Flujo por rol
 
@@ -609,59 +616,44 @@ final nearbyAlertsProvider = FutureProvider.family<List<RescueAlert>, LatLng>();
 
 ### Backend (nuevo modulo)
 
-```
-apps/backend/src/rescues/
-  ├── rescues.module.ts
-  ├── rescues.resolver.ts
-  ├── rescues.service.ts
-  ├── rescue-matching.service.ts
-  ├── rescue-state-machine.ts
-  ├── dto/
-  │   ├── create-rescue-alert.input.ts
-  │   ├── update-rescue-progress.input.ts
-  │   └── complete-rescue.input.ts
-  ├── entities/
-  │   └── rescue-alert.entity.ts
-  └── enums/
-      ├── rescue-status.enum.ts
-      └── rescue-urgency.enum.ts
+**`apps/backend/src/rescues/`**
+- `rescues.module.ts`
+- `rescues.resolver.ts`
+- `rescues.service.ts`
+- `rescue-matching.service.ts`
+- `rescue-state-machine.ts`
+- `dto/create-rescue-alert.input.ts`
+- `dto/update-rescue-progress.input.ts`
+- `dto/complete-rescue.input.ts`
+- `entities/rescue-alert.entity.ts`
+- `enums/rescue-status.enum.ts`
+- `enums/rescue-urgency.enum.ts`
 
-apps/backend/src/push-notifications/
-  ├── push-notifications.module.ts
-  ├── push-notification.service.ts
-  ├── entities/
-  │   └── device-token.entity.ts
-  └── dto/
-      └── register-device-token.input.ts
+**`apps/backend/src/push-notifications/`**
+- `push-notifications.module.ts`
+- `push-notification.service.ts`
+- `entities/device-token.entity.ts`
+- `dto/register-device-token.input.ts`
 
-apps/backend/src/migrations/
-  ├── XXXXXX-CreateRescueAlerts.ts
-  └── XXXXXX-CreateDeviceTokens.ts
-```
+**`apps/backend/src/migrations/`**
+- `XXXXXX-CreateRescueAlerts.ts`
+- `XXXXXX-CreateDeviceTokens.ts`
 
 ### Movil (feature rescues)
 
-```
-apps/mobile/lib/features/rescues/
-  ├── data/
-  │   ├── rescue_repository.dart
-  │   └── rescue_graphql_queries.dart
-  ├── domain/
-  │   ├── rescue_alert.dart
-  │   └── rescue_status.dart
-  ├── presentation/
-  │   ├── pages/
-  │   │   ├── rescues_page.dart             (MODIFICAR)
-  │   │   ├── create_alert_page.dart        (NUEVO)
-  │   │   ├── alert_detail_page.dart        (NUEVO)
-  │   │   ├── alert_navigation_page.dart    (NUEVO)
-  │   │   ├── update_progress_page.dart     (NUEVO)
-  │   │   └── transfer_confirmation_page.dart (NUEVO)
-  │   └── providers/
-  │       └── rescue_providers.dart
-  └── application/
-      └── rescue_notifier.dart
-```
+**`apps/mobile/lib/features/rescues/`**
+- `data/rescue_repository.dart`
+- `data/rescue_graphql_queries.dart`
+- `domain/rescue_alert.dart`
+- `domain/rescue_status.dart`
+- `presentation/pages/rescues_page.dart` (MODIFICAR)
+- `presentation/pages/create_alert_page.dart` (NUEVO)
+- `presentation/pages/alert_detail_page.dart` (NUEVO)
+- `presentation/pages/alert_navigation_page.dart` (NUEVO)
+- `presentation/pages/update_progress_page.dart` (NUEVO)
+- `presentation/pages/transfer_confirmation_page.dart` (NUEVO)
+- `presentation/providers/rescue_providers.dart`
+- `application/rescue_notifier.dart`
 
 ---
 

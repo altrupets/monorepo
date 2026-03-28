@@ -79,8 +79,12 @@ CUANDO se envie un reporte exitosamente ENTONCES el sistema DEBERA:
 
 ## Maquina de Estados
 
-```
-FILED ──────> EN_REVISION ──────> INVESTIGADO ──────> RESUELTO  (estado final)
+```mermaid
+stateDiagram-v2
+    FILED --> EN_REVISION
+    EN_REVISION --> INVESTIGADO
+    INVESTIGADO --> RESUELTO
+    note right of RESUELTO : estado final
 ```
 
 **Transiciones validas:**

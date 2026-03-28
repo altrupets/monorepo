@@ -9,29 +9,36 @@
 
 Se agrega un `MailModule` global al backend NestJS que encapsula el envio de emails transaccionales. Los flujos de verificacion y reset generan tokens almacenados en el cache Redis existente (`CACHE_MANAGER`) y envian enlaces por email.
 
-```
-┌─────────────────────────────────────────────────────┐
-│                    AuthResolver                      │
-│  requestEmailVerification()                          │
-│  verifyEmail()    (REST: GET /auth/verify-email)     │
-│  requestPasswordReset()                              │
-│  resetPassword()                                     │
-├─────────────────────────────────────────────────────┤
-│                    AuthService                       │
-│  generateVerificationToken()                         │
-│  verifyEmailToken()                                  │
-│  generatePasswordResetToken()                        │
-│  resetPasswordWithToken()                            │
-├─────────────────────────────────────────────────────┤
-│                    MailModule                         │
-│  MailService.sendVerificationEmail()                 │
-│  MailService.sendPasswordResetEmail()                │
-│  Plantillas Handlebars: verification.hbs, reset.hbs │
-├─────────────────────────────────────────────────────┤
-│                Redis (CacheManager)                  │
-│  verify:<token> -> userId  (TTL: 24h)               │
-│  reset:<token> -> userId   (TTL: 1h)                │
-└─────────────────────────────────────────────────────┘
+```mermaid
+graph TD
+    subgraph AuthResolver
+        REV["requestEmailVerification()"]
+        VE["verifyEmail() (REST: GET /auth/verify-email)"]
+        RPR["requestPasswordReset()"]
+        RP["resetPassword()"]
+    end
+
+    subgraph AuthService
+        GVT["generateVerificationToken()"]
+        VET["verifyEmailToken()"]
+        GPRT["generatePasswordResetToken()"]
+        RPWT["resetPasswordWithToken()"]
+    end
+
+    subgraph MailModule
+        MSV["MailService.sendVerificationEmail()"]
+        MSP["MailService.sendPasswordResetEmail()"]
+        TPL["Plantillas Handlebars: verification.hbs, reset.hbs"]
+    end
+
+    subgraph Redis["Redis (CacheManager)"]
+        VK["verify:token -> userId (TTL: 24h)"]
+        RK["reset:token -> userId (TTL: 1h)"]
+    end
+
+    AuthResolver --> AuthService
+    AuthService --> MailModule
+    AuthService --> Redis
 ```
 
 ## 2. Servidor de Correos (Estrategia SMTP)
@@ -42,9 +49,9 @@ El `MailModule` usa SMTP genérico, lo que permite conectar a cualquier proveedo
 
 | Opción | Tipo | Stack | K8s Ready | Mejor para |
 |--------|------|-------|-----------|------------|
-| **Listmonk** (recomendado) | Self-hosted | Binario único Go + PostgreSQL | ✅ Helm Charts community | Transaccional + newsletters, ligero, ya usamos PostgreSQL |
-| **Mailtrain** | Self-hosted | Node.js + MySQL/MariaDB + Redis | ✅ Manifiestos YAML | Marketing automation, compatible con stack Node |
-| **Mautic** | Self-hosted | PHP/Apache + MariaDB | ⚠️ Más pesado | Marketing avanzado, flujos complejos |
+| **Listmonk** (recomendado) | Self-hosted | Binario unico Go + PostgreSQL | Si - Helm Charts community | Transaccional + newsletters, ligero, ya usamos PostgreSQL |
+| **Mailtrain** | Self-hosted | Node.js + MySQL/MariaDB + Redis | Si - Manifiestos YAML | Marketing automation, compatible con stack Node |
+| **Mautic** | Self-hosted | PHP/Apache + MariaDB | Parcial - Mas pesado | Marketing avanzado, flujos complejos |
 | **Amazon SES** | Managed | API/SMTP | N/A | Alto volumen, bajo costo ($0.10/1000 emails) |
 | **Ethereal** | Dev only | Fake SMTP | N/A | Desarrollo local (ya configurado como default) |
 
@@ -60,24 +67,21 @@ El `MailModule` usa SMTP genérico, lo que permite conectar a cualquier proveedo
 
 ### Arquitectura con Listmonk
 
-```
-┌─────────────────────────────────────────┐
-│         NestJS Backend                   │
-│  MailService.sendVerificationEmail()     │
-│         │                                │
-│         ▼                                │
-│  Listmonk API (POST /api/tx)            │
-│  o SMTP directo (puerto 25/587)         │
-├─────────────────────────────────────────┤
-│     Listmonk (Pod en K8s)               │
-│     ├── API REST (:9000)                │
-│     ├── SMTP relay integrado            │
-│     └── PostgreSQL (schema listmonk)    │
-├─────────────────────────────────────────┤
-│     Fallback: Amazon SES (SMTP)         │
-│     (para volumen alto o si Listmonk    │
-│      está down)                          │
-└─────────────────────────────────────────┘
+```mermaid
+graph TD
+    subgraph NestJS["NestJS Backend"]
+        MS["MailService.sendVerificationEmail()"]
+    end
+
+    MS -->|"Listmonk API (POST /api/tx)<br/>o SMTP directo (puerto 25/587)"| Listmonk
+
+    subgraph Listmonk["Listmonk (Pod en K8s)"]
+        API["API REST (:9000)"]
+        SMTP["SMTP relay integrado"]
+        PG["PostgreSQL (schema listmonk)"]
+    end
+
+    MS -->|Fallback| SES["Amazon SES (SMTP)<br/>Para volumen alto o si Listmonk esta down"]
 ```
 
 ### Configuración dual en MailModule

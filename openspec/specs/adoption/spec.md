@@ -14,7 +14,7 @@ El modulo de adopcion gestiona el proceso completo desde que un rescatista (P05/
 **Personas involucradas:** P05 (Rescatista Individual), P06 (Rescatista Organizacional), P09 (Adoptante)
 **Etiqueta de ingresos:** Value-Delivery
 **Ingresos en riesgo (SRD):** $200/mes
-**Estado actual:** 0% construido — sin entidad de adopcion, UI ni backend.
+**Estado actual:** 0% construido -- sin entidad de adopcion, UI ni backend.
 
 ### Dependencias
 
@@ -24,10 +24,14 @@ El modulo de adopcion gestiona el proceso completo desde que un rescatista (P05/
 
 ### Grafo de Dependencia
 
-```
-J1 (Registro/Incorporacion) <- RAIZ para TODOS los flujos
-  +-- J6 (Gestion Casa Cuna)
-        +-- J3 (Adopcion) <- depende de J1 + J6 (INDEPENDIENTE de J2)
+```mermaid
+flowchart TD
+    J1["J1 (Registro/Incorporacion) - RAIZ para TODOS los flujos"]
+    J6["J6 (Gestion Casa Cuna)"]
+    J3["J3 (Adopcion) - depende de J1 + J6 (INDEPENDIENTE de J2)"]
+
+    J1 --> J6
+    J6 --> J3
 ```
 
 ---
@@ -36,19 +40,25 @@ J1 (Registro/Incorporacion) <- RAIZ para TODOS los flujos
 
 ### Estados del Workflow
 
-```
-READY_FOR_ADOPTION -> LISTED -> APPLIED -> REVIEW -> VISIT -> APPROVED -> FOLLOW_UP
-                                                           -> REJECTED
+```mermaid
+stateDiagram-v2
+    READY_FOR_ADOPTION --> LISTED
+    LISTED --> APPLIED
+    APPLIED --> REVIEW
+    REVIEW --> VISIT
+    VISIT --> APPROVED
+    VISIT --> REJECTED
+    APPROVED --> FOLLOW_UP
 ```
 
 | Estado | Descripcion | Actor | Transicion Siguiente |
 |--------|-------------|-------|---------------------|
-| `READY_FOR_ADOPTION` | El rescatista marca al animal como apto. El sistema evalua automaticamente los criterios de adoptabilidad (REQ-BR-050, REQ-BR-051). | Sistema / Rescatista | -> `LISTED` |
-| `LISTED` | El animal esta publicado en el catalogo publico de adopcion. Visible para adoptantes con filtros por especie, tamano, edad, ubicacion. | Sistema | -> `APPLIED` (cuando un adoptante envia solicitud) |
-| `APPLIED` | Un adoptante envio solicitud con cuestionario del hogar, detalles familiares, experiencia con mascotas y motivacion. | Adoptante | -> `REVIEW` |
-| `REVIEW` | El rescatista revisa la solicitud: perfil del solicitante, respuestas del cuestionario, historial. Puede agendar visita o videollamada. | Rescatista | -> `VISIT` o -> `REJECTED` |
-| `VISIT` | Visita presencial o videollamada para evaluar compatibilidad entre adoptante y animal. | Rescatista + Adoptante | -> `APPROVED` o -> `REJECTED` |
-| `APPROVED` | Adopcion aprobada. Se genera contrato digital para firma electronica de ambas partes. Estado del animal cambia a "En Proceso de Adopcion". | Rescatista | -> `FOLLOW_UP` |
+| `READY_FOR_ADOPTION` | El rescatista marca al animal como apto. El sistema evalua automaticamente los criterios de adoptabilidad (REQ-BR-050, REQ-BR-051). | Sistema / Rescatista | LISTED |
+| `LISTED` | El animal esta publicado en el catalogo publico de adopcion. Visible para adoptantes con filtros por especie, tamano, edad, ubicacion. | Sistema | APPLIED (cuando un adoptante envia solicitud) |
+| `APPLIED` | Un adoptante envio solicitud con cuestionario del hogar, detalles familiares, experiencia con mascotas y motivacion. | Adoptante | REVIEW |
+| `REVIEW` | El rescatista revisa la solicitud: perfil del solicitante, respuestas del cuestionario, historial. Puede agendar visita o videollamada. | Rescatista | VISIT o REJECTED |
+| `VISIT` | Visita presencial o videollamada para evaluar compatibilidad entre adoptante y animal. | Rescatista + Adoptante | APPROVED o REJECTED |
+| `APPROVED` | Adopcion aprobada. Se genera contrato digital para firma electronica de ambas partes. Estado del animal cambia a "En Proceso de Adopcion". | Rescatista | FOLLOW_UP |
 | `REJECTED` | Solicitud rechazada con justificacion obligatoria. El animal permanece en `LISTED`. | Rescatista | (estado terminal para la solicitud) |
 | `FOLLOW_UP` | Seguimiento automatizado post-adopcion a 30/60/90 dias. Check-ins con foto + actualizacion de estado. | Sistema + Adoptante + Rescatista | (estado terminal tras completar 90 dias) |
 
@@ -66,18 +76,30 @@ enum AnimalState {
 
 ### Transiciones del Flujo Completo
 
-```
-Animal EN_CUIDADO
-  -> [sistema evalua atributos automaticamente (REQ-WF-041)] -> ADOPTABLE (REQ-WF-042)
-  -> [rescatista marca "Listo para Adopcion" (REQ-RES-005)] -> Listado READY_FOR_ADOPTION
-  -> [sistema publica en catalogo] -> Listado LISTED
-  -> [adoptante envia solicitud (REQ-ADO-003)] -> Solicitud APPLIED
-  -> [rescatista revisa solicitud (REQ-RES-005A)] -> REVIEW
-  -> [agenda visita/videollamada] -> VISIT
-  -> [rescatista aprueba + contrato digital (REQ-RES-005B)] -> APPROVED
-  -> [rescatista rechaza con justificacion] -> REJECTED
-  -> [entrega completada] -> Animal ADOPTADO + Solicitud FOLLOW_UP
-  -> [seguimiento 30/60/90 dias (REQ-ADO-005)] -> check-ins automatizados
+```mermaid
+stateDiagram-v2
+    state "Animal EN_CUIDADO" as EN_CUIDADO
+    state "ADOPTABLE (REQ-WF-042)" as ADOPTABLE
+    state "Listado READY_FOR_ADOPTION" as READY
+    state "Listado LISTED" as LISTED
+    state "Solicitud APPLIED" as APPLIED
+    state "REVIEW" as REVIEW
+    state "VISIT" as VISIT
+    state "APPROVED" as APPROVED
+    state "REJECTED" as REJECTED
+    state "Animal ADOPTADO + Solicitud FOLLOW_UP" as ADOPTADO
+    state "Check-ins 30/60/90 dias (REQ-ADO-005)" as FOLLOWUP
+
+    EN_CUIDADO --> ADOPTABLE : sistema evalua atributos automaticamente (REQ-WF-041)
+    ADOPTABLE --> READY : rescatista marca Listo para Adopcion (REQ-RES-005)
+    READY --> LISTED : sistema publica en catalogo
+    LISTED --> APPLIED : adoptante envia solicitud (REQ-ADO-003)
+    APPLIED --> REVIEW : rescatista revisa solicitud (REQ-RES-005A)
+    REVIEW --> VISIT : agenda visita/videollamada
+    VISIT --> APPROVED : rescatista aprueba + contrato digital (REQ-RES-005B)
+    VISIT --> REJECTED : rescatista rechaza con justificacion
+    APPROVED --> ADOPTADO : entrega completada
+    ADOPTADO --> FOLLOWUP : seguimiento automatizado
 ```
 
 ### Requisitos de Workflow
@@ -133,15 +155,22 @@ El contrato generado automaticamente incluye:
 
 ### Flujo de Firma
 
-```
-1. Rescatista aprueba solicitud
-2. Sistema genera contrato PDF con datos pre-llenados
-3. Rescatista firma electronicamente
-4. Adoptante recibe notificacion push
-5. Adoptante revisa y firma electronicamente
-6. Sistema registra ambas firmas con timestamp
-7. Contrato finalizado disponible para ambas partes
-8. Estado del animal -> EN_PROCESO_ADOPCION
+```mermaid
+sequenceDiagram
+    participant R as Rescatista
+    participant S as Sistema
+    participant A as Adoptante
+
+    R->>S: Aprueba solicitud
+    S->>S: Genera contrato PDF con datos pre-llenados
+    S->>R: Solicita firma electronica
+    R->>S: Firma electronicamente
+    S->>A: Notificacion push con contrato
+    A->>S: Revisa y firma electronicamente
+    S->>S: Registra ambas firmas con timestamp
+    S->>R: Contrato finalizado disponible
+    S->>A: Contrato finalizado disponible
+    S->>S: Estado del animal -> EN_PROCESO_ADOPCION
 ```
 
 ---
@@ -421,24 +450,29 @@ features/
 
 ## Criterios de Aceptacion (de J3)
 
-- [ ] FALLA: El rescatista publica animal con fotos e historial medico (fix: T1-2)
-- [ ] FALLA: El adoptante navega y filtra listados (fix: T1-2)
-- [ ] FALLA: El adoptante envia solicitud con cuestionario (fix: T1-2)
-- [ ] FALLA: El rescatista revisa, agenda visita, aprueba/rechaza (fix: T1-2)
-- [ ] FALLA: Contrato digital de adopcion generado y firmado (fix: T2-1)
-- [ ] FALLA: Seguimiento automatizado a 30/60/90 dias (fix: T2-2)
+- [FAIL] El rescatista publica animal con fotos e historial medico (fix: T1-2)
+- [FAIL] El adoptante navega y filtra listados (fix: T1-2)
+- [FAIL] El adoptante envia solicitud con cuestionario (fix: T1-2)
+- [FAIL] El rescatista revisa, agenda visita, aprueba/rechaza (fix: T1-2)
+- [FAIL] Contrato digital de adopcion generado y firmado (fix: T2-1)
+- [FAIL] Seguimiento automatizado a 30/60/90 dias (fix: T2-2)
 
 ---
 
-## Referencia SRD: J3 — Ciclo de Vida de Adopcion ($200/mes)
+## Referencia SRD: J3 -- Ciclo de Vida de Adopcion ($200/mes)
 
 **Puntuacion actual:** 0% | **Ingresos en riesgo:** $200/mes
 
 **Grafo de dependencia:**
-```
-J1 (Registro/Incorporacion) <- RAIZ
-  +-- J6 (Gestion Casa Cuna)
-        +-- J3 (Adopcion) <- depende de J1 + J6 (INDEPENDIENTE de J2)
+
+```mermaid
+flowchart TD
+    J1["J1 (Registro/Incorporacion) - RAIZ"]
+    J6["J6 (Gestion Casa Cuna)"]
+    J3["J3 (Adopcion) - depende de J1 + J6 (INDEPENDIENTE de J2)"]
+
+    J1 --> J6
+    J6 --> J3
 ```
 
 **Personas:** P05/P06 (publican), P09 (aplica)

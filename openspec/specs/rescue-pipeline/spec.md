@@ -1,4 +1,4 @@
-# Rescue Pipeline — Especificacion de Dominio
+# Rescue Pipeline -- Especificacion de Dominio
 
 **Dominio**: Coordinacion de Rescate Animal y Gestion de Casas Cuna
 **Microservicios involucrados**: Animal Rescue Service, Geolocation Service, Notification Service, Agent AI Service
@@ -73,12 +73,16 @@ El pipeline comprende:
 
 ### 3.1. Estados de Solicitud de Auxilio (WF-001+)
 
-```
-CREADA ──→ EN_REVISION ──→ ASIGNADA ──→ EN_PROGRESO ──→ COMPLETADA
-  │             │                                           ↑
-  │             └──→ RECHAZADA                              │
-  └──→ ASIGNADA ────────────────────────────────────────────┘
-  └──→ RECHAZADA
+```mermaid
+stateDiagram-v2
+    CREADA --> EN_REVISION
+    CREADA --> ASIGNADA
+    CREADA --> RECHAZADA
+    EN_REVISION --> ASIGNADA
+    EN_REVISION --> RECHAZADA
+    ASIGNADA --> EN_PROGRESO
+    ASIGNADA --> COMPLETADA
+    EN_PROGRESO --> COMPLETADA
 ```
 
 | Estado | Transiciones permitidas | Descripcion |
@@ -94,13 +98,20 @@ CREADA ──→ EN_REVISION ──→ ASIGNADA ──→ EN_PROGRESO ──→ 
 
 ### 3.2. Estados de Solicitud de Rescate (WF-010+)
 
-```
-CREADA ──→ PENDIENTE_SUBVENCION ──→ SUBVENCION_APROBADA ──→ ASIGNADA ──→ EN_PROGRESO ──→ RESCATADO ──→ COMPLETADA
-  │             │                                                ↑
-  │             └──→ SUBVENCION_RECHAZADA ──────────────────────┘
-  │                                                              ↑
-  └──→ AUTORIZADA ──────────────────────────────────────────────┘
-  └──→ RECHAZADA
+```mermaid
+stateDiagram-v2
+    CREADA --> PENDIENTE_SUBVENCION
+    CREADA --> AUTORIZADA
+    CREADA --> RECHAZADA
+    PENDIENTE_SUBVENCION --> SUBVENCION_APROBADA
+    PENDIENTE_SUBVENCION --> SUBVENCION_RECHAZADA
+    PENDIENTE_SUBVENCION --> AUTORIZADA
+    SUBVENCION_APROBADA --> ASIGNADA
+    SUBVENCION_RECHAZADA --> ASIGNADA
+    AUTORIZADA --> ASIGNADA
+    ASIGNADA --> EN_PROGRESO
+    EN_PROGRESO --> RESCATADO
+    RESCATADO --> COMPLETADA
 ```
 
 | Estado | Transiciones permitidas | Descripcion |
@@ -124,14 +135,17 @@ CREADA ──→ PENDIENTE_SUBVENCION ──→ SUBVENCION_APROBADA ──→ AS
 
 ### 3.3. Estados de la Entidad Animal
 
-```
-REPORTADO → EVALUADO → EN_RESCATE → EN_CUIDADO → ADOPTABLE → ADOPTADO
-                                         │
-                                         ├──→ NO_ADOPTABLE
-                                         └──→ FALLECIDO
-
-Cualquier estado → INALCANZABLE
-Cualquier estado → FALSA_ALARMA
+```mermaid
+stateDiagram-v2
+    REPORTADO --> EVALUADO
+    EVALUADO --> EN_RESCATE
+    EN_RESCATE --> EN_CUIDADO
+    EN_CUIDADO --> ADOPTABLE
+    ADOPTABLE --> ADOPTADO
+    EN_CUIDADO --> NO_ADOPTABLE
+    EN_CUIDADO --> FALLECIDO
+    [*] --> INALCANZABLE : Cualquier estado
+    [*] --> FALSA_ALARMA : Cualquier estado
 ```
 
 | Estado | Descripcion |
@@ -506,11 +520,11 @@ Cuando se crea una `solicitud_rescate`, si el animal tiene `callejero = TRUE`, `
 
 | Relacion | Tipo | Descripcion |
 |----------|------|-------------|
-| `animals.current_caretaker_id` → `users.id` | N:1 | Rescatista responsable actual |
-| `animals.casa_cuna_id` → casa cuna | N:1 | Casa cuna donde reside |
-| `solicitudes_rescate.solicitud_auxilio_id` → `solicitudes_auxilio.id` | N:1 | Referencia al auxilio original |
-| `solicitudes_rescate.assigned_rescatista_id` → `users.id` | N:1 | Rescatista asignado |
-| `solicitudes_auxilio.assigned_auxiliar_id` → `users.id` | N:1 | Auxiliar asignado |
+| `animals.current_caretaker_id` -> `users.id` | N:1 | Rescatista responsable actual |
+| `animals.casa_cuna_id` -> casa cuna | N:1 | Casa cuna donde reside |
+| `solicitudes_rescate.solicitud_auxilio_id` -> `solicitudes_auxilio.id` | N:1 | Referencia al auxilio original |
+| `solicitudes_rescate.assigned_rescatista_id` -> `users.id` | N:1 | Rescatista asignado |
+| `solicitudes_auxilio.assigned_auxiliar_id` -> `users.id` | N:1 | Auxiliar asignado |
 | `rescatista_casa_cuna_associations` | N:M | Asociacion many-to-many rescatistas-casas cuna |
 
 ---
@@ -675,15 +689,25 @@ Cuando se crea una `solicitud_rescate`, si el animal tiene `callejero = TRUE`, `
 
 ### 9.3. Grafo de Dependencia
 
-```
-J1 (Registro/Incorporacion) <- RAIZ
-  |
-  +-- J6 (Gestion Casa Cuna) <- depende de J1
-  |     +-- J3 (Adopcion) <- depende de J1 + J6
-  |     +-- J4 (Subsidio Veterinario) <- depende de J1 + J6 + J9
-  |     +-- J8 (Donacion) <- depende de J1 + J6 (necesita listados del inventario)
-  |
-  +-- J2 (Coordinacion de Rescate) <- depende de J1 + J6 + J10
+```mermaid
+graph TD
+    J1["J1 (Registro/Incorporacion) - RAIZ"]
+    J6["J6 (Gestion Casa Cuna)"]
+    J3["J3 (Adopcion)"]
+    J4["J4 (Subsidio Veterinario)"]
+    J8["J8 (Donacion)"]
+    J2["J2 (Coordinacion de Rescate)"]
+    J9["J9"]
+    J10["J10"]
+
+    J1 --> J6
+    J1 --> J2
+    J6 --> J3
+    J6 --> J4
+    J6 --> J8
+    J6 --> J2
+    J9 --> J4
+    J10 --> J2
 ```
 
 J6 es prerequisito de J2. Sin gestion de casas cuna funcional, el pipeline de rescate no puede completar la colocacion de animales.

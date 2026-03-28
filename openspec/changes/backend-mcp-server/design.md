@@ -9,34 +9,21 @@
 
 El servidor MCP se implementa como un modulo NestJS independiente (`McpModule`) que registra herramientas y expone un endpoint HTTP. Las herramientas delegan la logica a los servicios existentes del backend.
 
-```
-┌─────────────────────────────────────────────────────┐
-│              Cliente MCP (Claude Code, AI Agent)      │
-│              POST /mcp  (Authorization: Bearer JWT)  │
-└──────────────────────┬──────────────────────────────┘
-                       │ Streamable HTTP
-┌──────────────────────▼──────────────────────────────┐
-│                  McpController                        │
-│  POST /mcp -> StreamableHTTPServerTransport           │
-│  Valida JWT antes de procesar mensajes MCP           │
-├─────────────────────────────────────────────────────┤
-│                  McpService                           │
-│  Inicializa McpServer con metadata del servidor      │
-│  Registra herramientas (tools) con schemas            │
-│  Cada tool invoca el servicio NestJS correspondiente │
-├─────────────────────────────────────────────────────┤
-│               Tool Handlers                           │
-│  search-animals       -> AnimalsService               │
-│  get-subsidy-status   -> SubsidiesService             │
-│  list-rescue-requests -> CapturesService              │
-│  get-foster-home-capacity -> (UsersService/query)     │
-│  create-abuse-report  -> AbuseReportsService          │
-│  get-municipal-kpis   -> (GovernmentService/query)    │
-├─────────────────────────────────────────────────────┤
-│         Servicios existentes del backend             │
-│  AnimalsService, SubsidiesService, CapturesService,  │
-│  AbuseReportsService, UsersService                   │
-└─────────────────────────────────────────────────────┘
+```mermaid
+graph TD
+    Client["Cliente MCP (Claude Code, AI Agent)<br/>POST /mcp (Authorization: Bearer JWT)"]
+    Client -->|Streamable HTTP| Controller
+
+    subgraph Backend["NestJS Backend"]
+        Controller["McpController<br/>POST /mcp -> StreamableHTTPServerTransport<br/>Valida JWT antes de procesar mensajes MCP"]
+        Service["McpService<br/>Inicializa McpServer con metadata del servidor<br/>Registra herramientas (tools) con schemas<br/>Cada tool invoca el servicio NestJS correspondiente"]
+        Tools["Tool Handlers<br/>search-animals -> AnimalsService<br/>get-subsidy-status -> SubsidiesService<br/>list-rescue-requests -> CapturesService<br/>get-foster-home-capacity -> UsersService/query<br/>create-abuse-report -> AbuseReportsService<br/>get-municipal-kpis -> GovernmentService/query"]
+        Services["Servicios existentes del backend<br/>AnimalsService, SubsidiesService, CapturesService,<br/>AbuseReportsService, UsersService"]
+
+        Controller --> Service
+        Service --> Tools
+        Tools --> Services
+    end
 ```
 
 ## 2. McpModule

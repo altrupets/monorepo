@@ -11,28 +11,25 @@
 
 El contenedor `agentic-core` se despliega como sidecar dentro del mismo pod que el backend NestJS. Ambos contenedores comparten el network namespace (`localhost`) y pueden montar volumenes compartidos.
 
-```
-Pod: backend (namespace altrupets-dev)
-┌─────────────────────────────────────────────────────┐
-│                                                     │
-│  ┌─────────────────┐    ┌────────────────────────┐  │
-│  │   NestJS         │    │   agentic-core         │  │
-│  │   Backend        │    │   (Python sidecar)     │  │
-│  │                  │    │                        │  │
-│  │   :3001 (HTTP)   │    │   :50051 (gRPC)        │  │
-│  │   :3001/graphql  │    │   :9090 /metrics       │  │
-│  │                  │    │   :8080 /healthz        │  │
-│  │                  │    │                        │  │
-│  └───────┬──────────┘    └────────┬───────────────┘  │
-│          │    gRPC localhost:50051 │                  │
-│          └────────────────────────┘                  │
-│                                                     │
-│  Shared: network namespace, ConfigMap envs, Secrets  │
-└─────────────────────────────────────────────────────┘
-         │                    │                │
-         ▼                    ▼                ▼
-   PostgreSQL            FalkorDB           Redis
-   (existente)           (:6379)         (existente)
+```mermaid
+graph TD
+    subgraph Pod["Pod: backend (namespace altrupets-dev)"]
+        subgraph NestJS["NestJS Backend"]
+            HTTP[":3001 (HTTP)"]
+            GQL[":3001/graphql"]
+        end
+        subgraph Sidecar["agentic-core (Python sidecar)"]
+            GRPC[":50051 (gRPC)"]
+            Metrics[":9090 /metrics"]
+            Health[":8080 /healthz"]
+        end
+        NestJS <-->|"gRPC localhost:50051"| Sidecar
+        Shared["Shared: network namespace, ConfigMap envs, Secrets"]
+    end
+
+    Pod --> PostgreSQL["PostgreSQL (existente)"]
+    Pod --> FalkorDB["FalkorDB (:6379)"]
+    Pod --> Redis["Redis (existente)"]
 ```
 
 ### Flujo de Comunicacion
@@ -159,50 +156,14 @@ message HealthCheckResponse {
 
 El grafo de matching se implementa como un `StateGraph` de LangGraph dentro del monorepo de AltruPets (no dentro de agentic-core, que no contiene logica de dominio).
 
-```
-         ┌──────────────┐
-         │  START        │
-         │  (input)      │
-         └──────┬───────┘
-                │
-                ▼
-    ┌───────────────────────┐
-    │  fetch_candidates     │
-    │  - Query PostgreSQL   │
-    │  - Filtro por radio   │
-    │  - Filtro por estado  │
-    └───────────┬───────────┘
-                │
-                ▼
-    ┌───────────────────────┐
-    │  enrich_from_graph    │
-    │  - Query FalkorDB     │
-    │  - Historial rescates │
-    │  - Especializaciones  │
-    │  - Relaciones sociales│
-    └───────────┬───────────┘
-                │
-                ▼
-    ┌───────────────────────┐
-    │  score_candidates     │
-    │  - LLM multi-factor   │
-    │  - Pesos por urgencia │
-    │  - Structured output  │
-    └───────────┬───────────┘
-                │
-                ▼
-    ┌───────────────────────┐
-    │  rank_and_explain     │
-    │  - Sort por score     │
-    │  - Genera reasoning   │
-    │  - Top-N candidates   │
-    └───────────┬───────────┘
-                │
-                ▼
-         ┌──────────────┐
-         │  END          │
-         │  (output)     │
-         └──────────────┘
+```mermaid
+graph TD
+    START["START (input)"]
+    START --> fetch["fetch_candidates<br/>- Query PostgreSQL<br/>- Filtro por radio<br/>- Filtro por estado"]
+    fetch --> enrich["enrich_from_graph<br/>- Query FalkorDB<br/>- Historial rescates<br/>- Especializaciones<br/>- Relaciones sociales"]
+    enrich --> score["score_candidates<br/>- LLM multi-factor<br/>- Pesos por urgencia<br/>- Structured output"]
+    score --> rank["rank_and_explain<br/>- Sort por score<br/>- Genera reasoning<br/>- Top-N candidates"]
+    rank --> END["END (output)"]
 ```
 
 ### Estado del Grafo

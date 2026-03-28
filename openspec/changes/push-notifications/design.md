@@ -7,53 +7,33 @@
 
 ## 1. Arquitectura General
 
-```
-┌─────────────────────────────────────────────────────────┐
-│                    Flutter Mobile App                     │
-│  ┌──────────────┐  ┌──────────────┐  ┌───────────────┐  │
-│  │ FCM Listener │  │ Notification │  │  Deep-Link    │  │
-│  │ (foreground/  │  │  Provider    │  │  Navigator    │  │
-│  │  background)  │  │ (Riverpod)   │  │               │  │
-│  └──────┬───────┘  └──────┬───────┘  └───────┬───────┘  │
-│         │                  │                   │          │
-│         └──────────────────┼───────────────────┘          │
-│                            │                              │
-│         ┌──────────────────┴──────────────────┐           │
-│         │   NotificationRepository (GraphQL)   │           │
-│         └──────────────────┬──────────────────┘           │
-└────────────────────────────┼──────────────────────────────┘
-                             │ GraphQL (registerDeviceToken,
-                             │ myNotifications, markRead)
-                             ▼
-┌─────────────────────────────────────────────────────────┐
-│                   NestJS Backend                         │
-│  ┌──────────────────────────────────────────────────┐   │
-│  │             NotificationsModule                    │   │
-│  │  ┌────────────────┐  ┌─────────────────────────┐ │   │
-│  │  │ Notifications   │  │   NotificationService   │ │   │
-│  │  │ Resolver       │  │   (Firebase Admin SDK)   │ │   │
-│  │  │ (GraphQL API)  │  │                          │ │   │
-│  │  └────────┬───────┘  │  - sendToUser()          │ │   │
-│  │           │          │  - sendToRole()           │ │   │
-│  │           │          │  - sendToUsers()          │ │   │
-│  │           │          │  - cleanInvalidTokens()   │ │   │
-│  │           ▼          └────────────┬──────────────┘ │   │
-│  │  ┌────────────────┐               │                │   │
-│  │  │ DeviceToken     │               │                │   │
-│  │  │ Entity          │               ▼                │   │
-│  │  └────────────────┘  ┌─────────────────────────┐   │   │
-│  │  ┌────────────────┐  │   Firebase Admin SDK     │   │   │
-│  │  │ Notification    │  │   (firebase-admin npm)   │   │   │
-│  │  │ Entity          │  └────────────┬────────────┘   │   │
-│  │  └────────────────┘               │                │   │
-│  └───────────────────────────────────┼────────────────┘   │
-└──────────────────────────────────────┼────────────────────┘
-                                       │
-                                       ▼
-                              ┌─────────────────┐
-                              │  Firebase Cloud  │
-                              │  Messaging (FCM) │
-                              └─────────────────┘
+```mermaid
+graph TD
+    subgraph Flutter["Flutter Mobile App"]
+        FCM["FCM Listener<br/>(foreground/background)"]
+        NP["Notification Provider<br/>(Riverpod)"]
+        DL["Deep-Link Navigator"]
+        NR["NotificationRepository (GraphQL)"]
+        FCM --> NR
+        NP --> NR
+        DL --> NR
+    end
+
+    NR -->|"GraphQL: registerDeviceToken,<br/>myNotifications, markRead"| Backend
+
+    subgraph Backend["NestJS Backend"]
+        subgraph NModule["NotificationsModule"]
+            Resolver["Notifications Resolver<br/>(GraphQL API)"]
+            Service["NotificationService<br/>(Firebase Admin SDK)<br/>- sendToUser()<br/>- sendToRole()<br/>- sendToUsers()<br/>- cleanInvalidTokens()"]
+            DTE["DeviceToken Entity"]
+            NE["Notification Entity"]
+            FASDK["Firebase Admin SDK<br/>(firebase-admin npm)"]
+            Resolver --> Service
+            Service --> FASDK
+        end
+    end
+
+    FASDK --> FCMCloud["Firebase Cloud Messaging (FCM)"]
 ```
 
 Los modulos existentes (`SubsidiesModule`, `CapturesModule`, `AbuseReportsModule`) invocan `NotificationService` cuando ocurren eventos relevantes, delegando completamente la logica de envio y enrutamiento.

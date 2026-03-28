@@ -12,48 +12,30 @@
 
 AltruPets implementa una arquitectura de microservicios cloud-native con 10 servicios autocontenidos, cada uno con base de datos propia (Database per Service), comunicacion sincrona via gRPC/GraphQL y asincrona via Apache Kafka.
 
-```
-┌──────────────────────────────────────────────────────────────────┐
-│                   Frontend (Flutter App)                         │
-│  Client-side UI composition / Offline-first / Clean Architecture│
-└──────────────────────┬───────────────────────────────────────────┘
-                       │ HTTPS / GraphQL
-               ┌───────▼────────┐
-               │  API Gateway   │
-               │  (Kong/Istio)  │
-               └───────┬────────┘
-                       │ gRPC interno / REST externo
-  ┌────────────────────┼────────────────────────────────┐
-  │         Microservicios Cloud-Native (NestJS)        │
-  │                                                     │
-  │  ┌──────────────┐  ┌───────────────┐  ┌──────────┐ │
-  │  │ 1. User      │  │ 2. Animal     │  │ 3. Finan-│ │
-  │  │ Management   │  │ Rescue        │  │ cial     │ │
-  │  │ :8080        │  │ :8081         │  │ :8082    │ │
-  │  └──────┬───────┘  └──────┬────────┘  └────┬─────┘ │
-  │         │                 │                 │       │
-  │  ┌──────┴───────┐  ┌─────┴─────────┐  ┌───┴──────┐│
-  │  │ 4. Notifi-   │  │ 5. Geoloca-   │  │ 6. Vete- ││
-  │  │ cation       │  │ tion          │  │ rinary   ││
-  │  │ :8083        │  │ :8084         │  │ :8085    ││
-  │  └──────┬───────┘  └──────┬────────┘  └────┬─────┘│
-  │         │                 │                 │      │
-  │  ┌──────┴───────┐  ┌─────┴─────────┐  ┌───┴─────┐│
-  │  │ 7. Reputa-   │  │ 8. Government │  │ 9. Ana- ││
-  │  │ tion         │  │               │  │ lytics  ││
-  │  │ :8086        │  │ :8087         │  │ :8088   ││
-  │  └──────────────┘  └───────────────┘  └─────────┘│
-  │                                                    │
-  │  ┌─────────────────────────────────────┐           │
-  │  │ 10. Agent AI Service                │           │
-  │  │ NestJS + LangGraph + FalkorDB :4000 │           │
-  │  └─────────────────────────────────────┘           │
-  └────────────────────────────────────────────────────┘
-         │              │              │
-  ┌──────▼──────┐ ┌────▼─────┐ ┌─────▼──────┐
-  │ PostgreSQL  │ │  Redis   │ │   Kafka    │
-  │ + PostGIS   │ │ FalkorDB │ │            │
-  └─────────────┘ └──────────┘ └────────────┘
+```mermaid
+graph TD
+    FE["Frontend (Flutter App)<br/>Client-side UI composition / Offline-first / Clean Architecture"]
+    GW["API Gateway (Kong/Istio)"]
+
+    FE -->|HTTPS / GraphQL| GW
+    GW -->|gRPC interno / REST externo| MS
+
+    subgraph MS["Microservicios Cloud-Native (NestJS)"]
+        S1["1. User Management :8080"]
+        S2["2. Animal Rescue :8081"]
+        S3["3. Financial :8082"]
+        S4["4. Notification :8083"]
+        S5["5. Geolocation :8084"]
+        S6["6. Veterinary :8085"]
+        S7["7. Reputation :8086"]
+        S8["8. Government :8087"]
+        S9["9. Analytics :8088"]
+        S10["10. Agent AI Service<br/>NestJS + LangGraph + FalkorDB :4000"]
+    end
+
+    MS --> PG["PostgreSQL + PostGIS"]
+    MS --> RD["Redis / FalkorDB"]
+    MS --> KF["Kafka"]
 ```
 
 ### 1.2 Principios Arquitectonicos
@@ -289,36 +271,16 @@ type RescuerRecommendation {
 
 Cada microservicio posee su propia base de datos dedicada. Ningun servicio accede directamente a la base de datos de otro; la comunicacion se realiza exclusivamente via APIs o eventos.
 
-```
-┌──────────────────┐     ┌──────────────────┐     ┌──────────────────┐
-│ User Management  │     │ Animal Rescue    │     │ Financial        │
-│ Service          │     │ Service          │     │ Service          │
-└────────┬─────────┘     └────────┬─────────┘     └────────┬─────────┘
-         │                        │                         │
-    ┌────▼────┐             ┌─────▼────┐              ┌─────▼────┐
-    │ PG: users│            │ PG: rescue│              │ PG: finance│
-    │ +roles   │            │ +PostGIS  │              │ +audit     │
-    └─────────┘             └──────────┘              └──────────┘
-
-┌──────────────────┐     ┌──────────────────┐     ┌──────────────────┐
-│ Notification     │     │ Geolocation      │     │ Reputation       │
-│ Service          │     │ Service          │     │ Service          │
-└────────┬─────────┘     └────────┬─────────┘     └────────┬─────────┘
-         │                        │                         │
-    ┌────▼────┐             ┌─────▼────┐              ┌─────▼────┐
-    │ MongoDB  │            │ PG+PostGIS│              │ PG: scores│
-    │ chat     │            │ spatial   │              │ +events   │
-    └─────────┘             └──────────┘              └──────────┘
-
-┌──────────────────┐     ┌──────────────────┐
-│ Analytics        │     │ Agent AI         │
-│ Service          │     │ Service          │
-└────────┬─────────┘     └────────┬─────────┘
-         │                        │
-    ┌────▼────┐             ┌─────▼────┐
-    │ClickHouse│            │ FalkorDB │
-    │ analytics│            │ graph    │
-    └─────────┘             └──────────┘
+```mermaid
+graph TD
+    UM["User Management Service"] --> DB_UM["PG: users + roles"]
+    AR["Animal Rescue Service"] --> DB_AR["PG: rescue + PostGIS"]
+    FN["Financial Service"] --> DB_FN["PG: finance + audit"]
+    NT["Notification Service"] --> DB_NT["MongoDB: chat"]
+    GL["Geolocation Service"] --> DB_GL["PG + PostGIS: spatial"]
+    RP["Reputation Service"] --> DB_RP["PG: scores + events"]
+    AN["Analytics Service"] --> DB_AN["ClickHouse: analytics"]
+    AI["Agent AI Service"] --> DB_AI["FalkorDB: graph"]
 ```
 
 ### 4.2 Optimizaciones de Base de Datos
@@ -408,28 +370,29 @@ auth:
 
 ### 5.2 Jerarquia RBAC
 
-```
-Administrador Gubernamental (Maximo nivel jurisdiccional)
-├── Encargado de Bienestar Animal (autoriza atencion veterinaria)
-├── Mediador de Conflictos
-└── [Organizaciones en su jurisdiccion]
+```mermaid
+graph TD
+    AG["Administrador Gubernamental<br/>(Maximo nivel jurisdiccional)"]
+    AG --> EBA["Encargado de Bienestar Animal<br/>(autoriza atencion veterinaria)"]
+    AG --> MC["Mediador de Conflictos"]
+    AG --> OJ["Organizaciones en su jurisdiccion"]
 
-Representante Legal (Maximo nivel organizacional)
-├── Administrador de Usuarios
-├── Centinela Organizacional
-├── Auxiliar Organizacional
-├── Rescatista Organizacional
-├── Adoptante Organizacional
-├── Donante Organizacional
-└── Veterinario Organizacional
+    RL["Representante Legal<br/>(Maximo nivel organizacional)"]
+    RL --> AU["Administrador de Usuarios"]
+    RL --> CO["Centinela Organizacional"]
+    RL --> AO["Auxiliar Organizacional"]
+    RL --> RO["Rescatista Organizacional"]
+    RL --> ADO["Adoptante Organizacional"]
+    RL --> DO["Donante Organizacional"]
+    RL --> VO["Veterinario Organizacional"]
 
-Usuarios Individuales (con responsabilidades especificas)
-├── Centinela Individual (SOLO solicitudes de auxilio)
-├── Auxiliar Individual (SOLO solicitudes de auxilio inmediato)
-├── Rescatista Individual (SOLO solicitudes de adopcion)
-├── Adoptante Individual
-├── Donante Individual
-└── Veterinario Individual
+    UI["Usuarios Individuales<br/>(con responsabilidades especificas)"]
+    UI --> CI["Centinela Individual<br/>(SOLO solicitudes de auxilio)"]
+    UI --> AI["Auxiliar Individual<br/>(SOLO solicitudes de auxilio inmediato)"]
+    UI --> RI["Rescatista Individual<br/>(SOLO solicitudes de adopcion)"]
+    UI --> ADI["Adoptante Individual"]
+    UI --> DI["Donante Individual"]
+    UI --> VI["Veterinario Individual"]
 ```
 
 Cada rol tiene tipos especificos de solicitudes que puede crear, siguiendo las reglas BR-010 a BR-032. Cada servicio valida permisos independientemente usando tokens JWT con claims de roles.
@@ -477,20 +440,16 @@ Proceso de acceso excepcional auditado con expiracion (REQ-SEC-007):
 
 ### 6.1 Defense in Depth (Seguridad por Capas)
 
-```
-┌─────────────────────────────────────────┐
-│ Capa 1: WAF + Rate Limiting            │  1000 req/5min/IP
-├─────────────────────────────────────────┤
-│ Capa 2: API Gateway (Kong/Istio)       │  Auth, throttling
-├─────────────────────────────────────────┤
-│ Capa 3: Service Mesh (Istio mTLS)      │  Cifrado service-to-service
-├─────────────────────────────────────────┤
-│ Capa 4: Network Policies (K8s)         │  Aislamiento de pods
-├─────────────────────────────────────────┤
-│ Capa 5: Aplicacion (JWT + RBAC)        │  Validacion por servicio
-├─────────────────────────────────────────┤
-│ Capa 6: Datos (AES-256 + TLS 1.3)     │  Cifrado en reposo y transito
-└─────────────────────────────────────────┘
+```mermaid
+graph TD
+    L1["Capa 1: WAF + Rate Limiting -- 1000 req/5min/IP"]
+    L2["Capa 2: API Gateway (Kong/Istio) -- Auth, throttling"]
+    L3["Capa 3: Service Mesh (Istio mTLS) -- Cifrado service-to-service"]
+    L4["Capa 4: Network Policies (K8s) -- Aislamiento de pods"]
+    L5["Capa 5: Aplicacion (JWT + RBAC) -- Validacion por servicio"]
+    L6["Capa 6: Datos (AES-256 + TLS 1.3) -- Cifrado en reposo y transito"]
+
+    L1 --> L2 --> L3 --> L4 --> L5 --> L6
 ```
 
 ### 6.2 Network Policies (Kubernetes)
@@ -1081,20 +1040,17 @@ storage-optimization:
 
 ### 12.1 Stack de Observabilidad (REQ-DIS-007)
 
-```
-┌────────────────────────────────────────────────────┐
-│           OpenTelemetry Collector (OTLP)           │
-├───────────────┬───────────────┬────────────────────┤
-│  Metricas     │  Logs         │  Trazas            │
-│  Prometheus   │  Loki         │  Grafana Tempo     │
-├───────────────┴───────────────┴────────────────────┤
-│              Grafana (Dashboards)                   │
-└────────────────────────────────────────────────────┘
-                        +
-┌────────────────────────────────────────────────────┐
-│           Langfuse (Observabilidad AI)             │
-│  Trazas LLM / Metricas / Costos / Evaluaciones    │
-└────────────────────────────────────────────────────┘
+```mermaid
+graph TD
+    OTEL["OpenTelemetry Collector (OTLP)"]
+    OTEL --> MET["Metricas: Prometheus"]
+    OTEL --> LOG["Logs: Loki"]
+    OTEL --> TRC["Trazas: Grafana Tempo"]
+    MET --> GF["Grafana (Dashboards)"]
+    LOG --> GF
+    TRC --> GF
+
+    LF["Langfuse (Observabilidad AI)<br/>Trazas LLM / Metricas / Costos / Evaluaciones"]
 ```
 
 ### 12.2 Structured Logging (12-Factor App)

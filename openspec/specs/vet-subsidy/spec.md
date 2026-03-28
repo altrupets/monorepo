@@ -119,12 +119,16 @@ POST /api/v1/veterinary/referral
 
 ### Maquina de Estados Completa
 
-```
-CREADA ──────> EN_REVISION ──────> APROBADA   (estado final)
-                   │
-                   ├──────────────> RECHAZADA  (estado final)
-                   │
-                   └──────────────> EXPIRADA   (estado final, automatico)
+```mermaid
+stateDiagram-v2
+    [*] --> CREADA
+    CREADA --> EN_REVISION : Solicitud entra a evaluacion municipal
+    EN_REVISION --> APROBADA : Municipalidad aprueba la subvencion
+    EN_REVISION --> RECHAZADA : Municipalidad rechaza con justificacion
+    EN_REVISION --> EXPIRADA : Vence el tiempo maximo sin resolucion (automatico)
+    APROBADA --> [*]
+    RECHAZADA --> [*]
+    EXPIRADA --> [*]
 ```
 
 **Transiciones validas:**
@@ -619,11 +623,12 @@ Personas involucradas: P03 (Veterinario), P04 (Clinica)
 
 ### Grafo de Dependencias
 
-```
-J1 (Registro) <- RAIZ
-  +-- J6 (Casa Cuna)
-  |     +-- J4 (Subsidio Veterinario) <- depende de J1 + J6 + J9
-  +-- J9 (Incorporacion Veterinaria) <- depende de J1, alimenta J4
+```mermaid
+flowchart TD
+    J1["J1 (Registro) - RAIZ"] --> J6["J6 (Casa Cuna)"]
+    J1 --> J9["J9 (Incorporacion Veterinaria)"]
+    J6 --> J4["J4 (Subsidio Veterinario)"]
+    J9 --> J4
 ```
 
 **Camino critico hacia ingresos B2G (subsidios)**: J1 -> J6 + J9 -> J4
