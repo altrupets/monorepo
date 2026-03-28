@@ -27,8 +27,12 @@ style: |
     background: var(--color-neutral-95);
     color: var(--color-neutral-10);
     letter-spacing: normal;
-    padding: 40px 60px;
+    padding: 40px 50px;
     font-size: 22px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: stretch !important;
   }
 
   section.lead {
@@ -80,24 +84,46 @@ style: |
   }
 
   h1 { color: var(--color-primary); font-weight: 700; font-size: 1.6em; letter-spacing: normal; }
-  h2 { color: var(--color-accent); font-weight: 600; font-size: 1em; letter-spacing: normal; }
-  h3 { color: var(--color-primary); font-weight: 600; font-size: 0.9em; letter-spacing: normal; }
-  h4 { color: var(--color-accent); font-weight: 500; font-size: 0.8em; letter-spacing: normal; }
+  h2 { color: var(--color-accent); font-weight: 600; font-size: 1.2em; letter-spacing: normal; }
+  h3 { color: var(--color-primary); font-weight: 600; font-size: 1.1em; letter-spacing: normal; }
+  h4 { color: var(--color-accent); font-weight: 500; font-size: 1em; letter-spacing: normal; }
   strong { color: var(--color-secondary); }
   ul, ol, li, p { letter-spacing: normal; }
 
   table {
-    font-size: 0.6em;
+    font-size: 0.85em !important;
     font-family: 'Inter', sans-serif;
-    letter-spacing: normal;
-    width: 100%;
+    letter-spacing: normal !important;
+    width: 100% !important;
+    min-width: 100% !important;
+    table-layout: fixed !important;
   }
 
-  th { background: var(--color-primary); color: white; padding: 4px 8px; }
-  td { padding: 3px 8px; }
+  section > :is(table, p:has(> table), div:has(> table)) {
+    align-self: stretch !important;
+    width: 100% !important;
+  }
 
-  .compact table { font-size: 0.5em; }
-  .compact td, .compact th { padding: 2px 6px; }
+  section > * {
+    width: 100% !important;
+    max-width: 100% !important;
+    align-self: stretch !important;
+  }
+
+  th { background: var(--color-primary); color: white; padding: 6px 10px !important; }
+  td { padding: 6px 10px !important; vertical-align: middle !important; }
+  td p, th p { margin: 0 !important; padding: 0 !important; }
+  td { display: table-cell !important; vertical-align: middle !important; }
+  td strong { display: inline-block !important; vertical-align: middle !important; }
+  td:first-child { text-align: center !important; }
+  td { text-align: center !important; }
+  section.compact td { text-align: left !important; }
+  section.compact td:first-child { text-align: center !important; }
+
+  section.compact table { font-size: 0.85em !important; border-spacing: 0 !important; border-collapse: collapse !important; }
+  section.compact table td, section.compact table th { padding: 8px 4px !important; vertical-align: middle !important; }
+  section.compact table td p, section.compact table th p { margin: 0 !important; padding: 0 !important; }
+  section.compact table td *, section.compact table th *, section.compact table td, section.compact table th { line-height: 1.1 !important; }
 
   .col3 {
     display: grid;
@@ -284,6 +310,8 @@ Y también: **Canceled** (documentar por qué) + **Duplicate** (linkear original
 
 ---
 
+<!-- _class: compact -->
+
 # Labels Sin Grupo -- Combinables
 
 Issues pueden tener múltiples labels de estas categorías.
@@ -293,14 +321,16 @@ Issues pueden tener múltiples labels de estas categorías.
 
 ### Component (8 labels)
 
-- Frontend
-- Backend
-- Database
-- Security
-- Performance
-- Infra
-- Testing
-- Web Quality
+| Label | Área |
+|-------|------|
+| **Frontend** | Flutter mobile o web UI |
+| **Backend** | NestJS, API, GraphQL |
+| **Database** | Schema, migraciones, ORM |
+| **Security** | Auth, secrets, encryption |
+| **Performance** | Optimización, caching |
+| **Infra** | K8s, Terraform, CI/CD |
+| **Testing** | Unit, integration, e2e |
+| **Web Quality** | A11y, SEO, Core Web Vitals |
 
 </div>
 <div>
@@ -334,14 +364,11 @@ Issues pueden tener múltiples labels de estas categorías.
 
 # Labeling en Práctica -- 3 Ejemplos
 
-**"Agregar verificación de email al onboarding"**
-ALT-16 -- Feature -- S -- Solo -- Backend + Security
-
-**"Fix webhook de subsidio retornando 500 en aprobación"**
-ALT-XX -- Bug -- M -- Explore -- Backend -- Critical Path -- Revenue
-
-**"Asegurar contrato municipal de San José"**
-ALT-XX -- Feature -- Human -- Revenue
+| Issue | Type | Size | Strategy | Component | Impact |
+|-------|------|------|----------|-----------|--------|
+| **"Agregar verificación de email<br>al onboarding"** | Feature | S | Solo | Backend,<br>Security | |
+| **"Fix webhook de subsidio<br>retornando 500 en aprobación"** | Bug | M | Explore | Backend | Critical Path,<br>Revenue |
+| **"Asegurar contrato municipal<br>de San José"** | Feature | | Human | | Revenue |
 
 ---
 
@@ -357,6 +384,8 @@ El template bilingüe -- diseñado para humanos Y agentes IA
 # El Template Bilingüe
 
 Cada issue debe ser legible y valioso para humanos que orquestan Y agentes que ejecutan.
+
+> La Capa Humana no es solo para humanos -- previene alucinaciones del agente al proveer conocimiento de dominio y edge cases.
 
 <div class="col2">
 <div>
@@ -393,8 +422,6 @@ Cada issue debe ser legible y valioso para humanos que orquestan Y agentes que e
 
 </div>
 </div>
-
-> La Capa Humana no es solo para humanos -- previene alucinaciones del agente al proveer conocimiento de dominio y edge cases.
 
 ---
 
