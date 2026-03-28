@@ -6,6 +6,7 @@ import { CapturesResolver } from './captures.resolver';
 import { STORAGE_WRAPPER } from './interfaces/storage-wrapper.interface';
 import { LocalStorageService } from './storage/local-storage.service';
 import { RemoteStorageService } from './storage/remote-storage.service';
+import { NotificationsModule } from '../notifications/notifications.module';
 
 const StorageProvider: Provider = {
     provide: STORAGE_WRAPPER,
@@ -21,7 +22,7 @@ const StorageProvider: Provider = {
 };
 
 @Module({
-    imports: [TypeOrmModule.forFeature([CaptureRequest]), ConfigModule],
+    imports: [TypeOrmModule.forFeature([CaptureRequest]), ConfigModule, NotificationsModule],
     providers: [
         CapturesResolver,
         LocalStorageService,

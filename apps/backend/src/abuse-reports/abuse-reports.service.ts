@@ -1,16 +1,22 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { nanoid } from 'nanoid';
 import { AbuseReport, AbuseReportStatus } from './entities/abuse-report.entity';
 import { JurisdictionsService } from '../jurisdictions/jurisdictions.service';
+import { NotificationsService } from '../notifications/notifications.service';
+import { NotificationType } from '../notifications/enums/notification-type.enum';
+import { UserRole } from '../auth/roles/user-role.enum';
 
 @Injectable()
 export class AbuseReportsService {
+  private readonly logger = new Logger(AbuseReportsService.name);
+
   constructor(
     @InjectRepository(AbuseReport)
     private readonly abuseReportRepository: Repository<AbuseReport>,
     private readonly jurisdictionsService: JurisdictionsService,
+    private readonly notificationsService: NotificationsService,
   ) {}
 
   async create(data: {
@@ -45,7 +51,22 @@ export class AbuseReportsService {
       status: AbuseReportStatus.SUBMITTED,
     });
 
-    return this.abuseReportRepository.save(report);
+    const saved = await this.abuseReportRepository.save(report);
+
+    // Notify government admins about new abuse report
+    this.notificationsService
+      .sendToRole({
+        role: UserRole.GOVERNMENT_ADMIN,
+        type: NotificationType.ABUSE_REPORT_FILED,
+        title: 'New Abuse Report Filed',
+        body: `A new ${data.type} abuse report has been filed (${trackingCode})`,
+        referenceId: saved.id,
+        referenceType: 'AbuseReport',
+        jurisdictionId: saved.municipalityId,
+      })
+      .catch((err) => this.logger.warn('Notification send failed', err));
+
+    return saved;
   }
 
   async findByTrackingCode(code: string): Promise<AbuseReport> {
@@ -78,6 +99,20 @@ export class AbuseReportsService {
     }
 
     report.status = status;
-    return this.abuseReportRepository.save(report);
+    const saved = await this.abuseReportRepository.save(report);
+
+    // Notify the reporter about the status update
+    this.notificationsService
+      .sendToUser({
+        userId: saved.reporterId,
+        type: NotificationType.ABUSE_REPORT_UPDATE,
+        title: 'Abuse Report Updated',
+        body: `Your abuse report (${saved.trackingCode}) status changed to ${status}`,
+        referenceId: saved.id,
+        referenceType: 'AbuseReport',
+      })
+      .catch((err) => this.logger.warn('Notification send failed', err));
+
+    return saved;
   }
 }
