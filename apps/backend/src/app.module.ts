@@ -34,6 +34,8 @@ import { DeviceToken } from './notifications/entities/device-token.entity';
 import { Notification } from './notifications/entities/notification.entity';
 import { MailModule } from './mail/mail.module';
 import { McpModule } from './mcp/mcp.module';
+import { RescuesModule } from './rescues/rescues.module';
+import { RescueAlert } from './rescues/entities/rescue-alert.entity';
 
 @Module({
   imports: [
@@ -87,6 +89,7 @@ import { McpModule } from './mcp/mcp.module';
           SubsidyRequest,
           DeviceToken,
           Notification,
+          RescueAlert,
         ],
         synchronize: configService.get<string>('NODE_ENV') !== 'production',
         migrations: [join(__dirname, 'migrations', '*{.ts,.js}')],
@@ -145,6 +148,7 @@ import { McpModule } from './mcp/mcp.module';
     NotificationsModule,
     MailModule,
     McpModule,
+    RescuesModule,
   ],
   controllers: [AppController],
   providers: [AppService],
