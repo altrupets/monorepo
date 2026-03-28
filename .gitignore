@@ -63,6 +63,8 @@ downloads/
 eggs/
 .eggs
 lib/
+!**/apps/mobile/lib/
+!**/apps/widgetbook/lib/
 lib64/
 parts/
 sdist/
