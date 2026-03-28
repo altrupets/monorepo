@@ -49,16 +49,13 @@
       ],
       "env": {}
     },
-    "linear": {
+    "sentry": {
       "command": "npx",
       "args": [
         "-y",
-        "mcp-remote",
-        "https://mcp.linear.app/mcp"
+        "@sentry/mcp-server"
       ],
-      "env": {
-        "AUTHORIZATION": "Bearer ${LINEAR_API_KEY}"
-      }
+      "env": {}
     }
   }
 }

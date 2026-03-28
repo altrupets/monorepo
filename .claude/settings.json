@@ -1,0 +1,32 @@
+{
+  "enabledPlugins": {
+    "linear@claude-plugins-official": true,
+    "sentry@claude-plugins-official": true
+  },
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "Edit|Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "filepath=\"$CLAUDE_FILE_PATH\"; if echo \"$filepath\" | grep -qE '\\.ts$' && echo \"$filepath\" | grep -q 'apps/backend'; then cd apps/backend && npx prettier --write \"$filepath\" 2>/dev/null; fi",
+            "statusMessage": "Auto-formatting TypeScript"
+          }
+        ]
+      }
+    ],
+    "PreToolUse": [
+      {
+        "matcher": "Edit|Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "if echo \"$CLAUDE_FILE_PATH\" | grep -qE '\\.env(\\.local|\\.production|\\.dev)?$'; then echo 'BLOCKED: Use Infisical for secrets, not direct .env edits' >&2; exit 1; fi",
+            "statusMessage": "Checking .env protection"
+          }
+        ]
+      }
+    ]
+  }
+}
