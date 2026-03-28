@@ -10,12 +10,16 @@ import { User } from '../users/entities/user.entity';
 import { RolesGuard } from '../auth/roles/roles.guard';
 import { Roles } from '../auth/roles/roles.decorator';
 import { CAPTURE_VIEWER_ROLES } from '../auth/roles/rbac-constants';
+import { NotificationsService } from '../notifications/notifications.service';
+import { NotificationType } from '../notifications/enums/notification-type.enum';
+import { UserRole } from '../auth/roles/user-role.enum';
 
 @Resolver(() => CaptureRequest)
 export class CapturesResolver {
     constructor(
         @Inject(STORAGE_WRAPPER)
         private readonly storage: IStorageWrapper,
+        private readonly notificationsService: NotificationsService,
     ) { }
 
     @Query(() => [CaptureRequest], { name: 'getCaptureRequests' })
@@ -35,6 +39,22 @@ export class CapturesResolver {
         const imageBuffer = Buffer.from(input.imageBase64, 'base64');
 
         const { imageBase64, ...data } = input;
-        return this.storage.saveCapture(data, imageBuffer, user.id);
+        const capture = await this.storage.saveCapture(data, imageBuffer, user.id);
+
+        // Notify HELPER role users about new rescue alert
+        this.notificationsService
+            .sendToRole({
+                role: UserRole.HELPER,
+                type: NotificationType.RESCUE_ALERT,
+                title: 'New Rescue Alert',
+                body: `A new ${input.animalType} rescue request has been reported`,
+                referenceId: capture.id,
+                referenceType: 'CaptureRequest',
+            })
+            .catch(() => {
+                // Notification failures should not block the main flow
+            });
+
+        return capture;
     }
 }

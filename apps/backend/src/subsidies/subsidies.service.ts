@@ -4,6 +4,9 @@ import { Repository, LessThan } from 'typeorm';
 import { SubsidyRequest, SubsidyRequestStatus } from './entities/subsidy-request.entity';
 import { JurisdictionsService } from '../jurisdictions/jurisdictions.service';
 import { Animal } from '../animals/entities/animal.entity';
+import { NotificationsService } from '../notifications/notifications.service';
+import { NotificationType } from '../notifications/enums/notification-type.enum';
+import { UserRole } from '../auth/roles/user-role.enum';
 
 @Injectable()
 export class SubsidiesService {
@@ -13,6 +16,7 @@ export class SubsidiesService {
     @InjectRepository(Animal)
     private readonly animalRepository: Repository<Animal>,
     private readonly jurisdictionsService: JurisdictionsService,
+    private readonly notificationsService: NotificationsService,
   ) {}
 
   async create(data: {
@@ -46,7 +50,24 @@ export class SubsidiesService {
       expiresAt: new Date(Date.now() + 72 * 60 * 60 * 1000), // 72 hours expiration
     });
 
-    return this.subsidyRepository.save(request);
+    const saved = await this.subsidyRepository.save(request);
+
+    // Notify government admins about new subsidy request
+    this.notificationsService
+      .sendToRole({
+        role: UserRole.GOVERNMENT_ADMIN,
+        type: NotificationType.SUBSIDY_CREATED,
+        title: 'New Subsidy Request',
+        body: `A new subsidy request has been submitted for $${data.amountRequested}`,
+        referenceId: saved.id,
+        referenceType: 'SubsidyRequest',
+        jurisdictionId: saved.municipalityId,
+      })
+      .catch(() => {
+        // Notification failures should not block the main flow
+      });
+
+    return saved;
   }
 
   async findOne(id: string): Promise<SubsidyRequest> {
@@ -70,7 +91,39 @@ export class SubsidiesService {
   async updateStatus(id: string, status: SubsidyRequestStatus): Promise<SubsidyRequest> {
     const request = await this.findOne(id);
     request.status = status;
-    return this.subsidyRepository.save(request);
+    const saved = await this.subsidyRepository.save(request);
+
+    // Send notification to the requester based on status change
+    const notificationMap: Partial<Record<SubsidyRequestStatus, { type: NotificationType; title: string; body: string }>> = {
+      [SubsidyRequestStatus.APPROVED]: {
+        type: NotificationType.SUBSIDY_APPROVED,
+        title: 'Subsidy Request Approved',
+        body: 'Your subsidy request has been approved',
+      },
+      [SubsidyRequestStatus.REJECTED]: {
+        type: NotificationType.SUBSIDY_REJECTED,
+        title: 'Subsidy Request Rejected',
+        body: 'Your subsidy request has been rejected',
+      },
+    };
+
+    const notificationConfig = notificationMap[status];
+    if (notificationConfig) {
+      this.notificationsService
+        .sendToUser({
+          userId: saved.requesterId,
+          type: notificationConfig.type,
+          title: notificationConfig.title,
+          body: notificationConfig.body,
+          referenceId: saved.id,
+          referenceType: 'SubsidyRequest',
+        })
+        .catch(() => {
+          // Notification failures should not block the main flow
+        });
+    }
+
+    return saved;
   }
 
   async expireOldRequests(): Promise<number> {

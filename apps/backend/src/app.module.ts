@@ -29,6 +29,9 @@ import { AbuseReportsModule } from './abuse-reports/abuse-reports.module';
 import { AbuseReport } from './abuse-reports/entities/abuse-report.entity';
 import { SubsidiesModule } from './subsidies/subsidies.module';
 import { SubsidyRequest } from './subsidies/entities/subsidy-request.entity';
+import { NotificationsModule } from './notifications/notifications.module';
+import { DeviceToken } from './notifications/entities/device-token.entity';
+import { Notification } from './notifications/entities/notification.entity';
 
 @Module({
   imports: [
@@ -80,6 +83,8 @@ import { SubsidyRequest } from './subsidies/entities/subsidy-request.entity';
           Jurisdiction,
           AbuseReport,
           SubsidyRequest,
+          DeviceToken,
+          Notification,
         ],
         synchronize: configService.get<string>('NODE_ENV') !== 'production',
         migrations: [join(__dirname, 'migrations', '*{.ts,.js}')],
@@ -116,7 +121,6 @@ import { SubsidyRequest } from './subsidies/entities/subsidy-request.entity';
         return {
           ttl: configService.get<number>('CACHE_TTL', 600) * 1000,
         };
-        };
       },
       inject: [ConfigService],
     }),
@@ -136,6 +140,7 @@ import { SubsidyRequest } from './subsidies/entities/subsidy-request.entity';
     JurisdictionsModule,
     AbuseReportsModule,
     SubsidiesModule,
+    NotificationsModule,
   ],
   controllers: [AppController],
   providers: [AppService],
