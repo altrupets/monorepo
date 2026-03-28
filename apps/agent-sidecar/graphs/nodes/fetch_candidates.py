@@ -65,28 +65,27 @@ async def fetch_candidates(state: MatchingState) -> MatchingState:
         return {**state, "candidates": [], "total_evaluated": 0, "error": "database_connection_failed"}
 
     try:
-        # Fetch active users with rescuer/helper roles who are not on an active rescue.
-        # Lat/lng are stored as decimal columns on the user table.
+        # Fetch active users with RESCUER or HELPER roles who are not on an active rescue.
+        # AltruPets schema: roles is a postgres array column on users table,
+        # rescue_alerts tracks active rescues (auxiliarId/rescuerId columns).
         query = """
             SELECT
                 u.id,
-                u.name,
+                COALESCE(u."firstName", u.username) AS name,
                 u.latitude,
                 u.longitude,
-                u.available_capacity,
-                array_agg(ur.role) AS roles
+                u.roles
             FROM users u
-            JOIN user_roles ur ON ur.user_id = u.id
-            WHERE u.is_active = true
-              AND ur.role IN ('RESCUER', 'HELPER')
+            WHERE u."isActive" = true
+              AND (u.roles && ARRAY['RESCUER', 'HELPER']::varchar[])
               AND u.latitude IS NOT NULL
               AND u.longitude IS NOT NULL
               AND u.id NOT IN (
-                  SELECT ra.rescuer_id
-                  FROM rescue_assignments ra
-                  WHERE ra.status NOT IN ('COMPLETED', 'CANCELLED')
+                  SELECT COALESCE(ra."auxiliarId", ra."rescuerId")
+                  FROM rescue_alerts ra
+                  WHERE ra.status NOT IN ('COMPLETED', 'CANCELLED', 'REJECTED', 'EXPIRED')
+                    AND (ra."auxiliarId" IS NOT NULL OR ra."rescuerId" IS NOT NULL)
               )
-            GROUP BY u.id, u.name, u.latitude, u.longitude, u.available_capacity
         """
         rows = await conn.fetch(query)
 
@@ -97,10 +96,10 @@ async def fetch_candidates(state: MatchingState) -> MatchingState:
                 candidates.append(
                     CandidateData(
                         user_id=str(row["id"]),
-                        name=row["name"],
+                        name=row["name"] or "Unknown",
                         distance_km=round(dist, 2),
-                        available_capacity=row["available_capacity"] or 0,
-                        roles=list(row["roles"]),
+                        available_capacity=0,  # enriched later from casa_cuna data
+                        roles=list(row["roles"]) if row["roles"] else [],
                     )
                 )
 
