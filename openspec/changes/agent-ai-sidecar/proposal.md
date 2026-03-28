@@ -1,9 +1,10 @@
 # Propuesta: Agent AI Sidecar con agentic-core
 
 **Change**: `agent-ai-sidecar`
-**Proyecto Linear**: Agent AI (Planned)
+**Proyecto Linear**: Agent AI (ALT-38)
 **Fecha**: 2026-03-28
 **Servicios afectados**: Backend (NestJS), Infraestructura K8s, FalkorDB, Redis, PostgreSQL
+**Reemplaza**: `specs/backend-agent/` (11 spec steps originales, enfoque NestJS)
 
 ---
 

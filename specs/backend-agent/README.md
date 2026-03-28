@@ -1,4 +1,13 @@
-# Agent AI Service — Spec & Setup Guide
+# Agent AI Service -- Spec & Setup Guide (LEGACY)
+
+> **NOTA**: Este enfoque NestJS fue reemplazado por el patron sidecar con `agentic-core` (Python).
+> Ver: `openspec/changes/agent-ai-sidecar/` para el diseño actual.
+> Linear: ALT-38
+>
+> Los 11 spec steps de abajo se conservan como referencia historica.
+> La implementacion real sigue los artefactos de OpenSpec.
+
+---
 
 > Microservicio NestJS independiente con GraphQL propio para IA de matching de rescatistas.
 > Integra LangGraph, Zep (FalkorDB), Langfuse. Deployable en Minikube (dev) y OVHCloud (QA/STAGE/PROD).
