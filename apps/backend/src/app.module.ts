@@ -33,6 +33,7 @@ import { NotificationsModule } from './notifications/notifications.module';
 import { DeviceToken } from './notifications/entities/device-token.entity';
 import { Notification } from './notifications/entities/notification.entity';
 import { MailModule } from './mail/mail.module';
+import { McpModule } from './mcp/mcp.module';
 
 @Module({
   imports: [
@@ -143,6 +144,7 @@ import { MailModule } from './mail/mail.module';
     SubsidiesModule,
     NotificationsModule,
     MailModule,
+    McpModule,
   ],
   controllers: [AppController],
   providers: [AppService],
