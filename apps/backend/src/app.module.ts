@@ -36,6 +36,9 @@ import { MailModule } from './mail/mail.module';
 import { McpModule } from './mcp/mcp.module';
 import { RescuesModule } from './rescues/rescues.module';
 import { RescueAlert } from './rescues/entities/rescue-alert.entity';
+import { AdoptionsModule } from './adoptions/adoptions.module';
+import { AdoptionListing } from './adoptions/entities/adoption-listing.entity';
+import { AdoptionApplication } from './adoptions/entities/adoption-application.entity';
 
 @Module({
   imports: [
@@ -90,6 +93,8 @@ import { RescueAlert } from './rescues/entities/rescue-alert.entity';
           DeviceToken,
           Notification,
           RescueAlert,
+          AdoptionListing,
+          AdoptionApplication,
         ],
         synchronize: configService.get<string>('NODE_ENV') !== 'production',
         migrations: [join(__dirname, 'migrations', '*{.ts,.js}')],
@@ -149,6 +154,7 @@ import { RescueAlert } from './rescues/entities/rescue-alert.entity';
     MailModule,
     McpModule,
     RescuesModule,
+    AdoptionsModule,
   ],
   controllers: [AppController],
   providers: [AppService],
