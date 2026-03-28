@@ -1,0 +1,8 @@
+schema: spec-driven
+created: 2026-03-28
+status: proposed
+linear_project: Agent AI
+artifacts:
+  - proposal.md
+  - design.md
+  - tasks.md

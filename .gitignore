@@ -198,3 +198,5 @@ apps/mobile/ios/Runner/GoogleService-Info.plist
 # Stitch assets (generated output - keep script, ignore downloaded content)
 stitch_assets/*/
 !.gitkeep
+
+.claude/worktrees/

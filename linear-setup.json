@@ -1,0 +1,45 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "description": "Project-level Linear configuration for Claude Code commands (/make-no-mistakes, /spec-recommend, /e2e-test-runner)",
+  "team": {
+    "key": "ALT",
+    "name": "AltruPets",
+    "url": "https://linear.app/altrupets/team/ALT/active"
+  },
+  "git": {
+    "baseBranch": "main",
+    "branchPrefix": "ALT",
+    "branchPattern": "{issueId}-{short-description}"
+  },
+  "projects": {
+    "backend": { "name": "Backend API", "id": "09000036-5ee3-4a3e-9d28-04be2ef4e37d" },
+    "mobile": { "name": "Mobile App", "id": "e3f79c9f-82e9-4d7d-a7ef-f86177d60df3" },
+    "agent-ai": { "name": "Agent AI", "id": "192d56f2-3071-4334-b559-1ec598d071d1" },
+    "infra": { "name": "Infrastructure & DevOps", "id": "ab10530d-ee89-42b0-8213-4daba05920c3" },
+    "web-b2g": { "name": "Web — B2G", "id": "d9c10a83-dc47-42aa-b637-94d1e490383c" },
+    "web-superusers": { "name": "Web — CRUD Superusers", "id": "1a1591b1-6993-4084-822f-c1ddaccc1c62" },
+    "design": { "name": "Diseño y Control Calidad - UX / UI", "id": "a909b375-e591-442e-83be-4eafe95a2934" },
+    "ops": { "name": "Operaciones", "id": "0b9f0622-2d6f-4483-a0a4-f9525d0fca04" }
+  },
+  "defaults": {
+    "assignToMe": true,
+    "greptileReview": true,
+    "greptileMinConfidence": 3,
+    "prBase": "main",
+    "squashMerge": true,
+    "slackNotify": true
+  },
+  "issueDefaults": {
+    "priority": "medium",
+    "labels": []
+  },
+  "srd": {
+    "gapAuditPath": "srd-español/gap-audit.md",
+    "journeysPath": "srd-español/journeys.md",
+    "personasPath": "srd-español/personas.yml"
+  },
+  "openspec": {
+    "specLibraryPath": "openspec/specs",
+    "changesPath": "openspec/changes"
+  }
+}
