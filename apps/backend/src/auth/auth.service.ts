@@ -1,14 +1,21 @@
-import { Injectable, Inject, UnauthorizedException, Logger } from '@nestjs/common';
+import {
+  Injectable,
+  Inject,
+  UnauthorizedException,
+  BadRequestException,
+  Logger,
+} from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import { UserRole } from './roles/user-role.enum';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
-import { createHash } from 'crypto';
+import { createHash, randomBytes } from 'crypto';
 import { CACHE_MANAGER } from '@nestjs/cache-manager';
 import type { Cache } from 'cache-manager';
 import { IUSER_REPOSITORY } from '../users/domain/user.repository.interface';
 import type { IUserRepository } from '../users/domain/user.repository.interface';
 import { User } from '../users/entities/user.entity';
-import { randomBytes } from 'crypto';
+import { MailService } from '../mail/mail.service';
 
 // TODO(2FA): Add environment variable for password salt in production
 // TODO(2FA): Implement TOTP or SMS-based 2FA for donations/crowdfunding
@@ -46,6 +53,8 @@ export class AuthService {
     private readonly jwtService: JwtService,
     @Inject(CACHE_MANAGER)
     private readonly cacheManager: Cache,
+    private readonly mailService: MailService,
+    private readonly configService: ConfigService,
   ) {}
 
   async validateUser(
@@ -294,7 +303,142 @@ export class AuthService {
       isVerified: false,
     });
 
+    // Fire-and-forget: send verification email if email is provided
+    if (registerData.email) {
+      this.sendVerificationEmail(newUser.id).catch(() => {});
+    }
+
     return newUser;
+  }
+
+  // -- Email Verification --
+
+  async sendVerificationEmail(userId: string): Promise<boolean> {
+    const user = await this.userRepository.findById(userId);
+    if (!user || !user.email) {
+      this.logger.warn(
+        `[sendVerificationEmail] Usuario o email no encontrado: ${userId}`,
+      );
+      return false;
+    }
+
+    const token = randomBytes(32).toString('hex');
+    const ttl =
+      this.configService.get<number>('EMAIL_VERIFICATION_TTL', 86400) * 1000;
+
+    await this.cacheManager.set(`verify:${token}`, userId, ttl);
+
+    const appUrl = this.configService.get<string>(
+      'APP_URL',
+      'http://localhost:3000',
+    );
+
+    // Fire-and-forget the actual email send
+    this.mailService
+      .sendVerificationEmail(user.email, user.username, token, appUrl)
+      .catch((err) => {
+        this.logger.error(
+          `[sendVerificationEmail] Error al enviar email: ${err.message}`,
+        );
+      });
+
+    return true;
+  }
+
+  async verifyEmailToken(token: string): Promise<boolean> {
+    const userId = await this.cacheManager.get<string>(`verify:${token}`);
+    if (!userId) {
+      throw new BadRequestException(
+        'Token de verificacion invalido o expirado.',
+      );
+    }
+
+    const user = await this.userRepository.findById(userId);
+    if (!user) {
+      throw new BadRequestException('Usuario no encontrado.');
+    }
+
+    user.isVerified = true;
+    await this.userRepository.save(user);
+    await this.cacheManager.del(`verify:${token}`);
+
+    this.logger.log(
+      `[verifyEmailToken] Email verificado para usuario: ${user.username}`,
+    );
+    return true;
+  }
+
+  // -- Password Reset --
+
+  async requestPasswordReset(email: string): Promise<boolean> {
+    const user = await this.userRepository.findByEmail(email);
+
+    // Anti-enumeration: always return true regardless of whether user exists
+    if (!user) {
+      this.logger.debug(
+        `[requestPasswordReset] Email no encontrado: ${email} (retornando true por seguridad)`,
+      );
+      return true;
+    }
+
+    const token = randomBytes(32).toString('hex');
+    const ttl =
+      this.configService.get<number>('PASSWORD_RESET_TTL', 3600) * 1000;
+
+    await this.cacheManager.set(`reset:${token}`, user.id, ttl);
+
+    const appUrl = this.configService.get<string>(
+      'APP_URL',
+      'http://localhost:3000',
+    );
+
+    this.mailService
+      .sendPasswordResetEmail(user.email!, user.username, token, appUrl)
+      .catch((err) => {
+        this.logger.error(
+          `[requestPasswordReset] Error al enviar email: ${err.message}`,
+        );
+      });
+
+    return true;
+  }
+
+  async resetPasswordWithToken(
+    token: string,
+    newPassword: string,
+  ): Promise<boolean> {
+    const userId = await this.cacheManager.get<string>(`reset:${token}`);
+    if (!userId) {
+      throw new BadRequestException(
+        'Token de restablecimiento invalido o expirado.',
+      );
+    }
+
+    const user = await this.userRepository.findById(userId);
+    if (!user) {
+      throw new BadRequestException('Usuario no encontrado.');
+    }
+
+    // Hash new password using the same double SHA-256 pattern as register
+    if (!PASSWORD_SALT) {
+      this.logger.error(
+        '[resetPasswordWithToken] PASSWORD_SALT no esta configurado en el environment',
+      );
+      throw new Error('Error de configuracion del servidor');
+    }
+
+    const firstHash = createHash('sha256').update(newPassword).digest('hex');
+    const combined = firstHash + PASSWORD_SALT + user.username.toLowerCase();
+    const passwordHash = createHash('sha256').update(combined).digest('hex');
+
+    user.passwordHash = passwordHash;
+    await this.userRepository.save(user);
+    await this.cacheManager.del(`reset:${token}`);
+
+    this.logger.log(
+      `[resetPasswordWithToken] Contrasena actualizada para usuario: ${user.username}`,
+    );
+    return true;
   }
 
   private generateRefreshToken(): string {

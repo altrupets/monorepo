@@ -32,6 +32,7 @@ import { SubsidyRequest } from './subsidies/entities/subsidy-request.entity';
 import { NotificationsModule } from './notifications/notifications.module';
 import { DeviceToken } from './notifications/entities/device-token.entity';
 import { Notification } from './notifications/entities/notification.entity';
+import { MailModule } from './mail/mail.module';
 
 @Module({
   imports: [
@@ -141,6 +142,7 @@ import { Notification } from './notifications/entities/notification.entity';
     AbuseReportsModule,
     SubsidiesModule,
     NotificationsModule,
+    MailModule,
   ],
   controllers: [AppController],
   providers: [AppService],

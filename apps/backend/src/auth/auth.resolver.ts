@@ -1,10 +1,12 @@
 import { Resolver, Mutation, Args, Query, registerEnumType } from '@nestjs/graphql';
 import { User } from '../users/entities/user.entity';
 import { UseGuards, HttpException, HttpStatus } from '@nestjs/common';
+import { Throttle } from '@nestjs/throttler';
 import { AuthService } from './auth.service';
 import { AuthPayload, UserProfile, RefreshTokenInput } from './dto/auth.types';
 import { LoginInput } from './dto/login.input';
 import { RegisterInput } from './dto/register.input';
+import { ResetPasswordInput } from './dto/reset-password.input';
 import { GqlUser } from './gql-user.decorator';
 import { JwtAuthGuard } from './jwt-auth.guard';
 import { RolesGuard } from './roles/roles.guard';
@@ -90,5 +92,29 @@ export class AuthResolver {
   @Roles(UserRole.GOVERNMENT_ADMIN)
   adminOnlyData() {
     return 'This is restricted to GOVERNMENT_ADMIN only';
+  }
+
+  // -- Email Verification --
+
+  @Mutation(() => Boolean)
+  @UseGuards(JwtAuthGuard)
+  @Throttle({ short: { ttl: 1000, limit: 3 } })
+  async requestEmailVerification(@GqlUser() user: User) {
+    return this.authService.sendVerificationEmail(user.id);
+  }
+
+  // -- Password Reset --
+
+  @Mutation(() => Boolean)
+  @Throttle({ short: { ttl: 1000, limit: 3 } })
+  async requestPasswordReset(@Args('email') email: string) {
+    return this.authService.requestPasswordReset(email);
+  }
+
+  @Mutation(() => Boolean)
+  async resetPassword(
+    @Args('input') input: ResetPasswordInput,
+  ) {
+    return this.authService.resetPasswordWithToken(input.token, input.newPassword);
   }
 }
