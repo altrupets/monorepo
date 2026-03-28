@@ -7,6 +7,7 @@
     "assets": [
       {
         "include": "mail/templates/**/*.hbs",
+        "include": "matching/proto/*.proto",
         "watchAssets": true
       }
     ]

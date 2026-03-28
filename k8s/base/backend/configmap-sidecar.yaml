@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: agent-sidecar-config
+  namespace: altrupets-dev
+data:
+  SIDECAR_GRPC_PORT: "50051"
+  SIDECAR_METRICS_PORT: "9090"
+  SIDECAR_HEALTH_PORT: "8080"
+  SIDECAR_MAX_CANDIDATES: "5"
+  SIDECAR_RADIUS_LOW: "15"
+  SIDECAR_RADIUS_MEDIUM: "25"
+  SIDECAR_RADIUS_HIGH: "50"
+  SIDECAR_RADIUS_CRITICAL: "100"

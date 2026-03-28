@@ -28,6 +28,8 @@
     "@apollo/server": "^5.2.0",
     "@as-integrations/express5": "^1.1.2",
     "@godaddy/terminus": "^4.12.1",
+    "@grpc/grpc-js": "^1.14.3",
+    "@grpc/proto-loader": "^0.8.0",
     "@lapc506/nestjs-inertia": "^1.0.0",
     "@modelcontextprotocol/sdk": "^1.28.0",
     "@nestjs-modules/mailer": "^2.3.4",

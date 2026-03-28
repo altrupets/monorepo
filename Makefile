@@ -30,6 +30,7 @@ TIMEOUT ?= 900000
         dev-security-container dev-security-iac dev-security-fix \
         dev-mobile-launch dev-mobile-desktop dev-mobile-launch-desktop dev-mobile-launch-emulator dev-mobile-launch-device \
         dev-mobile-widgetbook dev-mobile-analyze dev-mobile-test dev-mobile-test-coverage dev-mobile-lint \
+        dev-agent-sidecar-build dev-agent-sidecar-deploy \
         dev-admin-server-install dev-admin-server-start dev-admin-server-stop dev-admin-server-restart \
         dev-admin-server-status dev-admin-server-logs dev-admin-server-test \
         qa-terraform-deploy qa-terraform-destroy qa-verify \
@@ -753,3 +754,19 @@ dev-mobile-desktop: ## Launch Flutter desktop app (Windows native / Linux fallba
 	else \
 		cd apps/mobile && ./launch_flutter_debug.sh -l; \
 	fi
+
+# ==========================================
+# DEV - Agent Sidecar
+# ==========================================
+
+dev-agent-sidecar-build: ## Build agent-sidecar image
+	@echo "$(BLUE)Building agent-sidecar image...$(NC)"
+	@podman build -t altrupets-agent-sidecar:dev apps/agent-sidecar/
+	@minikube image load altrupets-agent-sidecar:dev
+	@echo "$(GREEN)Agent sidecar image built and loaded$(NC)"
+
+dev-agent-sidecar-deploy: ## Deploy agent-sidecar (rebuild + apply)
+	@$(MAKE) dev-agent-sidecar-build
+	@kubectl apply -f k8s/base/backend/configmap-sidecar.yaml
+	@kubectl rollout restart deployment/backend -n altrupets-dev
+	@echo "$(GREEN)Agent sidecar deployed$(NC)"
