@@ -1,0 +1,9 @@
+name: rescuer-matching
+description: Encuentra los mejores rescatistas disponibles para una alerta de rescate
+model: claude-sonnet-4-6
+graph_template: custom
+capabilities: []
+tools: []
+slo:
+  latency_p99_ms: 5000
+  success_rate: 0.99

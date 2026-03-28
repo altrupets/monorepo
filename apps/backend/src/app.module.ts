@@ -39,6 +39,7 @@ import { RescueAlert } from './rescues/entities/rescue-alert.entity';
 import { AdoptionsModule } from './adoptions/adoptions.module';
 import { AdoptionListing } from './adoptions/entities/adoption-listing.entity';
 import { AdoptionApplication } from './adoptions/entities/adoption-application.entity';
+import { MatchingModule } from './matching/matching.module';
 
 @Module({
   imports: [
@@ -155,6 +156,7 @@ import { AdoptionApplication } from './adoptions/entities/adoption-application.e
     McpModule,
     RescuesModule,
     AdoptionsModule,
+    MatchingModule,
   ],
   controllers: [AppController],
   providers: [AppService],

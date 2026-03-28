@@ -1,0 +1,23 @@
+[project]
+name = "altrupets-agent-sidecar"
+version = "0.1.0"
+requires-python = ">=3.12"
+dependencies = [
+    "agentic-core @ file:///home/kvttvrsis/Documentos/GitHub/agentic-core",
+    "grpcio>=1.60.0",
+    "grpcio-tools>=1.60.0",
+    "grpcio-health-checking>=1.60.0",
+    "grpcio-reflection>=1.60.0",
+    "langgraph>=0.2.0",
+    "langchain-core>=0.3.0",
+    "langchain-anthropic>=0.3.0",
+    "asyncpg>=0.29.0",
+    "falkordb>=1.0.0",
+    "pydantic>=2.0.0",
+    "pydantic-settings>=2.0.0",
+    "structlog>=24.0.0",
+    "prometheus-client>=0.20.0",
+]
+
+[project.optional-dependencies]
+dev = ["pytest", "pytest-asyncio", "pytest-mock"]
