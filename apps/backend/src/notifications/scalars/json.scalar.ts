@@ -10,6 +10,8 @@ function parseLiteralValue(ast: ValueNode): unknown {
       return parseFloat(ast.value);
     case Kind.BOOLEAN:
       return ast.value;
+    case Kind.ENUM:
+      return ast.value;
     case Kind.NULL:
       return null;
     case Kind.LIST:

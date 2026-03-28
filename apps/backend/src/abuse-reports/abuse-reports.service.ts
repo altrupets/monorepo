@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { nanoid } from 'nanoid';
@@ -10,6 +10,8 @@ import { UserRole } from '../auth/roles/user-role.enum';
 
 @Injectable()
 export class AbuseReportsService {
+  private readonly logger = new Logger(AbuseReportsService.name);
+
   constructor(
     @InjectRepository(AbuseReport)
     private readonly abuseReportRepository: Repository<AbuseReport>,
@@ -62,9 +64,7 @@ export class AbuseReportsService {
         referenceType: 'AbuseReport',
         jurisdictionId: saved.municipalityId,
       })
-      .catch(() => {
-        // Notification failures should not block the main flow
-      });
+      .catch((err) => this.logger.warn('Notification send failed', err));
 
     return saved;
   }
@@ -111,9 +111,7 @@ export class AbuseReportsService {
         referenceId: saved.id,
         referenceType: 'AbuseReport',
       })
-      .catch(() => {
-        // Notification failures should not block the main flow
-      });
+      .catch((err) => this.logger.warn('Notification send failed', err));
 
     return saved;
   }

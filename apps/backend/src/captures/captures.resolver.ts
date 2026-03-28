@@ -1,5 +1,5 @@
 import { Resolver, Query, Mutation, Args } from '@nestjs/graphql';
-import { Inject, UseGuards } from '@nestjs/common';
+import { Inject, Logger, UseGuards } from '@nestjs/common';
 import { CaptureRequest } from './entities/capture-request.entity';
 import { CreateCaptureInput } from './dto/create-capture.input';
 import type { IStorageWrapper } from './interfaces/storage-wrapper.interface';
@@ -16,6 +16,8 @@ import { UserRole } from '../auth/roles/user-role.enum';
 
 @Resolver(() => CaptureRequest)
 export class CapturesResolver {
+    private readonly logger = new Logger(CapturesResolver.name);
+
     constructor(
         @Inject(STORAGE_WRAPPER)
         private readonly storage: IStorageWrapper,
@@ -51,9 +53,7 @@ export class CapturesResolver {
                 referenceId: capture.id,
                 referenceType: 'CaptureRequest',
             })
-            .catch(() => {
-                // Notification failures should not block the main flow
-            });
+            .catch((err) => this.logger.warn('Notification send failed', err));
 
         return capture;
     }

@@ -178,22 +178,11 @@ export class NotificationsService implements OnModuleInit {
     referenceId?: string;
     referenceType?: string;
   }): Promise<Notification[]> {
-    const results: Notification[] = [];
-
-    for (const userId of params.userIds) {
-      const notification = await this.sendToUser({
-        userId,
-        type: params.type,
-        title: params.title,
-        body: params.body,
-        data: params.data,
-        referenceId: params.referenceId,
-        referenceType: params.referenceType,
-      });
-      results.push(notification);
-    }
-
-    return results;
+    const { userIds, ...rest } = params;
+    const promises = userIds.map((userId) =>
+      this.sendToUser({ userId, ...rest }),
+    );
+    return Promise.all(promises);
   }
 
   async sendToRole(params: SendToRoleParams): Promise<Notification[]> {
@@ -258,6 +247,11 @@ export class NotificationsService implements OnModuleInit {
             : {}),
           ...(notification.referenceType
             ? { referenceType: notification.referenceType }
+            : {}),
+          ...(notification.data
+            ? Object.fromEntries(
+                Object.entries(notification.data).map(([k, v]) => [k, String(v)]),
+              )
             : {}),
         },
       };
