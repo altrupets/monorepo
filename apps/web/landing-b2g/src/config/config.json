@@ -1,0 +1,40 @@
+{
+  "site": {
+    "title": "AltruPets - Gobierno",
+    "base_url": "https://gobierno.altrupets.app",
+    "base_path": "/",
+    "trailing_slash": false,
+    "favicon": "/images/favicon.png",
+    "logo": "/images/logo.png",
+    "logo_width": "200",
+    "logo_height": "38",
+    "logo_text": "AltruPets Gobierno"
+  },
+
+  "settings": {
+    "pagination": 4,
+    "summary_length": 200
+  },
+
+  "nav_button": {
+    "enable": true,
+    "label": "Solicitar Demo",
+    "link": "/contact"
+  },
+
+  "params": {
+    "contact_form_action": "#",
+    "footer_content": "Plataforma de bienestar animal para gobiernos locales. Gestion inteligente de denuncias, rescates y adopciones.",
+    "copyright": "AltruPets 2026. Todos los derechos reservados."
+  },
+
+  "metadata": {
+    "meta_author": "AltruPets",
+    "meta_image": "/images/og-image.png",
+    "meta_description": "Plataforma de bienestar animal para municipalidades. Automatiza denuncias, coordina rescatistas y genera reportes."
+  },
+  "google_tag_manager": {
+    "enable": false,
+    "gtm_id": "GTM-XXXXXX"
+  }
+}

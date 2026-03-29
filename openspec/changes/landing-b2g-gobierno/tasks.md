@@ -7,12 +7,12 @@
 
 ## Spike: Evaluacion y Setup del Template
 
-- [ ] **SP-01** Clonar Bigspring Light Astro template en `apps/web/landing-b2g/`
-- [ ] **SP-02** Verificar compatibilidad de Astro 6.x con Tailwind CSS y Node.js del monorepo
-- [ ] **SP-03** Configurar Tailwind con design tokens de `style-dictionary/tokens.json` (colores, fuentes)
-- [ ] **SP-04** Copiar fuentes (Lemon Milk, Poppins, Inter) de `style-dictionary/fonts/` a `public/fonts/`
-- [ ] **SP-05** Verificar que `npm run dev` levanta correctamente en puerto local
-- [ ] **SP-06** Documentar decisiones de integracion del template con el monorepo
+- [x] **SP-01** Clonar Bigspring Light Astro template en `apps/web/landing-b2g/`
+- [x] **SP-02** Verificar compatibilidad de Astro 6.x con Tailwind CSS y Node.js del monorepo
+- [x] **SP-03** Configurar Tailwind con design tokens de `style-dictionary/tokens.json` (colores, fuentes)
+- [x] **SP-04** Copiar fuentes (Lemon Milk, Poppins, Inter) de `style-dictionary/fonts/` a `public/fonts/`
+- [x] **SP-05** Verificar que `npm run dev` levanta correctamente en puerto local
+- [x] **SP-06** Documentar decisiones de integracion del template con el monorepo
 
 ## Layout y Componentes Base
 
