@@ -1,0 +1,45 @@
+---
+/**
+ * S-08: SocialProof.astro
+ * Trust / impact numbers section.
+ * Background: neutral-95 (#F0F0F3).
+ */
+import SectionTitle from "@/components/ui/SectionTitle.astro";
+
+const stats = [
+  {
+    number: "82 cantones",
+    description: "en Costa Rica sin herramienta digital de bienestar animal",
+  },
+  {
+    number: "Ley 7451",
+    description: "obliga a las municipalidades, no a SENASA",
+  },
+  {
+    number: "0 plataformas",
+    description:
+      "especializadas en coordinaci\u00F3n municipal de rescate animal en LATAM",
+  },
+];
+---
+
+<section class="py-16 md:py-24 bg-neutral-95">
+  <div class="container">
+    <SectionTitle title="Municipalidades que ya est\u00E1n en proceso" />
+
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+      {
+        stats.map((stat) => (
+          <div class="bg-white rounded-2xl p-8 text-center shadow-sm hover:shadow-md transition-shadow duration-300">
+            <p class="font-header font-bold text-primary-10 text-2xl md:text-3xl mb-3">
+              {stat.number}
+            </p>
+            <p class="font-primary text-neutral-40 text-base leading-relaxed">
+              {stat.description}
+            </p>
+          </div>
+        ))
+      }
+    </div>
+  </div>
+</section>

@@ -1,0 +1,78 @@
+---
+/**
+ * S-10: FAQ.astro
+ * Preguntas frecuentes with native Astro accordion (no React dependency needed).
+ * Background: White.
+ */
+import SectionTitle from "@/components/ui/SectionTitle.astro";
+
+const faqs = [
+  {
+    question: "\u00BFAltruPets reemplaza a SENASA?",
+    answer:
+      "No. SENASA \u00FAnicamente tiene competencia sobre animales de uso agropecuario \u2014 legalmente no tiene injerencia en casos de animales dom\u00E9sticos o de compa\u00F1\u00EDa. Esa responsabilidad recae directamente en su municipalidad bajo la Ley 7451. AltruPets es la herramienta que le permite cumplir con esa obligaci\u00F3n.",
+  },
+  {
+    question: "\u00BFCu\u00E1nto cuesta?",
+    answer:
+      "Cada municipalidad tiene necesidades distintas. Agendemos una demo para entender su cant\u00F3n y prepararle una propuesta personalizada.",
+  },
+  {
+    question: "\u00BFCu\u00E1nto dura la implementaci\u00F3n?",
+    answer:
+      "Una semana de configuraci\u00F3n. Su equipo puede operar desde el d\u00EDa uno con capacitaci\u00F3n incluida.",
+  },
+  {
+    question: "\u00BFNecesitamos licitar?",
+    answer:
+      "Le proporcionamos toda la documentaci\u00F3n necesaria para su proceso de contrataci\u00F3n administrativa.",
+  },
+  {
+    question: "\u00BFQu\u00E9 pasa con las denuncias que no nos corresponden?",
+    answer:
+      "AltruPets gu\u00EDa autom\u00E1ticamente al ciudadano hacia el OIJ o la Fiscal\u00EDa cuando el caso lo requiere. A su oficina solo le llegan los casos donde la municipalidad tiene competencia legal.",
+  },
+  {
+    question: "\u00BFY si ya tenemos un sistema interno?",
+    answer:
+      "AltruPets se integra con sus procesos existentes. No reemplaza, complementa y digitaliza.",
+  },
+];
+---
+
+<section class="py-16 md:py-24 bg-white">
+  <div class="container">
+    <SectionTitle title="Preguntas frecuentes" />
+
+    <div class="max-w-3xl mx-auto space-y-4">
+      {
+        faqs.map((faq) => (
+          <details class="group rounded-xl border border-neutral-90 bg-neutral-99 overflow-hidden">
+            <summary class="flex w-full cursor-pointer items-center justify-between px-6 py-5 text-lg font-primary font-semibold text-neutral-10 select-none list-none [&::-webkit-details-marker]:hidden">
+              <span>{faq.question}</span>
+              <svg
+                class="ml-4 h-5 w-5 flex-shrink-0 text-neutral-50 transition-transform duration-200 group-open:rotate-180"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M19 9l-7 7-7-7"
+                />
+              </svg>
+            </summary>
+            <div class="px-6 pb-5 pt-0">
+              <p class="font-primary text-neutral-40 text-base leading-relaxed">
+                {faq.answer}
+              </p>
+            </div>
+          </details>
+        ))
+      }
+    </div>
+  </div>
+</section>

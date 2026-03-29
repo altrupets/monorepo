@@ -1,0 +1,102 @@
+---
+/**
+ * S-04: Problems.astro
+ * THE WHY — Three problems, three solutions.
+ * Background: White. Each card shows a problem (top) and solution (bottom).
+ */
+import SectionTitle from "@/components/ui/SectionTitle.astro";
+
+const problems = [
+  {
+    problem:
+      "Ciudadanos lo llaman a USTED para denunciar maltrato.",
+    problemDetail:
+      "Su oficina se convierte en call center redirigiendo gente al OIJ y la Fiscal\u00EDa.",
+    solution:
+      "AltruPets gu\u00EDa al ciudadano al ente correcto desde el primer contacto. A usted solo le llegan los casos accionables.",
+  },
+  {
+    problem:
+      "Los rescatistas coordinan por WhatsApp.",
+    problemDetail:
+      "Sin trazabilidad, sin evidencia, sin reportes para el concejo.",
+    solution:
+      "Panel en tiempo real con cada caso documentado: fotos, ubicaci\u00F3n GPS, estado, responsable asignado.",
+  },
+  {
+    problem:
+      'Su p\u00E1gina de "animales extraviados" es una imagen est\u00E1tica.',
+    problemDetail:
+      "Cero b\u00FAsqueda, cero reportes, cero datos.",
+    solution:
+      "Feed actualizado, b\u00FAsqueda por zona, y reportes autom\u00E1ticos para rendici\u00F3n de cuentas.",
+  },
+];
+---
+
+<section class="py-16 md:py-24 bg-white">
+  <div class="container">
+    <SectionTitle title="Esto es lo que pasa hoy en su municipalidad" />
+
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+      {
+        problems.map((item) => (
+          <div class="rounded-2xl border border-neutral-90 overflow-hidden shadow-sm hover:shadow-md transition-shadow duration-300">
+            {/* Problem section */}
+            <div class="bg-error-95 p-6">
+              <div class="flex items-start gap-3 mb-2">
+                <svg
+                  class="w-6 h-6 mt-0.5 flex-shrink-0 text-error-40"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4.5c-.77-.833-2.694-.833-3.464 0L3.34 16.5c-.77.833.192 2.5 1.732 2.5z"
+                  />
+                </svg>
+                <p class="font-primary font-bold text-neutral-10 text-base leading-snug">
+                  {item.problem}
+                </p>
+              </div>
+              <p class="font-primary text-neutral-40 text-sm pl-9">
+                {item.problemDetail}
+              </p>
+            </div>
+
+            {/* Divider arrow */}
+            <div class="flex justify-center -my-3 relative z-10">
+              <div class="bg-success-40 rounded-full w-8 h-8 flex items-center justify-center shadow-sm">
+                <svg
+                  class="w-4 h-4 text-white"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2.5"
+                    d="M19 14l-7 7m0 0l-7-7m7 7V3"
+                  />
+                </svg>
+              </div>
+            </div>
+
+            {/* Solution section */}
+            <div class="bg-white p-6 pt-5">
+              <p class="font-primary text-neutral-10 text-sm leading-relaxed">
+                {item.solution}
+              </p>
+            </div>
+          </div>
+        ))
+      }
+    </div>
+  </div>
+</section>
