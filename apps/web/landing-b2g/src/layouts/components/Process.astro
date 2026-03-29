@@ -1,0 +1,87 @@
+---
+/**
+ * S-07: Process.astro
+ * THE HOW — "Funcionando en su municipalidad en 3 pasos"
+ * Background: White. Three numbered steps with connecting lines.
+ */
+import SectionTitle from "@/components/ui/SectionTitle.astro";
+
+const steps = [
+  {
+    number: "01",
+    title: "Agenda una demo",
+    description:
+      "Le mostramos el panel con datos reales de su cant\u00F3n. 30 minutos, sin compromiso.",
+  },
+  {
+    number: "02",
+    title: "Configuramos su municipalidad",
+    description:
+      "Adaptamos zonas, rescatistas, y flujos de denuncia a su jurisdicci\u00F3n. 1 semana de setup.",
+  },
+  {
+    number: "03",
+    title: "Su equipo opera con datos",
+    description:
+      "Casos trazables, reportes autom\u00E1ticos para el concejo, y ciudadanos bien dirigidos desde el d\u00EDa uno.",
+  },
+];
+---
+
+<section id="proceso" class="py-16 md:py-24 bg-white">
+  <div class="container">
+    <SectionTitle title="Funcionando en su municipalidad en 3 pasos" />
+
+    <div class="relative">
+      {/* Connecting line (desktop only) */}
+      <div
+        class="hidden md:block absolute top-12 left-[16.67%] right-[16.67%] h-0.5 bg-primary-90"
+        aria-hidden="true"
+      >
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-10 md:gap-8">
+        {
+          steps.map((step, index) => (
+            <div class="relative flex flex-col items-center text-center">
+              {/* Number circle */}
+              <div class="relative z-10 w-24 h-24 rounded-full bg-primary-10 flex items-center justify-center mb-6 shadow-lg">
+                <span class="font-header font-bold text-white text-2xl">
+                  {step.number}
+                </span>
+              </div>
+
+              {/* Mobile connector arrow (between items, not after last) */}
+              {index < steps.length - 1 && (
+                <div class="md:hidden flex justify-center my-2 absolute -bottom-8 left-1/2 -translate-x-1/2">
+                  <svg
+                    class="w-5 h-5 text-primary-60"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                    xmlns="http://www.w3.org/2000/svg"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M19 14l-7 7m0 0l-7-7m7 7V3"
+                    />
+                  </svg>
+                </div>
+              )}
+
+              {/* Text */}
+              <h3 class="font-header font-bold text-neutral-10 text-xl mb-3">
+                {step.title}
+              </h3>
+              <p class="font-primary text-neutral-40 text-base leading-relaxed max-w-xs">
+                {step.description}
+              </p>
+            </div>
+          ))
+        }
+      </div>
+    </div>
+  </div>
+</section>

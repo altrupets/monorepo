@@ -1,0 +1,53 @@
+---
+/**
+ * S-05: ForWho.astro
+ * "AltruPets es para su municipalidad si..."
+ * Background: primary-95 (#E6F2FF). Green checkmarks. Each card scrolls to process section.
+ */
+import SectionTitle from "@/components/ui/SectionTitle.astro";
+import CTAButton from "@/components/ui/CTAButton.astro";
+
+const criteria = [
+  "Recibe reportes de maltrato animal que no sabe c\u00F3mo tramitar",
+  "Necesita datos reales para justificar presupuesto ante el concejo",
+  "Quiere cumplir con la Ley 7451 sin depender de SENASA",
+];
+---
+
+<section class="py-16 md:py-24 bg-primary-95">
+  <div class="container">
+    <SectionTitle title="AltruPets es para su municipalidad si..." />
+
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+      {
+        criteria.map((text) => (
+          <div class="bg-white rounded-2xl p-8 shadow-sm hover:shadow-md transition-shadow duration-300 flex flex-col">
+            <div class="flex items-start gap-4 mb-6 flex-1">
+              <div class="flex-shrink-0 w-10 h-10 rounded-full bg-success-95 flex items-center justify-center">
+                <svg
+                  class="w-6 h-6 text-success-40"
+                  fill="currentColor"
+                  viewBox="0 0 24 24"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z" />
+                </svg>
+              </div>
+              <p class="font-primary text-neutral-10 text-lg leading-relaxed font-medium">
+                {text}
+              </p>
+            </div>
+            <div class="mt-auto">
+              <CTAButton
+                text="Ver c\u00F3mo funciona"
+                variant="primary"
+                size="sm"
+                scrollTo="proceso"
+              />
+            </div>
+          </div>
+        ))
+      }
+    </div>
+  </div>
+</section>
