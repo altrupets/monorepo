@@ -59,9 +59,14 @@
 ##### Optimize default expiration time - END
 
 ##### 1 Month for most static resources
-<filesMatch ".(css|jpg|jpeg|png|webp|gif|js|ico|woff|woff2|eot|ttf)$">
-  Header set Cache-Control "max-age=2592000, public"
-</filesMatch>
+<IfModule mod_headers.c>
+  <FilesMatch "\.(?:jpg|jpeg|png|webp|gif|ico|woff|woff2|eot|ttf)$">
+    Header set Cache-Control "max-age=2592000, public"
+  </FilesMatch>
+  <FilesMatch "\.(?:css|js)$">
+    Header set Cache-Control "max-age=604800, public"
+  </FilesMatch>
+</IfModule>
 
 ##### Enable gzip compression for resources
 <ifModule mod_gzip.c>
@@ -76,13 +81,15 @@
 </ifModule>
 
 ##### Or, compress certain file types by extension:
-<FilesMatch ".(html|css|jpg|jpeg|webp|png|gif|js|ico)">
-  SetOutputFilter DEFLATE
-</FilesMatch>
+<IfModule mod_deflate.c>
+  <FilesMatch "\.(?:html|css|js|svg|xml|txt)$">
+    SetOutputFilter DEFLATE
+  </FilesMatch>
+</IfModule>
 
 ##### Set Header Vary: Accept-Encoding
 <IfModule mod_headers.c>
-  <FilesMatch ".(js|css|xml|gz|html)$">
-    Header append Vary: Accept-Encoding
+  <FilesMatch "\.(?:js|css|xml|gz|html)$">
+    Header append Vary "Accept-Encoding"
   </FilesMatch>
 </IfModule>

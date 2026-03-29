@@ -1,17 +1,19 @@
 import React from "react";
+
+type VideoProps = React.VideoHTMLAttributes<HTMLVideoElement> & {
+  title: string;
+  width?: number | string;
+  height?: number | string;
+  src: string;
+};
+
 function Video({
   title,
   width = 500,
-  height = "auto",
+  height,
   src,
   ...rest
-}: {
-  title: string;
-  width: number;
-  height: number | "auto";
-  src: string;
-  [key: string]: any;
-}) {
+}: VideoProps) {
   return (
     <video
       className="overflow-hidden rounded-lg"
