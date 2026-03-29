@@ -1,0 +1,221 @@
+---
+/**
+ * LC-01: Landing.astro layout
+ * Minimal header: logo (left) + CTA button (right).
+ * No complex navigation menu.
+ * Reuses head/meta infrastructure from Base.astro.
+ */
+import TwSizeIndicator from "@/components/TwSizeIndicator.astro";
+import config from "@/config/config.json";
+import theme from "@/config/theme.json";
+import { plainify } from "@/lib/utils/textConverter";
+import UrgencyBar from "@/components/UrgencyBar.astro";
+import Logo from "@/components/Logo.astro";
+import Footer from "@/partials/Footer.astro";
+import "@/styles/main.css";
+import {
+  GoogleTagmanager,
+  GoogleTagmanagerNoscript,
+} from "@digi4care/astro-google-tagmanager";
+import { Font } from "astro:assets";
+import { ClientRouter } from "astro:transitions";
+
+// font families - extract font names for Font component (filter out type keys)
+const fontEntries = Object.entries(theme.fonts.font_family).filter(
+  ([key]) => !key.includes("_type"),
+);
+
+export interface Props {
+  title?: string;
+  meta_title?: string;
+  description?: string;
+  image?: string;
+  noindex?: boolean;
+  canonical?: string;
+}
+
+const { title, meta_title, description, image, noindex, canonical } =
+  Astro.props;
+---
+
+<!doctype html>
+<html lang="es">
+  <head>
+    <!-- google tag manager -->
+    {
+      config.google_tag_manager.enable && (
+        <GoogleTagmanager id={config.google_tag_manager.gtm_id} />
+      )
+    }
+    <!-- favicon -->
+    <link rel="shortcut icon" href={config.site.favicon} />
+    <!-- theme meta -->
+    <meta name="theme-name" content="altrupets-b2g" />
+    <meta name="msapplication-TileColor" content="#001E2F" />
+    <meta
+      name="theme-color"
+      media="(prefers-color-scheme: light)"
+      content="#fff"
+    />
+    <meta
+      name="theme-color"
+      media="(prefers-color-scheme: dark)"
+      content="#001E2F"
+    />
+    <meta name="generator" content={Astro.generator} />
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+
+    <!-- google font css - Astro 6 built-in Font API -->
+    {
+      fontEntries.map(([key]) => {
+        const cssVar = `--font-${key}` as any;
+        return <Font cssVariable={cssVar} preload />;
+      })
+    }
+
+    <!-- responsive meta -->
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, maximum-scale=5"
+    />
+
+    <!-- title -->
+    <title>
+      {plainify(meta_title ? meta_title : title ? title : config.site.title)}
+    </title>
+
+    <!-- canonical url -->
+    {canonical && <link rel="canonical" href={canonical} item-prop="url" />}
+
+    <!-- noindex robots -->
+    {noindex && <meta name="robots" content="noindex,nofollow" />}
+
+    <!-- meta-description -->
+    <meta
+      name="description"
+      content={plainify(
+        description ? description : config.metadata.meta_description
+      )}
+    />
+
+    <ClientRouter />
+
+    <!-- author -->
+    <meta name="author" content={config.metadata.meta_author} />
+
+    <!-- og tags -->
+    <meta
+      property="og:title"
+      content={plainify(
+        meta_title ? meta_title : title ? title : config.site.title
+      )}
+    />
+    <meta
+      property="og:description"
+      content={plainify(
+        description ? description : config.metadata.meta_description
+      )}
+    />
+    <meta property="og:type" content="website" />
+    <meta
+      property="og:url"
+      content={`${config.site.base_url}/${Astro.url.pathname.replace("/", "")}`}
+    />
+
+    <!-- twitter tags -->
+    <meta
+      name="twitter:title"
+      content={plainify(
+        meta_title ? meta_title : title ? title : config.site.title
+      )}
+    />
+    <meta
+      name="twitter:description"
+      content={plainify(
+        description ? description : config.metadata.meta_description
+      )}
+    />
+
+    <!-- og-image -->
+    <meta
+      property="og:image"
+      content={`${config.site.base_url}${
+        image ? image : config.metadata.meta_image
+      }`}
+    />
+
+    <!-- twitter-image -->
+    <meta
+      name="twitter:image"
+      content={`${config.site.base_url}${
+        image ? image : config.metadata.meta_image
+      }`}
+    />
+    <meta name="twitter:card" content="summary_large_image" />
+  </head>
+  <body class="bg-body font-primary font-normal leading-relaxed text-text">
+    {/* google tag manager noscript */}
+    {
+      config.google_tag_manager.enable && (
+        <GoogleTagmanagerNoscript id={config.google_tag_manager.gtm_id} />
+      )
+    }
+
+    <TwSizeIndicator />
+
+    <!-- Urgency Bar (fixed, top) -->
+    <UrgencyBar />
+
+    <!-- Minimal Landing Header -->
+    <header class="fixed top-0 left-0 right-0 z-40 bg-white/95 backdrop-blur-sm shadow-sm transition-all duration-300" id="landing-header">
+      <nav class="container flex items-center justify-between py-3 md:py-4">
+        <div class="flex-shrink-0">
+          <Logo />
+        </div>
+        <div class="flex-shrink-0">
+          <a
+            href="#agendar-demo"
+            class="inline-block bg-secondary text-white font-primary font-semibold text-sm md:text-base px-5 md:px-7 py-2.5 md:py-3.5 rounded-full hover:brightness-110 hover:shadow-lg transition-all duration-300"
+            data-header-cta
+          >
+            Agendar demo en vivo
+          </a>
+        </div>
+      </nav>
+    </header>
+
+    <main id="main-content">
+      <slot />
+    </main>
+
+    <Footer />
+
+    <script>
+      document.addEventListener("DOMContentLoaded", () => {
+        const urgencyBar = document.getElementById("urgency-bar");
+        const header = document.getElementById("landing-header");
+
+        if (urgencyBar && header) {
+          const updateHeaderPosition = () => {
+            const barHeight = urgencyBar.offsetHeight;
+            header.style.top = `${barHeight}px`;
+          };
+          updateHeaderPosition();
+          window.addEventListener("resize", updateHeaderPosition);
+        }
+
+        // Smooth scroll for header CTA
+        const headerCta = document.querySelector("[data-header-cta]");
+        if (headerCta) {
+          headerCta.addEventListener("click", (e) => {
+            e.preventDefault();
+            const target = document.getElementById("hero-cta");
+            if (target) {
+              target.scrollIntoView({ behavior: "smooth", block: "start" });
+            }
+          });
+        }
+      });
+    </script>
+  </body>
+</html>

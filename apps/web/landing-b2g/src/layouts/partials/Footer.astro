@@ -9,19 +9,18 @@ import { Image } from "astro:assets";
 const { footer_content, copyright } = config.params;
 ---
 
-<footer class="section bg-light pb-0">
+<footer class="py-12 pb-0 bg-neutral-10">
   <div class="container">
-    {/* footer menu */}
-    <div class="row">
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
       {
         menu.footer.map((col) => {
           return (
-            <div class="mb-12 sm:col-6 lg:col-3">
-              <h2 class="h4" set:html={markdownify(col.name)} />
-              <ul class="mt-6">
+            <div class="mb-8">
+              <h3 class="font-header font-bold text-white text-lg mb-4" set:html={markdownify(col.name)} />
+              <ul class="space-y-2">
                 {col?.menu.map((item) => (
-                  <li class="mb-1">
-                    <a href={item.url} rel="">
+                  <li>
+                    <a href={item.url} class="font-primary text-neutral-70 hover:text-white transition-colors duration-200">
                       {item.text}
                     </a>
                   </li>
@@ -31,24 +30,25 @@ const { footer_content, copyright } = config.params;
           );
         })
       }
-      {/* social icons */}
-      <div class="md-12 sm:col-6 lg:col-3">
-        <a href="/" aria-label="Bigspring">
+      {/* logo + description */}
+      <div class="mb-8 sm:col-span-2 lg:col-span-2">
+        <a href="/" aria-label="AltruPets">
           <Image
             src={config.site.logo}
             width={Number(config.site.logo_width)}
             height={Number(config.site.logo_height)}
-            alt=""
+            alt="AltruPets"
+            class="brightness-0 invert"
           />
         </a>
 
-        <p class="mt-3 mb-6" set:html={markdownify(footer_content)} />
+        <p class="mt-4 mb-6 font-primary text-neutral-70 text-sm leading-relaxed max-w-sm" set:html={markdownify(footer_content)} />
         <Social source={social.main} className="social-icons mb-8" />
       </div>
     </div>
     {/* copyright */}
-    <div class="border-t border-border py-6">
-      <p class="text-sm text-center" set:html={markdownify(copyright)} />
+    <div class="border-t border-neutral-30 py-6 mt-4">
+      <p class="text-sm text-center font-tertiary text-neutral-70" set:html={markdownify(copyright)} />
     </div>
   </div>
 </footer>

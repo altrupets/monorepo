@@ -202,3 +202,9 @@ stitch_assets/*/
 !.gitkeep
 
 .claude/worktrees/
+
+# wrangler files
+.wrangler
+.dev.vars*
+!.dev.vars.example
+!.env.example

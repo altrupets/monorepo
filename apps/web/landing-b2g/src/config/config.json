@@ -1,6 +1,6 @@
 {
   "site": {
-    "title": "AltruPets - Gobierno",
+    "title": "AltruPets — Gesti\u00f3n de Bienestar Animal para Municipios",
     "base_url": "https://gobierno.altrupets.app",
     "base_path": "/",
     "trailing_slash": false,
@@ -18,20 +18,20 @@
 
   "nav_button": {
     "enable": true,
-    "label": "Solicitar Demo",
-    "link": "/contact"
+    "label": "Agendar demo en vivo",
+    "link": "#agendar-demo"
   },
 
   "params": {
     "contact_form_action": "#",
-    "footer_content": "Plataforma de bienestar animal para gobiernos locales. Gestion inteligente de denuncias, rescates y adopciones.",
+    "footer_content": "Plataforma de gesti\u00f3n de bienestar animal para municipalidades costarricenses. Cumpla con la Ley 7451 sin depender de SENASA.",
     "copyright": "AltruPets 2026. Todos los derechos reservados."
   },
 
   "metadata": {
     "meta_author": "AltruPets",
     "meta_image": "/images/og-image.png",
-    "meta_description": "Plataforma de bienestar animal para municipalidades. Automatiza denuncias, coordina rescatistas y genera reportes."
+    "meta_description": "Cumpla con la Ley 7451 sin depender de SENASA. Panel de control de bienestar animal para su cant\u00f3n."
   },
   "google_tag_manager": {
     "enable": false,
