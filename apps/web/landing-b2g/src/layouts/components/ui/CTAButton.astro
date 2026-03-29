@@ -1,0 +1,67 @@
+---
+export interface Props {
+  text: string;
+  href?: string;
+  variant?: "primary" | "secondary" | "ghost";
+  size?: "sm" | "md" | "lg";
+  scrollTo?: string;
+}
+
+const {
+  text,
+  href,
+  variant = "primary",
+  size = "md",
+  scrollTo,
+} = Astro.props;
+
+const resolvedHref = scrollTo ? `#${scrollTo}` : href || "#";
+
+const sizeClasses: Record<string, string> = {
+  sm: "px-5 py-2.5 text-sm",
+  md: "px-7 py-4 text-base",
+  lg: "px-10 py-5 text-lg",
+};
+
+const variantClasses: Record<string, string> = {
+  primary:
+    "bg-secondary text-white border-transparent rounded-full font-semibold hover:brightness-110 hover:shadow-lg transition-all duration-300",
+  secondary:
+    "bg-transparent text-accent border-2 border-accent rounded-full font-semibold hover:bg-accent hover:text-white transition-all duration-300",
+  ghost:
+    "bg-transparent text-white border-transparent font-medium underline-offset-4 hover:underline transition-all duration-300",
+};
+---
+
+<a
+  href={resolvedHref}
+  class:list={[
+    "inline-block leading-snug text-center cursor-pointer",
+    sizeClasses[size],
+    variantClasses[variant],
+  ]}
+  data-scroll-to={scrollTo || undefined}
+>
+  {text}
+</a>
+
+{
+  scrollTo && (
+    <script define:vars={{ scrollTo }}>
+      document.addEventListener("DOMContentLoaded", () => {
+        const links = document.querySelectorAll(
+          `[data-scroll-to="${scrollTo}"]`
+        );
+        links.forEach((link) => {
+          link.addEventListener("click", (e) => {
+            e.preventDefault();
+            const target = document.getElementById(scrollTo);
+            if (target) {
+              target.scrollIntoView({ behavior: "smooth", block: "start" });
+            }
+          });
+        });
+      });
+    </script>
+  )
+}

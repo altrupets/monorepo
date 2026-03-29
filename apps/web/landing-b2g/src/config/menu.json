@@ -1,75 +1,29 @@
 {
-  "main": [
-    {
-      "name": "Home",
-      "url": "/"
-    },
-    {
-      "name": "Blog",
-      "url": "/blog"
-    },
-    {
-      "name": "Pricing",
-      "url": "/pricing"
-    },
-    {
-      "name": "Contact",
-      "url": "/contact"
-    },
-    {
-      "name": "FAQ",
-      "url": "/faq"
-    },
-    {
-      "name": "Elements",
-      "url": "/elements"
-    }
-  ],
+  "main": [],
   "footer": [
     {
-      "name": "Company",
+      "name": "Legal",
       "menu": [
         {
-          "text": "Pricing",
-          "url": "/pricing"
+          "text": "T\u00e9rminos y Condiciones",
+          "url": "/terminos"
         },
         {
-          "text": "Quick Start",
-          "url": "#"
+          "text": "Pol\u00edtica de Privacidad",
+          "url": "/privacidad"
         }
       ]
     },
     {
-      "name": "Product",
+      "name": "Contacto",
       "menu": [
         {
-          "text": "Features",
-          "url": "#"
+          "text": "info@altrupets.app",
+          "url": "mailto:info@altrupets.app"
         },
         {
-          "text": "Platform",
-          "url": "#"
-        },
-        {
-          "text": "Pricing",
-          "url": "/pricing"
-        }
-      ]
-    },
-    {
-      "name": "Support",
-      "menu": [
-        {
-          "text": "FAQ",
-          "url": "/faq"
-        },
-        {
-          "text": "Privacy Policy",
-          "url": "/privacy-policy"
-        },
-        {
-          "text": "Terms & Conditions",
-          "url": "/terms-conditions"
+          "text": "gobierno.altrupets.app",
+          "url": "https://gobierno.altrupets.app"
         }
       ]
     }

@@ -1,182 +1,135 @@
 ---
-import { Image } from "astro:assets";
-import Base from "@/layouts/Base.astro";
-import Cta from "@/layouts/components/Cta.astro";
-import { markdownify } from "@/lib/utils/textConverter";
-import { getEntry } from "astro:content";
-import type { CollectionEntry } from "astro:content";
-
-import { Swiper, SwiperWrapper, SwiperSlide, SwiperPagination } from "astro-swiper";
-import type { SwiperOptions } from 'swiper/types'
-const swiperOptions: SwiperOptions = {
-  autoplay: {
-    delay: 3000,
-  },
-  pagination: {
-    type: "bullets",
-    el: ".service-carousel .pagination",
-    clickable: true,
-  },
-}
-
-const homepage = (await getEntry(
-  "homepage",
-  "-index"
-)) as CollectionEntry<"homepage">;
-const { banner, feature, services, workflow, call_to_action } = homepage.data;
+/**
+ * Landing page principal: gobierno.altrupets.app
+ * Uses Landing layout (minimal header + urgency bar).
+ * Sections: UrgencyBar (in layout), Hero, then remaining template sections.
+ */
+import Landing from "@/layouts/Landing.astro";
+import Hero from "@/components/Hero.astro";
+import MantraBanner from "@/components/MantraBanner.astro";
 ---
 
-<Base>
-  <!-- banner -->
-  <section class="section pb-[50px]">
+<Landing
+  title="AltruPets — Gesti&oacute;n de Bienestar Animal para Municipios"
+  meta_title="AltruPets — Gesti&oacute;n de Bienestar Animal para Municipios"
+  description="Cumpla con la Ley 7451 sin depender de SENASA. Panel de control de bienestar animal para su cant&oacute;n."
+>
+  <!-- S-02: Hero -->
+  <Hero />
+
+  <!-- S-03: Mantra 1 (placeholder for ALT-57) -->
+  <MantraBanner
+    text="Si no puede medir cu&aacute;ntos animales rescat&oacute; su cant&oacute;n este mes, no puede justificar el presupuesto del pr&oacute;ximo."
+    bgColor="bg-secondary-90"
+    textColor="text-primary"
+  />
+
+  <!-- S-04 through S-12: Remaining sections will be implemented in ALT-57 and ALT-58 -->
+  <!-- Placeholder sections to demonstrate page flow -->
+
+  <section class="py-16 md:py-24 bg-white">
     <div class="container">
-      <div class="row text-center">
-        <div class="mx-auto lg:col-10">
-          <h1 class="font-primary font-bold">{banner?.title}</h1>
-          {
-            banner?.content && (
-              <p class="mt-4" set:html={markdownify(banner.content)} />
-            )
-          }
-
-          {
-            banner?.button?.enable && (
-              <a class="btn btn-primary mt-4" href={banner.button.link}>
-                {banner.button.label}
-              </a>
-            )
-          }
-
-          {
-            banner?.image && (
-              <Image
-                class="mx-auto mt-12"
-                src={banner?.image}
-                width={750}
-                height={390}
-                alt="banner image"
-              />
-            )
-          }
-        </div>
+      <div class="text-center max-w-3xl mx-auto">
+        <h2 class="font-header font-bold text-neutral-10 mb-4">
+          Esto es lo que pasa hoy en su municipio
+        </h2>
+        <p class="font-primary text-neutral-40 text-lg">
+          Secci&oacute;n de problemas y soluciones &mdash; pr&oacute;ximamente en ALT-57.
+        </p>
       </div>
     </div>
   </section>
 
-  <!-- Features -->
-  <section class="section bg-light">
+  <section class="py-16 md:py-24 bg-primary-95">
     <div class="container">
-      <div class="text-center">
-        <h2>{markdownify(feature.title)}</h2>
-      </div>
-      <div class="mt-8 grid gap-x-8 gap-y-6 sm:grid-cols-2 lg:grid-cols-3">
-        {
-          feature.features.map((item) => (
-            <div class="feature-card rounded-xl bg-white p-5 pb-8 text-center">
-              {item.icon && (
-                <Image
-                  class="mx-auto"
-                  alt={item.icon}
-                  src={item.icon}
-                  width={30}
-                  height={30}
-                />
-              )}
-              <div class="mt-4">
-                <p class="h5" set:html={markdownify(item.name)} />
-                <p class="mt-3">{item.content}</p>
-              </div>
-            </div>
-          ))
-        }
+      <div class="text-center max-w-3xl mx-auto">
+        <h2 class="font-header font-bold text-neutral-10 mb-4">
+          AltruPets es para su municipio si...
+        </h2>
+        <p class="font-primary text-neutral-40 text-lg">
+          Secci&oacute;n de p&uacute;blico objetivo &mdash; pr&oacute;ximamente en ALT-57.
+        </p>
       </div>
     </div>
   </section>
 
-  <!-- Services -->
-  {
-    services!.map((service, index) => {
-      const isOdd = index % 2 > 0;
-      return (
-        <section class={`section ${isOdd && "bg-light"}`}>
-          <div class="container">
-            <div class="items-center gap-8 md:grid md:grid-cols-2">
-              <div class={`service-carousel ${!isOdd && "md:order-2"}`}>
-                {service!.images!.length > 1 ? (
-                  <Swiper class=".service-carousel" options={swiperOptions}>
-                    <SwiperWrapper>
-                      {service.images?.map((image) => (
-                        <SwiperSlide>
-                          <Image
-                            class="mx-auto"
-                            src={image}
-                            width={538}
-                            height={328}
-                            alt=""
-                          />
-                        </SwiperSlide>
-                      ))}
-                    </SwiperWrapper>
-                    <SwiperPagination class="pagination" />
-                  </Swiper>
-                ) : (
-                  <Image
-                    class="mx-auto"
-                    src={service!.images![0]}
-                    width={538}
-                    height={328}
-                    alt=""
-                  />
-                )}
-              </div>
+  <MantraBanner
+    text="Los datos no mienten. Pero para tener datos, primero necesita un sistema."
+    bgColor="bg-primary-20"
+    textColor="text-white"
+  />
 
-              {/* Content */}
-              <div
-                class={`service-content mt-5 md:mt-0 ${!isOdd && "md:order-1"}`}
-              >
-                <h2 class="font-bold leading-[40px]">{service?.title}</h2>
-                <p class="mt-4 mb-2">{service?.content}</p>
-                {service?.button?.enable && (
-                  <a
-                    href={service?.button.link}
-                    class="cta-link inline-flex items-center text-primary"
-                  >
-                    {service?.button.label}
-                    <img
-                      class="ml-1"
-                      src="/images/arrow-right.svg"
-                      width={18}
-                      height={14}
-                      alt="arrow"
-                    />
-                  </a>
-                )}
-              </div>
-            </div>
-          </div>
-        </section>
-      );
-    })
-  }
-  <!-- /End service -->
-
-  <!-- Workflow -->
-  <section class="section pb-0">
-    <div class="mb-8 text-center">
-      <h2
-        class="mx-auto max-w-[400px] font-bold leading-[44px]"
-        set:html={workflow?.title}
-      />
-      <p class="mt-3" set:html={workflow?.description} />
+  <section class="py-16 md:py-24 bg-white">
+    <div class="container">
+      <div class="text-center max-w-3xl mx-auto">
+        <h2 class="font-header font-bold text-neutral-10 mb-4">
+          Funcionando en su municipio en 3 pasos
+        </h2>
+        <p class="font-primary text-neutral-40 text-lg">
+          Secci&oacute;n de proceso &mdash; pr&oacute;ximamente en ALT-57.
+        </p>
+      </div>
     </div>
-    <Image
-      src={workflow!.image}
-      alt="workflow image"
-      width={1920}
-      height={414}
-    />
   </section>
 
-  <!-- Call to Action -->
-  <Cta cta={call_to_action} />
-</Base>
+  <section class="py-16 md:py-24 bg-neutral-95">
+    <div class="container">
+      <div class="text-center max-w-3xl mx-auto">
+        <h2 class="font-header font-bold text-neutral-10 mb-4">
+          Municipios que ya est&aacute;n en proceso
+        </h2>
+        <p class="font-primary text-neutral-40 text-lg">
+          Secci&oacute;n de prueba social &mdash; pr&oacute;ximamente en ALT-58.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <section id="video" class="py-16 md:py-24 bg-primary-10">
+    <div class="container">
+      <div class="text-center max-w-3xl mx-auto">
+        <h2 class="font-header font-bold text-white mb-4">
+          Vea el panel en acci&oacute;n (3 minutos)
+        </h2>
+        <p class="font-primary text-neutral-70 text-lg">
+          Secci&oacute;n de video &mdash; pr&oacute;ximamente en ALT-58.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <section class="py-16 md:py-24 bg-white">
+    <div class="container">
+      <div class="text-center max-w-3xl mx-auto">
+        <h2 class="font-header font-bold text-neutral-10 mb-4">
+          Preguntas frecuentes
+        </h2>
+        <p class="font-primary text-neutral-40 text-lg">
+          Secci&oacute;n de FAQ &mdash; pr&oacute;ximamente en ALT-58.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <section id="agendar-demo" class="py-16 md:py-24 bg-primary-20">
+    <div class="container">
+      <div class="text-center max-w-3xl mx-auto">
+        <h2 class="font-header font-bold text-white text-2xl md:text-3xl lg:text-4xl mb-6">
+          Su cant&oacute;n merece m&aacute;s que una imagen est&aacute;tica y un n&uacute;mero de tel&eacute;fono.
+        </h2>
+        <p class="font-primary text-white/80 text-lg md:text-xl mb-8">
+          Agendemos 30 minutos. Si no ve valor en la demo, no le pedimos nada m&aacute;s.
+        </p>
+        <a
+          href="#agendar-demo"
+          class="inline-block bg-secondary text-white font-primary font-semibold text-lg px-10 py-5 rounded-full hover:brightness-110 hover:shadow-lg transition-all duration-300"
+        >
+          Agendar demo en vivo
+        </a>
+        <p class="font-tertiary text-sm text-neutral-70 mt-4">
+          Sin costo. Sin compromiso. 30 minutos.
+        </p>
+      </div>
+    </div>
+  </section>
+</Landing>
