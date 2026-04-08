@@ -32,7 +32,7 @@ describe('McpService', () => {
     };
 
     abuseReportsService = {
-      create: jest.fn().mockResolvedValue({ id: 'report-1', trackingCode: 'ABC123' }),
+      fileReport: jest.fn().mockResolvedValue({ id: 'report-1', trackingCode: 'ABC123' }),
     };
 
     jurisdictionsService = {
@@ -147,14 +147,19 @@ describe('McpService', () => {
         roles: [UserRole.WATCHER],
       });
 
-      await abuseReportsService.create!({
-        type: 'ABANDONMENT',
+      await abuseReportsService.fileReport!({
+        abuseTypes: ['ABANDONMENT'],
         description: 'Test report',
+        locationProvince: '',
+        locationCanton: '',
+        locationDistrict: '',
+        locationAddress: '',
         latitude: 9.93,
         longitude: -84.08,
-        reporterId: 'user-1',
+        evidenceUrls: [],
+        privacyMode: 'ANONYMOUS' as any,
       });
-      expect(abuseReportsService.create).toHaveBeenCalled();
+      expect(abuseReportsService.fileReport).toHaveBeenCalled();
     });
 
     it('get-municipal-kpis: should call jurisdictionsService.findOne', async () => {

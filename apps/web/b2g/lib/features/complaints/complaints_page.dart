@@ -1,9 +1,42 @@
 import 'package:flutter/material.dart';
 import 'package:altrupets_ui/altrupets_ui.dart';
+import 'models/abuse_report_model.dart';
+import 'models/mock_data.dart';
+import 'widgets/complaint_card.dart';
+import 'widgets/classify_modal.dart';
 
-/// Denuncias de Maltrato page: KPI bar + complaint list (mock data).
-class ComplaintsPage extends StatelessWidget {
+/// Denuncias de Maltrato page: KPI bar + filter tabs + complaint list.
+///
+/// Uses MOCK DATA — GraphQL wiring is a separate follow-up ticket.
+class ComplaintsPage extends StatefulWidget {
   const ComplaintsPage({super.key});
+
+  @override
+  State<ComplaintsPage> createState() => _ComplaintsPageState();
+}
+
+class _ComplaintsPageState extends State<ComplaintsPage> {
+  int _selectedTab = 0;
+
+  List<String> get _tabLabels => [
+        'Nuevas (${mockComplaintMetrics.pendingClassification})',
+        'En investigacion (${mockComplaintMetrics.underInvestigation})',
+        'Resueltas (${mockComplaintMetrics.resolved})',
+        'Mapa',
+      ];
+
+  List<AbuseReportModel> get _currentReports {
+    switch (_selectedTab) {
+      case 0:
+        return mockFiledReports;
+      case 1:
+        return mockInvestigationReports;
+      case 2:
+        return mockResolvedReports;
+      default:
+        return [];
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -17,22 +50,27 @@ class ComplaintsPage extends StatelessWidget {
           const SizedBox(height: 14),
           _buildKpiBar(),
           const SizedBox(height: 16),
-          _buildTabs(),
+          _buildFilterTabs(),
           const SizedBox(height: 12),
-          Expanded(child: _buildComplaintList()),
+          Expanded(
+            child: _selectedTab == 3
+                ? _buildMapPlaceholder()
+                : _buildComplaintList(),
+          ),
         ],
       ),
     );
   }
 
   Widget _buildHeader() {
+    final m = mockComplaintMetrics;
     return Row(
       children: [
-        const Expanded(
+        Expanded(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(
+              const Text(
                 'Denuncias de Maltrato',
                 style: TextStyle(
                   fontSize: 16,
@@ -40,10 +78,10 @@ class ComplaintsPage extends StatelessWidget {
                   color: AltruPetsTokens.textPrimary,
                 ),
               ),
-              SizedBox(height: 2),
+              const SizedBox(height: 2),
               Text(
-                '2 pendientes \u00B7 8 en investigacion \u00B7 Canton de Heredia',
-                style: TextStyle(
+                '${m.pendingClassification} pendientes \u00B7 ${m.underInvestigation} en investigacion \u00B7 Canton de Heredia',
+                style: const TextStyle(
                   fontSize: 11,
                   color: AltruPetsTokens.textSecondary,
                 ),
@@ -90,13 +128,14 @@ class ComplaintsPage extends StatelessWidget {
   }
 
   Widget _buildKpiBar() {
+    const m = mockComplaintMetrics;
     return Row(
       children: [
-        // ── Denuncias recibidas ──
+        // Denuncias recibidas
         Expanded(
           child: KpiCard(
             label: 'Denuncias recibidas',
-            value: '23',
+            value: '${m.totalReports}',
             icon: '\uD83D\uDEA8',
             iconBgColor: AltruPetsTokens.errorBg,
             subtitle: 'Este mes',
@@ -104,11 +143,11 @@ class ComplaintsPage extends StatelessWidget {
         ),
         const SizedBox(width: 10),
 
-        // ── Tiempo promedio respuesta (CRITICAL from ALT-62) ──
+        // Tiempo promedio respuesta (CRITICAL from ALT-62)
         Expanded(
           child: KpiCard(
             label: 'Tiempo promedio respuesta',
-            value: '4.2h',
+            value: m.formattedResponseTime,
             icon: '\u23F1\uFE0F',
             iconBgColor: AltruPetsTokens.warningBg,
             target: 'Meta: <2h',
@@ -119,28 +158,28 @@ class ComplaintsPage extends StatelessWidget {
         ),
         const SizedBox(width: 10),
 
-        // ── Casos resueltos ──
+        // Casos resueltos
         Expanded(
           child: KpiCard(
             label: 'Casos resueltos',
-            value: '13',
+            value: '${m.resolved}',
             valueColor: AltruPetsTokens.success,
             icon: '\u2705',
             iconBgColor: AltruPetsTokens.successBg,
             target: 'Meta: >80%',
-            subtitle: '57% tasa de resolucion',
-            progress: 13 / 23,
+            subtitle: '${m.formattedResolutionRate} tasa de resolucion',
+            progress: m.resolutionRate,
             progressColor: AltruPetsTokens.success,
             status: KpiStatus.critical,
           ),
         ),
         const SizedBox(width: 10),
 
-        // ── Visitas programadas ──
+        // Visitas programadas
         Expanded(
           child: KpiCard(
             label: 'Visitas programadas',
-            value: '5',
+            value: '${m.scheduledVisits}',
             valueColor: AltruPetsTokens.info,
             icon: '\uD83D\uDDD3\uFE0F',
             iconBgColor: AltruPetsTokens.infoBg,
@@ -151,127 +190,65 @@ class ComplaintsPage extends StatelessWidget {
     );
   }
 
-  Widget _buildTabs() {
+  Widget _buildFilterTabs() {
     return FilterChipBar(
-      labels: const [
-        'Nuevas (2)',
-        'En investigacion (8)',
-        'Resueltas (13)',
-        'Mapa',
-      ],
-      selectedIndex: 0,
-      onSelected: (_) {},
+      labels: _tabLabels,
+      selectedIndex: _selectedTab,
+      onSelected: (i) => setState(() => _selectedTab = i),
     );
   }
 
   Widget _buildComplaintList() {
-    return ListView(
-      children: [
-        _complaintCard(
-          emoji: '\u26A0\uFE0F',
-          emojiBg: AltruPetsTokens.errorBg,
-          title: 'Perros encadenados sin agua \u2014 Barrio Fatima',
-          meta: 'Reportado por Andrea M. \u00B7 Hace 45 min \u00B7 GPS adjunto \u00B7 3 fotos',
-          statusLabel: 'Requiere clasificacion',
-          statusColor: AltruPetsTokens.error,
-          statusBg: AltruPetsTokens.errorBg,
-          actionLabel: 'Clasificar \u2192',
-          actionColor: AltruPetsTokens.error,
-        ),
-        const SizedBox(height: 6),
-        _complaintCard(
-          emoji: '\u26A0\uFE0F',
-          emojiBg: AltruPetsTokens.warningBg,
-          title: 'Gato herido abandonado \u2014 Mercedes Norte',
-          meta: 'Reportado por Carlos V. \u00B7 Hace 2h \u00B7 GPS adjunto \u00B7 1 foto',
-          statusLabel: 'Requiere clasificacion',
-          statusColor: AltruPetsTokens.warning,
-          statusBg: AltruPetsTokens.warningBg,
-          actionLabel: 'Clasificar \u2192',
-          actionColor: AltruPetsTokens.warning,
-        ),
-      ],
+    final reports = _currentReports;
+
+    if (reports.isEmpty) {
+      return const AppEmptyState(
+        icon: Icons.assignment_outlined,
+        title: 'Sin denuncias',
+        subtitle: 'No hay denuncias en esta categoria.',
+      );
+    }
+
+    return ListView.separated(
+      itemCount: reports.length,
+      separatorBuilder: (_, _) => const SizedBox(height: 6),
+      itemBuilder: (context, index) {
+        final report = reports[index];
+        return ComplaintCard(
+          report: report,
+          onClassify: () => ClassifyModal.show(context, report),
+          onTap: () => ClassifyModal.show(context, report),
+        );
+      },
     );
   }
 
-  Widget _complaintCard({
-    required String emoji,
-    required Color emojiBg,
-    required String title,
-    required String meta,
-    required String statusLabel,
-    required Color statusColor,
-    required Color statusBg,
-    required String actionLabel,
-    required Color actionColor,
-  }) {
-    return AppCard(
-      child: Row(
+  Widget _buildMapPlaceholder() {
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Container(
-            width: 36,
-            height: 36,
-            decoration: BoxDecoration(
-              color: emojiBg,
-              borderRadius: BorderRadius.circular(8),
-            ),
-            alignment: Alignment.center,
-            child: Text(emoji, style: const TextStyle(fontSize: 18)),
+          Icon(
+            Icons.map_outlined,
+            size: 48,
+            color: AltruPetsTokens.textSecondary,
           ),
-          const SizedBox(width: 10),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  title,
-                  style: const TextStyle(
-                    fontSize: 12,
-                    fontWeight: FontWeight.w600,
-                    color: AltruPetsTokens.textPrimary,
-                  ),
-                ),
-                const SizedBox(height: 1),
-                Text(
-                  meta,
-                  style: const TextStyle(
-                    fontSize: 10,
-                    color: AltruPetsTokens.textSecondary,
-                  ),
-                ),
-              ],
+          const SizedBox(height: 12),
+          const Text(
+            'Mapa de denuncias',
+            style: TextStyle(
+              fontSize: 14,
+              fontWeight: FontWeight.w600,
+              color: AltruPetsTokens.textPrimary,
             ),
           ),
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-            decoration: BoxDecoration(
-              color: statusBg,
-              borderRadius: BorderRadius.circular(6),
-            ),
-            child: Text(
-              statusLabel,
-              style: TextStyle(
-                fontSize: 9,
-                fontWeight: FontWeight.w600,
-                color: statusColor,
-              ),
-            ),
-          ),
-          const SizedBox(width: 8),
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(6),
-              color: statusBg,
-              border: Border.all(color: actionColor),
-            ),
-            child: Text(
-              actionLabel,
-              style: TextStyle(
-                fontSize: 10,
-                fontWeight: FontWeight.w600,
-                color: actionColor,
-              ),
+          const SizedBox(height: 4),
+          const Text(
+            'Vista de mapa con ubicaciones GPS de las denuncias.\nProximo: integracion con Google Maps.',
+            textAlign: TextAlign.center,
+            style: TextStyle(
+              fontSize: 11,
+              color: AltruPetsTokens.textSecondary,
             ),
           ),
         ],

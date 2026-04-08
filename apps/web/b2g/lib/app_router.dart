@@ -3,6 +3,8 @@ import 'package:go_router/go_router.dart';
 import 'shared/layout/app_shell.dart';
 import 'features/campaigns/campaigns_page.dart';
 import 'features/complaints/complaints_page.dart';
+import 'features/complaints/public/public_complaint_form.dart';
+import 'features/complaints/public/public_tracking_page.dart';
 import 'features/disbursements/disbursements_page.dart';
 import 'features/emergencies/emergencies_page.dart';
 import 'features/settings/approval_rules_page.dart';
@@ -14,6 +16,22 @@ final appRouter = GoRouter(
   navigatorKey: _rootNavigatorKey,
   initialLocation: '/campaigns',
   routes: [
+    // ─── Public routes (OUTSIDE ShellRoute — no sidebar, no auth) ──
+    GoRoute(
+      path: '/denuncias',
+      parentNavigatorKey: _rootNavigatorKey,
+      builder: (context, state) => const PublicComplaintForm(),
+    ),
+    GoRoute(
+      path: '/denuncias/rastreo/:code',
+      parentNavigatorKey: _rootNavigatorKey,
+      builder: (context, state) {
+        final code = state.pathParameters['code'] ?? '';
+        return PublicTrackingPage(trackingCode: code);
+      },
+    ),
+
+    // ─── Dashboard routes (inside ShellRoute — sidebar + auth) ─────
     ShellRoute(
       navigatorKey: _shellNavigatorKey,
       builder: (context, state, child) {

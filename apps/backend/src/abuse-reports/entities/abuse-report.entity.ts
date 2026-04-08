@@ -1,4 +1,4 @@
-import { ObjectType, Field, ID, registerEnumType } from '@nestjs/graphql';
+import { ObjectType, Field, ID, Float } from '@nestjs/graphql';
 import {
   Entity,
   PrimaryGeneratedColumn,
@@ -6,31 +6,16 @@ import {
   CreateDateColumn,
   UpdateDateColumn,
   ManyToOne,
+  OneToOne,
   JoinColumn,
   Index,
 } from 'typeorm';
-import { User } from '../../users/entities/user.entity';
 import { Organization } from '../../organizations/entities/organization.entity';
-import { Point } from '../../types/geometry.types';
-
-export enum AbuseReportType {
-  PHYSICAL_ABUSE = 'PHYSICAL_ABUSE',
-  ABANDONMENT = 'ABANDONMENT',
-  NEGLECT = 'NEGLECT',
-  DANGEROUS_ANIMAL = 'DANGEROUS_ANIMAL',
-  OTHER = 'OTHER',
-}
-
-export enum AbuseReportStatus {
-  SUBMITTED = 'SUBMITTED',
-  UNDER_REVIEW = 'UNDER_REVIEW',
-  INVESTIGATING = 'INVESTIGATING',
-  RESOLVED = 'RESOLVED',
-  DISMISSED = 'DISMISSED',
-}
-
-registerEnumType(AbuseReportType, { name: 'AbuseReportType' });
-registerEnumType(AbuseReportStatus, { name: 'AbuseReportStatus' });
+import { User } from '../../users/entities/user.entity';
+import { AbuseReportStatus } from '../enums/abuse-report-status.enum';
+import { PrivacyMode } from '../enums/privacy-mode.enum';
+import { AbuseReportPriority } from '../enums/abuse-report-priority.enum';
+import { AbuseReportIdentity } from './abuse-report-identity.entity';
 
 @ObjectType()
 @Entity('abuse_reports')
@@ -39,55 +24,13 @@ export class AbuseReport {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @Field(() => AbuseReportType)
-  @Column({
-    type: 'enum',
-    enum: AbuseReportType,
-    default: AbuseReportType.OTHER,
-  })
-  type: AbuseReportType;
-
-  @Field(() => String, { nullable: true })
-  @Column({ type: 'text', nullable: true })
-  description?: string;
-
-  @Field(() => Point)
-  @Index({ spatial: true })
-  @Column({
-    type: 'geometry',
-    spatialFeatureType: 'Point',
-    srid: 4326,
-  })
-  location: Point;
-
-  @Field(() => [String])
-  @Column('simple-array', { nullable: true })
-  photos: string[];
-
   @Field(() => String)
-  @Column({ unique: true })
+  @Column({ type: 'varchar', unique: true })
   @Index()
   trackingCode: string;
 
-  @Field(() => AbuseReportStatus)
-  @Column({
-    type: 'enum',
-    enum: AbuseReportStatus,
-    default: AbuseReportStatus.SUBMITTED,
-  })
-  status: AbuseReportStatus;
-
-  @Field(() => String)
-  @Column()
-  reporterId: string;
-
-  @Field(() => User)
-  @ManyToOne(() => User)
-  @JoinColumn({ name: 'reporterId' })
-  reporter: User;
-
   @Field(() => String, { nullable: true })
-  @Column({ nullable: true })
+  @Column({ type: 'uuid', nullable: true })
   @Index()
   municipalityId?: string;
 
@@ -95,6 +38,90 @@ export class AbuseReport {
   @ManyToOne(() => Organization)
   @JoinColumn({ name: 'municipalityId' })
   municipality?: Organization;
+
+  @Field(() => AbuseReportStatus)
+  @Column({
+    type: 'enum',
+    enum: AbuseReportStatus,
+    default: AbuseReportStatus.FILED,
+  })
+  status: AbuseReportStatus;
+
+  @Field(() => [String])
+  @Column('varchar', { array: true })
+  abuseTypes: string[];
+
+  @Field(() => String)
+  @Column({ type: 'text' })
+  description: string;
+
+  @Field(() => String)
+  @Column({ type: 'varchar' })
+  locationProvince: string;
+
+  @Field(() => String)
+  @Column({ type: 'varchar' })
+  locationCanton: string;
+
+  @Field(() => String)
+  @Column({ type: 'varchar' })
+  locationDistrict: string;
+
+  @Field(() => String)
+  @Column({ type: 'text' })
+  locationAddress: string;
+
+  @Field(() => Float, { nullable: true })
+  @Column('decimal', { precision: 10, scale: 7, nullable: true })
+  latitude?: number;
+
+  @Field(() => Float, { nullable: true })
+  @Column('decimal', { precision: 10, scale: 7, nullable: true })
+  longitude?: number;
+
+  @Field(() => [String])
+  @Column('varchar', { array: true, default: '{}' })
+  evidenceUrls: string[];
+
+  @Field(() => PrivacyMode)
+  @Column({
+    type: 'enum',
+    enum: PrivacyMode,
+    default: PrivacyMode.ANONYMOUS,
+  })
+  privacyMode: PrivacyMode;
+
+  @Field(() => AbuseReportPriority)
+  @Column({
+    type: 'enum',
+    enum: AbuseReportPriority,
+    default: AbuseReportPriority.MEDIUM,
+  })
+  priority: AbuseReportPriority;
+
+  @Field(() => String, { nullable: true })
+  @Column({ type: 'varchar', nullable: true })
+  classifiedAs?: string;
+
+  @Field(() => String, { nullable: true })
+  @Column({ type: 'uuid', nullable: true })
+  assignedToId?: string;
+
+  @Field(() => User, { nullable: true })
+  @ManyToOne(() => User)
+  @JoinColumn({ name: 'assignedToId' })
+  assignedTo?: User;
+
+  @Field(() => Date, { nullable: true })
+  @Column({ type: 'timestamp', nullable: true })
+  resolvedAt?: Date;
+
+  @Field(() => String, { nullable: true })
+  @Column({ type: 'text', nullable: true })
+  resolutionNotes?: string;
+
+  @OneToOne(() => AbuseReportIdentity, (identity) => identity.abuseReport)
+  identity?: AbuseReportIdentity;
 
   @Field()
   @CreateDateColumn()
