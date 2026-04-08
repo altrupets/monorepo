@@ -69,6 +69,10 @@ dependencies:
 
   connectivity_plus: any
 
+  # Shared UI
+  altrupets_ui:
+    path: ../../packages/altrupets_ui
+
   # Window management (desktop)
   window_manager: ^0.4.3
 
