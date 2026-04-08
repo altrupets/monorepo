@@ -237,7 +237,7 @@ bootstrap-dev: ## Full setup with GitOps/ArgoCD and Harbor Registry
 	@$(MAKE) dev-terraform-clean
 	@$(MAKE) setup
 	@$(MAKE) dev-minikube-deploy
-	@$(MAKE) dev-infisical-sync-cli || true
+	@$(MAKE) dev-infisical-sync-cli || $(MAKE) dev-fallback-secret
 	@$(MAKE) dev-terraform-deploy
 	@$(MAKE) dev-gateway-deploy
 	@$(MAKE) dev-harbor-deploy
@@ -484,6 +484,9 @@ dev-infisical-sync: ## Sync secrets from Infisical to Kubernetes
 
 dev-infisical-sync-cli: ## Sync secrets using Infisical CLI (no operator needed)
 	@$(SCRIPTS_DIR)/infisical-sync.sh --cli
+
+dev-fallback-secret: ## Create fallback backend-secret with dev defaults (when Infisical is unavailable)
+	@$(SCRIPTS_DIR)/create-fallback-secret.sh
 
 dev-stitch-sync: ## Sync Stitch config from Infisical to .env (GOOGLE_CLOUD_PROJECT, STITCH_PROJECT_ID)
 	@$(SCRIPTS_DIR)/infisical-sync.sh --stitch
