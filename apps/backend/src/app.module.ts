@@ -29,6 +29,8 @@ import { AbuseReportsModule } from './abuse-reports/abuse-reports.module';
 import { AbuseReport } from './abuse-reports/entities/abuse-report.entity';
 import { SubsidiesModule } from './subsidies/subsidies.module';
 import { SubsidyRequest } from './subsidies/entities/subsidy-request.entity';
+import { AutoApprovalRule } from './subsidies/entities/auto-approval-rule.entity';
+import { ApprovalAuditLog } from './subsidies/entities/approval-audit-log.entity';
 import { NotificationsModule } from './notifications/notifications.module';
 import { DeviceToken } from './notifications/entities/device-token.entity';
 import { Notification } from './notifications/entities/notification.entity';
@@ -91,6 +93,8 @@ import { MatchingModule } from './matching/matching.module';
           Jurisdiction,
           AbuseReport,
           SubsidyRequest,
+          AutoApprovalRule,
+          ApprovalAuditLog,
           DeviceToken,
           Notification,
           RescueAlert,

@@ -12,6 +12,8 @@ import {
 import { User } from '../../users/entities/user.entity';
 import { Organization } from '../../organizations/entities/organization.entity';
 import { Animal } from '../../animals/entities/animal.entity';
+import { VetProfile } from '../../vet-profiles/entities/vet-profile.entity';
+import { ProcedureType } from '../enums/procedure-type.enum';
 
 export enum SubsidyRequestStatus {
   CREATED = 'CREATED',
@@ -74,6 +76,54 @@ export class SubsidyRequest {
     default: SubsidyRequestStatus.CREATED,
   })
   status: SubsidyRequestStatus;
+
+  // --- ALT-64: New columns for vet disbursements + auto-approval ---
+
+  @Field(() => String, { nullable: true })
+  @Column({ type: 'uuid', nullable: true })
+  @Index()
+  vetProfileId?: string;
+
+  @Field(() => VetProfile, { nullable: true })
+  @ManyToOne(() => VetProfile, { nullable: true })
+  @JoinColumn({ name: 'vetProfileId' })
+  vetProfile?: VetProfile;
+
+  @Field(() => String, { nullable: true })
+  @Column({ type: 'uuid', nullable: true })
+  reviewedById?: string;
+
+  @Field(() => User, { nullable: true })
+  @ManyToOne(() => User, { nullable: true })
+  @JoinColumn({ name: 'reviewedById' })
+  reviewedBy?: User;
+
+  @Field({ nullable: true })
+  @Column({ type: 'timestamp', nullable: true })
+  reviewedAt?: Date;
+
+  @Field(() => Boolean, { nullable: true })
+  @Column({ type: 'boolean', nullable: true })
+  autoApproved?: boolean;
+
+  @Field(() => String, { nullable: true })
+  @Column({ type: 'text', nullable: true })
+  rejectionReason?: string;
+
+  @Field(() => ProcedureType, { nullable: true })
+  @Column({
+    type: 'enum',
+    enum: ProcedureType,
+    nullable: true,
+  })
+  procedureType?: ProcedureType;
+
+  @Field(() => String, { nullable: true })
+  @Column({ type: 'varchar', length: 20, nullable: true, unique: true })
+  @Index()
+  trackingCode?: string;
+
+  // --- End ALT-64 columns ---
 
   @Field({ nullable: true })
   @Column({ type: 'timestamp', nullable: true })

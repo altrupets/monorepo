@@ -65,6 +65,8 @@ eggs/
 lib/
 !**/apps/mobile/lib/
 !**/apps/widgetbook/lib/
+!**/apps/web/b2g/lib/
+!**/packages/altrupets_ui/lib/
 lib64/
 parts/
 sdist/
