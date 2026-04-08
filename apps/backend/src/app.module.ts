@@ -27,6 +27,7 @@ import { JurisdictionsModule } from './jurisdictions/jurisdictions.module';
 import { Jurisdiction } from './jurisdictions/entities/jurisdiction.entity';
 import { AbuseReportsModule } from './abuse-reports/abuse-reports.module';
 import { AbuseReport } from './abuse-reports/entities/abuse-report.entity';
+import { AbuseReportIdentity } from './abuse-reports/entities/abuse-report-identity.entity';
 import { SubsidiesModule } from './subsidies/subsidies.module';
 import { SubsidyRequest } from './subsidies/entities/subsidy-request.entity';
 import { AutoApprovalRule } from './subsidies/entities/auto-approval-rule.entity';
@@ -95,6 +96,7 @@ import { CampaignRegistration } from './campaigns/entities/campaign-registration
           VetProfile,
           Jurisdiction,
           AbuseReport,
+          AbuseReportIdentity,
           SubsidyRequest,
           AutoApprovalRule,
           ApprovalAuditLog,

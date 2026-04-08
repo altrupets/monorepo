@@ -286,14 +286,19 @@ export class McpService implements OnModuleInit {
         }),
       },
       async (args) => {
-        const user = requireAuth();
+        requireAuth();
 
-        const report = await this.abuseReportsService.create({
-          type: args.type,
+        const report = await this.abuseReportsService.fileReport({
+          abuseTypes: [args.type],
           description: args.description,
+          locationProvince: '',
+          locationCanton: '',
+          locationDistrict: '',
+          locationAddress: '',
           latitude: args.location.lat,
           longitude: args.location.lng,
-          reporterId: user.id,
+          evidenceUrls: [],
+          privacyMode: 'ANONYMOUS' as any,
         });
 
         return {
