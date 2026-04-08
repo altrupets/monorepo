@@ -42,6 +42,9 @@ import { AdoptionsModule } from './adoptions/adoptions.module';
 import { AdoptionListing } from './adoptions/entities/adoption-listing.entity';
 import { AdoptionApplication } from './adoptions/entities/adoption-application.entity';
 import { MatchingModule } from './matching/matching.module';
+import { CampaignsModule } from './campaigns/campaigns.module';
+import { Campaign } from './campaigns/entities/campaign.entity';
+import { CampaignRegistration } from './campaigns/entities/campaign-registration.entity';
 
 @Module({
   imports: [
@@ -100,6 +103,8 @@ import { MatchingModule } from './matching/matching.module';
           RescueAlert,
           AdoptionListing,
           AdoptionApplication,
+          Campaign,
+          CampaignRegistration,
         ],
         synchronize: configService.get<string>('NODE_ENV') !== 'production',
         migrations: [join(__dirname, 'migrations', '*{.ts,.js}')],
@@ -161,6 +166,7 @@ import { MatchingModule } from './matching/matching.module';
     RescuesModule,
     AdoptionsModule,
     MatchingModule,
+    CampaignsModule,
   ],
   controllers: [AppController],
   providers: [AppService],

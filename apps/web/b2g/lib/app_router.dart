@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'shared/layout/app_shell.dart';
-import 'features/castrations/castrations_page.dart';
+import 'features/campaigns/campaigns_page.dart';
 import 'features/complaints/complaints_page.dart';
 import 'features/disbursements/disbursements_page.dart';
 import 'features/emergencies/emergencies_page.dart';
@@ -12,15 +12,14 @@ final _shellNavigatorKey = GlobalKey<NavigatorState>();
 
 final appRouter = GoRouter(
   navigatorKey: _rootNavigatorKey,
-  initialLocation: '/disbursements',
+  initialLocation: '/campaigns',
   routes: [
     ShellRoute(
       navigatorKey: _shellNavigatorKey,
       builder: (context, state, child) {
-        // Determine panel index from current route
         final loc = state.uri.path;
-        int panelIndex = 1; // default: Desembolsos
-        if (loc.startsWith('/castrations')) panelIndex = 0;
+        int panelIndex = 0;
+        if (loc.startsWith('/campaigns')) panelIndex = 0;
         if (loc.startsWith('/disbursements')) panelIndex = 1;
         if (loc.startsWith('/complaints')) panelIndex = 2;
         if (loc.startsWith('/emergencies')) panelIndex = 3;
@@ -32,7 +31,7 @@ final appRouter = GoRouter(
           onPanelChanged: (index) {
             switch (index) {
               case 0:
-                context.go('/castrations');
+                context.go('/campaigns');
                 break;
               case 1:
                 context.go('/disbursements');
@@ -53,8 +52,8 @@ final appRouter = GoRouter(
       },
       routes: [
         GoRoute(
-          path: '/castrations',
-          builder: (context, state) => const CastrationsPage(),
+          path: '/campaigns',
+          builder: (context, state) => const CampaignsPage(),
         ),
         GoRoute(
           path: '/disbursements',
