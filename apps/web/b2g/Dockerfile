@@ -3,10 +3,8 @@
 FROM ghcr.io/cirruslabs/flutter:stable AS build
 
 WORKDIR /app
-COPY apps/web/b2g/pubspec.yaml apps/web/b2g/pubspec.lock* ./
-RUN flutter pub get
 COPY apps/web/b2g/ .
-RUN flutter build web --release
+RUN flutter pub get && flutter build web --release
 
 # Stage 2: Serve with nginx
 FROM nginx:alpine
