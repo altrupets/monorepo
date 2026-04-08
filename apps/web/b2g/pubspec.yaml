@@ -35,6 +35,10 @@ dependencies:
   go_router: ^15.1.2
   google_fonts: ^6.2.1
 
+  # Shared UI
+  altrupets_ui:
+    path: ../../../packages/altrupets_ui
+
 dev_dependencies:
   flutter_test:
     sdk: flutter
