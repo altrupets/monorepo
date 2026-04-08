@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:altrupets_ui/altrupets_ui.dart';
 import 'models/subsidy_request_model.dart';
 import 'models/mock_data.dart';
-import 'widgets/kpi_card.dart';
 import 'widgets/subsidy_request_card.dart';
 import 'widgets/subsidy_detail_modal.dart';
 
@@ -140,7 +139,7 @@ class _DisbursementsPageState extends State<DisbursementsPage> {
             value: '\u20A1500K',
             icon: '\uD83D\uDCB0',
             iconBgColor: AltruPetsTokens.successBg,
-            detail: 'Aprobado por concejo',
+            subtitle: 'Aprobado por concejo',
           ),
         ),
         const SizedBox(width: 10),
@@ -151,8 +150,9 @@ class _DisbursementsPageState extends State<DisbursementsPage> {
             valueColor: AltruPetsTokens.warning,
             icon: '\uD83D\uDCC9',
             iconBgColor: AltruPetsTokens.warningBg,
-            detail: '${b.usagePercent.toStringAsFixed(0)}% del presupuesto',
-            progressPercent: b.usagePercent,
+            target: 'Meta: <80% presupuesto',
+            subtitle: '${b.usagePercent.toStringAsFixed(0)}% del presupuesto',
+            progress: b.usagePercent / 100,
             progressColor: AltruPetsTokens.warning,
           ),
         ),
@@ -164,8 +164,10 @@ class _DisbursementsPageState extends State<DisbursementsPage> {
             valueColor: AltruPetsTokens.success,
             icon: '\u2705',
             iconBgColor: AltruPetsTokens.successBg,
-            detail: '${(100 - b.usagePercent).toStringAsFixed(0)}% restante \u00B7 ${b.daysRemainingInMonth} dias',
-            progressPercent: 100 - b.usagePercent,
+            target: 'Meta: >20% siempre',
+            subtitle:
+                '${(100 - b.usagePercent).toStringAsFixed(0)}% restante \u00B7 ${b.daysRemainingInMonth} dias',
+            progress: (100 - b.usagePercent) / 100,
             progressColor: AltruPetsTokens.success,
           ),
         ),
@@ -176,25 +178,27 @@ class _DisbursementsPageState extends State<DisbursementsPage> {
             value: '${b.totalRequests}',
             icon: '\uD83D\uDCCB',
             iconBgColor: AltruPetsTokens.infoBg,
-            detail: '\u2191 3 vs mes anterior',
-            detailColor: AltruPetsTokens.success,
-            breakdown: [
-              KpiBreakdownItem(
-                count: b.approvedCount,
-                label: 'Aprobadas',
-                color: AltruPetsTokens.success,
-              ),
-              KpiBreakdownItem(
-                count: b.inReviewCount,
-                label: 'En revision',
-                color: AltruPetsTokens.info,
-              ),
-              KpiBreakdownItem(
-                count: b.rejectedCount,
-                label: 'Rechazada',
-                color: AltruPetsTokens.error,
-              ),
-            ],
+            trend: '\u2191 3 vs mes anterior',
+            trendColor: AltruPetsTokens.success,
+            breakdown: KpiBreakdownRow(
+              items: [
+                KpiBreakdownItem(
+                  count: b.approvedCount,
+                  label: 'Aprobadas',
+                  color: AltruPetsTokens.success,
+                ),
+                KpiBreakdownItem(
+                  count: b.inReviewCount,
+                  label: 'En revision',
+                  color: AltruPetsTokens.info,
+                ),
+                KpiBreakdownItem(
+                  count: b.rejectedCount,
+                  label: 'Rechazada',
+                  color: AltruPetsTokens.error,
+                ),
+              ],
+            ),
           ),
         ),
       ],
