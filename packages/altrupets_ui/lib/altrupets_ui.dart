@@ -12,5 +12,6 @@ export 'src/atoms/app_dialog.dart';
 export 'src/atoms/app_empty_state.dart';
 
 // Molecules
+export 'src/molecules/kpi_card.dart';
 export 'src/molecules/section_header.dart';
 export 'src/molecules/filter_chip_bar.dart';
