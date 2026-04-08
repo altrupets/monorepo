@@ -1,0 +1,1162 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Un Dia en la Vida: Marcela Alvarado</title>
+  <style>
+    /* ── Reset & Base ──────────────────────────────────────────── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background: #1a1a2e;
+      color: #e0e0e0;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      min-height: 100vh;
+      padding: 32px 24px 120px;
+    }
+
+    /* ── Wrapper ───────────────────────────────────────────────── */
+    .uxrt-map {
+      max-width: 1400px;
+      margin: 0 auto;
+    }
+
+    /* ── Header ────────────────────────────────────────────────── */
+    .uxrt-header {
+      text-align: center;
+      margin-bottom: 32px;
+    }
+    .uxrt-header__eyebrow {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 3px;
+      color: #888;
+      margin-bottom: 8px;
+    }
+    .uxrt-header__title {
+      font-size: 28px;
+      font-weight: 700;
+      color: #fff;
+      margin-bottom: 8px;
+    }
+    .uxrt-header__subtitle {
+      color: #999;
+      font-size: 14px;
+    }
+
+    /* ── Persona Card ──────────────────────────────────────────── */
+    .uxrt-persona-card {
+      background: #222244;
+      border-radius: 12px;
+      padding: 20px;
+      margin-bottom: 28px;
+      display: flex;
+      gap: 20px;
+      align-items: center;
+    }
+    .uxrt-persona-card__avatar {
+      width: 64px;
+      height: 64px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #667eea, #764ba2);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 28px;
+      flex-shrink: 0;
+    }
+    .uxrt-persona-card__body { flex: 1; }
+    .uxrt-persona-card__name {
+      font-weight: 700;
+      font-size: 16px;
+      color: #fff;
+    }
+    .uxrt-persona-card__meta {
+      font-size: 13px;
+      color: #aaa;
+      margin-top: 4px;
+    }
+    .uxrt-persona-card__pain {
+      font-size: 13px;
+      color: #ccc;
+      margin-top: 8px;
+      line-height: 1.5;
+    }
+    .uxrt-persona-card__pain strong {
+      color: #667eea;
+    }
+
+    /* ── Grid ──────────────────────────────────────────────────── */
+    .uxrt-grid {
+      display: grid;
+      grid-template-columns: 140px repeat(6, 1fr);
+      gap: 0;
+      margin-bottom: 0;
+    }
+
+    /* Responsive: horizontal scroll on narrow viewports */
+    @media (max-width: 768px) {
+      .uxrt-grid {
+        overflow-x: auto;
+        display: block;
+        white-space: nowrap;
+      }
+      .uxrt-grid > * {
+        display: inline-block;
+        vertical-align: top;
+      }
+    }
+
+    /* ── Grid — Row Label (first column) ───────────────────────── */
+    .uxrt-row-label {
+      padding: 16px 12px;
+      font-size: 12px;
+      color: #aaa;
+      display: flex;
+      align-items: center;
+      line-height: 1.4;
+    }
+    .uxrt-row-label--header {
+      background: #333355;
+      font-weight: 700;
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      border-radius: 8px 0 0 0;
+    }
+    .uxrt-row-label--emotion  { background: #2a2a4a; }
+    .uxrt-row-label--actions  { background: #252545; }
+    .uxrt-row-label--thoughts { background: #2a2a4a; }
+    .uxrt-row-label--frustrations { background: #252545; }
+    .uxrt-row-label--touchpoints  { background: #2a2a4a; }
+    .uxrt-row-label--opportunities {
+      background: #1a3a2a;
+      color: #6bcb77;
+      border-radius: 0 0 0 8px;
+    }
+
+    /* ── Grid — Phase Header Cells ─────────────────────────────── */
+    .uxrt-phase-header {
+      padding: 12px;
+      text-align: center;
+      font-weight: 700;
+      font-size: 12px;
+    }
+    .uxrt-phase-header--color-0 { background: #4a3f6b; color: #e8d5ff; }
+    .uxrt-phase-header--color-1 { background: #3f5a6b; color: #d5f0ff; }
+    .uxrt-phase-header--color-2 { background: #3f6b5a; color: #d5ffe8; }
+    .uxrt-phase-header--color-3 { background: #6b5a3f; color: #ffe8d5; }
+    .uxrt-phase-header--color-4 { background: #5a3f6b; color: #e8d5ff; }
+    /* Last phase header gets a rounded top-right corner */
+    .uxrt-phase-header--last { border-radius: 0 8px 0 0; }
+
+    /* ── Grid — Emotion Cells ──────────────────────────────────── */
+    .uxrt-emotion-cell {
+      background: #2a2a4a;
+      padding: 12px;
+      text-align: center;
+    }
+    .uxrt-emotion-cell__emoji { font-size: 32px; }
+    .uxrt-emotion-cell__label {
+      font-size: 11px;
+      margin-top: 4px;
+      display: block;
+    }
+    .uxrt-emotion-cell__bar-track {
+      background: #333;
+      border-radius: 4px;
+      height: 6px;
+      margin-top: 6px;
+    }
+    .uxrt-emotion-cell__bar-fill {
+      height: 6px;
+      border-radius: 4px;
+    }
+
+    /* ── Grid — Action / Text Cells ────────────────────────────── */
+    .uxrt-cell {
+      padding: 12px;
+      font-size: 12px;
+      line-height: 1.6;
+    }
+    .uxrt-cell--actions      { background: #252545; color: #ddd; }
+    .uxrt-cell--thoughts     { background: #2a2a4a; color: #ddd; font-style: italic; }
+    .uxrt-cell--frustrations { background: #252545; color: #ff8a8a; }
+    .uxrt-cell--touchpoints  { background: #2a2a4a; color: #88aaff; }
+    .uxrt-cell--opportunities {
+      background: #1a3a2a;
+      color: #a8e6a1;
+    }
+    /* Last column bottom-right corner rounding */
+    .uxrt-cell--last-col-opportunities { border-radius: 0 0 8px 0; }
+
+    /* ── Analysis Panels ───────────────────────────────────────── */
+    .uxrt-pain-points {
+      margin-top: 28px;
+      background: #3a1a1a;
+      border-radius: 12px;
+      padding: 20px;
+      border-left: 4px solid #ff6b6b;
+    }
+    .uxrt-pain-points__header {
+      font-size: 13px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: #ff6b6b;
+      margin-bottom: 12px;
+      font-weight: 700;
+    }
+    .uxrt-pain-points__grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+    @media (max-width: 600px) {
+      .uxrt-pain-points__grid { grid-template-columns: 1fr; }
+    }
+    .uxrt-pain-points__item {
+      font-size: 13px;
+      color: #ddd;
+      line-height: 1.5;
+    }
+
+    .uxrt-moments {
+      margin-top: 16px;
+      background: #1a2a3a;
+      border-radius: 12px;
+      padding: 20px;
+      border-left: 4px solid #667eea;
+    }
+    .uxrt-moments__header {
+      font-size: 13px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: #667eea;
+      margin-bottom: 12px;
+      font-weight: 700;
+    }
+    .uxrt-moments__item {
+      font-size: 13px;
+      color: #ddd;
+      line-height: 1.8;
+      margin-bottom: 8px;
+    }
+    .uxrt-moments__item:last-child { margin-bottom: 0; }
+    .uxrt-moments__phase-ref {
+      color: #88aaff;
+      font-weight: 700;
+    }
+
+    /* ── Footer ────────────────────────────────────────────────── */
+    .uxrt-footer {
+      margin-top: 24px;
+      text-align: center;
+      font-size: 11px;
+      color: #666;
+      border-top: 1px solid #333;
+      padding-top: 16px;
+    }
+
+    /* ── Editor Controls (sticky bar) ──────────────────────────── */
+    .uxrt-editor-controls {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: #111128;
+      border-top: 1px solid #333355;
+      padding: 12px 24px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      z-index: 1000;
+    }
+    .uxrt-editor-controls__btn {
+      padding: 8px 18px;
+      border-radius: 6px;
+      border: none;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: opacity 0.15s;
+    }
+    .uxrt-editor-controls__btn:hover { opacity: 0.85; }
+    .uxrt-editor-controls__btn--save {
+      background: #667eea;
+      color: #fff;
+    }
+    .uxrt-editor-controls__btn--refresh {
+      background: #2a2a4a;
+      color: #aac4ff;
+      border: 1px solid #445;
+    }
+    .uxrt-editor-controls__status {
+      font-size: 12px;
+      color: #6bcb77;
+      margin-left: 8px;
+      min-width: 180px;
+    }
+
+    /* ── Contenteditable Styling ────────────────────────────────── */
+    [contenteditable="true"] {
+      outline: none;
+      cursor: text;
+      border-radius: 3px;
+      transition: background 0.15s, box-shadow 0.15s;
+    }
+    [contenteditable="true"]:hover {
+      background: rgba(255,255,255,0.04);
+    }
+    [contenteditable="true"]:focus {
+      background: rgba(102, 126, 234, 0.12);
+      box-shadow: inset 0 0 0 1px rgba(102, 126, 234, 0.5);
+    }
+  </style>
+</head>
+<body>
+  <div class="uxrt-map">
+
+    <!-- Header -->
+    <div class="uxrt-header">
+      <div class="uxrt-header__eyebrow">Experience Map · experience-map</div>
+      <h1 class="uxrt-header__title" contenteditable="true" data-field="meta.title">Un Dia en la Vida: Marcela Alvarado</h1>
+    </div>
+
+    <!-- ── Persona Card ─────────────────────────────────────────── -->
+    <div class="uxrt-persona-card">
+      <div class="uxrt-persona-card__avatar">
+        <span contenteditable="true" data-field="persona.avatar_emoji">👩‍💼</span>
+      </div>
+      <div class="uxrt-persona-card__body">
+        <div class="uxrt-persona-card__name"
+             contenteditable="true"
+             data-field="persona.name">Marcela Alvarado</div>
+        <div class="uxrt-persona-card__meta">
+          <span contenteditable="true" data-field="persona.age">42</span> años
+          · <span contenteditable="true" data-field="persona.role">Encargada de Bienestar Animal — Municipalidad de Heredia</span>
+          · <span contenteditable="true" data-field="persona.location">Heredia, Costa Rica</span>
+        </div>
+        <div class="uxrt-persona-card__pain">
+          <strong>Dolor principal:</strong>
+          <span contenteditable="true" data-field="persona.primary_pain">Coordina rescates, denuncias, castraciones, presupuestos y SENASA desde WhatsApp y Excel — sin herramientas digitales integradas, trabaja de 5am a 10pm</span>
+        </div>
+        <div class="uxrt-persona-card__context" style="font-size:13px;color:#999;margin-top:6px;line-height:1.5;">
+          <span contenteditable="true" data-field="persona.context">Funcionaria municipal responsable de bienestar animal bajo Ley 7451. SENASA no tiene injerencia en animales domesticos — toda la carga operativa recae en ella y su oficina.</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── Phase Grid ───────────────────────────────────────────── -->
+    <div class="uxrt-grid">
+
+      <!-- ── Phase Table Header Row ──────────────────────────────── -->
+      <div class="uxrt-row-label uxrt-row-label--header">Dimensión</div>
+
+      <!-- Phase 0: madrugada -->
+      <div class="uxrt-phase-header uxrt-phase-header--color-0"
+           data-phase="madrugada">
+        <span class="uxrt-phase-header__icon">🌅</span>
+        <span contenteditable="true"
+              data-field="label"
+              data-phase="madrugada">Madrugada (5-6 AM)</span>
+      </div>
+
+      <!-- Phase 1: inicio-jornada -->
+      <div class="uxrt-phase-header uxrt-phase-header--color-1"
+           data-phase="inicio-jornada">
+        <span class="uxrt-phase-header__icon">🏛️</span>
+        <span contenteditable="true"
+              data-field="label"
+              data-phase="inicio-jornada">Inicio de jornada (7-9 AM)</span>
+      </div>
+
+      <!-- Phase 2: media-manana -->
+      <div class="uxrt-phase-header uxrt-phase-header--color-2"
+           data-phase="media-manana">
+        <span class="uxrt-phase-header__icon">📋</span>
+        <span contenteditable="true"
+              data-field="label"
+              data-phase="media-manana">Media manana (9:15 AM-12 MD)</span>
+      </div>
+
+      <!-- Phase 3: tarde-laboral -->
+      <div class="uxrt-phase-header uxrt-phase-header--color-3"
+           data-phase="tarde-laboral">
+        <span class="uxrt-phase-header__icon">⚙️</span>
+        <span contenteditable="true"
+              data-field="label"
+              data-phase="tarde-laboral">Tarde laboral (12:30-4 PM)</span>
+      </div>
+
+      <!-- Phase 4: post-trabajo -->
+      <div class="uxrt-phase-header uxrt-phase-header--color-4"
+           data-phase="post-trabajo">
+        <span class="uxrt-phase-header__icon">🚌</span>
+        <span contenteditable="true"
+              data-field="label"
+              data-phase="post-trabajo">Post-trabajo (4-6 PM)</span>
+      </div>
+
+      <!-- Phase 5: noche (last) -->
+      <div class="uxrt-phase-header uxrt-phase-header--color-0 uxrt-phase-header--last"
+           data-phase="noche">
+        <span class="uxrt-phase-header__icon">🌙</span>
+        <span contenteditable="true"
+              data-field="label"
+              data-phase="noche">Noche (6-10 PM)</span>
+      </div>
+
+      <!-- ── Emotion Row ─────────────────────────────────────────── -->
+      <div class="uxrt-row-label uxrt-row-label--emotion">😊 Emociones</div>
+
+      <!-- Emotion: madrugada (level 2 → #ffa07a, 40%) -->
+      <div class="uxrt-emotion-cell" data-phase="madrugada">
+        <div class="uxrt-emotion-cell__emoji"
+             contenteditable="true"
+             data-field="emotion.emoji"
+             data-phase="madrugada">😰</div>
+        <span class="uxrt-emotion-cell__label"
+              style="color: #ffa07a;"
+              contenteditable="true"
+              data-field="emotion.label"
+              data-phase="madrugada">Abrumada</span>
+        <div class="uxrt-emotion-cell__bar-track">
+          <div class="uxrt-emotion-cell__bar-fill"
+               style="background: #ffa07a; width: 40%;"
+               data-field="emotion.level"
+               data-phase="madrugada"
+               data-level="2"></div>
+        </div>
+      </div>
+
+      <!-- Emotion: inicio-jornada (level 3 → #ffd93d, 60%) -->
+      <div class="uxrt-emotion-cell" data-phase="inicio-jornada">
+        <div class="uxrt-emotion-cell__emoji"
+             contenteditable="true"
+             data-field="emotion.emoji"
+             data-phase="inicio-jornada">😐</div>
+        <span class="uxrt-emotion-cell__label"
+              style="color: #ffd93d;"
+              contenteditable="true"
+              data-field="emotion.label"
+              data-phase="inicio-jornada">Concentrada pero tensa</span>
+        <div class="uxrt-emotion-cell__bar-track">
+          <div class="uxrt-emotion-cell__bar-fill"
+               style="background: #ffd93d; width: 60%;"
+               data-field="emotion.level"
+               data-phase="inicio-jornada"
+               data-level="3"></div>
+        </div>
+      </div>
+
+      <!-- Emotion: media-manana (level 2 → #ffa07a, 40%) -->
+      <div class="uxrt-emotion-cell" data-phase="media-manana">
+        <div class="uxrt-emotion-cell__emoji"
+             contenteditable="true"
+             data-field="emotion.emoji"
+             data-phase="media-manana">😤</div>
+        <span class="uxrt-emotion-cell__label"
+              style="color: #ffa07a;"
+              contenteditable="true"
+              data-field="emotion.label"
+              data-phase="media-manana">Frustrada</span>
+        <div class="uxrt-emotion-cell__bar-track">
+          <div class="uxrt-emotion-cell__bar-fill"
+               style="background: #ffa07a; width: 40%;"
+               data-field="emotion.level"
+               data-phase="media-manana"
+               data-level="2"></div>
+        </div>
+      </div>
+
+      <!-- Emotion: tarde-laboral (level 2 → #ffa07a, 40%) -->
+      <div class="uxrt-emotion-cell" data-phase="tarde-laboral">
+        <div class="uxrt-emotion-cell__emoji"
+             contenteditable="true"
+             data-field="emotion.emoji"
+             data-phase="tarde-laboral">😓</div>
+        <span class="uxrt-emotion-cell__label"
+              style="color: #ffa07a;"
+              contenteditable="true"
+              data-field="emotion.label"
+              data-phase="tarde-laboral">Agotada</span>
+        <div class="uxrt-emotion-cell__bar-track">
+          <div class="uxrt-emotion-cell__bar-fill"
+               style="background: #ffa07a; width: 40%;"
+               data-field="emotion.level"
+               data-phase="tarde-laboral"
+               data-level="2"></div>
+        </div>
+      </div>
+
+      <!-- Emotion: post-trabajo (level 2 → #ffa07a, 40%) -->
+      <div class="uxrt-emotion-cell" data-phase="post-trabajo">
+        <div class="uxrt-emotion-cell__emoji"
+             contenteditable="true"
+             data-field="emotion.emoji"
+             data-phase="post-trabajo">😟</div>
+        <span class="uxrt-emotion-cell__label"
+              style="color: #ffa07a;"
+              contenteditable="true"
+              data-field="emotion.label"
+              data-phase="post-trabajo">Preocupada</span>
+        <div class="uxrt-emotion-cell__bar-track">
+          <div class="uxrt-emotion-cell__bar-fill"
+               style="background: #ffa07a; width: 40%;"
+               data-field="emotion.level"
+               data-phase="post-trabajo"
+               data-level="2"></div>
+        </div>
+      </div>
+
+      <!-- Emotion: noche (level 1 → #ff6b6b, 20%) -->
+      <div class="uxrt-emotion-cell" data-phase="noche">
+        <div class="uxrt-emotion-cell__emoji"
+             contenteditable="true"
+             data-field="emotion.emoji"
+             data-phase="noche">😔</div>
+        <span class="uxrt-emotion-cell__label"
+              style="color: #ff6b6b;"
+              contenteditable="true"
+              data-field="emotion.label"
+              data-phase="noche">Resignada</span>
+        <div class="uxrt-emotion-cell__bar-track">
+          <div class="uxrt-emotion-cell__bar-fill"
+               style="background: #ff6b6b; width: 20%;"
+               data-field="emotion.level"
+               data-phase="noche"
+               data-level="1"></div>
+        </div>
+      </div>
+
+      <!-- ── Actions Row ─────────────────────────────────────────── -->
+      <div class="uxrt-row-label uxrt-row-label--actions">🎯 Acciones</div>
+
+      <div class="uxrt-cell uxrt-cell--actions"
+           data-phase="madrugada"
+           contenteditable="true"
+           data-field="actions">Se levanta a las 5am. Se bana, se viste, desayuna. Revisa el celular y ve TODOS los mensajes acumulados de los grupos de WhatsApp de rescates, denuncias y castraciones. A las 6am toma su maletin y cartera, se dirige al trabajo revisando su agenda en el camino.</div>
+
+      <div class="uxrt-cell uxrt-cell--actions"
+           data-phase="inicio-jornada"
+           contenteditable="true"
+           data-field="actions">Llega al trabajo a las 7am con la mente llena de cosas por hacer. Se sienta en su escritorio. Revisa la agenda y el plan de trabajo de la municipalidad. Revisa correos pendientes y los responde. Redacta informes. Asiste a una reunion. A las 9am toma sus 15 minutos de cafe y lee mensajes de WhatsApp de los grupos de la municipalidad.</div>
+
+      <div class="uxrt-cell uxrt-cell--actions"
+           data-phase="media-manana"
+           contenteditable="true"
+           data-field="actions">Organiza el trabajo de sus subordinados. Entrega informes. Hace publicaciones en Facebook de la municipalidad. Coordina futuras visitas por denuncias de maltrato. Revisa pagos a veterinaria. Recibe denuncias y solicitudes de ayuda via oficina de B.A. Estudia resultados de publicaciones de Facebook — manda mensajes via WhatsApp pidiendo a contactos que vean y reaccionen a las publicaciones para medir alcance. Con eso justifica presupuesto para nuevas campanas de castracion. Estudia lugares y comunidades para proximas campanas.</div>
+
+      <div class="uxrt-cell uxrt-cell--actions"
+           data-phase="tarde-laboral"
+           contenteditable="true"
+           data-field="actions">Almuerza 30 min revisando WhatsApp. Vuelve a oficina: organiza futuras campanas de castracion, corrobora lugares de campanas, asiste a otra reunion. Coordina trabajos e informes con SENASA. Atiende visitas con dudas. Responde nuevos emails. A las 2:15pm (cafe de la tarde) revisa WhatsApp con consultas para VB de uso de veterinaria municipal. Corrobora que solicitudes sean legitimas. Avisa a la veterinaria del nuevo caso. Otorga el VB a la rescatista. Regresa a oficina: revisa citas calendarizadas, seguimiento de casos pendientes, revisa informes de gastos (contabilidad). Estructura campanas de castracion (fecha castracion, fecha perifoneo, fecha inscripcion/charla, lugar de cirugias). Organiza capacitaciones de rescatistas. Prepara documentacion para reuniones.</div>
+
+      <div class="uxrt-cell uxrt-cell--actions"
+           data-phase="post-trabajo"
+           contenteditable="true"
+           data-field="actions">Sale del trabajo a las 4pm. Visita la veterinaria para recibir informes de los casos referidos con VB. Hace algunas compras. Toma transporte para volver a su casa. En el camino responde a los grupos de WhatsApp de la municipalidad y a consultas de particulares.</div>
+
+      <div class="uxrt-cell uxrt-cell--actions"
+           data-phase="noche"
+           contenteditable="true"
+           data-field="actions">Regresa a su casa a las 6pm. Responde al WhatsApp. Se encarga de los quehaceres del hogar. Responde a llamados de emergencia. Alista documentos para el dia siguiente. A las 10pm cena y se acuesta.</div>
+
+      <!-- ── Thoughts Row ─────────────────────────────────────────── -->
+      <div class="uxrt-row-label uxrt-row-label--thoughts">💭 Pensamientos</div>
+
+      <div class="uxrt-cell uxrt-cell--thoughts"
+           data-phase="madrugada"
+           contenteditable="true"
+           data-field="thoughts">Ya hay 47 mensajes sin leer en los grupos de WhatsApp. Cuantas emergencias habran pasado en la noche? Tengo que priorizar antes de llegar a la oficina.</div>
+
+      <div class="uxrt-cell uxrt-cell--thoughts"
+           data-phase="inicio-jornada"
+           contenteditable="true"
+           data-field="thoughts">Necesito preparar el informe para el concejo antes del viernes. La reunion de las 8 no deberia tardar tanto pero siempre se extiende. Cuantos correos pendientes tendre?</div>
+
+      <div class="uxrt-cell uxrt-cell--thoughts"
+           data-phase="media-manana"
+           contenteditable="true"
+           data-field="thoughts">La publicacion de Facebook solo tuvo 23 reacciones. No es suficiente para justificar presupuesto. Tengo que pedir a todos que compartan. Como demuestro impacto si mis metricas son likes de Facebook?</div>
+
+      <div class="uxrt-cell uxrt-cell--thoughts"
+           data-phase="tarde-laboral"
+           contenteditable="true"
+           data-field="thoughts">SENASA me pide informes pero ellos no hacen nada por los animales domesticos. Todo recae en mi. La rescatista necesita VB urgente para la veterinaria y yo estoy en reunion. Cuantos casos pendientes tendre sin revisar?</div>
+
+      <div class="uxrt-cell uxrt-cell--thoughts"
+           data-phase="post-trabajo"
+           contenteditable="true"
+           data-field="thoughts">Ya sali del trabajo pero sigo respondiendo WhatsApp. La veterinaria me dice que el caso del perro atropellado necesita cirugia costosa. De donde saco presupuesto? Tengo que responder a esta senora que pregunta por su denuncia de maltrato.</div>
+
+      <div class="uxrt-cell uxrt-cell--thoughts"
+           data-phase="noche"
+           contenteditable="true"
+           data-field="thoughts">Otro dia de 17 horas. No puedo dejar de revisar el telefono porque puede haber una emergencia de maltrato. Mis hijos ya se acostumbraron a verme con el telefono en la mano. Manana sera igual.</div>
+
+      <!-- ── Frustrations Row ─────────────────────────────────────── -->
+      <div class="uxrt-row-label uxrt-row-label--frustrations">😤 Frustraciones</div>
+
+      <div class="uxrt-cell uxrt-cell--frustrations"
+           data-phase="madrugada"
+           contenteditable="true"
+           data-field="frustrations">El dia empieza con una avalancha de mensajes de WhatsApp sin estructura ni prioridad. No puede distinguir una emergencia real de un mensaje informativo. Su jornada laboral empieza antes de llegar al trabajo.</div>
+
+      <div class="uxrt-cell uxrt-cell--frustrations"
+           data-phase="inicio-jornada"
+           contenteditable="true"
+           data-field="frustrations">Llega a la oficina ya con carga mental acumulada del WhatsApp matutino. Los informes son manuales — redacta en Word y envia por email. La reunion es otro bloque de tiempo que no puede dedicar a operaciones. Incluso su break de cafe lo usa para responder WhatsApp.</div>
+
+      <div class="uxrt-cell uxrt-cell--frustrations"
+           data-phase="media-manana"
+           contenteditable="true"
+           data-field="frustrations">Mide el alcance de campanas de castracion contando likes de Facebook — no tiene metricas reales de impacto. Pide manualmente a contactos que reaccionen a publicaciones (engagement artificial). Los pagos a veterinaria son manuales. Las denuncias llegan por multiples canales sin centralizar. No puede demostrar ROI del presupuesto al concejo.</div>
+
+      <div class="uxrt-cell uxrt-cell--frustrations"
+           data-phase="tarde-laboral"
+           contenteditable="true"
+           data-field="frustrations">El proceso de VB (visto bueno) para uso de veterinaria es completamente manual via WhatsApp — la rescatista escribe, Marcela verifica legitimidad, avisa a la veterinaria, y otorga VB. Todo en chat. SENASA exige informes pero no tiene competencia real sobre animales domesticos (Ley 7451 obliga a municipalidades, no a SENASA). Estructura campanas de castracion manualmente sin herramientas de planificacion. Su almuerzo no es descanso — revisa WhatsApp.</div>
+
+      <div class="uxrt-cell uxrt-cell--frustrations"
+           data-phase="post-trabajo"
+           contenteditable="true"
+           data-field="frustrations">Despues de su horario laboral sigue trabajando — visita la veterinaria y responde WhatsApp en el transporte. No hay separacion entre trabajo y vida personal. La informacion de casos veterinarios la recibe verbalmente en visitas presenciales, no hay sistema digital.</div>
+
+      <div class="uxrt-cell uxrt-cell--frustrations"
+           data-phase="noche"
+           contenteditable="true"
+           data-field="frustrations">Su jornada laboral efectiva es de 5am a 10pm — 17 horas. Atiende emergencias desde su casa. Los quehaceres del hogar compiten con las responsabilidades laborales. No tiene sistema de guardia o delegacion — ella es el unico punto de contacto para emergencias. El ciclo se repite cada dia.</div>
+
+      <!-- ── Touchpoints Row ──────────────────────────────────────── -->
+      <div class="uxrt-row-label uxrt-row-label--touchpoints">📱 Touchpoints</div>
+
+      <div class="uxrt-cell uxrt-cell--touchpoints" data-phase="madrugada">
+        <span contenteditable="true"
+              data-field="touchpoints"
+              data-phase="madrugada"
+              title="Touchpoints (comma-separated)">WhatsApp (grupos de rescate, denuncias, castraciones), Celular personal, Agenda fisica/digital</span>
+        <span class="uxrt-touchpoints__channels-sep"
+              style="display:block;margin-top:4px;font-size:11px;color:#6680bb;"
+              data-phase="madrugada">
+          <span contenteditable="true"
+                data-field="channels"
+                data-phase="madrugada"
+                title="Channels (comma-separated)"></span>
+        </span>
+      </div>
+
+      <div class="uxrt-cell uxrt-cell--touchpoints" data-phase="inicio-jornada">
+        <span contenteditable="true"
+              data-field="touchpoints"
+              data-phase="inicio-jornada"
+              title="Touchpoints (comma-separated)">Correo electronico (Gmail), WhatsApp (grupos municipalidad), Agenda municipal, Reuniones presenciales, Word/documentos</span>
+        <span class="uxrt-touchpoints__channels-sep"
+              style="display:block;margin-top:4px;font-size:11px;color:#6680bb;"
+              data-phase="inicio-jornada">
+          <span contenteditable="true"
+                data-field="channels"
+                data-phase="inicio-jornada"
+                title="Channels (comma-separated)"></span>
+        </span>
+      </div>
+
+      <div class="uxrt-cell uxrt-cell--touchpoints" data-phase="media-manana">
+        <span contenteditable="true"
+              data-field="touchpoints"
+              data-phase="media-manana"
+              title="Touchpoints (comma-separated)">Facebook (pagina municipal), WhatsApp (mensajes individuales y grupos), Sistema de pagos municipal, Oficina de B.A. (presencial), Excel (tracking de denuncias)</span>
+        <span class="uxrt-touchpoints__channels-sep"
+              style="display:block;margin-top:4px;font-size:11px;color:#6680bb;"
+              data-phase="media-manana">
+          <span contenteditable="true"
+                data-field="channels"
+                data-phase="media-manana"
+                title="Channels (comma-separated)"></span>
+        </span>
+      </div>
+
+      <div class="uxrt-cell uxrt-cell--touchpoints" data-phase="tarde-laboral">
+        <span contenteditable="true"
+              data-field="touchpoints"
+              data-phase="tarde-laboral"
+              title="Touchpoints (comma-separated)">WhatsApp (consultas VB, grupos castraciones, particulares), Gmail, SENASA (coordinacion de informes), Veterinaria municipal, Excel (contabilidad/gastos), Documentos fisicos</span>
+        <span class="uxrt-touchpoints__channels-sep"
+              style="display:block;margin-top:4px;font-size:11px;color:#6680bb;"
+              data-phase="tarde-laboral">
+          <span contenteditable="true"
+                data-field="channels"
+                data-phase="tarde-laboral"
+                title="Channels (comma-separated)"></span>
+        </span>
+      </div>
+
+      <div class="uxrt-cell uxrt-cell--touchpoints" data-phase="post-trabajo">
+        <span contenteditable="true"
+              data-field="touchpoints"
+              data-phase="post-trabajo"
+              title="Touchpoints (comma-separated)">Veterinaria (visita presencial), WhatsApp (grupos muni + particulares), Transporte publico</span>
+        <span class="uxrt-touchpoints__channels-sep"
+              style="display:block;margin-top:4px;font-size:11px;color:#6680bb;"
+              data-phase="post-trabajo">
+          <span contenteditable="true"
+                data-field="channels"
+                data-phase="post-trabajo"
+                title="Channels (comma-separated)"></span>
+        </span>
+      </div>
+
+      <div class="uxrt-cell uxrt-cell--touchpoints" data-phase="noche">
+        <span contenteditable="true"
+              data-field="touchpoints"
+              data-phase="noche"
+              title="Touchpoints (comma-separated)">WhatsApp (emergencias), Telefono (llamadas de emergencia), Documentos fisicos (preparacion dia siguiente)</span>
+        <span class="uxrt-touchpoints__channels-sep"
+              style="display:block;margin-top:4px;font-size:11px;color:#6680bb;"
+              data-phase="noche">
+          <span contenteditable="true"
+                data-field="channels"
+                data-phase="noche"
+                title="Channels (comma-separated)"></span>
+        </span>
+      </div>
+
+      <!-- ── Opportunities Row ───────────────────────────────────── -->
+      <div class="uxrt-row-label uxrt-row-label--opportunities">💡 Oportunidades</div>
+
+      <div class="uxrt-cell uxrt-cell--opportunities"
+           data-phase="madrugada"
+           contenteditable="true"
+           data-field="opportunities">Dashboard centralizado de alertas nocturnas priorizadas por urgencia. Notificaciones inteligentes que separen emergencias de informacion general.</div>
+
+      <div class="uxrt-cell uxrt-cell--opportunities"
+           data-phase="inicio-jornada"
+           contenteditable="true"
+           data-field="opportunities">Generacion automatica de informes desde datos de la plataforma. Reduccion del tiempo en reuniones con dashboards compartidos en tiempo real.</div>
+
+      <div class="uxrt-cell uxrt-cell--opportunities"
+           data-phase="media-manana"
+           contenteditable="true"
+           data-field="opportunities">Panel de metricas de impacto real (animales rescatados, castraciones realizadas, denuncias resueltas) que reemplace las metricas de vanidad de Facebook. Automatizacion de pagos a veterinarias. Centralizacion de denuncias con tracking de estado.</div>
+
+      <div class="uxrt-cell uxrt-cell--opportunities"
+           data-phase="tarde-laboral"
+           contenteditable="true"
+           data-field="opportunities">Workflow digital de VB: rescatista solicita → sistema verifica → notifica a veterinaria → aprueba automaticamente si cumple criterios. Eliminaria el cuello de botella de Marcela como unico punto de aprobacion. Reportes automaticos para SENASA. Herramienta de planificacion de campanas de castracion.</div>
+
+      <div class="uxrt-cell uxrt-cell--opportunities"
+           data-phase="post-trabajo"
+           contenteditable="true"
+           data-field="opportunities">Informes veterinarios digitales que Marcela pueda revisar sin visitar fisicamente. Horario de atencion automatizado en WhatsApp que canalice consultas fuera de horario al sistema.</div>
+
+      <div class="uxrt-cell uxrt-cell--opportunities uxrt-cell--last-col-opportunities"
+           data-phase="noche"
+           contenteditable="true"
+           data-field="opportunities">Sistema de turnos/guardia para emergencias nocturnas entre equipo. Chatbot o sistema automatizado que reciba reportes de emergencia fuera de horario y los priorice para la manana. Separacion real entre vida personal y laboral.</div>
+
+    </div>
+    <!-- ── end .uxrt-grid ──────────────────────────────────────── -->
+
+    <!-- ── Pain Points Summary ─────────────────────────────────── -->
+    <div class="uxrt-pain-points">
+      <div class="uxrt-pain-points__header">🔥 Pain Points Principales</div>
+      <div class="uxrt-pain-points__grid">
+        <div class="uxrt-pain-points__item"
+             contenteditable="true"
+             data-field="analysis.pain_points[0]">WhatsApp es su herramienta principal para TODO: rescates, denuncias, castraciones, VB veterinaria, coordinacion municipal, particulares — sin estructura, prioridad ni trazabilidad</div>
+        <div class="uxrt-pain-points__item"
+             contenteditable="true"
+             data-field="analysis.pain_points[1]">Jornada efectiva de 17 horas (5am-10pm) sin separacion trabajo/vida personal — responde emergencias desde casa</div>
+        <div class="uxrt-pain-points__item"
+             contenteditable="true"
+             data-field="analysis.pain_points[2]">Mide impacto de campanas con likes de Facebook y pide manualmente a contactos que reaccionen — no tiene metricas reales para justificar presupuesto</div>
+        <div class="uxrt-pain-points__item"
+             contenteditable="true"
+             data-field="analysis.pain_points[3]">SENASA exige informes pero no tiene competencia sobre animales domesticos (Ley 7451) — toda la carga operativa recae en la municipalidad</div>
+        <div class="uxrt-pain-points__item"
+             contenteditable="true"
+             data-field="analysis.pain_points[4]">Proceso de VB veterinario es cuello de botella manual: rescatista → WhatsApp → Marcela verifica → avisa veterinaria → otorga VB</div>
+        <div class="uxrt-pain-points__item"
+             contenteditable="true"
+             data-field="analysis.pain_points[5]">Informes, reportes y contabilidad son manuales (Word, Excel, email) — no puede generar datos de impacto automaticamente</div>
+      </div>
+    </div>
+
+    <!-- ── Moments of Truth ────────────────────────────────────── -->
+    <div class="uxrt-moments">
+      <div class="uxrt-moments__header">⚡ Momentos de Verdad</div>
+      <div class="uxrt-moments__item">
+        <strong class="uxrt-moments__phase-ref"
+                contenteditable="true"
+                data-field="analysis.moments_of_truth[0].phase">media-manana</strong>
+        —
+        <span contenteditable="true"
+              data-field="analysis.moments_of_truth[0].description">Marcela mide el alcance de campanas de castracion contando likes de Facebook y pidiendo a contactos que reaccionen. Este es el dato que presenta al concejo para justificar presupuesto. Si no puede demostrar impacto, pierde financiamiento. Una plataforma que genere metricas reales de impacto (animales rescatados, castraciones, denuncias resueltas) transformaria su capacidad de negociacion presupuestaria.</span>
+      </div>
+      <div class="uxrt-moments__item">
+        <strong class="uxrt-moments__phase-ref"
+                contenteditable="true"
+                data-field="analysis.moments_of_truth[1].phase">tarde-laboral</strong>
+        —
+        <span contenteditable="true"
+              data-field="analysis.moments_of_truth[1].description">El proceso de VB para uso de veterinaria es el momento donde convergen rescatista, veterinaria y municipalidad. Marcela es el unico punto de aprobacion y lo hace via WhatsApp entre reuniones. Cada hora de retraso en el VB es una hora mas de sufrimiento animal. Automatizar este flujo eliminaria el cuello de botella mas critico de toda la cadena de rescate.</span>
+      </div>
+      <div class="uxrt-moments__item">
+        <strong class="uxrt-moments__phase-ref"
+                contenteditable="true"
+                data-field="analysis.moments_of_truth[2].phase">noche</strong>
+        —
+        <span contenteditable="true"
+              data-field="analysis.moments_of_truth[2].description">A las 10pm Marcela sigue alistando documentos y respondiendo emergencias. Su jornada de 17 horas no es sostenible a largo plazo — es un riesgo de burnout que amenaza todo el sistema de bienestar animal de Heredia, porque ella ES el sistema.</span>
+      </div>
+    </div>
+
+    <!-- Footer -->
+    <div class="uxrt-footer">
+      Generado por <strong>ux-research-toolkit</strong> · Experience Map (experience-map) · Basado en metodologia NN/g · <span contenteditable="true" data-field="meta.created">2026-04-08</span>
+    </div>
+
+  </div>
+
+  <!-- ── Editor Controls ─────────────────────────────────────── -->
+  <div class="uxrt-editor-controls" id="uxrt-editor-controls">
+    <button class="uxrt-editor-controls__btn uxrt-editor-controls__btn--save"
+            onclick="uxrtSaveJson()">💾 Save JSON</button>
+    <button class="uxrt-editor-controls__btn uxrt-editor-controls__btn--refresh"
+            onclick="uxrtRefreshJson()">🔄 Refresh from JSON</button>
+    <span class="uxrt-editor-controls__status" id="uxrt-status" aria-live="polite"></span>
+    <input type="file" id="uxrt-file-input" accept=".json,application/json"
+           style="display:none;" onchange="uxrtHandleFileInput(this)">
+  </div>
+
+  <script>
+  // ── Runtime data injected by renderer ──────────────────────────
+  window.__UXRT_META__ = {
+    "type": "experience-map",
+    "profile": "experience-map",
+    "variant": "day-in-the-life",
+    "title": "Un Dia en la Vida: Marcela Alvarado",
+    "created": "2026-04-08",
+    "updated": "2026-04-08",
+    "version": 1
+  };
+  window.__UXRT_PHASES__ = [
+    {
+      "id": "madrugada",
+      "label": "Madrugada (5-6 AM)",
+      "icon": "🌅",
+      "emotion": { "emoji": "😰", "label": "Abrumada", "level": 2 },
+      "actions": "Se levanta a las 5am. Se bana, se viste, desayuna. Revisa el celular y ve TODOS los mensajes acumulados de los grupos de WhatsApp de rescates, denuncias y castraciones. A las 6am toma su maletin y cartera, se dirige al trabajo revisando su agenda en el camino.",
+      "thoughts": "Ya hay 47 mensajes sin leer en los grupos de WhatsApp. Cuantas emergencias habran pasado en la noche? Tengo que priorizar antes de llegar a la oficina.",
+      "frustrations": "El dia empieza con una avalancha de mensajes de WhatsApp sin estructura ni prioridad. No puede distinguir una emergencia real de un mensaje informativo. Su jornada laboral empieza antes de llegar al trabajo.",
+      "touchpoints": ["WhatsApp (grupos de rescate, denuncias, castraciones)", "Celular personal", "Agenda fisica/digital"],
+      "channels": [],
+      "opportunities": "Dashboard centralizado de alertas nocturnas priorizadas por urgencia. Notificaciones inteligentes que separen emergencias de informacion general."
+    },
+    {
+      "id": "inicio-jornada",
+      "label": "Inicio de jornada (7-9 AM)",
+      "icon": "🏛️",
+      "emotion": { "emoji": "😐", "label": "Concentrada pero tensa", "level": 3 },
+      "actions": "Llega al trabajo a las 7am con la mente llena de cosas por hacer. Se sienta en su escritorio. Revisa la agenda y el plan de trabajo de la municipalidad. Revisa correos pendientes y los responde. Redacta informes. Asiste a una reunion. A las 9am toma sus 15 minutos de cafe y lee mensajes de WhatsApp de los grupos de la municipalidad.",
+      "thoughts": "Necesito preparar el informe para el concejo antes del viernes. La reunion de las 8 no deberia tardar tanto pero siempre se extiende. Cuantos correos pendientes tendre?",
+      "frustrations": "Llega a la oficina ya con carga mental acumulada del WhatsApp matutino. Los informes son manuales — redacta en Word y envia por email. La reunion es otro bloque de tiempo que no puede dedicar a operaciones. Incluso su break de cafe lo usa para responder WhatsApp.",
+      "touchpoints": ["Correo electronico (Gmail)", "WhatsApp (grupos municipalidad)", "Agenda municipal", "Reuniones presenciales", "Word/documentos"],
+      "channels": [],
+      "opportunities": "Generacion automatica de informes desde datos de la plataforma. Reduccion del tiempo en reuniones con dashboards compartidos en tiempo real."
+    },
+    {
+      "id": "media-manana",
+      "label": "Media manana (9:15 AM-12 MD)",
+      "icon": "📋",
+      "emotion": { "emoji": "😤", "label": "Frustrada", "level": 2 },
+      "actions": "Organiza el trabajo de sus subordinados. Entrega informes. Hace publicaciones en Facebook de la municipalidad. Coordina futuras visitas por denuncias de maltrato. Revisa pagos a veterinaria. Recibe denuncias y solicitudes de ayuda via oficina de B.A. Estudia resultados de publicaciones de Facebook — manda mensajes via WhatsApp pidiendo a contactos que vean y reaccionen a las publicaciones para medir alcance. Con eso justifica presupuesto para nuevas campanas de castracion. Estudia lugares y comunidades para proximas campanas.",
+      "thoughts": "La publicacion de Facebook solo tuvo 23 reacciones. No es suficiente para justificar presupuesto. Tengo que pedir a todos que compartan. Como demuestro impacto si mis metricas son likes de Facebook?",
+      "frustrations": "Mide el alcance de campanas de castracion contando likes de Facebook — no tiene metricas reales de impacto. Pide manualmente a contactos que reaccionen a publicaciones (engagement artificial). Los pagos a veterinaria son manuales. Las denuncias llegan por multiples canales sin centralizar. No puede demostrar ROI del presupuesto al concejo.",
+      "touchpoints": ["Facebook (pagina municipal)", "WhatsApp (mensajes individuales y grupos)", "Sistema de pagos municipal", "Oficina de B.A. (presencial)", "Excel (tracking de denuncias)"],
+      "channels": [],
+      "opportunities": "Panel de metricas de impacto real (animales rescatados, castraciones realizadas, denuncias resueltas) que reemplace las metricas de vanidad de Facebook. Automatizacion de pagos a veterinarias. Centralizacion de denuncias con tracking de estado."
+    },
+    {
+      "id": "tarde-laboral",
+      "label": "Tarde laboral (12:30-4 PM)",
+      "icon": "⚙️",
+      "emotion": { "emoji": "😓", "label": "Agotada", "level": 2 },
+      "actions": "Almuerza 30 min revisando WhatsApp. Vuelve a oficina: organiza futuras campanas de castracion, corrobora lugares de campanas, asiste a otra reunion. Coordina trabajos e informes con SENASA. Atiende visitas con dudas. Responde nuevos emails. A las 2:15pm (cafe de la tarde) revisa WhatsApp con consultas para VB de uso de veterinaria municipal. Corrobora que solicitudes sean legitimas. Avisa a la veterinaria del nuevo caso. Otorga el VB a la rescatista. Regresa a oficina: revisa citas calendarizadas, seguimiento de casos pendientes, revisa informes de gastos (contabilidad). Estructura campanas de castracion (fecha castracion, fecha perifoneo, fecha inscripcion/charla, lugar de cirugias). Organiza capacitaciones de rescatistas. Prepara documentacion para reuniones.",
+      "thoughts": "SENASA me pide informes pero ellos no hacen nada por los animales domesticos. Todo recae en mi. La rescatista necesita VB urgente para la veterinaria y yo estoy en reunion. Cuantos casos pendientes tendre sin revisar?",
+      "frustrations": "El proceso de VB (visto bueno) para uso de veterinaria es completamente manual via WhatsApp — la rescatista escribe, Marcela verifica legitimidad, avisa a la veterinaria, y otorga VB. Todo en chat. SENASA exige informes pero no tiene competencia real sobre animales domesticos (Ley 7451 obliga a municipalidades, no a SENASA). Estructura campanas de castracion manualmente sin herramientas de planificacion. Su almuerzo no es descanso — revisa WhatsApp.",
+      "touchpoints": ["WhatsApp (consultas VB, grupos castraciones, particulares)", "Gmail", "SENASA (coordinacion de informes)", "Veterinaria municipal", "Excel (contabilidad/gastos)", "Documentos fisicos"],
+      "channels": [],
+      "opportunities": "Workflow digital de VB: rescatista solicita → sistema verifica → notifica a veterinaria → aprueba automaticamente si cumple criterios. Eliminaria el cuello de botella de Marcela como unico punto de aprobacion. Reportes automaticos para SENASA. Herramienta de planificacion de campanas de castracion."
+    },
+    {
+      "id": "post-trabajo",
+      "label": "Post-trabajo (4-6 PM)",
+      "icon": "🚌",
+      "emotion": { "emoji": "😟", "label": "Preocupada", "level": 2 },
+      "actions": "Sale del trabajo a las 4pm. Visita la veterinaria para recibir informes de los casos referidos con VB. Hace algunas compras. Toma transporte para volver a su casa. En el camino responde a los grupos de WhatsApp de la municipalidad y a consultas de particulares.",
+      "thoughts": "Ya sali del trabajo pero sigo respondiendo WhatsApp. La veterinaria me dice que el caso del perro atropellado necesita cirugia costosa. De donde saco presupuesto? Tengo que responder a esta senora que pregunta por su denuncia de maltrato.",
+      "frustrations": "Despues de su horario laboral sigue trabajando — visita la veterinaria y responde WhatsApp en el transporte. No hay separacion entre trabajo y vida personal. La informacion de casos veterinarios la recibe verbalmente en visitas presenciales, no hay sistema digital.",
+      "touchpoints": ["Veterinaria (visita presencial)", "WhatsApp (grupos muni + particulares)", "Transporte publico"],
+      "channels": [],
+      "opportunities": "Informes veterinarios digitales que Marcela pueda revisar sin visitar fisicamente. Horario de atencion automatizado en WhatsApp que canalice consultas fuera de horario al sistema."
+    },
+    {
+      "id": "noche",
+      "label": "Noche (6-10 PM)",
+      "icon": "🌙",
+      "emotion": { "emoji": "😔", "label": "Resignada", "level": 1 },
+      "actions": "Regresa a su casa a las 6pm. Responde al WhatsApp. Se encarga de los quehaceres del hogar. Responde a llamados de emergencia. Alista documentos para el dia siguiente. A las 10pm cena y se acuesta.",
+      "thoughts": "Otro dia de 17 horas. No puedo dejar de revisar el telefono porque puede haber una emergencia de maltrato. Mis hijos ya se acostumbraron a verme con el telefono en la mano. Manana sera igual.",
+      "frustrations": "Su jornada laboral efectiva es de 5am a 10pm — 17 horas. Atiende emergencias desde su casa. Los quehaceres del hogar compiten con las responsabilidades laborales. No tiene sistema de guardia o delegacion — ella es el unico punto de contacto para emergencias. El ciclo se repite cada dia.",
+      "touchpoints": ["WhatsApp (emergencias)", "Telefono (llamadas de emergencia)", "Documentos fisicos (preparacion dia siguiente)"],
+      "channels": [],
+      "opportunities": "Sistema de turnos/guardia para emergencias nocturnas entre equipo. Chatbot o sistema automatizado que reciba reportes de emergencia fuera de horario y los priorice para la manana. Separacion real entre vida personal y laboral."
+    }
+  ];
+
+  /* ──────────────────────────────────────────────────────────────────
+     UX Research Toolkit — Editor Controls
+     Implements bidirectional sync between contenteditable DOM and JSON.
+  ────────────────────────────────────────────────────────────────── */
+
+  function uxrtSetDeep(obj, path, value) {
+    const parts = path.replace(/\[(\d+)\]/g, '.$1').split('.');
+    let cur = obj;
+    for (let i = 0; i < parts.length - 1; i++) {
+      const part = parts[i];
+      const nextIsIndex = /^\d+$/.test(parts[i + 1]);
+      if (cur[part] === undefined || cur[part] === null) {
+        cur[part] = nextIsIndex ? [] : {};
+      }
+      cur = cur[part];
+    }
+    const last = parts[parts.length - 1];
+    cur[last] = value;
+  }
+
+  function uxrtGetDeep(obj, path) {
+    const parts = path.replace(/\[(\d+)\]/g, '.$1').split('.');
+    let cur = obj;
+    for (const part of parts) {
+      if (cur === undefined || cur === null) return undefined;
+      cur = cur[part];
+    }
+    return cur;
+  }
+
+  function uxrtStatus(msg, isError) {
+    const el = document.getElementById('uxrt-status');
+    if (!el) return;
+    el.textContent = msg;
+    el.style.color = isError ? '#ff8a8a' : '#6bcb77';
+    clearTimeout(uxrtStatus._timer);
+    uxrtStatus._timer = setTimeout(() => { el.textContent = ''; }, 3000);
+  }
+
+  function uxrtBuildJson() {
+    const meta = Object.assign(
+      { type: '', profile: '', title: '', created: '', updated: '', version: 1 },
+      window.__UXRT_META__ || {}
+    );
+    meta.updated = new Date().toISOString().split('T')[0];
+
+    const persona = {};
+    const phasesMap = {};
+    const analysis = { pain_points: [], moments_of_truth: [] };
+
+    document.querySelectorAll('[contenteditable]').forEach(el => {
+      const field = el.dataset.field;
+      const phase = el.dataset.phase;
+      if (!field) return;
+      const text = el.innerText.trim();
+
+      if (phase) {
+        if (!phasesMap[phase]) phasesMap[phase] = { id: phase };
+        const p = phasesMap[phase];
+        if (field === 'label') { p.label = text; }
+        else if (field === 'emotion.emoji') { if (!p.emotion) p.emotion = {}; p.emotion.emoji = text; }
+        else if (field === 'emotion.label') { if (!p.emotion) p.emotion = {}; p.emotion.label = text; }
+        else if (field === 'emotion.level') { if (!p.emotion) p.emotion = {}; p.emotion.level = parseInt(el.dataset.level, 10) || 3; }
+        else if (field === 'actions') { p.actions = text; }
+        else if (field === 'thoughts') { p.thoughts = text; }
+        else if (field === 'frustrations') { p.frustrations = text; }
+        else if (field === 'opportunities') { p.opportunities = text; }
+        else if (field === 'touchpoints') { p.touchpoints = text.split(',').map(s => s.trim()).filter(Boolean); }
+        else if (field === 'channels') { p.channels = text.split(',').map(s => s.trim()).filter(Boolean); }
+      } else if (field.startsWith('persona.')) {
+        const key = field.slice('persona.'.length);
+        persona[key] = key === 'age' ? (parseInt(text, 10) || 0) : text;
+      } else if (field === 'meta.title') {
+        meta.title = text;
+      } else if (field === 'meta.created') {
+        meta.created = text;
+      } else if (field.startsWith('analysis.pain_points[')) {
+        const idx = parseInt(field.match(/\[(\d+)\]/)[1], 10);
+        analysis.pain_points[idx] = text;
+      } else if (field.startsWith('analysis.moments_of_truth[')) {
+        const match = field.match(/\[(\d+)\]\.(\w+)/);
+        if (match) {
+          const idx = parseInt(match[1], 10);
+          const key = match[2];
+          if (!analysis.moments_of_truth[idx]) analysis.moments_of_truth[idx] = {};
+          analysis.moments_of_truth[idx][key] = text;
+        }
+      }
+    });
+
+    document.querySelectorAll('[data-field="emotion.level"]').forEach(el => {
+      const phase = el.dataset.phase;
+      if (phase && phasesMap[phase]) {
+        if (!phasesMap[phase].emotion) phasesMap[phase].emotion = {};
+        phasesMap[phase].emotion.level = parseInt(el.dataset.level, 10) || 3;
+      }
+    });
+
+    const phaseOrder = [];
+    document.querySelectorAll('[data-phase]').forEach(el => {
+      const pid = el.dataset.phase;
+      if (pid && !phaseOrder.includes(pid)) phaseOrder.push(pid);
+    });
+
+    const phaseIconMap = {};
+    (window.__UXRT_PHASES__ || []).forEach(p => { if (p.id && p.icon) phaseIconMap[p.id] = p.icon; });
+
+    const phases = phaseOrder.map(pid => {
+      const p = phasesMap[pid] || { id: pid };
+      if (!p.icon && phaseIconMap[pid]) p.icon = phaseIconMap[pid];
+      return p;
+    });
+
+    analysis.pain_points = analysis.pain_points.filter(Boolean);
+    analysis.moments_of_truth = analysis.moments_of_truth.filter(Boolean);
+
+    return { meta, persona, phases, analysis };
+  }
+
+  async function uxrtSaveJson() {
+    const json = uxrtBuildJson();
+    const blob = new Blob([JSON.stringify(json, null, 2)], { type: 'application/json' });
+    const suggestedName = (json.meta.title || 'map').replace(/[^\w\s-]/g, '').trim().replace(/\s+/g, '-').toLowerCase() + '.json';
+
+    if (window.showSaveFilePicker) {
+      try {
+        const handle = await window.showSaveFilePicker({
+          suggestedName,
+          types: [{ description: 'JSON file', accept: { 'application/json': ['.json'] } }]
+        });
+        const writable = await handle.createWritable();
+        await writable.write(blob);
+        await writable.close();
+        uxrtStatus('Saved successfully ✓');
+      } catch (err) {
+        if (err.name !== 'AbortError') uxrtStatus('Save failed: ' + err.message, true);
+      }
+    } else {
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url; a.download = suggestedName;
+      document.body.appendChild(a); a.click(); document.body.removeChild(a);
+      setTimeout(() => URL.revokeObjectURL(url), 10000);
+      uxrtStatus('Downloaded as ' + suggestedName + ' ✓');
+    }
+  }
+
+  async function uxrtRefreshJson() {
+    if (window.showOpenFilePicker) {
+      try {
+        const [handle] = await window.showOpenFilePicker({
+          types: [{ description: 'JSON file', accept: { 'application/json': ['.json'] } }],
+          multiple: false
+        });
+        const file = await handle.getFile();
+        const text = await file.text();
+        uxrtApplyJson(JSON.parse(text));
+      } catch (err) {
+        if (err.name !== 'AbortError') uxrtStatus('Load failed: ' + err.message, true);
+      }
+    } else {
+      document.getElementById('uxrt-file-input').click();
+    }
+  }
+
+  function uxrtHandleFileInput(input) {
+    const file = input.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = e => {
+      try { uxrtApplyJson(JSON.parse(e.target.result)); }
+      catch (err) { uxrtStatus('Invalid JSON: ' + err.message, true); }
+    };
+    reader.readAsText(file);
+    input.value = '';
+  }
+
+  function uxrtApplyJson(data) {
+    if (!data || typeof data !== 'object') { uxrtStatus('Invalid data structure', true); return; }
+
+    function set(field, phase, value) {
+      if (value === undefined || value === null) return;
+      const selector = phase
+        ? `[contenteditable][data-field="${CSS.escape(field)}"][data-phase="${CSS.escape(phase)}"]`
+        : `[contenteditable][data-field="${CSS.escape(field)}"]`;
+      document.querySelectorAll(selector).forEach(el => { el.innerText = String(value); });
+    }
+
+    if (data.meta) {
+      set('meta.title', null, data.meta.title);
+      set('meta.created', null, data.meta.created);
+      window.__UXRT_META__ = Object.assign(window.__UXRT_META__ || {}, data.meta);
+    }
+    if (data.persona) {
+      ['name', 'age', 'role', 'location', 'avatar_emoji', 'primary_pain', 'context'].forEach(key => {
+        set('persona.' + key, null, data.persona[key]);
+      });
+    }
+    if (Array.isArray(data.phases)) {
+      data.phases.forEach(phase => {
+        const pid = phase.id;
+        if (!pid) return;
+        set('label', pid, phase.label);
+        if (phase.emotion) {
+          set('emotion.emoji', pid, phase.emotion.emoji);
+          set('emotion.label', pid, phase.emotion.label);
+          if (phase.emotion.level) {
+            const lvl = phase.emotion.level;
+            const colors = { 1: '#ff6b6b', 2: '#ffa07a', 3: '#ffd93d', 4: '#90ee90', 5: '#6bcb77' };
+            const color = colors[lvl] || '#ffd93d';
+            const width = (lvl / 5 * 100) + '%';
+            document.querySelectorAll(`[data-field="emotion.level"][data-phase="${CSS.escape(pid)}"]`).forEach(el => {
+              el.dataset.level = lvl;
+              el.style.width = width;
+              el.style.background = color;
+              const labelEl = el.closest('.uxrt-emotion-cell')?.querySelector('[data-field="emotion.label"]');
+              if (labelEl) labelEl.style.color = color;
+            });
+          }
+        }
+        set('actions', pid, phase.actions);
+        set('thoughts', pid, phase.thoughts);
+        set('frustrations', pid, phase.frustrations);
+        set('opportunities', pid, phase.opportunities);
+        if (Array.isArray(phase.touchpoints)) set('touchpoints', pid, phase.touchpoints.join(', '));
+        if (Array.isArray(phase.channels)) set('channels', pid, phase.channels.join(', '));
+      });
+    }
+    if (data.analysis) {
+      if (Array.isArray(data.analysis.pain_points)) {
+        data.analysis.pain_points.forEach((pp, i) => set('analysis.pain_points[' + i + ']', null, pp));
+      }
+      if (Array.isArray(data.analysis.moments_of_truth)) {
+        data.analysis.moments_of_truth.forEach((mot, i) => {
+          set('analysis.moments_of_truth[' + i + '].phase', null, mot.phase);
+          set('analysis.moments_of_truth[' + i + '].description', null, mot.description);
+        });
+      }
+    }
+    uxrtStatus('Loaded from file ✓');
+  }
+  </script>
+</body>
+</html>

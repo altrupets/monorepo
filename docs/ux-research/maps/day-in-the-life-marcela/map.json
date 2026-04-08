@@ -1,0 +1,137 @@
+{
+  "meta": {
+    "type": "experience-map",
+    "profile": "experience-map",
+    "variant": "day-in-the-life",
+    "title": "Un Dia en la Vida: Marcela Alvarado",
+    "created": "2026-04-08",
+    "updated": "2026-04-08",
+    "version": 1
+  },
+  "persona": {
+    "name": "Marcela Alvarado",
+    "age": 42,
+    "role": "Encargada de Bienestar Animal — Municipalidad de Heredia",
+    "location": "Heredia, Costa Rica",
+    "avatar_emoji": "👩‍💼",
+    "primary_pain": "Coordina rescates, denuncias, castraciones, presupuestos y SENASA desde WhatsApp y Excel — sin herramientas digitales integradas, trabaja de 5am a 10pm",
+    "context": "Funcionaria municipal responsable de bienestar animal bajo Ley 7451. SENASA no tiene injerencia en animales domesticos — toda la carga operativa recae en ella y su oficina."
+  },
+  "phases": [
+    {
+      "id": "madrugada",
+      "label": "Madrugada (5-6 AM)",
+      "icon": "🌅",
+      "emotion": {
+        "emoji": "😰",
+        "label": "Abrumada",
+        "level": 2
+      },
+      "actions": "Se levanta a las 5am. Se bana, se viste, desayuna. Revisa el celular y ve TODOS los mensajes acumulados de los grupos de WhatsApp de rescates, denuncias y castraciones. A las 6am toma su maletin y cartera, se dirige al trabajo revisando su agenda en el camino.",
+      "thoughts": "Ya hay 47 mensajes sin leer en los grupos de WhatsApp. Cuantas emergencias habran pasado en la noche? Tengo que priorizar antes de llegar a la oficina.",
+      "frustrations": "El dia empieza con una avalancha de mensajes de WhatsApp sin estructura ni prioridad. No puede distinguir una emergencia real de un mensaje informativo. Su jornada laboral empieza antes de llegar al trabajo.",
+      "touchpoints": ["WhatsApp (grupos de rescate, denuncias, castraciones)", "Celular personal", "Agenda fisica/digital"],
+      "opportunities": "Dashboard centralizado de alertas nocturnas priorizadas por urgencia. Notificaciones inteligentes que separen emergencias de informacion general."
+    },
+    {
+      "id": "inicio-jornada",
+      "label": "Inicio de jornada (7-9 AM)",
+      "icon": "🏛️",
+      "emotion": {
+        "emoji": "😐",
+        "label": "Concentrada pero tensa",
+        "level": 3
+      },
+      "actions": "Llega al trabajo a las 7am con la mente llena de cosas por hacer. Se sienta en su escritorio. Revisa la agenda y el plan de trabajo de la municipalidad. Revisa correos pendientes y los responde. Redacta informes. Asiste a una reunion. A las 9am toma sus 15 minutos de cafe y lee mensajes de WhatsApp de los grupos de la municipalidad.",
+      "thoughts": "Necesito preparar el informe para el concejo antes del viernes. La reunion de las 8 no deberia tardar tanto pero siempre se extiende. Cuantos correos pendientes tendre?",
+      "frustrations": "Llega a la oficina ya con carga mental acumulada del WhatsApp matutino. Los informes son manuales — redacta en Word y envia por email. La reunion es otro bloque de tiempo que no puede dedicar a operaciones. Incluso su break de cafe lo usa para responder WhatsApp.",
+      "touchpoints": ["Correo electronico (Gmail)", "WhatsApp (grupos municipalidad)", "Agenda municipal", "Reuniones presenciales", "Word/documentos"],
+      "opportunities": "Generacion automatica de informes desde datos de la plataforma. Reduccion del tiempo en reuniones con dashboards compartidos en tiempo real."
+    },
+    {
+      "id": "media-manana",
+      "label": "Media manana (9:15 AM-12 MD)",
+      "icon": "📋",
+      "emotion": {
+        "emoji": "😤",
+        "label": "Frustrada",
+        "level": 2
+      },
+      "actions": "Organiza el trabajo de sus subordinados. Entrega informes. Hace publicaciones en Facebook de la municipalidad. Coordina futuras visitas por denuncias de maltrato. Revisa pagos a veterinaria. Recibe denuncias y solicitudes de ayuda via oficina de B.A. Estudia resultados de publicaciones de Facebook — manda mensajes via WhatsApp pidiendo a contactos que vean y reaccionen a las publicaciones para medir alcance. Con eso justifica presupuesto para nuevas campanas de castracion. Estudia lugares y comunidades para proximas campanas.",
+      "thoughts": "La publicacion de Facebook solo tuvo 23 reacciones. No es suficiente para justificar presupuesto. Tengo que pedir a todos que compartan. Como demuestro impacto si mis metricas son likes de Facebook?",
+      "frustrations": "Mide el alcance de campanas de castracion contando likes de Facebook — no tiene metricas reales de impacto. Pide manualmente a contactos que reaccionen a publicaciones (engagement artificial). Los pagos a veterinaria son manuales. Las denuncias llegan por multiples canales sin centralizar. No puede demostrar ROI del presupuesto al concejo.",
+      "touchpoints": ["Facebook (pagina municipal)", "WhatsApp (mensajes individuales y grupos)", "Sistema de pagos municipal", "Oficina de B.A. (presencial)", "Excel (tracking de denuncias)"],
+      "opportunities": "Panel de metricas de impacto real (animales rescatados, castraciones realizadas, denuncias resueltas) que reemplace las metricas de vanidad de Facebook. Automatizacion de pagos a veterinarias. Centralizacion de denuncias con tracking de estado."
+    },
+    {
+      "id": "tarde-laboral",
+      "label": "Tarde laboral (12:30-4 PM)",
+      "icon": "⚙️",
+      "emotion": {
+        "emoji": "😓",
+        "label": "Agotada",
+        "level": 2
+      },
+      "actions": "Almuerza 30 min revisando WhatsApp. Vuelve a oficina: organiza futuras campanas de castracion, corrobora lugares de campanas, asiste a otra reunion. Coordina trabajos e informes con SENASA. Atiende visitas con dudas. Responde nuevos emails. A las 2:15pm (cafe de la tarde) revisa WhatsApp con consultas para VB de uso de veterinaria municipal. Corrobora que solicitudes sean legitimas. Avisa a la veterinaria del nuevo caso. Otorga el VB a la rescatista. Regresa a oficina: revisa citas calendarizadas, seguimiento de casos pendientes, revisa informes de gastos (contabilidad). Estructura campanas de castracion (fecha castracion, fecha perifoneo, fecha inscripcion/charla, lugar de cirugias). Organiza capacitaciones de rescatistas. Prepara documentacion para reuniones.",
+      "thoughts": "SENASA me pide informes pero ellos no hacen nada por los animales domesticos. Todo recae en mi. La rescatista necesita VB urgente para la veterinaria y yo estoy en reunion. Cuantos casos pendientes tendre sin revisar?",
+      "frustrations": "El proceso de VB (visto bueno) para uso de veterinaria es completamente manual via WhatsApp — la rescatista escribe, Marcela verifica legitimidad, avisa a la veterinaria, y otorga VB. Todo en chat. SENASA exige informes pero no tiene competencia real sobre animales domesticos (Ley 7451 obliga a municipalidades, no a SENASA). Estructura campanas de castracion manualmente sin herramientas de planificacion. Su almuerzo no es descanso — revisa WhatsApp.",
+      "touchpoints": ["WhatsApp (consultas VB, grupos castraciones, particulares)", "Gmail", "SENASA (coordinacion de informes)", "Veterinaria municipal", "Excel (contabilidad/gastos)", "Documentos fisicos"],
+      "opportunities": "Workflow digital de VB: rescatista solicita → sistema verifica → notifica a veterinaria → aprueba automaticamente si cumple criterios. Eliminaria el cuello de botella de Marcela como unico punto de aprobacion. Reportes automaticos para SENASA. Herramienta de planificacion de campanas de castracion."
+    },
+    {
+      "id": "post-trabajo",
+      "label": "Post-trabajo (4-6 PM)",
+      "icon": "🚌",
+      "emotion": {
+        "emoji": "😟",
+        "label": "Preocupada",
+        "level": 2
+      },
+      "actions": "Sale del trabajo a las 4pm. Visita la veterinaria para recibir informes de los casos referidos con VB. Hace algunas compras. Toma transporte para volver a su casa. En el camino responde a los grupos de WhatsApp de la municipalidad y a consultas de particulares.",
+      "thoughts": "Ya sali del trabajo pero sigo respondiendo WhatsApp. La veterinaria me dice que el caso del perro atropellado necesita cirugia costosa. De donde saco presupuesto? Tengo que responder a esta senora que pregunta por su denuncia de maltrato.",
+      "frustrations": "Despues de su horario laboral sigue trabajando — visita la veterinaria y responde WhatsApp en el transporte. No hay separacion entre trabajo y vida personal. La informacion de casos veterinarios la recibe verbalmente en visitas presenciales, no hay sistema digital.",
+      "touchpoints": ["Veterinaria (visita presencial)", "WhatsApp (grupos muni + particulares)", "Transporte publico"],
+      "opportunities": "Informes veterinarios digitales que Marcela pueda revisar sin visitar fisicamente. Horario de atencion automatizado en WhatsApp que canalice consultas fuera de horario al sistema."
+    },
+    {
+      "id": "noche",
+      "label": "Noche (6-10 PM)",
+      "icon": "🌙",
+      "emotion": {
+        "emoji": "😔",
+        "label": "Resignada",
+        "level": 1
+      },
+      "actions": "Regresa a su casa a las 6pm. Responde al WhatsApp. Se encarga de los quehaceres del hogar. Responde a llamados de emergencia. Alista documentos para el dia siguiente. A las 10pm cena y se acuesta.",
+      "thoughts": "Otro dia de 17 horas. No puedo dejar de revisar el telefono porque puede haber una emergencia de maltrato. Mis hijos ya se acostumbraron a verme con el telefono en la mano. Manana sera igual.",
+      "frustrations": "Su jornada laboral efectiva es de 5am a 10pm — 17 horas. Atiende emergencias desde su casa. Los quehaceres del hogar compiten con las responsabilidades laborales. No tiene sistema de guardia o delegacion — ella es el unico punto de contacto para emergencias. El ciclo se repite cada dia.",
+      "touchpoints": ["WhatsApp (emergencias)", "Telefono (llamadas de emergencia)", "Documentos fisicos (preparacion dia siguiente)"],
+      "opportunities": "Sistema de turnos/guardia para emergencias nocturnas entre equipo. Chatbot o sistema automatizado que reciba reportes de emergencia fuera de horario y los priorice para la manana. Separacion real entre vida personal y laboral."
+    }
+  ],
+  "analysis": {
+    "pain_points": [
+      "WhatsApp es su herramienta principal para TODO: rescates, denuncias, castraciones, VB veterinaria, coordinacion municipal, particulares — sin estructura, prioridad ni trazabilidad",
+      "Jornada efectiva de 17 horas (5am-10pm) sin separacion trabajo/vida personal — responde emergencias desde casa",
+      "Mide impacto de campanas con likes de Facebook y pide manualmente a contactos que reaccionen — no tiene metricas reales para justificar presupuesto",
+      "SENASA exige informes pero no tiene competencia sobre animales domesticos (Ley 7451) — toda la carga operativa recae en la municipalidad",
+      "Proceso de VB veterinario es cuello de botella manual: rescatista → WhatsApp → Marcela verifica → avisa veterinaria → otorga VB",
+      "Informes, reportes y contabilidad son manuales (Word, Excel, email) — no puede generar datos de impacto automaticamente"
+    ],
+    "moments_of_truth": [
+      {
+        "phase": "media-manana",
+        "description": "Marcela mide el alcance de campanas de castracion contando likes de Facebook y pidiendo a contactos que reaccionen. Este es el dato que presenta al concejo para justificar presupuesto. Si no puede demostrar impacto, pierde financiamiento. Una plataforma que genere metricas reales de impacto (animales rescatados, castraciones, denuncias resueltas) transformaria su capacidad de negociacion presupuestaria."
+      },
+      {
+        "phase": "tarde-laboral",
+        "description": "El proceso de VB para uso de veterinaria es el momento donde convergen rescatista, veterinaria y municipalidad. Marcela es el unico punto de aprobacion y lo hace via WhatsApp entre reuniones. Cada hora de retraso en el VB es una hora mas de sufrimiento animal. Automatizar este flujo eliminaria el cuello de botella mas critico de toda la cadena de rescate."
+      },
+      {
+        "phase": "noche",
+        "description": "A las 10pm Marcela sigue alistando documentos y respondiendo emergencias. Su jornada de 17 horas no es sostenible a largo plazo — es un riesgo de burnout que amenaza todo el sistema de bienestar animal de Heredia, porque ella ES el sistema."
+      }
+    ],
+    "recommended_next_map": "customer-journey-map"
+  }
+}
