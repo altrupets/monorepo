@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:altrupets_ui/altrupets_ui.dart';
-import '../disbursements/widgets/kpi_card.dart';
 import 'models/campaign_model.dart';
 import 'models/mock_data.dart';
 import 'widgets/campaign_card.dart';
@@ -115,8 +114,8 @@ class _CampaignsPageState extends State<CampaignsPage> {
             valueColor: AltruPetsTokens.success,
             icon: '\uD83D\uDC3E', // paw
             iconBgColor: AltruPetsTokens.successBg,
-            detail: '\u2191 12% vs trimestre anterior',
-            detailColor: AltruPetsTokens.success,
+            trend: '\u2191 12% vs trimestre anterior',
+            trendColor: AltruPetsTokens.success,
           ),
         ),
         const SizedBox(width: 10),
@@ -126,7 +125,7 @@ class _CampaignsPageState extends State<CampaignsPage> {
             value: m.formattedAvgCost,
             icon: '\uD83D\uDCB0', // money bag
             iconBgColor: AltruPetsTokens.warningBg,
-            detail: 'Presupuesto actual',
+            subtitle: 'Presupuesto actual',
           ),
         ),
         const SizedBox(width: 10),
@@ -136,8 +135,8 @@ class _CampaignsPageState extends State<CampaignsPage> {
             value: '${m.communitiesCovered}/${m.communitiesTotal}',
             icon: '\uD83C\uDFE0', // house
             iconBgColor: AltruPetsTokens.infoBg,
-            detail: '${((m.communitiesCovered / m.communitiesTotal) * 100).toStringAsFixed(0)}% cobertura',
-            progressPercent: (m.communitiesCovered / m.communitiesTotal) * 100,
+            subtitle: '${((m.communitiesCovered / m.communitiesTotal) * 100).toStringAsFixed(0)}% cobertura',
+            progress: m.communitiesCovered / m.communitiesTotal,
             progressColor: AltruPetsTokens.info,
           ),
         ),
@@ -148,7 +147,7 @@ class _CampaignsPageState extends State<CampaignsPage> {
             value: '${m.daysUntilNextCampaign}d',
             icon: '\uD83D\uDCC5', // calendar
             iconBgColor: AltruPetsTokens.infoBg,
-            detail: 'San Rafael de Heredia',
+            subtitle: 'San Rafael de Heredia',
           ),
         ),
       ],
