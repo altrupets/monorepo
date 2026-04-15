@@ -249,6 +249,11 @@ bootstrap-dev: ## Full setup with GitOps/ArgoCD and Harbor Registry
 # DEV - Minikube
 # ==========================================
 
+images-pull: ## Pull all third-party container images required by minikube/k8s (run after `podman system prune`)
+	podman pull gcr.io/k8s-minikube/kicbase:v0.0.50
+	@echo "$(YELLOW)Note: local images (altrupets-backend, web-b2g, web-superusers, agent-sidecar)"
+	@echo "      must be rebuilt via their respective build targets after a full prune.$(NC)"
+
 dev-minikube-deploy: ## Create minikube cluster
 	@$(SCRIPTS_DIR)/start-minikube.sh
 
