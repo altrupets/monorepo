@@ -204,6 +204,7 @@ stitch_assets/*/
 !.gitkeep
 
 .claude/worktrees/
+.claude/settings.local.json
 
 # wrangler files
 .wrangler
