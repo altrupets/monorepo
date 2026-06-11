@@ -14,6 +14,8 @@ dependencies:
   material_color_utilities: ^0.13.0
   altrupets:
     path: ../mobile
+  altrupets_ui:
+    path: ../../packages/altrupets_ui
   google_fonts: ^8.0.2
 
 dev_dependencies:
