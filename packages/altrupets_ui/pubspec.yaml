@@ -12,6 +12,11 @@ dependencies:
   flutter:
     sdk: flutter
   google_fonts: ">=6.2.1 <9.0.0"
+  shared_ui_core:
+    git:
+      url: https://github.com/chimeranext/flutter_shared_ui
+      path: packages/shared_ui_core
+      ref: main
 
 dev_dependencies:
   flutter_test:
@@ -20,3 +25,5 @@ dev_dependencies:
 
 flutter:
   uses-material-design: true
+  assets:
+    - assets/style_dictionary/tokens.json

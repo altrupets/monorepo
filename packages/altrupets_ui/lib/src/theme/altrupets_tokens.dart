@@ -1,6 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:shared_ui_core/shared_ui_core.dart';
 
 /// AltruPets design tokens — colors, spacing, and typography constants.
+///
+/// Canonical visual values mirror `assets/style_dictionary/tokens.json`
+/// (brand primary #094F72, Poppins/Lemon Milk/Inter families). The hardcoded
+/// constants below are the visual source of truth and are used as fallbacks;
+/// call [initialize] at startup to load the canonical `DesignTokenModel` via
+/// [TokensReader] (same pattern as `vertivolatam_ui`'s `VertivoTokens`).
 abstract class AltruPetsTokens {
   // ─── Brand Colors ───
   static const Color primary = Color(0xFF094F72);
@@ -46,4 +53,43 @@ abstract class AltruPetsTokens {
   static const double radiusMd = 8;
   static const double radiusLg = 10;
   static const double radiusXl = 12;
+
+  // ─── Shared-core token model (optional, loaded at startup) ───
+  static DesignTokenModel? _tokens;
+
+  /// Load the canonical tokens via [TokensReader] (app-local first,
+  /// package fallback). Visuals are unchanged: the bundled tokens.json
+  /// carries the same values as the constants above.
+  static Future<void> initialize() async {
+    _tokens ??= await TokensReader.load([
+      'assets/style_dictionary/tokens.json',
+      'packages/altrupets_ui/assets/style_dictionary/tokens.json',
+    ]);
+  }
+
+  /// Override for tests / previews.
+  @visibleForTesting
+  static void debugSetTokens(DesignTokenModel tokens) => _tokens = tokens;
+
+  /// The loaded token model. Throws if [initialize] was not awaited.
+  static DesignTokenModel get tokens {
+    final t = _tokens;
+    if (t == null) {
+      throw StateError('AltruPetsTokens.initialize() must be awaited first');
+    }
+    return t;
+  }
+
+  static bool get isLoaded => _tokens != null;
+
+  /// Token-backed brand primary (falls back to [primary] before init).
+  static Color get brandPrimary => _tokens?.brand.primary ?? primary;
+
+  /// Token-backed primary font family (falls back to 'Poppins').
+  static String get primaryFamily =>
+      _tokens?.typography.primaryFamily ?? 'Poppins';
+
+  /// Token-backed header font family (falls back to 'Lemon Milk').
+  static String get headerFamily =>
+      _tokens?.typography.headerFamily ?? 'Lemon Milk';
 }
