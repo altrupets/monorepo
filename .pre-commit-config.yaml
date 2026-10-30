@@ -1,20 +1,23 @@
-# Pre-commit hooks for AltruPets monorepo
-# Install: pip install pre-commit && pre-commit install
+# Pre-commit hooks (canonical) — see PCH doctrine.
+# Install with a HEALTHY python: pre-commit install
 
 exclude: |
   (?x)^(
-    apps/backend/dist/|
-    apps/mobile/build/|
-    apps/mobile/.dart_tool/|
-    apps/mobile/web/manifest\.json|
+    dist/|
+    build/|
     node_modules/|
+    .dart_tool/|
+    .venv/|
     .*\.log$|
     logs/|
-    scripts/logs/
+    apps/.*/dist/|
+    apps/.*/build/|
+    apps/.*/.dart_tool/|
+    apps/.*/.venv/
   )
 
 repos:
-  # Validate Mermaid diagrams
+  # Validate Mermaid diagrams (shared script)
   - repo: local
     hooks:
       - id: mermaid-syntax
@@ -25,7 +28,7 @@ repos:
         types: [markdown]
         pass_filenames: false
 
-  # Check for large files
+  # Standard pre-commit hooks
   - repo: https://github.com/pre-commit/pre-commit-hooks
     rev: v4.6.0
     hooks:
@@ -34,8 +37,7 @@ repos:
       - id: trailing-whitespace
       - id: end-of-file-fixer
 
-  # Conventional Commits
-  # https://gist.github.com/qoomon/5dfcdf8eec66a051ecd85625518cfd13
+  # Conventional Commits (CvC)
   - repo: https://github.com/compilerla/conventional-pre-commit
     rev: v4.0.0
     hooks:
